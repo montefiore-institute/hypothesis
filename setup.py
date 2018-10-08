@@ -30,7 +30,7 @@ _parameters = {
     "license": "BSD",
     "name": "cag",
     "packages": packages,
-    "platform", "any",
+    "platform": "any",
     "url": "https://github.com/montefiore-ai/cag/",
     "version": _version
 }
