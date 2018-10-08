@@ -15,3 +15,6 @@ class Simulator(torch.nn.Module):
 
     def forward(self, thetas):
         raise NotImplementedError
+
+    def terminate(self):
+        raise NotImplementedError
