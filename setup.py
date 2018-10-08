@@ -26,7 +26,7 @@ _install_requires = [
 ]
 
 _parameters = {
-    "install_requires": _install_requires
+    "install_requires": _install_requires,
     "license": "BSD",
     "name": "cag",
     "packages": packages,
