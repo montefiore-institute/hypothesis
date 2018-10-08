@@ -47,3 +47,12 @@ class MeanBaseline(Baseline):
             baselines = torch.cat(baselines, dim=1)
 
         return baselines
+
+
+class OptimalBaseline(Baseline):
+
+    def __init__(self, discriminator):
+        self._discriminator = discriminator
+
+    def apply(self, gradients, x):
+        raise NotImplementedError
