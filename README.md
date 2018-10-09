@@ -28,10 +28,6 @@ TODO
 
 TODO
 
-### INFERNO
-
-TODO
-
 ### MCMC
 
 TODO
