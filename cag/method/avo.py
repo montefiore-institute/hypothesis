@@ -116,7 +116,7 @@ class AdversarialVariationalOptimization(Method):
     def infer(self, x_o, num_steps=1000):
         self._reset()
 
-        for iteration in range(num_iterations):
+        for iteration in range(num_steps):
             self.step(x_o)
 
         return self.proposal.clone()

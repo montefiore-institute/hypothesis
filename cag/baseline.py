@@ -55,22 +55,23 @@ class OptimalBaseline(Baseline):
         self._discriminator = discriminator
 
     def apply(self, gradients, x):
-        baselines = []
-
         with torch.no_grad():
-            batch_size = gradients.size(0)
-            numerator = torch.zeros_like(gradients[0])
-            denominator = torch.zeros_like(gradients[0])
+            batch_size = x.size(0)
+            numerator = torch.zeros_like(torch.tensor(gradients[0]))
+            denominator = torch.zeros_like(torch.tensor(gradients[0]))
             y = (1 - self._discriminator(x)).log()
             for index, gradient in enumerate(gradients):
                 for pg_index, pg in enumerate(gradients[index]):
                     pg2 = pg.pow(2)
-                    y_theta = y[index]
+                    y_theta = y[index].squeeze()
                     numerator[pg_index] += pg2 * y_theta
                     denominator[pg_index] += pg2
             numerator /= batch_size
             denominator /= batch_size
             b = numerator / denominator
-            # TODO Implement
+            baselines = torch.zeros(batch_size, b.size(0))
+            for index in range(batch_size):
+                for p_index in range(len(gradients[0])):
+                    baselines[index][p_index] = (b[p_index] - y[index])
 
         return baselines
