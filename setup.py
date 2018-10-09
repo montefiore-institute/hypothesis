@@ -10,7 +10,18 @@ import sys
 from setuptools import find_packages
 from setuptools import setup
 
-packages = find_packages(exclude=["doc", "examples"])
+"""Configuration"""
+include_extensions=True
+include_benchmarks=True
+
+
+exclusions=["doc", "examples"]
+if not include_extensions:
+    exclusions.append("cag/extension")
+if not include_benchmarks:
+    exclusions.append("cag/benchmark")
+
+packages = find_packages(exclude=exclusions)
 
 # Get the version string of cag.
 with open(os.path.join("cag", "__init__.py"), "rt") as fh:
