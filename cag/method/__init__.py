@@ -1,3 +1,4 @@
 """"""
 
-from avo import AdversarialVariationalOptimization
+from .method import Method
+from .avo import AdversarialVariationalOptimization

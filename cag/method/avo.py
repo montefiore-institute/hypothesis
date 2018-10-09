@@ -2,9 +2,10 @@
 Adversarial Variational Optimization
 """
 
-import cag.baseline
-import cag.method
+import torch
 
+from cag.baseline import OptimalBaseline
+from cag.method import Method
 from cag.util import sample
 
 
@@ -33,7 +34,7 @@ class AdversarialVariationalOptimization(Method):
                  batch_size=32,
                  r1_regularization=10.,
                  baseline=None):
-        super(self, AdversarialVariationalOptimization).__init__(simulator)
+        super(AdversarialVariationalOptimization, self).__init__(simulator)
         self.discriminator = discriminator
         self.proposal = proposal
         self.batch_size = batch_size

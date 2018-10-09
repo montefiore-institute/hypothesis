@@ -60,17 +60,17 @@ class TruncatedProposal(Proposal):
 
 class NormalProposal(Proposal):
 
-    def __init__(self, mu, sigma):
-        self._mu = torch.tensor(mu).float()
+    def __init__(self, mu=0., sigma=1.):
+        self._mu = torch.tensor(mu).float().view(-1)
         self._mu.requires_grad = True
-        self._sigma = torch.tensor(sigma).float()
+        self._sigma = torch.tensor(sigma).float().view(-1)
         self._sigma.requires_grad = True
-        self._parameters = [self._mean, self._sigma]
-        self._distribution = Normal(self._mean, self._sigma)
+        self._parameters = [self._mu, self._sigma]
+        self._distribution = Normal(self._mu, self._sigma)
 
     def clone(self):
         with torch.no_grad():
-            proposal = NormalProposal(self._mean, self._sigma)
+            proposal = NormalProposal(self._mu, self._sigma)
 
         return proposal
 
@@ -91,16 +91,16 @@ class NormalProposal(Proposal):
 class MultivariateNormal(Proposal):
 
     def __init__(self, mu, sigma):
-        self._mean = torch.tensor(mu).float()
-        self._mean.requires_grad = True
+        self._mu = torch.tensor(mu).float()
+        self._mu.requires_grad = True
         self._sigma = torch.tensor(sigma).float()
         self._sigma.requires_grad = True
-        self._parameters = [self._mean, self._sigma]
-        self._distribution = MultivariateNormal(self._mean, self._sigma)
+        self._parameters = [self._mu, self._sigma]
+        self._distribution = MultivariateNormal(self._mu, self._sigma)
 
     def clone(self):
         with torch.no_grad():
-            proposal = MeanProposal(self._mean, self._sigma)
+            proposal = MeanProposal(self._mu, self._sigma)
 
         return proposal
 
