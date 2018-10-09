@@ -61,9 +61,9 @@ class TruncatedProposal(Proposal):
 class NormalProposal(Proposal):
 
     def __init__(self, mu=0., sigma=1.):
-        self._mu = torch.tensor(mu).float().view(-1)
+        self._mu = torch.tensor(mu).float()
         self._mu.requires_grad = True
-        self._sigma = torch.tensor(sigma).float().view(-1)
+        self._sigma = torch.tensor(sigma).float()
         self._sigma.requires_grad = True
         self._parameters = [self._mu, self._sigma]
         self._distribution = Normal(self._mu, self._sigma)

@@ -20,6 +20,6 @@ def sample(x, num_samples):
     with torch.no_grad():
         permutations = torch.randperm(x.size(0))
         indices = permutations[:num_samples]
-        samples = observations(indices)
+        samples = x[indices]
 
     return samples

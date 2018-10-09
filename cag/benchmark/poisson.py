@@ -29,7 +29,7 @@ class PoissonSimulator(Simulator):
         super(PoissonSimulator, self).__init__()
 
     def forward(self, thetas):
-        return simulator(thetas).view(-1, 1)
+        return simulator(thetas)
 
     def terminate(self):
         pass

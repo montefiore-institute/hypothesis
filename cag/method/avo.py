@@ -88,7 +88,7 @@ class AdversarialVariationalOptimization(Method):
         for log_p in log_probabilities:
             gradient = torch.autograd.grad(log_p, self.proposal.parameters(), create_graph=True)
             gradients.append(gradient)
-        gradient_U = torch.zeros_like(gradients[0]) # For all parameters in the proposal.
+        gradient_U = torch.zeros_like(torch.tensor(gradients[0])) # For all parameters in the proposal.
         p_thetas = self._baseline.apply(gradients, x_thetas)
         for index, gradient in enumerate(gradients):
             p_theta = p_thetas[index]
@@ -106,12 +106,14 @@ class AdversarialVariationalOptimization(Method):
         thetas, x_thetas = self.simulator(thetas)
         self._num_simulations += self.batch_size
 
+        return thetas, x_thetas
+
     def step(self, x_o):
         thetas, x_thetas = self._sample()
         self._update_critic(x_o, thetas, x_thetas)
         self._update_proposal(x_o, thetas, x_thetas)
 
-    def infer(self, x_o, num_iterations=1000):
+    def infer(self, x_o, num_steps=1000):
         self._reset()
 
         for iteration in range(num_iterations):
