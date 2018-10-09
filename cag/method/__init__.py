@@ -1,1 +1,3 @@
 """"""
+
+from avo import AdversarialVariationalOptimization
