@@ -8,10 +8,6 @@
 
 TODO
 
-### Single observation Adversarial Variation Optimization
-
-TODO
-
 ### BOLFI (Bayesian Optimization for Likelihood-free Inference)
 
 TODO
