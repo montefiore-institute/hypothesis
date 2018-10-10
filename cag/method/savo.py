@@ -19,7 +19,7 @@ class SingleObservationAdversarialVariationalOptimization(Method):
                  discriminator,
                  proposal,
                  lr_autoencoder=.001,
-                 lr_discriminator=.0001,
+                 lr_discriminator=.00001,
                  lr_proposal=.001,
                  batch_size=32,
                  r1_regularization=10.,
@@ -32,12 +32,13 @@ class SingleObservationAdversarialVariationalOptimization(Method):
         self.batch_size = batch_size
         if baseline is None:
             baseline = OptimalBaseline(discriminator)
+        self._lr_autoencoder = lr_autoencoder
         self._lr_discriminator = lr_discriminator
         self._lr_proposal = lr_proposal
         self._baseline = baseline
         self._real = torch.ones(self.batch_size, 1)
         self._fake = torch.zeros(self.batch_size, 1)
-        self._criterion = torch.nn.BCELoss()
+        self._criterion = torch.nn.BCELoss(reduction="sum")
         self._r1 = r1_regularization
         self._o_autoencoder = None
         self._o_discriminator = None
@@ -54,11 +55,11 @@ class SingleObservationAdversarialVariationalOptimization(Method):
         if self._o_proposal is not None:
             del self._o_proposal
         # Allocate the optimizers.
-        self._o_autoencoder = torch.optim.RMSprop(
-            self.autoencoder.parameters(), lr=self._lr_autoencoder
+        self._o_autoencoder = torch.optim.Adam(
+            self.autoencoder.parameters()
         )
-        self._o_discriminator = torch.optim.RMSprop(
-            self.discriminator.parameters(), lr=self._lr_discriminator
+        self._o_discriminator = torch.optim.Adam(
+            self.discriminator.parameters()
         )
         self._o_proposal = torch.optim.RMSprop(
             self.proposal.parameters(), lr=self._lr_proposal
@@ -68,22 +69,33 @@ class SingleObservationAdversarialVariationalOptimization(Method):
         self._num_simulations = 0
         self._allocate_optimizers()
 
-    def _update_autoencoder(self, observations, x_thetas):
-        raise NotImplementedError
-
-    def _update_critic(self, observations, thetas, x_thetas):
-        # Sample some observations.
+    def _update_autoencoder_discriminator(self, observations, thetas, x_thetas):
+        # Update the autoencoder.
         x_real = sample(observations, self.batch_size)
         x_fake = x_thetas
-        x_real.requires_grad = True
-        y_real = self.discriminator(x_real)
-        y_fake = self.discriminator(x_fake)
-        loss = (self._criterion(y_real, self._real) + self._criterion(y_fake, self._fake)) / 2.
-        loss = loss + self._r1 * r1(y_real, x_real).mean()
+        with torch.no_grad():
+            x_thetas = torch.cat([x_real, x_fake], dim=0)
+            x_thetas_noised = x_thetas + torch.randn_like(x_thetas)
+        x_hat_thetas, z = self.autoencoder(x_thetas_noised)
+        loss = (self._criterion(x_hat_thetas, x_thetas))
         loss.backward()
-        self._o_discriminator.step()
+        self._o_autoencoder.step()
+        # Update the discriminator.
+        z = z.detach()
+        z_real = z[:self.batch_size]
+        z_real.requires_grad = True
+        z_fake = z[self.batch_size:]
+        y_real = self.discriminator(z_real)
+        y_fake = self.discriminator(z_fake)
+        loss = (self._criterion(y_real, self._real) + self._criterion(y_fake, self._fake)) / 2.
+        loss = loss + self._r1 * r1(y_real, z_real).mean()
+        loss.backward()
+        if loss.item() >= 0.1:
+            self._o_discriminator.step()
 
-    def _update_proposal(self, observations, thetas, x_thetas):
+        return z
+
+    def _update_proposal(self, observations, thetas, z):
         log_probabilities = self.proposal.log_prob(thetas)
         gradients = []
         for log_p in log_probabilities:
@@ -94,7 +106,13 @@ class SingleObservationAdversarialVariationalOptimization(Method):
             # Allocate buffer for all parameters in the proposal.
             for p in gradients[0]:
                 gradient_U.append(torch.zeros_like(p))
-            p_thetas = self._baseline.apply(gradients, x_thetas)
+            p_thetas = self._baseline.apply(gradients, z)
+            # x = observations + torch.rand_like(observations)
+            # x_o = sample(x, z.size(0))
+            # p_thetas = (z - self.autoencoder.encode(x_o)).norm(dim=1).view(-1, 1)
+            # p_thetas = torch.cat([p_thetas, p_thetas], dim=1)
+            # mean_p = p_thetas.mean(dim=0)
+            # p_thetas = (mean_p - p_thetas)
             for index, gradient in enumerate(gradients):
                 p_theta = p_thetas[index]
                 for pg_index, pg in enumerate(gradient):
@@ -107,6 +125,7 @@ class SingleObservationAdversarialVariationalOptimization(Method):
                 p.grad = gradient_U[index].expand(p.size())
         self._o_proposal.step()
         self.proposal.fix()
+        print(self.proposal._mu)
 
     def _sample(self):
         thetas = self.proposal.sample(self.batch_size)
@@ -117,9 +136,8 @@ class SingleObservationAdversarialVariationalOptimization(Method):
 
     def step(self, x_o):
         thetas, x_thetas = self._sample()
-        self._update_autoencoder(x_o, x_thetas)
-        self._update_critic(x_o, thetas, x_thetas)
-        self._update_proposal(x_o, thetas, x_thetas)
+        z = self._update_autoencoder_discriminator(x_o, thetas, x_thetas)
+        self._update_proposal(x_o, thetas, z)
 
     def infer(self, x_o, num_steps=1000):
         self._reset()
