@@ -58,7 +58,7 @@ class AdversarialVariationalOptimization(Method):
             del self._o_discriminator
         if self._o_proposal is not None:
             del self._o_proposal
-        # allocate the proposal optimizer.
+        # Allocate the optimizers.
         self._o_discriminator = torch.optim.RMSprop(
             self.discriminator.parameters(), lr=self._lr_discriminator
         )
