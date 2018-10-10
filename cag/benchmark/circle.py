@@ -7,7 +7,7 @@ The goal of this problem is the infer the x, y and radius of a single circle.
 import numpy as np
 import torch
 
-import cag.simulator
+from cag.simulator import Simulator
 
 
 
