@@ -33,7 +33,7 @@ class CircleSimulator(Simulator):
         self._epsilon = epsilon
 
     def _generate(self, r, x, y):
-        M = (self._X - x) ** 2 + (self._Y - y) ** 2 - (r ** 2) < self._epsilon
+        M = (self._X - x) ** 2 + (self._Y + y) ** 2 - (r ** 2) < self._epsilon
         M = M.float().view(1, self._axial_resolution, self._axial_resolution)
 
         return M
