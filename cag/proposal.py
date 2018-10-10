@@ -100,7 +100,7 @@ class MultivariateNormalProposal(Proposal):
 
     def clone(self):
         with torch.no_grad():
-            proposal = MeanProposal(self._mu, self._sigma)
+            proposal = MultivariateNormalProposal(self._mu, self._sigma)
 
         return proposal
 
