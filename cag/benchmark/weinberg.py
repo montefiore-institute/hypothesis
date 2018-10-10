@@ -10,6 +10,8 @@ Github: @lukasheinrich
 import numpy as np
 import torch
 
+from cag.simulator import Simulator
+
 
 
 def simulator(thetas):
@@ -19,7 +21,7 @@ def simulator(thetas):
         for theta in thetas:
             e_beam = (theta[0].item() - 40.) / (50. - 40.)
             g_f = (theta[1].item() - .5 ) / (1.5 - .5)
-            x_theta = torch.tensor(simulator(np.array([e_beam, g_f]), 1))
+            x_theta = torch.tensor(weinberg_rej_sample_costheta(np.array([e_beam, g_f]), 1))
             samples.append(x_theta)
         samples = torch.cat(samples, dim=0).float().view(-1, 1)
 
@@ -49,7 +51,7 @@ def weinberg_diffxsec(costheta, sqrtshalf, gf):
     return ((1 + costheta ** 2) + weinberg_a_fb(sqrtshalf, gf) * costheta) / norm
 
 
-def weinberg_rej_sample_costheta(n_samples, theta):
+def weinberg_rej_sample_costheta(theta, n_samples):
     sqrtshalf = theta[0] * (50-40) + 40
     gf = theta[1] * (1.5 - 0.5) + 0.5
 
@@ -76,7 +78,7 @@ class WeinbergSimulator(Simulator):
         super(WeinbergSimulator, self).__init__()
 
     def forward(self, thetas):
-        return simulator(thetas).view(-1, 1)
+        return simulator(thetas)
 
     def terminate(self):
         pass

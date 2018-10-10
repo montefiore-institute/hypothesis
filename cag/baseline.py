@@ -57,21 +57,31 @@ class OptimalBaseline(Baseline):
     def apply(self, gradients, x):
         with torch.no_grad():
             batch_size = x.size(0)
-            numerator = torch.zeros_like(torch.tensor(gradients[0]))
-            denominator = torch.zeros_like(torch.tensor(gradients[0]))
+            numerators = []
+            denominators = []
+            num_parameters = len(gradients[0])
+            for p in gradients[0]:
+                numerators.append(torch.zeros_like(p))
+                denominators.append(torch.zeros_like(p))
             y = (1 - self._discriminator(x)).log()
             for index, gradient in enumerate(gradients):
                 for pg_index, pg in enumerate(gradients[index]):
                     pg2 = pg.pow(2)
                     y_theta = y[index].squeeze()
-                    numerator[pg_index] += pg2 * y_theta
-                    denominator[pg_index] += pg2
-            numerator /= batch_size
-            denominator /= batch_size
-            b = numerator / denominator
-            baselines = torch.zeros(batch_size, b.size(0))
+                    numerators[pg_index] += pg2 * y_theta
+                    denominators[pg_index] += pg2
+            b = []
+            for index in range(num_parameters):
+                numerators[index] /= batch_size
+                denominators[index] /= batch_size
+                b.append(numerators[index] / denominators[index])
+            baselines = []
             for index in range(batch_size):
-                for p_index in range(len(gradients[0])):
-                    baselines[index][p_index] = (b[p_index] - y[index])
+                parameters = []
+                for p_index in range(num_parameters):
+                    p = (b[p_index] - y[index])
+                    parameters.append(p)
+                baselines.append(torch.tensor(parameters).view(1, -1))
+            baselines = torch.cat(baselines, dim=0)
 
         return baselines

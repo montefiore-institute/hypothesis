@@ -88,16 +88,22 @@ class AdversarialVariationalOptimization(Method):
         for log_p in log_probabilities:
             gradient = torch.autograd.grad(log_p, self.proposal.parameters(), create_graph=True)
             gradients.append(gradient)
-        gradient_U = torch.zeros_like(torch.tensor(gradients[0])) # For all parameters in the proposal.
-        p_thetas = self._baseline.apply(gradients, x_thetas)
-        for index, gradient in enumerate(gradients):
-            p_theta = p_thetas[index]
-            for pg_index, pg in enumerate(gradient):
-                pg_theta = p_theta[pg_index]
-                gradient_U[pg_index] += -pg_theta * pg
-        gradient_U /= self.batch_size
-        for index, p in enumerate(self.proposal.parameters()):
-            p.grad = gradient_U[index].expand(p.size()).detach()
+        gradient_U = []
+        with torch.no_grad():
+            # Allocate buffer for all parameters in the proposal.
+            for p in gradients[0]:
+                gradient_U.append(torch.zeros_like(p))
+            p_thetas = self._baseline.apply(gradients, x_thetas)
+            for index, gradient in enumerate(gradients):
+                p_theta = p_thetas[index]
+                for pg_index, pg in enumerate(gradient):
+                    pg_theta = p_theta[pg_index]
+                    gradient_U[pg_index] += -pg_theta * pg
+            # Average out U.
+            for p in gradient_U:
+                p /= self.batch_size
+            for index, p in enumerate(self.proposal.parameters()):
+                p.grad = gradient_U[index].expand(p.size())
         self._o_proposal.step()
         self.proposal.fix()
 

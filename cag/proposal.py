@@ -88,7 +88,7 @@ class NormalProposal(Proposal):
         return sample_distribution(self._distribution, num_samples)
 
 
-class MultivariateNormal(Proposal):
+class MultivariateNormalProposal(Proposal):
 
     def __init__(self, mu, sigma):
         self._mu = torch.tensor(mu).float()
@@ -115,4 +115,6 @@ class MultivariateNormal(Proposal):
         return self._parameters
 
     def sample(self, num_samples):
-        return sample_distribution(self._distribution, num_samples)
+        thetas = sample_distribution(self._distribution, num_samples)
+
+        return thetas
