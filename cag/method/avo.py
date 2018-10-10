@@ -97,7 +97,7 @@ class AdversarialVariationalOptimization(Method):
             for index, gradient in enumerate(gradients):
                 p_theta = p_thetas[index]
                 for pg_index, pg in enumerate(gradient):
-                    pg_theta = p_theta[pg_index]
+                    pg_theta = p_theta[pg_index].squeeze()
                     gradient_U[pg_index] += -pg_theta * pg
             # Average out U.
             for p in gradient_U:

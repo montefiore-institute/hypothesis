@@ -74,14 +74,13 @@ class OptimalBaseline(Baseline):
             for index in range(num_parameters):
                 numerators[index] /= batch_size
                 denominators[index] /= batch_size
-                b.append(numerators[index] / denominators[index])
+                b.append(numerators[index] / (denominators[index] + 10e-10))
             baselines = []
             for index in range(batch_size):
                 parameters = []
                 for p_index in range(num_parameters):
                     p = (b[p_index] - y[index])
                     parameters.append(p)
-                baselines.append(torch.tensor(parameters).view(1, -1))
-            baselines = torch.cat(baselines, dim=0)
+                baselines.append(parameters)
 
         return baselines
