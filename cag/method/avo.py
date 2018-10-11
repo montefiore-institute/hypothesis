@@ -79,6 +79,7 @@ class AdversarialVariationalOptimization(Method):
         y_fake = self.discriminator(x_fake)
         loss = (self._criterion(y_real, self._real) + self._criterion(y_fake, self._fake)) / 2.
         loss = loss + self._r1 * r1(y_real, x_real).mean()
+        self._o_discriminator.zero_grad()
         loss.backward()
         self._o_discriminator.step()
 

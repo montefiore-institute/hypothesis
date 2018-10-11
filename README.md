@@ -32,6 +32,10 @@ TODO
 
 TODO
 
+#### Elastic Particle Filtering
+
+TODO
+
 ## Benchmarks
 
 ### Poisson
