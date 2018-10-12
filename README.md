@@ -28,6 +28,10 @@ TODO
 
 TODO
 
+#### Metropolis-Hastings
+
+TODO
+
 #### Metropolis-Hastings with Approximate Likelihood Ratios
 
 TODO
