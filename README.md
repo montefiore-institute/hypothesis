@@ -2,7 +2,7 @@
 
 `cag` (**ca**lculated **g**uessing). Come up with better name...
 
-## Methods
+## Inference
 
 ### Adversarial Variational Optimization
 
@@ -24,6 +24,18 @@ TODO
 
 TODO
 
+### Particle Filtering
+
+TODO
+
+#### Elastic Particle Filtering
+
+TODO
+
+## Samplers
+
+TODO
+
 ### MCMC
 
 TODO
@@ -33,14 +45,6 @@ TODO
 TODO
 
 #### Metropolis-Hastings with Approximate Likelihood Ratios
-
-TODO
-
-### Particle Filtering
-
-TODO
-
-#### Elastic Particle Filtering
 
 TODO
 
