@@ -32,10 +32,10 @@ class ElasticParticleFiltering(Method):
         self._num_simulations = 0
         self._allocate_optimizers()
 
-    def _populate(self, distribution):
+    def _populate(self, initializer):
         with torch.no_grad():
             size = torch.Size([self.num_particles])
-            thetas = distribution.sample(size)
+            thetas = initializer.sample(size)
             self.particles = thetas
 
     def _allocate_optimizers(self):

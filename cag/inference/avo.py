@@ -82,6 +82,7 @@ class AdversarialVariationalOptimization(Method):
         self._o_discriminator.zero_grad()
         loss.backward()
         self._o_discriminator.step()
+        x_real.requires_grad = False
 
     def _update_proposal(self, observations, thetas, x_thetas):
         log_probabilities = self.proposal.log_prob(thetas)
