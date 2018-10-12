@@ -5,7 +5,7 @@ Adversarial Variational Optimization
 import torch
 
 from cag.baseline import OptimalBaseline
-from cag.method import Method
+from cag.inference import Method
 from cag.util import sample
 
 

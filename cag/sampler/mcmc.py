@@ -18,7 +18,7 @@ class MetropolisHastings(Sampler):
         self.transition = transition
         self.likelihood = likelihood
 
-    def infer(x_o, num_samples=1):
+    def sample(self):
         raise NotImplementedError
 
 
@@ -32,5 +32,5 @@ class MetropolisHastingsApproximateLikelihoodRatios(Sampler):
         self.batch_size = batch_size
         self.transition = transition
 
-    def infer(x_o, num_steps=1000):
+    def sample(self):
         raise NotImplementedError

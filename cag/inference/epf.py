@@ -6,7 +6,7 @@ import numpy as np
 import torch
 import random
 
-from cag.method import Method
+from cag.inference import Method
 
 
 
