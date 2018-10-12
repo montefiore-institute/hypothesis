@@ -42,11 +42,10 @@ class ElasticParticleFiltering(Method):
         self._o_regressor = torch.optim.Adam(self.regressor.parameters())
 
     def _optimize_regressor(self):
-        #random.shuffle(self._D)
         thetas, x_thetas = self._D[-1]
         thetas_hat = self.regressor(x_thetas)
         loss = self._criterion(thetas_hat, thetas)
-        gradients = torch.autograd.grad(loss, critic.parameters(), create_graph=True)
+        gradients = torch.autograd.grad(loss, self.regressor.parameters(), create_graph=True)
         gradient_norm = 0
         for gradient in gradients:
             gradient_norm = gradient_norm + (gradient ** 2).norm(p=1)
