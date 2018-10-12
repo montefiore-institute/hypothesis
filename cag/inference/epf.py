@@ -46,6 +46,12 @@ class ElasticParticleFiltering(Method):
         thetas, x_thetas = self._D[-1]
         thetas_hat = self.regressor(x_thetas)
         loss = self._criterion(thetas_hat, thetas)
+        gradients = torch.autograd.grad(loss, critic.parameters(), create_graph=True)
+        gradient_norm = 0
+        for gradient in gradients:
+            gradient_norm = gradient_norm + (gradient ** 2).norm(p=1)
+        gradient_norm /= len(gradients)
+        loss = loss + gradient_norm
         self._o_regressor.zero_grad()
         loss.backward()
         self._o_regressor.step()
