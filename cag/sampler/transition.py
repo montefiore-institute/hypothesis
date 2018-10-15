@@ -7,6 +7,7 @@ import torch
 
 from torch.distributions.multivariate_normal import MultivariateNormal
 from torch.distributions.normal import Normal
+from torch.distributions.uniform import Uniform
 
 
 
@@ -18,8 +19,17 @@ class TransitionDistribution:
     def sample(self, thetas, samples=1):
         raise NotImplementedError
 
+    def is_symmetric(self):
+        raise NotImplementedError
 
-class NormalTransitionDistribution(TransitionDistribution):
+
+class SymmetricTransitionDistribution(TransitionDistribution):
+
+    def is_symmetric(self):
+        return True
+
+
+class NormalTransitionDistribution(SymmetricTransitionDistribution):
 
     def __init__(self, sigma=1.):
         super(NormalTransitionDistribution, self).__init__()
@@ -38,7 +48,7 @@ class NormalTransitionDistribution(TransitionDistribution):
         return samples.view(thetas.size(0), 1, samples)
 
 
-class MultivariateNormalTransitionDistribution(TransitionDistribution):
+class MultivariateNormalTransitionDistribution(SymmetricTransitionDistribution):
 
     def __init__(self, sigma):
         super(MultivariateNormalTransitionDistribution, self).__init__()
@@ -64,18 +74,17 @@ class MultivariateNormalTransitionDistribution(TransitionDistribution):
         return x
 
 
-class UniformTransitionDistribution(TransitionDistribution):
+class UniformTransitionDistribution(SymmetricTransitionDistribution):
 
     def __init__(self, min_bound, max_bound):
         super(UniformTransitionDistribution, self).__init__()
         self._min_bound = torch.tensor(min_bound).float().view(-1, 1)
         self._max_bound = torch.tensor(max_bound).float().view(-1, 1)
         self._dimensionality = self._min_bound.size(0)
+        self._distribution = Uniform(self._min_bound, self._max_bound)
 
     def log_prob(self, thetas_current, thetas_next):
-        uniform = Uniform(self._min_bound, self._max_bound)
-
-        return normal.log_prob(thetas_next)
+        return self._distribution.log_prob(thetas_next)
 
     def sample(self, thetas, samples=1):
         x = []
@@ -84,7 +93,7 @@ class UniformTransitionDistribution(TransitionDistribution):
             thetas = thetas.view(-1, self._dimensionality)
             size = torch.Size([samples])
             for theta in thetas:
-                x_thetas = Uniform(self._min_bound, self._max_bound).sample(size).view(-1, self._dimensionality, samples)
+                x_thetas = self._distribution.sample(size).view(-1, self._dimensionality, samples)
                 x.append(x_thetas)
             x = torch.cat(x, dim=0)
 
