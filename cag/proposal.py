@@ -8,6 +8,7 @@ import torch
 
 from torch.distributions.normal import Normal
 from torch.distributions.multivariate_normal import MultivariateNormal
+from torch.distributions.uniform import Uniform
 
 from cag.util import sample_distribution
 
@@ -56,6 +57,32 @@ class TruncatedProposal(Proposal):
     def sample(self, num_samples):
         # TODO Ensure samples between bounds.
         raise NotImplementedError
+
+
+class UniformProposal(Proposal):
+
+    def __init__(self, min_bound, max_bound):
+        self._min_bound = torch.tensor(min_bound).float()
+        self._max_bound = torch.tensor(max_bound).float()
+        self._distribution = Uniform(low=self._min_bound, high=self._max_bound)
+
+    def clone(self):
+        with torch.no_grad():
+            proposal = UniformProposal(self._min_bound, self._max_bound)
+
+        return proposal
+
+    def fix(self):
+        pass
+
+    def log_prob(self, thetas):
+        return self._distribution.log_prob(thetas)
+
+    def parameters(self):
+        return self._proposal.parameters()
+
+    def sample(self, num_samples):
+        return sample_distribution(self._distribution, num_samples)
 
 
 class NormalProposal(Proposal):
