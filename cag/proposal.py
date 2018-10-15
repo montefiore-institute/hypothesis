@@ -63,8 +63,11 @@ class UniformProposal(Proposal):
 
     def __init__(self, min_bound, max_bound):
         self._min_bound = torch.tensor(min_bound).float()
+        self._min_bound.requires_grad = True
         self._max_bound = torch.tensor(max_bound).float()
+        self._max_bound.requires_grad = True
         self._distribution = Uniform(low=self._min_bound, high=self._max_bound)
+        self._parameters = [self._min_bound, self._max_bound]
 
     def clone(self):
         with torch.no_grad():
@@ -79,7 +82,7 @@ class UniformProposal(Proposal):
         return self._distribution.log_prob(thetas)
 
     def parameters(self):
-        return self._proposal.parameters()
+        return self._parameters
 
     def sample(self, num_samples):
         return sample_distribution(self._distribution, num_samples)
