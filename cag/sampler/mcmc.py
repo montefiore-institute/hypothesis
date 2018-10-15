@@ -32,7 +32,8 @@ class MetropolisHastings(Sampler):
             x_next = self.transition.sample(x)
             p_x_next = self.likelihood(x_next)
             u = np.random.uniform()
-            if u <= p_x_next:
+            alpha = min([1, (p_x_next / p_x)])
+            if u <= alpha:
                 x = x_next
                 p_x = p_x_next
                 accepted = True
