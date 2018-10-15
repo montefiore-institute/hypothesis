@@ -118,3 +118,37 @@ class MultivariateNormalProposal(Proposal):
         thetas = sample_distribution(self._distribution, num_samples)
 
         return thetas
+
+
+class MaskedMultivariateNormalProposal(Proposal):
+
+    def __init__(self, mu, sigma, mask=torch.eye(mu.size(0))):
+        self._mu = torch.tensor(mu).float()
+        self._mu.requires_grad = True
+        self._sigma = torch.tensor(sigma)
+        self._sigma.requires_grad = True
+        self._mask = torch.tensor(mask).float()
+        self._parameters = [self._mu, self._sigma]
+        self._distribution = MultivariateNormal(self._mu, self._sigma)
+
+    def clone(self):
+        with torch.no_grad():
+            proposal = MaskedMultivariateNormalProposal(self._mu, self._sigma, self._mask)
+
+        return proposal
+
+    def fix(self):
+        with torch.no_grad():
+            self._sigma.abs_()
+            self._sigma.mul_(self.mask)
+
+    def log_prob(self, thetas):
+        return self._distribution.log_prob(thetas)
+
+    def parameters(self):
+        return self._parameters
+
+    def sample(self, num_samples):
+        thetas = sample_distribution(self._distribution, num_samples)
+
+        return thetas

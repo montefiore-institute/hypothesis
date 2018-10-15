@@ -19,8 +19,7 @@ class ClassifierEvolutionaryStrategy(Method):
                  batch_size=32,
                  classifier_steps=2,
                  lr_classifier=0.0001,
-                 k=5,
-                 r1_regularization=10.):
+                 k=5):
         super(ClassifierEvolutionaryStrategy, self).__init__(simulator)
         self.classifier = classifier
         self.num_particles = num_particles
@@ -29,7 +28,6 @@ class ClassifierEvolutionaryStrategy(Method):
         self.k = k
         self._classifier_steps = classifier_steps
         self._lr_classifier = lr_classifier
-        self._r1 = float(r1_regularization)
         self._criterion = torch.nn.BCELoss()
         self._real = torch.zeros(self.batch_size, 1)
         self._fake = torch.ones(self.batch_size, 1)
@@ -84,10 +82,9 @@ class ClassifierEvolutionaryStrategy(Method):
         gradients = torch.autograd.grad(loss, critic.parameters(), create_graph=True)
         gradient_norm = 0
         for gradient in gradients:
-            gradient_norm = gradient_norm + (gradient ** 2).norm(p=1)
+           gradient_norm = gradient_norm + (gradient ** 2).norm(p=1)
         gradient_norm /= len(gradients)
         loss = loss + gradient_norm
-        #loss = loss + self._r1 * r1(y_real, x_real).mean()
         self._o_classifier.zero_grad()
         loss.backward()
         self._o_classifier.step()
@@ -100,7 +97,7 @@ class ClassifierEvolutionaryStrategy(Method):
         mean = particles_hat.mean(dim=0)
         sigma = particles_hat.std(dim=0)
         pi_hat = pi[top_indices].squeeze()
-        sigma_correction = pi_hat.mean() * torch.ones(self.particles.size(1)) * (self.classifier(sample(x_o, self.k)).mean() - pi_hat.mean())
+        sigma_correction = pi.mean() * torch.ones(self.particles.size(1)) * (self.classifier(sample(x_o, self.k)).mean() - pi_hat.mean())
         sigma += sigma_correction
         new_particles = (torch.randn(self.num_particles - self.k, self.particles.size(1)) * sigma) + mean
         self.particles = torch.cat([new_particles, particles_hat], dim=0).detach()
