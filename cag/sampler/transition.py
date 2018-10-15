@@ -56,8 +56,8 @@ class MultivariateNormalTransitionDistribution(TransitionDistribution):
             thetas = thetas.view(-1, 3)
             size = torch.Size([samples])
             for theta in thetas:
-                samples = MultivariateNormal(theta.view(-1), self._sigma).sample(size).view(-1, self._dimensionality, samples)
-                x.append(samples)
+                x_thetas = MultivariateNormal(theta.view(-1), self._sigma).sample(size).view(-1, self._dimensionality, samples)
+                x.append(x_thetas)
             x = torch.cat(x, dim=0)
 
         return x

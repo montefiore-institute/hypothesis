@@ -22,7 +22,7 @@ class MetropolisHastings(Sampler):
         raise NotImplementedError
 
 
-class MetropolisHastingsApproximateLikelihoodRatios(Sampler):
+class ClassifierMetropolisHastings(Sampler):
 
     def __init__(self, simulator,
                  classifier,
