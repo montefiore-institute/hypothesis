@@ -5,7 +5,7 @@ Markov Chain Monte Carlo.
 import numpy as np
 import torch
 
-from cag.sampler import Sampler
+from cag.sampling import Sampler
 
 
 
@@ -27,18 +27,17 @@ class MetropolisHastings(Sampler):
         return x, p_x
 
     def step(self, x, p_x):
+        epsilon = 10e-7
         accepted = False
 
         while not accepted:
             x_next = self.transition.sample(x)
             p_x_next = self.likelihood(x_next)
             u = np.random.uniform()
-            if self.transition.is_symmetric():
-                p = (p_x_next / p_x) * (self.transition.log_prob(x_next, x) / self.transition.log_prob(x, x_next))
-            else:
-                p = (p_x_next / p_x)
-            A = [1, p]
-            alpha = min([1, (p_x_next / p_x)])
+            p = (p_x_next / (p_x + epsilon))
+            if not self.transition.is_symmetric():
+                p *= (self.transition.log_prob(x_next, x) / (self.transition.log_prob(x, x_next) + epsilon))
+            alpha = min([1, p])
             if u <= alpha:
                 x = x_next
                 p_x = p_x_next
