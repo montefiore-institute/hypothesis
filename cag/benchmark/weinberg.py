@@ -10,7 +10,7 @@ Github: @lukasheinrich
 import numpy as np
 import torch
 
-from cag.simulator import Simulator
+from cag.simulation import Simulator
 
 
 
