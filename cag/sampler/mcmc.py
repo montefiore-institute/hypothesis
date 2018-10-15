@@ -11,19 +11,20 @@ from cag.sampler import Sampler
 
 class MetropolisHastings(Sampler):
 
-    def __init__(self, simulator,
-                 likelihood,
-                 transition=None,
+    def __init__(self, likelihood,
+                 transition,
                  warmup_steps=10):
-        super(MetropolisHastings, self).__init__(simulator)
+        super(MetropolisHastings, self).__init__()
         self.transition = transition
         self.likelihood = likelihood
         self._warmup = warmup_steps
 
-    def _warmup(self, theta):
+    def _warmup(self, x, p_x):
         # Apply the burn-in / warm-up period.
         for step in range(self._warmup):
-            theta = self.step(theta)
+            x, p_x = self.step(x, p_x)
+
+        return x, p_x
 
     def step(self, x, p_x):
         accepted = False
@@ -32,6 +33,8 @@ class MetropolisHastings(Sampler):
             x_next = self.transition.sample(x)
             p_x_next = self.likelihood(x_next)
             u = np.random.uniform()
+            p = (p_x_next / p_x) * (self.transition.log_prob(x_next, x) / self.transition.log_prob(x, x_next))
+            A = [1, p]
             alpha = min([1, (p_x_next / p_x)])
             if u <= alpha:
                 x = x_next
@@ -47,7 +50,7 @@ class MetropolisHastings(Sampler):
         x = initializer.sample().detach()
         p_x = self.likelihood(x)
         # Start the warmup period.
-        x, p_x = self._warmup(x)
+        x, p_x = self._warmup(x, p_x)
         samples.append(x)
         # Start the sampling procedure.
         for step in range(num_samples):
