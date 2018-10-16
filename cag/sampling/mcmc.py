@@ -18,6 +18,7 @@ class MetropolisHastings(Sampler):
         self.transition = transition
         self.likelihood = likelihood
         self._warmup_steps = int(warmup_steps)
+        self._epsilon = 10e-7
 
     def _warmup(self, x, p_x):
         # Apply the burn-in / warm-up period.
@@ -27,16 +28,15 @@ class MetropolisHastings(Sampler):
         return x, p_x
 
     def step(self, x, p_x):
-        epsilon = 10e-7
         accepted = False
 
         while not accepted:
             x_next = self.transition.sample(x)
             p_x_next = self.likelihood(x_next)
             u = np.random.uniform()
-            p = (p_x_next / (p_x + epsilon))
+            p = (p_x_next / (p_x + self._epsilon))
             if not self.transition.is_symmetric():
-                p *= (self.transition.log_prob(x_next, x) / (self.transition.log_prob(x, x_next) + epsilon))
+                p *= (self.transition.log_prob(x_next, x) / (self.transition.log_prob(x, x_next) + self._epsilon))
             alpha = min([1, p])
             if u <= alpha:
                 x = x_next

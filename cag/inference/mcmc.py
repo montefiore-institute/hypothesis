@@ -36,15 +36,30 @@ class MetropolisHastings(Method):
 class ClassifierMetropolisHastings(Method):
 
     def __init__(self, simulator,
-                 classifier,
+                 discriminator,
                  transition,
                  warmup_steps=10,
                  simulations=10000):
         super(ClassifierMetropolisHastings, self).__init__(simulator)
-        self.classifier = classifier
+        self.discriminator = discriminator
         self.transition = transition
         self._warmup_steps = warmup_steps
         self._simulations = simulations
+        self._epsilon = 10e-7
+
+    def _warmup(self, theta):
+        raise NotImplementedError
 
     def infer(self, x_o, initializer, num_samples):
-        raise NotImplementedError
+        samples = []
+
+        # Draw a random initial sample from the initializer.
+        theta = initializer.sample().detach()
+        # TODO Implement.
+        samples.append(theta)
+        # Start the sampling procedure.
+        for step in range(num_samples - 1):
+            # TODO Implement.
+            samples.append(theta)
+
+        return torch.cat(samples, dim=0)
