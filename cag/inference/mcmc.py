@@ -46,9 +46,41 @@ class ClassifierMetropolisHastings(Method):
         self._warmup_steps = warmup_steps
         self._simulations = simulations
         self._epsilon = 10e-7
+        self._o_discriminator = None
 
     def _warmup(self, theta):
         raise NotImplementedError
+
+    def _reset_discriminator(self):
+        # Reinitialize the weights of the discriminator.
+        for p in self.discriminator.parameters():
+            p.set_(.5 * torch.randn_like(p))
+        # Allocate a new optimizer for the discriminator.
+        self._o_discriminator = torch.optim.Adam(
+            self.discriminator.parameters()
+        )
+
+    def _train_classifier(self, theta_0, theta_1):
+        # Reset the current discriminator.
+        self._reset_discriminator()
+        raise NotImplementedError
+
+    def step(self, x_o, theta):
+        accepted = False
+
+        while not accepted:
+            theta_next = self.transition.sample(theta)
+            self._train_classifier(theta, theta_next)
+            likelihood_ratio = self._likelihood_ratio(x_o)
+            if not self.transition.is_symmetric():
+                p *= (self.transition.log_prob(theta_next, theta) / (self.transition.log_prob(theta, theta_next) + self._epsilon))
+            alpha = min([1, p])
+            u = np.random.uniform()
+            if u <= alpha:
+                theta = theta_next
+                accepted = True
+
+        return theta
 
     def infer(self, x_o, initializer, num_samples):
         samples = []
@@ -59,7 +91,7 @@ class ClassifierMetropolisHastings(Method):
         samples.append(theta)
         # Start the sampling procedure.
         for step in range(num_samples - 1):
-            # TODO Implement.
+            theta = self.step(x_o, theta)
             samples.append(theta)
 
         return torch.cat(samples, dim=0)
