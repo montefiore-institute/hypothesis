@@ -67,7 +67,7 @@ class ClassifierMetropolisHastings(Method):
 
     def _simulate(self, theta):
         theta = torch.cat([theta] * self._simulations, dim=0)
-        x_theta = self.simulator(theta)
+        _, x_theta = self.simulator(theta)
 
         return x_theta
 

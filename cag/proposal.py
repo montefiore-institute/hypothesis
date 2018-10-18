@@ -152,7 +152,7 @@ class MultivariateNormalProposal(Proposal):
 
 class MaskedMultivariateNormalProposal(Proposal):
 
-    def __init__(self, mu, sigma, mask=torch.eye(mu.size(0))):
+    def __init__(self, mu, sigma, mask):
         self._mu = torch.tensor(mu).float()
         self._mu.requires_grad = True
         self._sigma = torch.tensor(sigma)
