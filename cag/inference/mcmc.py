@@ -42,7 +42,7 @@ class LikelihoodFreeMetropolisHastings(Method):
                  transition,
                  classifier,
                  criterion=torch.nn.MSELoss(),
-                 epochs=5,
+                 epochs=10,
                  batch_size=32,
                  warmup_steps=10,
                  simulations=10000):
@@ -80,9 +80,9 @@ class LikelihoodFreeMetropolisHastings(Method):
         num_batches = int(self._simulations / self.batch_size) * self._epochs
         real = torch.ones(self.batch_size, 1)
         fake = torch.zeros(self.batch_size, 1)
-        for batch_index in range(5000):
-            x_real = sample(x_t_next, self.batch_size).detach()
-            x_fake = sample(x_t, self.batch_size).detach()
+        for batch_index in range(num_batches):
+            x_real = sample(x_t_next, self.batch_size)
+            x_fake = sample(x_t, self.batch_size)
             y_real = self.classifier(x_real)
             y_fake = self.classifier(x_fake)
             loss = (self._criterion(y_real, real) + self._criterion(y_fake, fake)) / 2.
@@ -98,7 +98,6 @@ class LikelihoodFreeMetropolisHastings(Method):
         # Obtaini the likelihood ratio.
         # TODO Add classifier calibration.
         s_x = self.classifier(x_o).mean().item()
-        print(s_x)
         lr = s_x / (1. - s_x + self._epsilon)
 
         return lr
@@ -117,7 +116,9 @@ class LikelihoodFreeMetropolisHastings(Method):
                 p *= (t_theta_next / (t_theta + self._epsilon))
             alpha = min([1, p])
             u = np.random.uniform()
+            print(p)
             if u <= alpha:
+                print(theta)
                 theta = theta_next
                 x_theta = x_theta_next
                 accepted = True
