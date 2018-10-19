@@ -2,6 +2,7 @@
 Markov Chain Monte Carlo methods for inference.
 """
 
+import copy
 import numpy as np
 import torch
 
@@ -41,7 +42,7 @@ class LikelihoodFreeMetropolisHastings(Method):
     def __init__(self, simulator,
                  transition,
                  classifier,
-                 criterion=torch.nn.MSELoss(),
+                 criterion=torch.nn.BCELoss(),
                  epochs=10,
                  batch_size=32,
                  warmup_steps=10,
@@ -50,6 +51,7 @@ class LikelihoodFreeMetropolisHastings(Method):
         self.batch_size = batch_size
         self.classifier = classifier
         self.transition = transition
+        self._initial_classifier = copy.deepcopy(classifier)
         self._epochs = epochs
         self._warmup_steps = warmup_steps
         self._simulations = simulations
@@ -71,6 +73,7 @@ class LikelihoodFreeMetropolisHastings(Method):
 
     def _reset_classifier(self):
         # Allocate a new optimizer.
+        self.classifier = copy.deepcopy(self._initial_classifier)
         self._o_classifier = torch.optim.Adam(self.classifier.parameters())
 
     def _likelihood_ratio(self, x_o, t_next, x_t_next, t, x_t):
@@ -86,12 +89,6 @@ class LikelihoodFreeMetropolisHastings(Method):
             y_real = self.classifier(x_real)
             y_fake = self.classifier(x_fake)
             loss = (self._criterion(y_real, real) + self._criterion(y_fake, fake)) / 2.
-            gradients = torch.autograd.grad(loss, self.classifier.parameters(), create_graph=True)
-            gradient_norm = 0
-            for gradient in gradients:
-                gradient_norm = gradient_norm + (gradient ** 2).norm(p=1)
-            gradient_norm /= len(gradients)
-            loss = loss + gradient_norm
             self._o_classifier.zero_grad()
             loss.backward()
             self._o_classifier.step()
@@ -110,13 +107,13 @@ class LikelihoodFreeMetropolisHastings(Method):
             theta_next = self.transition.sample(theta)
             x_theta_next = self._simulate(theta_next)
             p = self._likelihood_ratio(x_o, theta_next, x_theta_next, theta, x_theta)
+            print(p)
             if not self.transition.is_symmetric():
                 t_theta_next = self.transition.log_prob(theta_next, theta)
                 t_theta = self.transition.log_prob(theta, theta_next)
                 p *= (t_theta_next / (t_theta + self._epsilon))
             alpha = min([1, p])
             u = np.random.uniform()
-            print(p)
             if u <= alpha:
                 print(theta)
                 theta = theta_next
