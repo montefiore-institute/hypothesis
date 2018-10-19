@@ -39,10 +39,10 @@ class MetropolisHastings(Method):
 class LikelihoodFreeMetropolisHastings(Method):
 
     def __init__(self, simulator,
-                 classifier,
                  transition,
+                 classifier,
                  criterion=torch.nn.MSELoss(),
-                 epochs=10,
+                 epochs=5,
                  batch_size=32,
                  warmup_steps=10,
                  simulations=10000):
@@ -50,7 +50,7 @@ class LikelihoodFreeMetropolisHastings(Method):
         self.batch_size = batch_size
         self.classifier = classifier
         self.transition = transition
-        self._epochs = 1
+        self._epochs = epochs
         self._warmup_steps = warmup_steps
         self._simulations = simulations
         self._epsilon = 10e-7
@@ -70,47 +70,47 @@ class LikelihoodFreeMetropolisHastings(Method):
         return theta, x_theta
 
     def _reset_classifier(self):
-        # Reset the weights of the classifier.
-        for p in self.classifier.parameters():
-            torch.nn.init.xavier_uniform_(p)
         # Allocate a new optimizer.
         self._o_classifier = torch.optim.Adam(self.classifier.parameters())
 
-    def _likelihood_ratio(x_o, t_next, x_t_next, t, x_t):
+    def _likelihood_ratio(self, x_o, t_next, x_t_next, t, x_t):
         # Reset the state of the classifier.
         self._reset_classifier()
         # Training of density ratio.
-        num_batches = int(self._simulations / self.batch_size)
+        num_batches = int(self._simulations / self.batch_size) * self._epochs
         real = torch.ones(self.batch_size, 1)
         fake = torch.zeros(self.batch_size, 1)
-        for batch_index in range(num_batches):
-            x_real = sample(x_t_next, self.batch_size)
-            x_fake = sample(x_t, self.batch_size)
+        for batch_index in range(5000):
+            x_real = sample(x_t_next, self.batch_size).detach()
+            x_fake = sample(x_t, self.batch_size).detach()
             y_real = self.classifier(x_real)
             y_fake = self.classifier(x_fake)
-            loss = (self._criterion(y_real, real) + mse(y_fake, fake)) / 2.
+            loss = (self._criterion(y_real, real) + self._criterion(y_fake, fake)) / 2.
             gradients = torch.autograd.grad(loss, self.classifier.parameters(), create_graph=True)
             gradient_norm = 0
             for gradient in gradients:
                 gradient_norm = gradient_norm + (gradient ** 2).norm(p=1)
             gradient_norm /= len(gradients)
+            loss = loss + gradient_norm
             self._o_classifier.zero_grad()
             loss.backward()
             self._o_classifier.step()
         # Obtaini the likelihood ratio.
-        s_x = self.classifier(x_o).mean()
-        lr = s_x / (1 - s_x)
+        # TODO Add classifier calibration.
+        s_x = self.classifier(x_o).mean().item()
+        print(s_x)
+        lr = s_x / (1. - s_x + self._epsilon)
 
         return lr
 
-    def step(self, theta, x_theta):
+    def step(self, x_o, theta, x_theta):
         accepted = False
 
-        while not accpeted:
+        while not accepted:
             # Sample the next theta from the proposal.
             theta_next = self.transition.sample(theta)
             x_theta_next = self._simulate(theta_next)
-            likelihood_ratio = self._likelihood_ratio(x_o, theta_next, x_theta_next, theta, x_theta)
+            p = self._likelihood_ratio(x_o, theta_next, x_theta_next, theta, x_theta)
             if not self.transition.is_symmetric():
                 t_theta_next = self.transition.log_prob(theta_next, theta)
                 t_theta = self.transition.log_prob(theta, theta_next)
@@ -119,7 +119,8 @@ class LikelihoodFreeMetropolisHastings(Method):
             u = np.random.uniform()
             if u <= alpha:
                 theta = theta_next
-                accpeted = True
+                x_theta = x_theta_next
+                accepted = True
 
         return theta, x_theta
 
@@ -135,6 +136,8 @@ class LikelihoodFreeMetropolisHastings(Method):
         # Start the sampling procedure.
         for step in range(num_samples - 1):
             theta, x_theta = self.step(x_o, theta, x_theta)
+            theta = theta.squeeze()
+            print(theta)
             samples.append(theta)
 
         return torch.cat(samples, dim=0)
