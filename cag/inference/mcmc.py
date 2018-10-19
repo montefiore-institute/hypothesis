@@ -107,7 +107,6 @@ class LikelihoodFreeMetropolisHastings(Method):
             theta_next = self.transition.sample(theta)
             x_theta_next = self._simulate(theta_next)
             p = self._likelihood_ratio(x_o, theta_next, x_theta_next, theta, x_theta)
-            print(p)
             if not self.transition.is_symmetric():
                 t_theta_next = self.transition.log_prob(theta_next, theta)
                 t_theta = self.transition.log_prob(theta, theta_next)
@@ -115,7 +114,6 @@ class LikelihoodFreeMetropolisHastings(Method):
             alpha = min([1, p])
             u = np.random.uniform()
             if u <= alpha:
-                print(theta)
                 theta = theta_next
                 x_theta = x_theta_next
                 accepted = True
@@ -134,8 +132,6 @@ class LikelihoodFreeMetropolisHastings(Method):
         # Start the sampling procedure.
         for step in range(num_samples - 1):
             theta, x_theta = self.step(x_o, theta, x_theta)
-            theta = theta.squeeze()
-            print(theta)
             samples.append(theta)
 
         return torch.cat(samples, dim=0)
