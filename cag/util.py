@@ -6,11 +6,6 @@ import numpy as np
 import torch
 
 
-def initialize_parameters(module):
-    with torch.no_grad:
-        module.reset_parameters()
-
-
 
 def sample_distribution(distribution, num_samples):
     with torch.no_grad():
