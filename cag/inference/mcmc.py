@@ -79,10 +79,10 @@ class LikelihoodFreeMetropolisHastings(Method):
     def _likelihood_ratio(self, x_o, t_next, x_t_next, t, x_t):
         # Reset the state of the classifier.
         self._reset_classifier()
-        # Training of density ratio.
         num_batches = int(self._simulations / self.batch_size) * self._epochs
         real = torch.ones(self.batch_size, 1)
         fake = torch.zeros(self.batch_size, 1)
+        # Training of density ratio of x_o and x_t_next.
         for batch_index in range(num_batches):
             x_real = sample(x_o, self.batch_size)
             x_fake = sample(x_t_next, self.batch_size)
@@ -92,16 +92,24 @@ class LikelihoodFreeMetropolisHastings(Method):
             self._o_classifier.zero_grad()
             loss.backward()
             self._o_classifier.step()
-        # Obtaini the likelihood ratio.
-        # TODO Add classifier calibration.
-        with torch.no_grad():
-            s_x = self.classifier(x_o)
-            s_x_mean = s_x.mean()
-            lr_a = (s_x / (1 - s_x)).mean()
-            lr_b = ((1 - s_x) / s_x).mean()
-            lr = lr_a / lr_b
+        # Obtain the likelihood ratio.
+        lr_a = (self.classifier(x_o) - .5).abs()
+        self._reset_classifier()
+        # Training of density ratio of x_o and x_t.
+        for batch_index in range(num_batches):
+            x_real = sample(x_o, self.batch_size)
+            x_fake = sample(x_t, self.batch_size)
+            y_real = self.classifier(x_real)
+            y_fake = self.classifier(x_fake)
+            loss = (self._criterion(y_real, real) + self._criterion(y_fake, fake)) / 2.
+            self._o_classifier.zero_grad()
+            loss.backward()
+            self._o_classifier.step()
+        # Obtain the likelihood ratio.
+        lr_b = (self.classifier(x_o) - .5).abs()
+        lr = (lr_b.mean() / lr_a.mean()).item()
 
-        return lr.item()
+        return lr
 
     def step(self, x_o, theta, x_theta):
         accepted = False
