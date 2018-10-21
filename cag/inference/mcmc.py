@@ -94,10 +94,12 @@ class LikelihoodFreeMetropolisHastings(Method):
             self._o_classifier.step()
         # Obtaini the likelihood ratio.
         # TODO Add classifier calibration.
-        s_x = self.classifier(x_o).mean().item()
-        lr = s_x / (1. - s_x + self._epsilon)
+        s_x = self.classifier(x_o)
+        lr_a = s_x / (1. - s_x + self._epsilon)
+        lr_b = (1. - s_x) / (s_x + self._epsilon)
+        lr = lr_a.mean() / (lr_b.mean() + self._epsilon)
 
-        return lr
+        return lr.item()
 
     def step(self, x_o, theta, x_theta):
         accepted = False
