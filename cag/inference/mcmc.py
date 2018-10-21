@@ -84,8 +84,8 @@ class LikelihoodFreeMetropolisHastings(Method):
         real = torch.ones(self.batch_size, 1)
         fake = torch.zeros(self.batch_size, 1)
         for batch_index in range(num_batches):
-            x_real = sample(x_t_next, self.batch_size)
-            x_fake = sample(x_t, self.batch_size)
+            x_real = sample(x_o, self.batch_size)
+            x_fake = sample(x_t_next, self.batch_size)
             y_real = self.classifier(x_real)
             y_fake = self.classifier(x_fake)
             loss = (self._criterion(y_real, real) + self._criterion(y_fake, fake)) / 2.
@@ -96,11 +96,12 @@ class LikelihoodFreeMetropolisHastings(Method):
         # TODO Add classifier calibration.
         with torch.no_grad():
             s_x = self.classifier(x_o)
-            lr_b = (s_x / (1 - s_x)).mean()
-            lr_a = ((1 - s_x) / s_x).mean()
-            lr = (lr_a / lr_b).item()
+            s_x_mean = s_x.mean()
+            lr_a = (s_x / (1 - s_x)).mean()
+            lr_b = ((1 - s_x) / s_x).mean()
+            lr = lr_a / lr_b
 
-        return lr
+        return lr.item()
 
     def step(self, x_o, theta, x_theta):
         accepted = False
