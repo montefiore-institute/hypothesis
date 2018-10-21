@@ -107,7 +107,7 @@ class LikelihoodFreeMetropolisHastings(Method):
             self._o_classifier.step()
         # Obtain the likelihood ratio.
         lr_b = (self.classifier(x_o) - .5).abs()
-        lr = (lr_b.mean() / lr_a.mean()).item()
+        lr = ((lr_b.mean() + 1) / (lr_a.mean() + 1)).item()
 
         return lr
 
