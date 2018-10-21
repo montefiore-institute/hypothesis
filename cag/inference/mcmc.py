@@ -94,7 +94,7 @@ class LikelihoodFreeMetropolisHastings(Method):
             self._o_classifier.step()
         # Obtaini the likelihood ratio.
         # TODO Add classifier calibration.
-        s_x = self.classifier(x_o)
+        s_x = (self.classifier(x_o).detach() - .5).abs()
         lr_a = s_x / (1. - s_x + self._epsilon)
         lr_b = (1. - s_x) / (s_x + self._epsilon)
         lr = lr_a.mean() / (lr_b.mean() + self._epsilon)
@@ -109,6 +109,10 @@ class LikelihoodFreeMetropolisHastings(Method):
             theta_next = self.transition.sample(theta)
             x_theta_next = self._simulate(theta_next)
             p = self._likelihood_ratio(x_o, theta_next, x_theta_next, theta, x_theta)
+            print("============")
+            print("From", theta.item())
+            print("To", theta_next.item())
+            print(p)
             if not self.transition.is_symmetric():
                 t_theta_next = self.transition.log_prob(theta_next, theta)
                 t_theta = self.transition.log_prob(theta, theta_next)
