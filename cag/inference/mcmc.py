@@ -94,12 +94,13 @@ class LikelihoodFreeMetropolisHastings(Method):
             self._o_classifier.step()
         # Obtaini the likelihood ratio.
         # TODO Add classifier calibration.
-        s_x = (self.classifier(x_o).detach() - .5).abs()
-        lr_a = s_x / (1. - s_x + self._epsilon)
-        lr_b = (1. - s_x) / (s_x + self._epsilon)
-        lr = lr_a.mean() / (lr_b.mean() + self._epsilon)
+        with torch.no_grad():
+            s_x = self.classifier(x_o)
+            lr_b = (s_x / (1 - s_x)).mean()
+            lr_a = ((1 - s_x) / s_x).mean()
+            lr = (lr_a / lr_b).item()
 
-        return lr.item()
+        return lr
 
     def step(self, x_o, theta, x_theta):
         accepted = False
