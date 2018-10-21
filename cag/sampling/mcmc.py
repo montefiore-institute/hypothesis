@@ -28,20 +28,16 @@ class MetropolisHastings(Sampler):
         return x, p_x
 
     def step(self, x, p_x):
-        accepted = False
-
-        while not accepted:
-            x_next = self.transition.sample(x)
-            p_x_next = self.likelihood(x_next)
-            u = np.random.uniform()
-            p = (p_x_next / (p_x + self._epsilon))
-            if not self.transition.is_symmetric():
-                p *= (self.transition.log_prob(x_next, x) / (self.transition.log_prob(x, x_next) + self._epsilon))
-            alpha = min([1, p])
-            if u <= alpha:
-                x = x_next
-                p_x = p_x_next
-                accepted = True
+        x_next = self.transition.sample(x)
+        p_x_next = self.likelihood(x_next)
+        u = np.random.uniform()
+        p = (p_x_next / (p_x + self._epsilon))
+        if not self.transition.is_symmetric():
+            p *= (self.transition.log_prob(x_next, x) / (self.transition.log_prob(x, x_next) + self._epsilon))
+        alpha = min([1, p])
+        if u <= alpha:
+            x = x_next
+            p_x = p_x_next
 
         return x, p_x
 

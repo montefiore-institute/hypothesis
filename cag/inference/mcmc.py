@@ -112,27 +112,23 @@ class LikelihoodFreeMetropolisHastings(Method):
         return lr
 
     def step(self, x_o, theta, x_theta):
-        accepted = False
-
-        while not accepted:
-            # Sample the next theta from the proposal.
-            theta_next = self.transition.sample(theta)
-            x_theta_next = self._simulate(theta_next)
-            p = self._likelihood_ratio(x_o, theta_next, x_theta_next, theta, x_theta)
-            print("============")
-            print("From", theta.item())
-            print("To", theta_next.item())
-            print(p)
-            if not self.transition.is_symmetric():
-                t_theta_next = self.transition.log_prob(theta_next, theta)
-                t_theta = self.transition.log_prob(theta, theta_next)
-                p *= (t_theta_next / (t_theta + self._epsilon))
-            alpha = min([1, p])
-            u = np.random.uniform()
-            if u <= alpha:
-                theta = theta_next
-                x_theta = x_theta_next
-                accepted = True
+        # Sample the next theta from the proposal.
+        theta_next = self.transition.sample(theta)
+        x_theta_next = self._simulate(theta_next)
+        p = self._likelihood_ratio(x_o, theta_next, x_theta_next, theta, x_theta)
+        print("============")
+        print("From", theta.item())
+        print("To", theta_next.item())
+        print(p)
+        if not self.transition.is_symmetric():
+            t_theta_next = self.transition.log_prob(theta_next, theta)
+            t_theta = self.transition.log_prob(theta, theta_next)
+            p *= (t_theta_next / (t_theta + self._epsilon))
+        alpha = min([1, p])
+        u = np.random.uniform()
+        if u <= alpha:
+            theta = theta_next
+            x_theta = x_theta_next
 
         return theta, x_theta
 
