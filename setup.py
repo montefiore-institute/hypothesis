@@ -33,7 +33,8 @@ with open(os.path.join("cag", "__init__.py"), "rt") as fh:
 # Module requirements.
 _install_requires = [
     "numpy",
-    "torch"
+    "torch",
+    "pkgutil"
 ]
 
 _parameters = {
