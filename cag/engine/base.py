@@ -4,6 +4,8 @@ Module base class.
 
 import multiprocessing
 
+from .event import event
+
 
 class Module:
 
@@ -16,7 +18,7 @@ class Module:
         self.start()
 
     def _process_queue(self):
-        while self._running:
+        while self._running or self._queue.peek():
             event_type, message = self._queue.pop()
             # Run it through all event handlers.
             if event_type in self._event_handlers.keys():
@@ -24,14 +26,17 @@ class Module:
                     event_handler(message)
             # Run it through all handlers.
             for handler in self._handlers:
-                handler(message)
+                handler(event_type, message)
 
     def start(self):
+        self.fire_event(event.start)
         self._running = True
         # TODO Start queue.
 
     def terminate(self):
+        self.fire_event(event.terminate)
         self._running = False
+        # TODO Cleanup queue.
 
     def fire_event(self, event_type, message):
         self._queue.put((event_type, message))
