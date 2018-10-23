@@ -5,6 +5,7 @@ Adversarial Variational Optimization
 import torch
 
 from cag.baseline import OptimalBaseline
+from cag.engine import event
 from cag.inference import Method
 from cag.util import sample
 
@@ -124,7 +125,11 @@ class AdversarialVariationalOptimization(Method):
     def infer(self, x_o, num_steps=1000):
         self._reset()
 
+        self.fire_event(event.start)
         for iteration in range(num_steps):
+            self.fire_event(event.start_iteration)
             self.step(x_o)
+            self.fire_event(event.end_iteration)
+        self.fire_event(event.terminate)
 
         return self.proposal.clone()

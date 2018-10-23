@@ -21,7 +21,7 @@ class Module:
 
     def _process_queue(self):
         while self._running or self._queue.peek():
-            event_type, message = self._queue.pop()
+            event_type, message = self._queue.get()
             # Run it through all event handlers.
             if event_type in self._event_handlers.keys():
                 for event_handler in self._event_handlers[event_type]:
@@ -31,7 +31,6 @@ class Module:
                 handler(event_type, message)
 
     def start(self):
-        self.fire_event(event.start)
         self._running = True
         # Start the workers.
         for worker_index in range(self._num_workers):
@@ -39,7 +38,6 @@ class Module:
             worker.start()
 
     def terminate(self):
-        self.fire_event(event.terminate)
         self._running = False
         # Terminate and wait for the processes to clean up.
         for worker in self._workers:
@@ -47,8 +45,8 @@ class Module:
             worker.join()
         self._workers = []
 
-    def fire_event(self, event_type, message):
-        self._queue.push((event_type, message))
+    def fire_event(self, event_type, message=None):
+        self._queue.put((event_type, message))
 
     def add_handler(self, handler):
         self._handlers.append(handler)
