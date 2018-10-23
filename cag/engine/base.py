@@ -2,7 +2,7 @@
 Module base class.
 """
 
-import multiprocessing
+import torch.multiprocessing
 
 from .event import event
 
@@ -13,7 +13,9 @@ class Module:
 
         self._event_handlers = {}
         self._handlers = []
-        self._queue = None
+        self._num_workers = workers
+        self._workers = []
+        self._queue = torch.multiprocessing.Queue()
         self._running = True
         self.start()
 
@@ -31,15 +33,22 @@ class Module:
     def start(self):
         self.fire_event(event.start)
         self._running = True
-        # TODO Start queue.
+        # Start the workers.
+        for worker_index in range(self._num_workers):
+            worker = torch.multiprocessing.Process(target=self._process_queue)
+            worker.start()
 
     def terminate(self):
         self.fire_event(event.terminate)
         self._running = False
-        # TODO Cleanup queue.
+        # Terminate and wait for the processes to clean up.
+        for worker in self._workers:
+            worker.terminate()
+            worker.join()
+        self._workers = []
 
     def fire_event(self, event_type, message):
-        self._queue.put((event_type, message))
+        self._queue.push((event_type, message))
 
     def add_handler(self, handler):
         self._handlers.append(handler)
