@@ -129,7 +129,11 @@ class AdversarialVariationalOptimization(Method):
         for iteration in range(num_steps):
             self.fire_event(event.start_iteration)
             self.step(x_o)
-            self.fire_event(event.end_iteration)
+            message = {
+                "iteration": iteration,
+                "proposal": self.proposal.clone()
+            }
+            self.fire_event(event.end_iteration, message)
         self.fire_event(event.terminate)
 
         return self.proposal.clone()

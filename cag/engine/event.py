@@ -7,7 +7,6 @@ Event definitions.
 class Event:
 
     def __init__(self):
-        self._next_identifier = 0
         self.add_event("start")
         self.add_event("start_batch")
         self.add_event("end_batch")
@@ -17,12 +16,10 @@ class Event:
         self.add_event("end_epoch")
         self.add_event("terminate")
         self.add_event("log")
-        self.add_event("loss")
 
     def add_event(self, identifier):
         if not self.has_event(identifier):
-            setattr(self, identifier, self._next_identifier)
-            self._next_identifier += 1
+            setattr(self, identifier, identifier)
 
     def has_event(self, identifier):
         return hasattr(self, identifier)
