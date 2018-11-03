@@ -33,7 +33,7 @@ class MetropolisHastings(Sampler):
         u = np.random.uniform()
         p = (p_x_next / (p_x + self._epsilon))
         if not self.transition.is_symmetric():
-            p *= (self.transition.log_prob(x_next, x) / (self.transition.log_prob(x, x_next) + self._epsilon))
+            p *= (self.transition.log_prob(x_next, x).exp() / (self.transition.log_prob(x, x_next).exp() + self._epsilon))
         alpha = min([1, p])
         if u <= alpha:
             x = x_next
