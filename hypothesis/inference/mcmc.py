@@ -9,6 +9,7 @@ import torch
 from hypothesis.inference import Method
 from hypothesis.inference import SimulatorMethod
 from hypothesis.util import sample
+from hypothesis.util import epsilon
 
 
 
@@ -54,11 +55,13 @@ class LikelihoodFreeMetropolisHastings(SimulatorMethod):
     def step(self, observations, theta):
         theta = theta.unsqueeze(0)
         theta_next = self.transition.sample(theta).squeeze().unsqueeze(0)
-        theta, x_theta = self.simulator(torch.cat([theta] * self._simulator_samples, dim=0))
-        theta_next, x_theta_next = self.simulator(torch.cat([theta] * self._simulator_samples, dim=0))
+        theta_in = torch.cat([theta] * self._simulator_samples, dim=0)
+        theta_next_in = torch.cat([theta_next] * self._simulator_samples, dim=0)
+        theta, x_theta = self.simulator(theta_in)
+        theta_next, x_theta_next = self.simulator(theta_next_in)
         classifier = self._train_classifier(x_theta, x_theta_next)
         s = classifier(observations).log().sum().exp()
-        lr = s / (1 - s + 10e-7)
+        lr = s / (1 - s + epsilon)
         if not self.transition.is_symmetric():
             t_theta_next = self.transition.log_prob(theta, theta_next).exp()
             t_theta = self.transition.log_prob(theta_next, theta).exp()
@@ -120,7 +123,7 @@ class MetropolisHastings(Method):
         if not self.transition.is_symmetric():
             t_theta_next = self.transition.log_prob(theta, theta_next).exp()
             t_theta = self.transition.log_prob(theta_next, theta).exp()
-            p *= (t_theta_next / (t_theta + 10e-7))
+            p *= (t_theta_next / (t_theta + epsilon))
         else:
             p = 1
         acceptance = min([1, lr.exp() * p])

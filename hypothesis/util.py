@@ -7,6 +7,9 @@ import torch
 
 
 
+epsilon = 10e-8
+
+
 def sample_distribution(distribution, num_samples):
     size = torch.Size([num_samples])
     samples = distribution.sample(size)
