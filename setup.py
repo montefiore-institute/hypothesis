@@ -23,8 +23,8 @@ if not include_benchmarks:
 
 packages = find_packages(exclude=exclusions)
 
-# Get the version string of cag.
-with open(os.path.join("cag", "__init__.py"), "rt") as fh:
+# Get the version string of hypothesis.
+with open(os.path.join("hypothesis", "__init__.py"), "rt") as fh:
     _version = re.search(
         '__version__\s*=\s*"(?P<version>.*)"\n',
         fh.read()

@@ -12,7 +12,7 @@ class Event:
         self.add_event("batch_start")
         self.add_event("batch_end")
         self.add_event("iteration_start")
-        self.add_Event("iteration_end")
+        self.add_event("iteration_end")
         self.add_event("epoch_start")
         self.add_event("epoch_end")
         self.add_event("log")
