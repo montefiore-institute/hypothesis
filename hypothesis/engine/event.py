@@ -19,7 +19,7 @@ class Event:
 
     def add_event(self, identifier):
         if not self.has_event(identifier):
-            setattr(self, identifier, identifier);
+            setattr(self, identifier, 0);
 
     def has_event(self, identifier):
         return hasattr(self, identifier)

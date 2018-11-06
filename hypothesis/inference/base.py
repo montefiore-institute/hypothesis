@@ -21,7 +21,7 @@ class Method(Module):
     def infer(self, observations, **kwargs):
         self.start()
         self.fire_event(event.start)
-        result = self.procedure(observations, kwargs)
+        result = self.procedure(observations, **kwargs)
         self.fire_event(event.terminate)
         self.terminate()
 
@@ -34,5 +34,5 @@ class SimulatorMethod(Method):
         super(SimulatorMethod, self).__init__()
         self.simulator = simulator
 
-    def procedure(self, observations):
+    def procedure(self, observations, **kwargs):
         raise NotImplementedError

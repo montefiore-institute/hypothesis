@@ -1,3 +1,3 @@
 from .base import Module
-from .event import Event
+from .event import event
 from .handler import Handler

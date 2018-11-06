@@ -19,6 +19,7 @@ class MetropolisHastings(Method):
 
     def __init__(self, log_likelihood,
                  transition):
+        super(MetropolisHastings, self).__init__()
         self.log_likelihood = log_likelihood
         self.transition = transition
 
@@ -31,20 +32,22 @@ class MetropolisHastings(Method):
             t_theta_next = self.transition.log_prob(theta, theta_next).exp()
             t_theta = self.transition.log_prob(theta_next, theta).exp()
             p *= (t_theta_next / (t_theta + 10e-7))
-        acceptance = min([1, lr * p])
+        else:
+            p = 1
+        acceptance = min([1, lr.exp() * p])
         u = np.random.uniform()
-        if u <= alpha:
+        if u <= acceptance:
             theta = theta_next
 
         return theta, acceptance
 
-    def run_chain(self, theta_0, num_samples):
+    def run_chain(self, theta_0, observations, num_samples):
         thetas = []
         probabilities = []
 
         for sample_index in range(num_samples):
             theta_0, acceptance = self.step(observations, theta_0)
-            thetas.append(theta_0)
+            thetas.append(theta_0.squeeze())
             probabilities.append(acceptance)
 
         return thetas, probabilities
@@ -58,8 +61,8 @@ class MetropolisHastings(Method):
         else:
             burnin_steps = 0
         # Start the burnin procedure.
-        thetas, probabilities = self.run_chain(theta_0, burnin_steps)
+        thetas, probabilities = self.run_chain(theta_0, observations, burnin_steps)
         # Start sampling form the MH chain.
-        thetas, probabilities = self.run_chain(theta_0, num_samples)
+        thetas, probabilities = self.run_chain(theta_0, observations, num_samples)
 
-        return thetas, probabilities
+        return torch.tensor(thetas), probabilities
