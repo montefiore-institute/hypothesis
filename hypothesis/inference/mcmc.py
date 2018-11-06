@@ -23,7 +23,31 @@ class MetropolisHastings(Method):
         self.transition = transition
 
     def step(self, observations, theta):
-        raise NotImplementedError
+        theta_next = self.transition.sample(theta)
+        likelihood_current = self.log_likelihood(theta, observations)
+        likelihood_next = self.log_likelihood(theta_next, observations)
+        lr = likelihood_next - likelihood_current
+        if not self.transition.is_symmetric():
+            t_theta_next = self.transition.log_prob(theta, theta_next).exp()
+            t_theta = self.transition.log_prob(theta_next, theta).exp()
+            p *= (t_theta_next / (t_theta + 10e-7))
+        acceptance = min([1, lr * p])
+        u = np.random.uniform()
+        if u <= alpha:
+            theta = theta_next
+
+        return theta, acceptance
+
+    def run_chain(self, theta_0, num_samples):
+        thetas = []
+        probabilities = []
+
+        for sample_index in range(num_samples):
+            theta_0, acceptance = self.step(observations, theta_0)
+            thetas.append(theta_0)
+            probabilities.append(acceptance)
+
+        return thetas, probabilities
 
     def procedure(self, observations, **kwargs):
         # Initialize the sampling procedure.
@@ -33,3 +57,9 @@ class MetropolisHastings(Method):
             burnin_steps = int(kwargs[self.KEY_BURN_IN_STEPS])
         else:
             burnin_steps = 0
+        # Start the burnin procedure.
+        thetas, probabilities = self.run_chain(theta_0, burnin_steps)
+        # Start sampling form the MH chain.
+        thetas, probabilities = self.run_chain(theta_0, num_samples)
+
+        return thetas, probabilities
