@@ -22,7 +22,7 @@ class LikelihoodFreeMetropolisHastings(SimulatorMethod):
     def __init__(self, simulator,
                  transition,
                  classifier_allocator,
-                 simulator_samples=50000,
+                 simulator_samples=10000,
                  batch_size=512,
                  epochs=10):
         super(LikelihoodFreeMetropolisHastings, self).__init__(simulator)
@@ -36,8 +36,8 @@ class LikelihoodFreeMetropolisHastings(SimulatorMethod):
         iterations = int((self._simulator_samples * self._epochs) / self._batch_size)
         classifier = self.classifier_allocator()
         optimizer = torch.optim.Adam(classifier.parameters())
-        real = torch.ones(batch_size, 1)
-        fake = torch.zeros(batch_size, 1)
+        real = torch.ones(self._batch_size, 1)
+        fake = torch.zeros(self._batch_size, 1)
         bce = torch.nn.BCELoss()
         # Start the training procedures.
         for iteration in range(iterations):
@@ -49,29 +49,32 @@ class LikelihoodFreeMetropolisHastings(SimulatorMethod):
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+        print("Trained")
 
         return classifier
 
     def step(self, observations, theta):
-        theta = theta.unsqueeze(0)
-        theta_next = self.transition.sample(theta).squeeze().unsqueeze(0)
-        theta_in = torch.cat([theta] * self._simulator_samples, dim=0)
-        theta_next_in = torch.cat([theta_next] * self._simulator_samples, dim=0)
-        theta, x_theta = self.simulator(theta_in)
-        theta_next, x_theta_next = self.simulator(theta_next_in)
+        with torch.no_grad():
+            theta = theta.unsqueeze(0)
+            theta_next = self.transition.sample(theta).squeeze().unsqueeze(0)
+            theta_in = torch.cat([theta] * self._simulator_samples, dim=0)
+            theta_next_in = torch.cat([theta_next] * self._simulator_samples, dim=0)
+            theta, x_theta = self.simulator(theta_in)
+            theta_next, x_theta_next = self.simulator(theta_next_in)
         classifier = self._train_classifier(x_theta, x_theta_next)
-        s = classifier(observations).log().sum().exp()
-        lr = s / (1 - s + epsilon)
-        if not self.transition.is_symmetric():
-            t_theta_next = self.transition.log_prob(theta, theta_next).exp()
-            t_theta = self.transition.log_prob(theta_next, theta).exp()
-            p *= (t_theta_next / (t_theta + 10e-7))
-        else:
-            p = 1
-        acceptance = min([1, lr.exp() * p])
-        u = np.random.uniform()
-        if u <= acceptance:
-            theta = theta_next
+        with torch.no_grad():
+            s = classifier(observations).log().sum().exp()
+            lr = s / (1 - s + epsilon)
+            if not self.transition.is_symmetric():
+                t_theta_next = self.transition.log_prob(theta, theta_next).exp()
+                t_theta = self.transition.log_prob(theta_next, theta).exp()
+                p *= (t_theta_next / (t_theta + 10e-7))
+            else:
+                p = 1
+            acceptance = min([1, lr.exp() * p])
+            u = np.random.uniform()
+            if u <= acceptance:
+                theta = theta_next
 
         return theta, acceptance
 
@@ -116,20 +119,21 @@ class MetropolisHastings(Method):
         self.transition = transition
 
     def step(self, observations, theta):
-        theta_next = self.transition.sample(theta).squeeze()
-        likelihood_current = self.log_likelihood(theta, observations)
-        likelihood_next = self.log_likelihood(theta_next, observations)
-        lr = likelihood_next - likelihood_current
-        if not self.transition.is_symmetric():
-            t_theta_next = self.transition.log_prob(theta, theta_next).exp()
-            t_theta = self.transition.log_prob(theta_next, theta).exp()
-            p *= (t_theta_next / (t_theta + epsilon))
-        else:
-            p = 1
-        acceptance = min([1, lr.exp() * p])
-        u = np.random.uniform()
-        if u <= acceptance:
-            theta = theta_next
+        with torch.no_grad():
+            theta_next = self.transition.sample(theta).squeeze()
+            likelihood_current = self.log_likelihood(theta, observations)
+            likelihood_next = self.log_likelihood(theta_next, observations)
+            lr = likelihood_next - likelihood_current
+            if not self.transition.is_symmetric():
+                t_theta_next = self.transition.log_prob(theta, theta_next).exp()
+                t_theta = self.transition.log_prob(theta_next, theta).exp()
+                p *= (t_theta_next / (t_theta + epsilon))
+            else:
+                p = 1
+            acceptance = min([1, lr.exp() * p])
+            u = np.random.uniform()
+            if u <= acceptance:
+                theta = theta_next
 
         return theta, acceptance
 
