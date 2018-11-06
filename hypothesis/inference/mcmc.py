@@ -94,7 +94,7 @@ class LikelihoodFreeMetropolisHastings(SimulatorMethod):
         classifier = self._train_classifier(x_theta, x_theta_next)
         with torch.no_grad():
             s = classifier(observations)
-            lr = (s / (1 - s + epsilon)).log().sum()
+            lr = (s / (1 - s + epsilon)).log().sum().exp()
             if not self.transition.is_symmetric():
                 t_theta_next = self.transition.log_prob(theta, theta_next).exp()
                 t_theta = self.transition.log_prob(theta_next, theta).exp()
