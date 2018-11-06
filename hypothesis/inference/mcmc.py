@@ -62,8 +62,11 @@ class LikelihoodFreeMetropolisHastings(SimulatorMethod):
         event.add_event("lfhm_train_end")
         event.add_event("lfhm_simulation_start")
         event.add_event("lfhm_simulation_end")
+        event.add_event("lfhm_step_start")
+        event.add_event("lfhm_step_end")
 
     def _train_classifier(self, x_theta, x_theta_next):
+        self.fire_event(event.lfhm_train_start)
         iterations = int((self._simulator_samples * self._epochs) / self._batch_size)
         classifier = self.classifier_allocator()
         optimizer = torch.optim.Adam(classifier.parameters())
@@ -80,17 +83,20 @@ class LikelihoodFreeMetropolisHastings(SimulatorMethod):
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+        self.fire_event(event.lfhm_train_end)
 
         return classifier
 
     def step(self, observations, theta):
         with torch.no_grad():
             theta = theta.unsqueeze(0)
+            self.fire_event(event.lfhm_simulation_start)
             theta_next = self.transition.sample(theta).squeeze().unsqueeze(0)
             theta_in = torch.cat([theta] * self._simulator_samples, dim=0)
             theta_next_in = torch.cat([theta_next] * self._simulator_samples, dim=0)
             _, x_theta = self.simulator(theta_in)
             _, x_theta_next = self.simulator(theta_next_in)
+            self.fire_event(event.lfhm_simulation_end)
         classifier = self._train_classifier(x_theta, x_theta_next)
         with torch.no_grad():
             s = classifier(observations)
@@ -113,7 +119,9 @@ class LikelihoodFreeMetropolisHastings(SimulatorMethod):
         probabilities = []
 
         for sample_index in range(num_samples):
+            self.fire_event(event.lfhm_step_start)
             theta_0, acceptance = self.step(observations, theta_0)
+            self.fire_event(event.lfhm_step_end)
             thetas.append(theta_0.squeeze())
             probabilities.append(acceptance)
 
