@@ -4,14 +4,14 @@ Adversarial Variational Optimization
 
 import torch
 
-from cag.baseline import OptimalBaseline
-from cag.engine import event
-from cag.inference import Method
-from cag.util import sample
+from hypothesis.engine import event
+from hypothesis.inference import SimulatorMethod
+from hypothesis.inference.baseline import AVOBaseline
+from hypothesis.util import sample
 
 
 
-def r1(y_hat, x):
+def r1_regularization(y_hat, x):
     batch_size = x.size(0)
     grad_y_hat = torch.autograd.grad(
         outputs=y_hat.sum(),
@@ -20,12 +20,12 @@ def r1(y_hat, x):
         retain_graph=True,
         only_inputs=True
     )[0]
-    regularizer = grad_y_hat.pow(2).view(batch_size, -1).sum(1)
+    regularizer = grad_y_hat.pow(2).view(batch_size, -1).sum()
 
     return regularizer
 
 
-class AdversarialVariationalOptimization(Method):
+class AdversarialVariationalOptimization(SimulatorMethod):
 
     def __init__(self, simulator,
                  discriminator,
@@ -33,33 +33,44 @@ class AdversarialVariationalOptimization(Method):
                  lr_discriminator=.0001,
                  lr_proposal=.001,
                  batch_size=32,
-                 r1_regularization=10.,
+                 gamma=10.,
                  baseline=None):
         super(AdversarialVariationalOptimization, self).__init__(simulator)
+        # Initialize the state of the procedure.
         self.discriminator = discriminator
-        self.proposal = proposal
-        self.batch_size = batch_size
-        if baseline is None:
-            baseline = OptimalBaseline(discriminator)
+        self.proposal = proposal.clone()
+        if not baseline:
+            baseline = AVOlBaseline(discriminator)
+        self.baseline = baseline
         self._lr_discriminator = lr_discriminator
         self._lr_proposal = lr_proposal
-        self._baseline = baseline
         self._real = torch.ones(self.batch_size, 1)
         self._fake = torch.zeros(self.batch_size, 1)
         self._criterion = torch.nn.BCELoss()
-        self._r1 = r1_regularization
+        self._gamma = gamma
         self._o_discriminator = None
         self._o_proposal = None
         self._num_simulations = 0
         self._reset()
+        # Add AVO specific events.
+        event.add_event("avo_simulation_start")
+        event.add_event("avo_simulation_end")
+        event.add_event("avo_update_discriminator_start")
+        event.add_event("avo_update_discriminator_end")
+        event.add_event("avo_update_proposal_start")
+        event.add_event("avo_update_proposal_end")
+
+    def _reset(self):
+        self._num_simulations = 0
+        self._allocate_optimizers()
 
     def _allocate_optimizers(self):
-        # Clean up the old optimizers, if any.
-        if self._o_discriminator is not None:
+        # Clean up the old optimizers, if any:
+        if self._o_discriminator:
             del self._o_discriminator
-        if self._o_proposal is not None:
+        if self._o_proposal:
             del self._o_proposal
-        # Allocate the optimizers.
+        # Allocate the new optimizers.
         self._o_discriminator = torch.optim.RMSprop(
             self.discriminator.parameters(), lr=self._lr_discriminator
         )
@@ -67,25 +78,23 @@ class AdversarialVariationalOptimization(Method):
             self.proposal.parameters(), lr=self._lr_proposal
         )
 
-    def _reset(self):
-        self._num_simulations = 0
-        self._allocate_optimizers()
-
-    def _update_critic(self, observations, thetas, x_thetas):
-        # Sample some observations.
+    def _update_discriminator(self, observations, thetas, x_thetas):
+        self.fire_event(event.avo_update_discriminator_start, self)
         x_real = sample(observations, self.batch_size)
         x_fake = x_thetas
         x_real.requires_grad = True
         y_real = self.discriminator(x_real)
         y_fake = self.discriminator(x_fake)
         loss = (self._criterion(y_real, self._real) + self._criterion(y_fake, self._fake)) / 2.
-        loss = loss + self._r1 * r1(y_real, x_real).mean()
+        loss = loss + self._gamma * r1_regularization(y_real, x_real).mean()
         self._o_discriminator.zero_grad()
         loss.backward()
         self._o_discriminator.step()
         x_real.requires_grad = False
+        self.fire_event(event.avo_update_discriminator_end, self)
 
     def _update_proposal(self, observations, thetas, x_thetas):
+        self.fire_event(event.avo_update_proposal_start, self)
         log_probabilities = self.proposal.log_prob(thetas)
         gradients = []
         for log_p in log_probabilities:
@@ -96,7 +105,7 @@ class AdversarialVariationalOptimization(Method):
             # Allocate buffer for all parameters in the proposal.
             for p in gradients[0]:
                 gradient_U.append(torch.zeros_like(p))
-            p_thetas = self._baseline.apply(gradients, x_thetas)
+            p_thetas = self.baseline.apply(gradients=gradients, x=x_thetas)
             for index, gradient in enumerate(gradients):
                 p_theta = p_thetas[index]
                 for pg_index, pg in enumerate(gradient):
@@ -109,31 +118,28 @@ class AdversarialVariationalOptimization(Method):
                 p.grad = gradient_U[index].expand(p.size())
         self._o_proposal.step()
         self.proposal.fix()
+        self.fire_event(event.avo_update_proposal_end, self)
 
     def _sample(self):
+        self.fire_event(event.avo_simulation_start, self)
         thetas = self.proposal.sample(self.batch_size)
         thetas, x_thetas = self.simulator(thetas)
         self._num_simulations += self.batch_size
+        self.fire_event(event.avo_simulation_end, self)
 
         return thetas, x_thetas
 
-    def step(self, x_o):
+    def step(self, observations):
         thetas, x_thetas = self._sample()
-        self._update_critic(x_o, thetas, x_thetas)
-        self._update_proposal(x_o, thetas, x_thetas)
+        self._update_discriminator(observations, thetas, x_thetas)
+        self._update_proposal(observations, thetas, x_thetas)
 
-    def infer(self, x_o, num_steps=1000):
+    def procedure(self, observations, **kwargs):
         self._reset()
-
-        self.fire_event(event.start)
+        num_steps = int(kwargs["steps"])
         for iteration in range(num_steps):
-            self.fire_event(event.start_iteration)
-            self.step(x_o)
-            message = {
-                "iteration": iteration,
-                "proposal": self.proposal.clone()
-            }
-            self.fire_event(event.end_iteration, message)
-        self.fire_event(event.terminate)
+            self.fire_event(event.iteration_start)
+            self.step(observations);
+            self.fire_event(event.iteration_end)
 
         return self.proposal.clone()

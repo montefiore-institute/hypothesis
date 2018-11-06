@@ -1,5 +1,5 @@
 """
-Baselines for variance reduction in AVO.
+Baselines for variance reduction in REINFORCE estimates.
 """
 
 import torch
@@ -8,7 +8,7 @@ import torch
 
 class Baseline:
 
-    def apply(self, gradients, x):
+    def apply(self, **kwargs):
         raise NotImplementedError
 
 
@@ -16,14 +16,16 @@ class NashBaseline(Baseline):
 
     def __init__(self, discriminator):
         self._discriminator = discriminator
-        self._constant = torch.tensor(.5).log().detach()
+        self._equilibrium = torch.tensor(.5).log().detach()
 
-    def apply(self, gradients, x):
+    def apply(self, **kwargs):
         baselines = []
+        gradients = kwargs["gradients"]
+        x = kwargs["x"]
 
         with torch.no_grad():
             y = (1 - self._discriminator(x)).log()
-            b = (self._constant - y)
+            b = (self._equilibrium - y)
             for g in gradients[0]:
                 baselines.append(b)
             baselines = torch.cat(baselines, dim=1)
@@ -36,8 +38,10 @@ class MeanBaseline(Baseline):
     def __init__(self, discriminator):
         self._discriminator = discriminator
 
-    def apply(self, gradients, x):
+    def apply(self, **kwargs):
         baselines = []
+        gradients = kwargs["gradients"]
+        x = kwargs["x"]
 
         with torch.no_grad():
             y = (1 - self._discriminator(x)).log()
@@ -49,17 +53,20 @@ class MeanBaseline(Baseline):
         return baselines
 
 
-class OptimalBaseline(Baseline):
+class AVOBaseline(Baseline):
 
     def __init__(self, discriminator):
         self._discriminator = discriminator
 
-    def apply(self, gradients, x):
+    def apply(self, **kwargs):
+        numerators = []
+        denominators = []
+        gradients = kwargs["gradients"]
+        x = kwargs["x"]
+        num_parameters = len(gradients[0])
+        batch_size = x.size(0)
+
         with torch.no_grad():
-            batch_size = x.size(0)
-            numerators = []
-            denominators = []
-            num_parameters = len(gradients[0])
             for p in gradients[0]:
                 numerators.append(torch.zeros_like(p))
                 denominators.append(torch.zeros_like(p))

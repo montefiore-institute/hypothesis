@@ -7,25 +7,25 @@ import torch.multiprocessing
 from .event import event
 
 
+
 class Module:
 
     def __init__(self, workers=1):
-
         self._event_handlers = {}
         self._handlers = []
         self._num_workers = workers
-        self._workers = []
         self._queue = torch.multiprocessing.Queue()
         self._running = True
+        self._workers = []
         self.start()
 
     def _process_queue(self):
         while self._running or self._queue.peek():
             event_type, message = self._queue.get()
-            # Run it through all event handlers.
+            # Run the event through all handlers.
             if event_type in self._event_handlers.keys():
                 for event_handler in self._event_handlers[event_type]:
-                    event_handler(message)
+                    event_handler(message);
             # Run it through all handlers.
             for handler in self._handlers:
                 handler(event_type, message)
@@ -62,5 +62,4 @@ class Module:
     def event_handlers(self, event_type):
         if not event_type in self._event_handlers.keys():
             return []
-
         return self._event_handlers[event_type]
