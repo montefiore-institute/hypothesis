@@ -11,6 +11,31 @@ from hypothesis.inference import SimulatorMethod
 
 
 
+class LikelihoodFreeMetropolisHastings(SimulatorMethod):
+
+    KEY_INITIAL_THETA = "theta_0"
+    KEY_NUM_SAMPLES = "samples"
+    KEY_BURN_IN_STEPS = "burnin_steps"
+
+    def __init__(self, simulator,
+                 transition,
+                 classifier_allocator,
+                 theta_ref):
+        super(LikelihoodFreeMetropolisHastings, self).__init__(simulator)
+        self.transition = transition
+        self.classifier_allocator = classifier_allocator
+        self.theta_ref = theta_ref
+
+    def step(self, observations, theta):
+        raise NotImplementedError
+
+    def run_chain(self, theta_0, observations, num_samples):
+        raise NotImplementedError
+
+    def procedure(self, observations, **kwargs):
+        raise NotImplementedError
+
+
 class MetropolisHastings(Method):
 
     KEY_INITIAL_THETA = "theta_0"
