@@ -28,10 +28,7 @@ class Chain:
         return self._burnin_chain is not None and self._burnin_probabilities is not None
 
     def chain_mean(self, parameter_index=None):
-        if not parameter_index:
-            return self._chain_mean
-        else:
-            return self._chain_mean[parameter_index]
+        return self._chain_mean[parameter_index]
 
     def num_parameters(self):
         return self._chain[0].view(-1).size(0)
@@ -61,13 +58,14 @@ class Chain:
     def autocorrelation(self, lag, parameter_index=None):
         with torch.no_grad():
             thetas = self._chain
+            sample_mean = self._chain_mean[parameter_index]
             num_thetas = len(thetas)
-            sample_mean = thetas.mean(dim=parameter_index)
             rho = 0.
             for index in range(num_thetas):
                 if index + lag >= num_thetas:
                     break
-                rho += (thetas[index] - sample_mean) * (thetas[index + lag] - sample_mean)
+                rho += (thetas[index][parameter_index] - sample_mean) *
+                       (thetas[index + lag][parameter_index] - sample_mean)
 
         return rho
 
