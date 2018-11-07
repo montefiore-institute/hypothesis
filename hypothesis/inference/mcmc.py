@@ -69,6 +69,12 @@ class Chain:
 
         return rho
 
+    def autocorrelation_function(self, max_lag, interval=1, parameter_index=None):
+        x = np.arange(0, max_lag + 1, interval)
+        y = [self.autocorrelation(t, parameter_index) for t in x]
+
+        return x, y
+
     def probabilities(self):
         return self._probabilities
 
