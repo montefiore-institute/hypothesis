@@ -36,6 +36,8 @@ from torch.distributions.transformed_distribution import TransformedDistribution
 from torch.distributions.uniform import Uniform
 from torch.distributions.weibull import Weibull
 
+from .MixtureOfNormals import MixtureOfNormals
+
 
 
 def show_torch_distributions():
