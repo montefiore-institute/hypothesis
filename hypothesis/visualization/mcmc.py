@@ -11,16 +11,18 @@ import matplotlib.pyplot as plt
 
 
 
-def traceplot(result, **kwargs):
+def plot_trace(result, **kwargs):
     # Argument key definitions.
     KEY_SHOW_BURNIN = "show_burnin"
     KEY_TRUTH = "truth"
     KEY_ASPECT = "aspect"
+    KEY_SHOW_MEAN = "show_mean"
 
     # Show argument defaults.
     show_burnin = False
     truth = None
     aspect = "auto"
+    show_mean = False
     # Process optional arguments.
     if KEY_SHOW_BURNIN in kwargs.keys():
         show_burnin = bool(kwargs[KEY_SHOW_BURNIN])
@@ -30,6 +32,8 @@ def traceplot(result, **kwargs):
             truth = [truth]
     if KEY_ASPECT in kwargs.keys():
         aspect = float(kwargs[KEY_ASPECT])
+    if KEY_SHOW_MEAN in kwargs.keys():
+        show_mean = bool(kwargs[KEY_SHOW_MEAN])
     # Start the plotting procedure.
     max_iterations = result.iterations()
     num_parameters = result.num_parameters()
@@ -47,12 +51,18 @@ def traceplot(result, **kwargs):
         ax.grid(True, alpha=0.4)
         ax.set_xlim([0, len(chain)])
         ax.minorticks_on()
-        ax.plot(x, chain)
+        ax.plot(x, chain, alpha=.9)
         aspect = (1. / ax.get_data_ratio()) * (1. / aspect)
         ax.set_aspect(aspect)
         if not parameter_index:
             parameter_index = 0
-        ax.axhline(truth[parameter_index], c='r', lw=2, linestyle='--', alpha=.7)
+        # Check if the truth has been specified.
+        if truth:
+            ax.axhline(truth[parameter_index], c='r', lw=2, linestyle='--', alpha=.95)
+        # Check if the sample mean needs to be shown.
+        if show_mean:
+            chain_mean = result.chain_mean(parameter_index)
+            ax.axhline(chain_mean, c='y', lw=2, linestyle='--', alpha=.95)
 
     if num_parameters > 1:
         for parameter_index, row in enumerate(ax):
@@ -63,13 +73,6 @@ def traceplot(result, **kwargs):
     return fig, ax
 
 
-def autocorrelation(result, **kwargs):
-    # Argument key definitions.
-    KEY_SHOW_BURNIN = "show_burnin"
-
-    # Set default argument values.
-    show_burnin = False
-    label_x = None
-    label_y = None
+def plot_autocorrelation(result, **kwargs):
     # Process optional arguments.
     raise NotImplementedError
