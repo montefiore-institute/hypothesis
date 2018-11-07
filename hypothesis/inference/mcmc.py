@@ -26,13 +26,29 @@ class Chain:
     def has_burnin(self):
         return self._burnin_chain or self._burnin_probabilities
 
-    def chain(self):
+    def num_parameters(self):
+        return self._chain[0].size(0)
+
+    def iterations(self):
+        raise len(self._chain)
+
+    def burnin_iterations(self):
+        iterations = 0
+        if self._burnin_chain:
+            iterations = len(self._burnin_chain)
+
+        return iterations
+
+    def chain(self, parameter_index=None):
         return self._chain
+
+    def autocorrelation(self, lag):
+        raise NotImplementedError
 
     def probabilities(self):
         return self._probabilities
 
-    def burnin_chain(self):
+    def burnin_chain(self, parameter_index=None):
         return self._burnin_chain
 
     def burnin_probabilities(self):
