@@ -24,13 +24,16 @@ class Chain:
         self._burnin_probabilities = burnin_probabilities
 
     def has_burnin(self):
-        return self._burnin_chain or self._burnin_probabilities
+        return self._burnin_chain is not None and self._burnin_probabilities is not None
 
     def num_parameters(self):
-        return self._chain[0].size(0)
+        return self._chain[0].view(-1).size(0)
 
     def iterations(self):
-        raise len(self._chain)
+        return len(self._chain)
+
+    def effective_size(self):
+        raise NotImplementedError
 
     def burnin_iterations(self):
         iterations = 0
@@ -40,7 +43,13 @@ class Chain:
         return iterations
 
     def chain(self, parameter_index=None):
-        return self._chain
+        if not parameter_index:
+            return self._chain
+        chain = []
+        for sample in self._chain:
+            chain.append(sample[parameter_index])
+
+        return chain
 
     def autocorrelation(self, lag):
         raise NotImplementedError
@@ -49,7 +58,13 @@ class Chain:
         return self._probabilities
 
     def burnin_chain(self, parameter_index=None):
-        return self._burnin_chain
+        if not parameter_index:
+            return self._burnin_chain
+        chain = []
+        for sample in self._burnin_chain:
+            chain.append(sample[parameter_index])
+
+        return chain
 
     def burnin_probabilities(self):
         return self._burnin_probabilities
@@ -220,9 +235,9 @@ class MetropolisHastings(Method):
             burnin_steps = int(kwargs[self.KEY_BURN_IN_STEPS])
             if burnin_steps > 0:
                 # Start the burnin procedure.
-                thetas, probabilities = self.run_chain(theta_0, observations, burnin_steps)
+                burnin_thetas, burnin_probabilities = self.run_chain(theta_0, observations, burnin_steps)
                 # Take the last theta as the initial starting point.
-                theta_0 = thetas[-1]
+                theta_0 = burnin_thetas[-1]
         # Start sampling form the MH chain.
         thetas, probabilities = self.run_chain(theta_0, observations, num_samples)
         chain = Chain(
