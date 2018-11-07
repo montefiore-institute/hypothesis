@@ -20,7 +20,7 @@ def traceplot(result, **kwargs):
     # Show argument defaults.
     show_burnin = False
     truth = None
-    aspect = .25
+    aspect = "auto"
     # Process optional arguments.
     if KEY_SHOW_BURNIN in kwargs.keys():
         show_burnin = bool(kwargs[KEY_SHOW_BURNIN])
@@ -38,23 +38,27 @@ def traceplot(result, **kwargs):
     x = np.arange(1, max_iterations + 1)
     fig, ax = plt.subplots(nrows=num_parameters, ncols=1)
 
-    def plot_chain(ax, parameter_index):
+    def plot_chain(ax, parameter_index, aspect):
         chain = []
-        if show_burnin:
+        if show_burnin and result.has_burnin():
             chain = chain + result.burnin_chain(parameter_index)
+            ax.axvspan(0, result.burnin_iterations(), alpha=0.25, color='gray')
         chain = chain + result.chain(parameter_index)
-        ax.set_aspect(aspect)
-        print(aspect)
+        ax.grid(True, alpha=0.4)
+        ax.set_xlim([0, len(chain)])
+        ax.minorticks_on()
         ax.plot(x, chain)
+        aspect = (1. / ax.get_data_ratio()) * (1. / aspect)
+        ax.set_aspect(aspect)
         if not parameter_index:
             parameter_index = 0
         ax.axhline(truth[parameter_index], c='r', lw=2, linestyle='--', alpha=.7)
 
     if num_parameters > 1:
         for parameter_index, row in enumerate(ax):
-            plot_chain(row, parameter_index)
+            plot_chain(row, parameter_index, aspect)
     else:
-        plot_chain(ax, None)
+        plot_chain(ax, None, aspect)
 
     return fig, ax
 
