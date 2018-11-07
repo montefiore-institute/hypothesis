@@ -37,7 +37,11 @@ class Chain:
         return len(self._chain)
 
     def effective_size(self):
-        raise NotImplementedError
+        int_autocorrelation = self.autocorrelation_function(self.iterations())
+        tau_int = 1 + 2 * (int_autocorrelation)
+        n_effective = self.iterations() / tau_int
+
+        return n_effective
 
     def burnin_iterations(self):
         iterations = 0
@@ -71,7 +75,7 @@ class Chain:
 
     def autocorrelation_function(self, max_lag, interval=1, parameter_index=None):
         x = np.arange(0, max_lag + 1, interval)
-        y = [self.autocorrelation(t, parameter_index) for t in x]
+        y = [self.autocorrelation(tau, parameter_index) for tau in x]
 
         return x, y
 
