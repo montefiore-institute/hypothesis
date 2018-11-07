@@ -68,8 +68,7 @@ class Chain:
             for index in range(num_thetas):
                 if index + lag >= num_thetas:
                     break
-                rho += (thetas[index][parameter_index] - sample_mean) *
-                       (thetas[index + lag][parameter_index] - sample_mean)
+                rho += (thetas[index][parameter_index] - sample_mean) * (thetas[index + lag][parameter_index] - sample_mean)
 
         return rho
 
