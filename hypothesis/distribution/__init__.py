@@ -34,7 +34,6 @@ from torch.distributions.relaxed_categorical import RelaxedOneHotCategorical
 from torch.distributions.studentT import StudentT
 from torch.distributions.transformed_distribution import TransformedDistribution
 from torch.distributions.uniform import Uniform
-from torch.distributions.weibull import Weibull
 
 from .MixtureOfNormals import MixtureOfNormals
 
