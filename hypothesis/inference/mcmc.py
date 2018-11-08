@@ -121,6 +121,16 @@ class Chain:
 
         return x, y
 
+    def last(self):
+        return self._chain[-1]
+
+    def first(self):
+        return self._chain[0]
+
+    def append(self, chain):
+        # TODO Appends the specified chain.
+        raise NotImplementedError
+
     def integrated_autocorrelation(self, M=None, interval=1):
         int_tau = 0.
         if not M:
