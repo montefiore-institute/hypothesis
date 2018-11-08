@@ -49,6 +49,9 @@ class Chain:
     def iterations(self):
         return self._chain.size(0)
 
+    def size(self):
+        return self.iterations()
+
     def effective_size(self, interval=None):
         _, y = self.autocorrelation_function(self.iterations(), interval)
         int_autocorrelation = sum(y)
