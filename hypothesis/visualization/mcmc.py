@@ -47,15 +47,15 @@ def plot_trace(result, **kwargs):
     fig, ax = plt.subplots(nrows=num_parameters, ncols=1)
 
     def plot_chain(ax, parameter_index, aspect):
-        chain = []
         if show_burnin and result.has_burnin():
-            chain = chain + result.burnin_chain(parameter_index)
+            chain = torch.cat([result.burnin_chain(parameter_index), result.chain(parameter_index)], dim=0)
             ax.axvspan(0, result.burnin_iterations(), alpha=0.25, color='gray')
-        chain = chain + result.chain(parameter_index)
+        else:
+            chain = result.chain(parameter_index)
         ax.grid(True, alpha=0.4)
         ax.set_xlim([0, len(chain)])
         ax.minorticks_on()
-        ax.plot(x, chain, alpha=.9)
+        ax.plot(x, chain.numpy(), alpha=.9)
         aspect = (1. / ax.get_data_ratio()) * (1. / aspect)
         ax.set_aspect(aspect)
         if not parameter_index:

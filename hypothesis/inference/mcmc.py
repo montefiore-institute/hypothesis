@@ -21,9 +21,11 @@ class Chain:
         probabilities = torch.tensor(probabilities).squeeze()
         self._chain = chain
         self._chain_mean = chain.view(len(chain), -1).mean(dim=0)
-        self._chain_min = chain.min()
-        self._chain_max = chain.max()
         self._probabilities = probabilities
+        if burnin_chain:
+            burnin_chain = torch.tensor(burnin_chain).squeeze()
+        if burnin_probabilities:
+            burnin_probabilities = torch.tensor(burnin_probabilities)
         self._burnin_chain = burnin_chain
         self._burnin_probabilities = burnin_probabilities
 
@@ -34,47 +36,45 @@ class Chain:
         return self._chain_mean[parameter_index]
 
     def chain_min(self):
-        return self._chain_min
+        return self._chain.min()
 
     def chain_max(self):
-        return self._chain_max
+        return self._chain.max()
 
     def num_parameters(self):
         return self._chain[0].view(-1).size(0)
 
     def iterations(self):
-        return len(self._chain)
+        return self._chain.size(0)
 
-    def effective_size(self):
-        int_autocorrelation = self.autocorrelation_function(self.iterations())
+    def effective_size(self, interval=None):
+        _, y = self.autocorrelation_function(self.iterations(), interval)
+        int_autocorrelation = sum(y)
         tau_int = 1 + 2 * (int_autocorrelation)
         n_effective = self.iterations() / tau_int
 
-        return n_effective
+        return n_effective.round().long().item()
 
     def burnin_iterations(self):
         iterations = 0
-        if self._burnin_chain:
-            iterations = len(self._burnin_chain)
+        if self._burnin_chain is not None:
+            iterations = self._burnin_chain.size(0)
 
         return iterations
 
     def thin(self, size=None):
         if not size:
-            size = self.effective_size():
+            size = self.effective_size()
         thinned_chain = self._chain[0:self._chain.size(0):size]
         thinned_probabilities = self._probabilities[0:self._probabilities.size(0):size]
 
         return Chain(thinned_chain, thinned_probabilities)
 
     def chain(self, parameter_index=None):
-        if not parameter_index:
+        if parameter_index is None:
             return self._chain
-        chain = []
-        for sample in self._chain:
-            chain.append(sample[parameter_index])
 
-        return chain
+        return self._chain[:, parameter_index]
 
     def autocorrelation(self, lag, parameter_index=None):
         with torch.no_grad():
@@ -100,13 +100,10 @@ class Chain:
         return self._probabilities
 
     def burnin_chain(self, parameter_index=None):
-        if not parameter_index:
+        if parameter_index is None:
             return self._burnin_chain
-        chain = []
-        for sample in self._burnin_chain:
-            chain.append(sample[parameter_index])
 
-        return chain
+        return self._burnin_chain[:, parameter_index]
 
     def burnin_probabilities(self):
         return self._burnin_probabilities
