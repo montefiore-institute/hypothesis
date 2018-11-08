@@ -17,8 +17,9 @@ class Chain:
 
     def __init__(self, chain, probabilities,
                  burnin_chain=None, burnin_probabilities=None):
+        chain = torch.tensor(chain).squeeze()
+        probabilities = torch.tensor(probabilities).squeeze()
         self._chain = chain
-        chain = torch.tensor(chain)
         self._chain_mean = chain.view(len(chain), -1).mean(dim=0)
         self._chain_min = chain.min()
         self._chain_max = chain.max()
@@ -57,6 +58,14 @@ class Chain:
             iterations = len(self._burnin_chain)
 
         return iterations
+
+    def thin(self, size=None):
+        if not size:
+            size = self.effective_size():
+        thinned_chain = self._chain[0:self._chain.size(0):size]
+        thinned_probabilities = self._probabilities[0:self._probabilities.size(0):size]
+
+        return Chain(thinned_chain, thinned_probabilities)
 
     def chain(self, parameter_index=None):
         if not parameter_index:
