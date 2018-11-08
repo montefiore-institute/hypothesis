@@ -17,11 +17,13 @@ def plot_trace(result, **kwargs):
     KEY_TRUTH = "truth"
     KEY_ASPECT = "aspect"
     KEY_SHOW_MEAN = "show_mean"
+    KEY_OFFSET = "offset"
 
     # Show argument defaults.
     show_burnin = False
     truth = None
     aspect = "auto"
+    offset = .1
     show_mean = False
     # Process optional arguments.
     if KEY_SHOW_BURNIN in kwargs.keys():
@@ -34,6 +36,8 @@ def plot_trace(result, **kwargs):
         aspect = float(kwargs[KEY_ASPECT])
     if KEY_SHOW_MEAN in kwargs.keys():
         show_mean = bool(kwargs[KEY_SHOW_MEAN])
+    if KEY_OFFSET in kwargs.keys():
+        offset = float(kwargs[KEY_OFFSET])
     # Start the plotting procedure.
     max_iterations = result.iterations()
     num_parameters = result.num_parameters()
@@ -59,9 +63,19 @@ def plot_trace(result, **kwargs):
         # Check if the truth has been specified.
         if truth:
             ax.axhline(truth[parameter_index], c='r', lw=2, linestyle='--', alpha=.95)
+        # Set the y-limits of the plots.
+        chain_mean = result.chain_mean(parameter_index)
+        min_chain = result.chain_min()
+        max_chain = result.chain_max()
+        delta_min = abs(min_chain - chain_mean)
+        delta_max = abs(max_chain - chain_mean)
+        if delta_min > delta_max:
+            delta = delta_min
+        else:
+            delta = delta_max
+        ax.set_ylim([chain_mean - delta - offset, chain_mean + delta + offset])
         # Check if the sample mean needs to be shown.
         if show_mean:
-            chain_mean = result.chain_mean(parameter_index)
             ax.axhline(chain_mean, c='y', lw=2, linestyle='--', alpha=.95)
 
     if num_parameters > 1:

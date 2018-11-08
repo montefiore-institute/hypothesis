@@ -18,7 +18,10 @@ class Chain:
     def __init__(self, chain, probabilities,
                  burnin_chain=None, burnin_probabilities=None):
         self._chain = chain
-        self._chain_mean = torch.tensor(chain).view(len(chain), -1).mean(dim=0)
+        chain = torch.tensor(chain)
+        self._chain_mean = chain.view(len(chain), -1).mean(dim=0)
+        self._chain_min = chain.min()
+        self._chain_max = chain.max()
         self._probabilities = probabilities
         self._burnin_chain = burnin_chain
         self._burnin_probabilities = burnin_probabilities
@@ -28,6 +31,12 @@ class Chain:
 
     def chain_mean(self, parameter_index=None):
         return self._chain_mean[parameter_index]
+
+    def chain_min(self):
+        return self._chain_min
+
+    def chain_max(self):
+        return self._chain_max
 
     def num_parameters(self):
         return self._chain[0].view(-1).size(0)
@@ -71,7 +80,9 @@ class Chain:
 
         return rho
 
-    def autocorrelation_function(self, max_lag, interval=1, parameter_index=None):
+    def autocorrelation_function(self, max_lag=None, interval=1, parameter_index=None):
+        if not max_lag:
+            max_lag = self.iterations()
         x = np.arange(0, max_lag + 1, interval)
         y = [self.autocorrelation(tau, parameter_index) for tau in x]
 
