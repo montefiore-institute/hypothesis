@@ -19,7 +19,7 @@ def plot_trace(result, **kwargs):
     KEY_SHOW_MEAN = "show_mean"
     KEY_OFFSET = "offset"
 
-    # Show argument defaults.
+    # Set argument defaults.
     show_burnin = False
     truth = None
     aspect = "auto"
@@ -88,5 +88,33 @@ def plot_trace(result, **kwargs):
 
 
 def plot_autocorrelation(result, **kwargs):
-    # Process optional arguments.
-    raise NotImplementedError
+    # Argument key definitions.
+    KEY_RADIUS = "radius"
+    KEY_INTERVAL = "interval"
+    KEY_MAX_LAG = "max_lag"
+
+    # Set default arguments.
+    radius = 1.1
+    max_lag = 100
+    interval = 5
+    center = .5
+    # Parse the optional arguments.
+    if KEY_RADIUS in kwargs.keys():
+        radius = float(kwargs[KEY_RADIUS])
+    if KEY_INTERVAL in kwargs.keys():
+        interval = int(kwargs[KEY_INTERVAL])
+    if KEY_MAX_LAG in kwargs.keys():
+        max_lag = int(kwargs[KEY_MAX_LAG])
+    # Compute the autocorrelation function.
+    x, y = result.autocorrelation_function(max_lag, interval)
+    # Start plotting the autocorrelation funtion.
+    plt.ylim([-radius, radius])
+    for index in range(len(x)):
+        lag = x[index]
+        autocorrelation = y[index]
+        plt.axvline(lag, center, center + autocorrelation / 2 / radius, c="black")
+    plt.minorticks_on()
+    plt.grid(True, alpha=.7)
+    plt.axhline(0, linestyle='--', c='r', alpha=.7, lw=1)
+    plt.xlabel("Lag")
+    plt.ylabel("Autocorrelation")

@@ -80,11 +80,10 @@ class Chain:
 
         return rho
 
-    def autocorrelation_function(self, max_lag=None, interval=1, parameter_index=None):
-        if not max_lag:
-            max_lag = self.iterations()
+    def autocorrelation_function(self, max_lag, interval=5, parameter_index=None):
         x = np.arange(0, max_lag + 1, interval)
-        y = [self.autocorrelation(tau, parameter_index) for tau in x]
+        y_0 = self.autocorrelation(0, parameter_index)
+        y = [self.autocorrelation(tau, parameter_index) / y_0 for tau in x]
 
         return x, y
 
