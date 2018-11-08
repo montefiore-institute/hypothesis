@@ -45,7 +45,7 @@ class NormalTransitionDistribution(SymmetricTransitionDistribution):
             size = torch.Size([samples])
             x_thetas = Normal(thetas.squeeze(), self._sigma).sample(size)
 
-        return x_thetas.view(thetas.size(0), 1, samples)
+        return x_thetas.view(-1, 1, samples)
 
 
 class MultivariateNormalTransitionDistribution(SymmetricTransitionDistribution):

@@ -40,16 +40,16 @@ def plot_trace(result, **kwargs):
         offset = float(kwargs[KEY_OFFSET])
     # Start the plotting procedure.
     max_iterations = result.iterations()
-    num_parameters = result.num_parameters()
+    num_parameters = result.parameters()
     if show_burnin and result.has_burnin():
-        max_iterations += result.burnin_iterations()
+        max_iterations += result.iterations(burnin=True)
     x = np.arange(1, max_iterations + 1)
     fig, ax = plt.subplots(nrows=num_parameters, ncols=1)
 
     def plot_chain(ax, parameter_index, aspect):
         if show_burnin and result.has_burnin():
-            chain = torch.cat([result.burnin_chain(parameter_index), result.chain(parameter_index)], dim=0)
-            ax.axvspan(0, result.burnin_iterations(), alpha=0.25, color='gray')
+            chain = torch.cat([result.chain(parameter_index, burnin=True), result.chain(parameter_index)], dim=0)
+            ax.axvspan(0, result.iterations(burnin=True), alpha=0.25, color='gray')
         else:
             chain = result.chain(parameter_index)
         ax.grid(True, alpha=0.4)
@@ -64,9 +64,9 @@ def plot_trace(result, **kwargs):
         if truth:
             ax.axhline(truth[parameter_index], c='r', lw=2, linestyle='--', alpha=.95)
         # Set the y-limits of the plots.
-        chain_mean = result.chain_mean(parameter_index)
-        min_chain = result.chain_min()
-        max_chain = result.chain_max()
+        chain_mean = result.mean(parameter_index)
+        min_chain = result.min()
+        max_chain = result.max()
         delta_min = abs(min_chain - chain_mean)
         delta_max = abs(max_chain - chain_mean)
         if delta_min > delta_max:
@@ -95,7 +95,7 @@ def plot_autocorrelation(result, **kwargs):
 
     # Set default arguments.
     radius = 1.1
-    max_lag = 100
+    max_lag = None
     interval = 5
     center = .5
     # Parse the optional arguments.
