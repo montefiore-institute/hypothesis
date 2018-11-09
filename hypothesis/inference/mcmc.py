@@ -5,6 +5,9 @@ Markov Chain Monte Carlo methods for inference.
 import numpy as np
 import torch
 
+from torch.distributions.normal import Normal
+from torch.distributions.multivariate_normal import MultivariateNormal
+
 from hypothesis.engine import event
 from hypothesis.inference import Method
 from hypothesis.inference import SimulatorMethod
@@ -278,6 +281,86 @@ class LikelihoodFreeMetropolisHastings(SimulatorMethod):
                 burnin_thetas, burnin_probabilities = self.run_chain(theta_0, observations, burnin_steps)
                 # Take the last theta as the initial starting point.
                 theta_0 = thetas[-1]
+        # Start sampling form the MH chain.
+        thetas, probabilities = self.run_chain(theta_0, observations, num_samples)
+        chain = Chain(
+            thetas, probabilities,
+            burnin_thetas, burnin_probabilities)
+
+        return chain
+
+
+
+class HamiltonianMonteCarlo(Method):
+
+    KEY_INITIAL_THETA = "theta_0"
+    KEY_NUM_SAMPLES = "samples"
+    KEY_BURN_IN_STEPS = "burnin_steps"
+
+    def __init__(self, log_likelihood,
+                 momentum,
+                 leapfrog_steps,
+                 leapfrog_stepsize):
+        super(HamiltonianMonteCarlo, self).__init__()
+        self.log_likelihood = log_likelihood
+        self.momentum = momentum
+        self._leapfrog_steps = leapfrog_steps
+        self._leapfrog_stepsize = leapfrog_stepsize
+
+    def U(self, observations, theta):
+        return -self.log_likelihood(theta, observations)
+
+    def dU(self, observations, theta):
+        theta.requires_grad = True
+        log_likelihoods = self.U(observations, theta)
+        log_likelihoods.backward()
+        gradient = theta.grad.detach()
+        theta.requires_grad = False
+
+        return gradient
+
+    def K(self, momentum):
+        return (momentum ** 2 / 2).sum()
+
+    def dK(self, momentum):
+        momentum.requires_grad = True
+        energy = self.K(momentum)
+        energy.backward()
+        gradient = momentum.grad.detach()
+        momentum.requires_grad = False
+
+        return gradient
+
+    def step(self, observations, theta):
+        # Pick an initial momentum vector.
+        momentum = self.momentum.rsample()
+        raise NotImplementedError
+
+    def run_chain(self, theta_0, observations, num_samples):
+        thetas = []
+        probabilities = []
+
+        for sample_index in range(num_samples):
+            theta_0, acceptance = self.step(observations, theta_0)
+            thetas.append(theta_0.squeeze())
+            probabilities.append(acceptance)
+
+        return thetas, probabilities
+
+    def procedure(self, observations, **kwargs):
+        burnin_thetas = None
+        burnin_probabilities = None
+
+        # Initialize the sampling procedure.
+        theta_0 = kwargs[self.KEY_INITIAL_THETA]
+        num_samples = int(kwargs[self.KEY_NUM_SAMPLES])
+        if self.KEY_BURN_IN_STEPS in kwargs.keys():
+            burnin_steps = int(kwargs[self.KEY_BURN_IN_STEPS])
+            if burnin_steps > 0:
+                # Start the burnin procedure.
+                burnin_thetas, burnin_probabilities = self.run_chain(theta_0, observations, burnin_steps)
+                # Take the last theta as the initial starting point.
+                theta_0 = burnin_thetas[-1]
         # Start sampling form the MH chain.
         thetas, probabilities = self.run_chain(theta_0, observations, num_samples)
         chain = Chain(
