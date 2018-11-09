@@ -109,6 +109,9 @@ class Chain:
             rhos = thetas * padded_thetas
             rho = rhos.sum(dim=0).squeeze()
             rho *= (1. / (self.size() - lag))
+        del thetas
+        del padded_thetas
+        del rhos
 
         return rho
 
@@ -145,27 +148,24 @@ class Chain:
         return self.effective_size() / self.size()
 
     def effective_size(self):
-        x, y = self.autocorrelation_function()
-        M = x[0]
-        for i in range(len(x)):
-            if y[i] < 0:
-                M = x[i]
+        y_0 = self.autocorrelation(0)
+        M = 0
+        for lag in range(self.size()):
+            y = self.autocorrelation(lag)
+            p = y / y_0
+            if p < 0:
+                M = lag
                 break
         effective_size = (self.size() / self.integrated_autocorrelation(M))
 
         return int(abs(effective_size))
 
-    def thin(self, efficiency=None):
+    def thin(self):
         chain = []
-        probabilities = []
 
-        if not efficiency:
-            efficiency = self.efficiency()
-        for index in range(self.iterations()):
-            u = np.random.uniform()
-            if u <= efficiency:
-                chain.append(self._chain[index])
-                probabilities.append(self._probabilities[index])
+        steps = int(self.size() / self.effective_size())
+        chain = self._chain[0::steps]
+        probabilities = self._probabilities[0::steps]
 
         return Chain(chain, probabilities)
 
