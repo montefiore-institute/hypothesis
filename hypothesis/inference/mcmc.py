@@ -331,16 +331,11 @@ class HamiltonianMonteCarlo(Method):
 
     def step(self, observations, theta):
         if(observations[0].dim() == 0):
-            dimensionality = 1
-        else:
-            dimensionality = len(observations[0])
-
-        if(dimensionality == 1):
             momentum = Normal(torch.tensor([0.0]), torch.tensor([1.0])).rsample()
         else:
-            momentum = MultivariateNormal(torch.zeros(dimensionality),
-                                              torch.eye(dimensionality)).rsample()
-                                              
+            momentum = MultivariateNormal(torch.zeros(len(observations[0])),
+                                              torch.eye(len(observations[0]))).rsample()
+
         for l in range(self.leapfrog_steps):
             momentum_next = momentum - self.leapfrog_stepsize/2.0*self.dU(theta, observations)
             theta_next = theta + self.leapfrog_stepsize*self.dK(momentum_next)

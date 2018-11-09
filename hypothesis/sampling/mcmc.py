@@ -177,15 +177,10 @@ class HamiltonianMonteCarlo(Method):
 
     def step(self, x):
         if(x.dim() == 0):
-            dimensionality = 1
-        else:
-            dimensionality = len(x)
-
-        if(dimensionality == 1):
             momentum = Normal(torch.tensor([0.0]), torch.tensor([1.0])).rsample()
         else:
-            momentum = MultivariateNormal(torch.zeros(dimensionality),
-                                              torch.eye(dimensionality)).rsample()
+            momentum = MultivariateNormal(torch.zeros(len(x)),
+                                              torch.eye(len(x))).rsample()
 
         for l in range(self.leapfrog_steps):
             momentum_next = momentum - self.leapfrog_stepsize/2.0*self.dU(x)
