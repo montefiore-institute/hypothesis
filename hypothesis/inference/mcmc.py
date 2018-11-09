@@ -100,7 +100,7 @@ class Chain:
             sample_mean = self.mean(parameter_index)
             if lag > 0:
                 padding = torch.zeros(lag, num_parameters)
-                lagged_thetas = thetas[lag:, parameter_index].view(-1, num_parameters)
+                lagged_thetas = thetas[lag:, parameter_index].view(-1, num_parameters).clone()
                 lagged_thetas -= sample_mean
                 padded_thetas = torch.cat([lagged_thetas, padding], dim=0)
             else:
