@@ -18,4 +18,4 @@ class Simulator(torch.nn.Module):
         raise NotImplementedError
 
     def terminate(self):
-        raise NotImplementedError
+        pass
