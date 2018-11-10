@@ -16,6 +16,55 @@ from hypothesis.util import epsilon
 
 
 
+class Chains:
+
+    def __init__(self, chains):
+        self.chains = chains
+
+    def chain(self, index):
+        return self.chains[index]
+
+    def size(self):
+        return len(self.chains)
+
+    def chain_size(self):
+        return self.chains[0].size()
+
+    def mean(self):
+        means = []
+        for chain in self.chains:
+            means.append(chain.mean().view(1, -1))
+
+        return torch.cat(means, dim=0).mean()
+
+    def variance(self):
+        variances = []
+        for chain in self.chains:
+            variances.append(chain.variance().view(1, -1))
+
+        return torch.cat(variances, dim=0).mean()
+
+    def rhat(self):
+        n = self.chain_size()
+        m = self.size()
+        means = []
+        for chain in self.chains:
+            means.append(chain.mean().view(1, -1))
+        chains_mean = torch.cat(means, dim=0).mean()
+        W = self.variance()
+        B = 0.
+        for mean in means:
+            B += (mean - chains_mean)
+        B /= (n / (m - 1))
+        var_theta = (1 - 1/n) * W + (1 / n) * B
+
+        return (var_theta / W).sqrt()
+
+
+    def gelman_rubin(self):
+        return self.rhat()
+
+
 class Chain:
 
     def __init__(self, chain, probabilities,
@@ -48,6 +97,17 @@ class Chain:
             result = self._chain[:, parameter_index].mean()
 
         return result
+
+    def variance(self, burnin=False):
+        variance = 0.
+
+        if burnin:
+            if self.has_burnin():
+                variance = self._burnin_chain.std(dim=0) ** 2
+        else:
+            variance = self._chain.std(dim=0) ** 2
+
+        return variance
 
     def size(self):
         return self.iterations()
@@ -177,6 +237,8 @@ class Chain:
             return self._burnin_probabilities
         else:
             return self._probabilities
+
+
 
 
 class LikelihoodFreeMetropolisHastings(SimulatorMethod):
@@ -334,7 +396,23 @@ class HamiltonianMonteCarlo(Method):
     def step(self, observations, theta):
         # Pick an initial momentum vector.
         momentum = self.momentum.rsample()
-        raise NotImplementedError
+
+        # Start the hamiltonian simulation of picking a proposed value.
+        for i in range(self._leapfrog_steps):
+            momentum_next = momentum - (self._leapfrog_stepsize / 2) * self.dU(observations, theta)
+            theta_next = theta + self._leapfrog_stepsize * self.dK(momentum_next)
+            momentum_next = momentum_next - (self.leapfrog_stepsize / 2) * self.dU(observations, theta_next)
+        # Compute the accaptance probability.
+        rho = (self.U(observations, theta) - self.U(observations, theta_next)) - \
+              self.K(momentum_next) + self.K(momentum)
+        rho = rho.exp()
+        u = np.random.uniform()
+        a = min([1, rho])
+        if u <= a:
+            theta = theta_next
+
+        return theta, a
+
 
     def run_chain(self, theta_0, observations, num_samples):
         thetas = []
