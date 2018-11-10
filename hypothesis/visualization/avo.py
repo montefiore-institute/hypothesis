@@ -17,4 +17,8 @@ def plot_proposal(proposal, **kwargs):
 
     # Set argument defaults.
     truth = None
+    # Parse optional arguments.
+    if KEY_TRUTH in kwargs.keys():
+        truth = float(kwargs[KEY_TRUTH])
+    # Start plotting procedure.
     raise NotImplementedError
