@@ -54,16 +54,34 @@ def default_detector(resolution=32):
 
 class PythiaSimulator(Simulator):
 
-    def __init__(self, workers=4, options=None, detector=None):
+    def __init__(self, workers=4, options=None, detector=None, resolution=32):
         if not options:
             options = default_options()
         if not detector:
-            detector = default_detector()
+            detector = default_detector(resolution)
         self._mill = pm.ParameterizedPythiaMill(
             detector, options, batch_size=1, n_workers=workers)
+        self._resolution = resolution
 
     def forward(self, thetas):
-        raise NotImplementedError
+        parameters = []
+        x_thetas = []
+
+        # Submit the parameter requests to PythiaMill.
+        for theta in thetas:
+            theta = theta.item()
+            self._mill.request(theta)
+        # Retrieve the simulated observations from the simulator.
+        for i in range(thetas.size(0)):
+            theta, x_theta = mill.retrieve()
+            parameters.append(theta)
+            x_thetas.append(x_theta)
+        thetas = torch.tensor(parameters).view(-1, 1)
+        x_thetas = np.array(x_thetas).reshape(-1, self._resolution ** 2)
+        x_thetas = torch.tensor(x_thetas)
+        x_thetas = x_thetas.view(-1, self._resolution ** 2).log1p()
+
+        return thetas, x_thetas
 
     def terminate(self):
         if self._mill:
