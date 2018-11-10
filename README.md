@@ -1,6 +1,6 @@
-# cag
+# hypothesis
 
-`cag` (**ca**lculated **g**uessing). Come up with better name...
+TODO
 
 ## Inference
 
@@ -21,6 +21,10 @@ TODO
 TODO
 
 ### Circle
+
+TODO
+
+### Pythia
 
 TODO
 
