@@ -52,7 +52,7 @@ def default_detector(resolution=32):
 
 
 
-class PythiaSimulator(Simulator):
+class PythiaDetectorOffsetSimulator(Simulator):
 
     def __init__(self, workers=4, options=None, detector=None, resolution=32):
         if not options:
