@@ -33,12 +33,14 @@ class Proposal:
 class NormalProposal(Proposal):
 
     def __init__(self, mu=0., sigma=1.):
-        self._mu = torch.tensor(mu).float()
+        mu = torch.tensor(mu).float()
+        sigma = torch.tensor(sigma).float()
+        self._distribution = Normal(mu, sigma)
+        self._mu = self._distribution.loc
         self._mu.requires_grad = True
-        self._sigma = torch.tensor(sigma).float()
+        self._sigma = self._distribution.scale
         self._sigma.requires_grad = True
         self._parameters = [self._mu, self._sigma]
-        self._distribution = Normal(self._mu, self._sigma)
 
     def clone(self):
         with torch.no_grad():
