@@ -51,9 +51,9 @@ def default_detector(resolution=32):
     return detector
 
 
-def allocate_observations(theta, num_observations=10000, resolution=32):
+def allocate_observations(theta, num_observations=100000, resolution=32):
     theta_true = torch.tensor([float(theta)]).float()
-    simulator = PythiaDetectorOffsetSimulator(resolution)
+    simulator = PythiaDetectorOffsetSimulator(resolution=resolution)
     _, x_o = simulator(torch.cat([theta_true] * num_observations, dim=0))
     simulator.terminate()
 
@@ -89,7 +89,7 @@ class PythiaDetectorOffsetSimulator(Simulator):
         thetas = torch.tensor(parameters).view(-1, 1)
         x_thetas = np.array(x_thetas).reshape(-1, self._resolution ** 2)
         x_thetas = torch.tensor(x_thetas)
-        x_thetas = x_thetas.view(-1, self._resolution ** 2).log1p()
+        x_thetas = x_thetas.view(-1, self._resolution, self._resolution).log1p()
 
         return thetas, x_thetas
 
