@@ -51,15 +51,25 @@ def default_detector(resolution=32):
     return detector
 
 
+def allocate_observations(theta, num_observations=10000, resolution=32):
+    theta_true = torch.tensor([float(theta)]).float()
+    simulator = PythiaDetectorOffsetSimulator(resolution)
+    _, x_o = simulator(torch.cat([theta_true] * num_observations, dim=0))
+    simulator.terminate()
+
+    return theta_true, x_o
+
+
 
 class PythiaDetectorOffsetSimulator(Simulator):
 
     def __init__(self, workers=4, options=None, detector=None, resolution=32):
+        super(PythiaDetectorOffsetSimulator, self).__init__()
         if not options:
             options = default_options()
         if not detector:
             detector = default_detector(resolution)
-        self._mill = pm.ParameterizedPythiaMill(
+        self._mill = pm.ParametrizedPythiaMill(
             detector, options, batch_size=1, n_workers=workers)
         self._resolution = resolution
 
@@ -73,7 +83,7 @@ class PythiaDetectorOffsetSimulator(Simulator):
             self._mill.request(theta)
         # Retrieve the simulated observations from the simulator.
         for i in range(thetas.size(0)):
-            theta, x_theta = mill.retrieve()
+            theta, x_theta = self._mill.retrieve()
             parameters.append(theta)
             x_thetas.append(x_theta)
         thetas = torch.tensor(parameters).view(-1, 1)
