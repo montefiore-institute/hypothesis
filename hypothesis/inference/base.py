@@ -37,7 +37,6 @@ class SimulatorMethod(Method):
     def __del__(self):
         if self.simulator is not None:
             self.simulator.terminate()
-        super().__del__()
 
     def procedure(self, observations, **kwargs):
         raise NotImplementedError
