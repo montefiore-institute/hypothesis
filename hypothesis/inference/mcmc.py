@@ -360,24 +360,34 @@ class HamiltonianMonteCarlo(Method):
     KEY_BURN_IN_STEPS = "burnin_steps"
 
     def __init__(self, log_likelihood,
-                 momentum,
                  leapfrog_steps,
                  leapfrog_stepsize):
         super(HamiltonianMonteCarlo, self).__init__()
         self.log_likelihood = log_likelihood
-        self.momentum = momentum
-        self._leapfrog_steps = leapfrog_steps
-        self._leapfrog_stepsize = leapfrog_stepsize
+        self.leapfrog_steps = leapfrog_steps
+        self.leapfrog_stepsize = leapfrog_stepsize
+        self.momentum = None
 
-    def U(self, observations, theta):
+    def _allocate_momentum(self, observations):
+        if observations[0].dim() == 0:
+            mean = torch.tensor(0).float()
+            std = torch.tensor(1).float()
+            self.momentum = Normal(mean, std)
+        else:
+            size = len(observations[0])
+            mean = torch.zeros(size)
+            std = torch.eye(size)
+            self.momentum = MultivariateNormal(mean, std)
+
+    def U(self, theta, observations):
         return -self.log_likelihood(theta, observations)
 
-    def dU(self, observations, theta):
+    def dU(self, theta, observations):
+        theta = theta.detach()
         theta.requires_grad = True
-        log_likelihoods = self.U(observations, theta)
-        log_likelihoods.backward()
+        ln_likelihood = self.U(theta, observations)
+        ln_likelihood.backward()
         gradient = theta.grad.detach()
-        theta.requires_grad = False
 
         return gradient
 
@@ -385,34 +395,28 @@ class HamiltonianMonteCarlo(Method):
         return (momentum ** 2 / 2).sum()
 
     def dK(self, momentum):
+        momentum = momentum.detach()
         momentum.requires_grad = True
         energy = self.K(momentum)
         energy.backward()
         gradient = momentum.grad.detach()
-        momentum.requires_grad = False
 
         return gradient
 
     def step(self, observations, theta):
-        # Pick an initial momentum vector.
         momentum = self.momentum.rsample()
 
-        # Start the hamiltonian simulation of picking a proposed value.
-        for i in range(self._leapfrog_steps):
-            momentum_next = momentum - (self._leapfrog_stepsize / 2) * self.dU(observations, theta)
-            theta_next = theta + self._leapfrog_stepsize * self.dK(momentum_next)
-            momentum_next = momentum_next - (self.leapfrog_stepsize / 2) * self.dU(observations, theta_next)
-        # Compute the accaptance probability.
-        rho = (self.U(observations, theta) - self.U(observations, theta_next)) - \
-              self.K(momentum_next) + self.K(momentum)
-        rho = rho.exp()
+        for step in range(self.leapfrog_steps):
+            momentum_next = momentum - (self.leapfrog_stepsize / 2.) * self.dU(theta, observations)
+            theta_next = theta + self.leapfrog_stepsize * self.dK(momentum_next)
+            momentum_next = momentum_next - (self.leapfrog_stepsize / 2.) * self.dU(theta_next, observations)
+        rho = (self.U(theta, observations) - self.U(theta_next, observations) - self.K(momentum_next) + self.K(momentum)).exp()
+        A = min([1, rho])
         u = np.random.uniform()
-        a = min([1, rho])
-        if u <= a:
+        if u <= A:
             theta = theta_next
 
-        return theta, a
-
+        return theta, A
 
     def run_chain(self, theta_0, observations, num_samples):
         thetas = []
@@ -429,6 +433,8 @@ class HamiltonianMonteCarlo(Method):
         burnin_thetas = None
         burnin_probabilities = None
 
+        # Allocate the momentum distribution.
+        self._allocate_momentum(observations)
         # Initialize the sampling procedure.
         theta_0 = kwargs[self.KEY_INITIAL_THETA]
         num_samples = int(kwargs[self.KEY_NUM_SAMPLES])
