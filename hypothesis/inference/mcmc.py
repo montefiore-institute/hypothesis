@@ -411,12 +411,12 @@ class HamiltonianMonteCarlo(Method):
             theta_next = theta + self.leapfrog_stepsize * self.dK(momentum_next)
             momentum_next = momentum_next - (self.leapfrog_stepsize / 2.) * self.dU(theta_next, observations)
         rho = (self.U(theta, observations) - self.U(theta_next, observations) - self.K(momentum_next) + self.K(momentum)).exp()
-        A = min([1, rho])
+        acceptance = min([1, rho])
         u = np.random.uniform()
         if u <= A:
             theta = theta_next
 
-        return theta, A
+        return theta, acceptance
 
     def run_chain(self, theta_0, observations, num_samples):
         thetas = []
