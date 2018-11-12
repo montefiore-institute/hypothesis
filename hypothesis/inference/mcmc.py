@@ -413,7 +413,7 @@ class HamiltonianMonteCarlo(Method):
         rho = (self.U(theta, observations) - self.U(theta_next, observations) - self.K(momentum_next) + self.K(momentum)).exp()
         acceptance = min([1, rho])
         u = np.random.uniform()
-        if u <= A:
+        if u <= acceptance:
             theta = theta_next
 
         return theta, acceptance
