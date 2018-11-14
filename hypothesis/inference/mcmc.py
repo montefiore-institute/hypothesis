@@ -227,7 +227,7 @@ class Chain:
         for index in range(M):
             int_tau += self.autocorrelation(index) / c_0
 
-        return 1 + 2 * int_tau
+        return int_tau
 
     def efficiency(self):
         return self.effective_size() / self.size()
@@ -241,17 +241,24 @@ class Chain:
             if p <= 0:
                 M = lag - 1
                 break
-        effective_size = (self.size() / self.integrated_autocorrelation(M))
+        tau = self.integrated_autocorrelation(M)
+        effective_size = (self.size() / tau)
 
         return int(abs(effective_size))
 
     def thin(self):
         chain = []
 
-        steps = int(self.size() / self.effective_size())
-        chain = self._chain[0::steps]
-        probabilities = self._probabilities[0::steps]
-        acceptances = self._acceptances[0::steps]
+        p = self.efficiency()
+        chain = []
+        probabilities = []
+        acceptances = []
+        for index in range(self.size()):
+            u = np.random.uniform()
+            if u <= p:
+                chain.append(self._chain[index])
+                probabilities.append(self._probabilities[index])
+                acceptances.append(self._acceptances[index])
 
         return Chain(chain, probabilities, acceptances)
 
