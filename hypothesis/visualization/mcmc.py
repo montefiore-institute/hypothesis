@@ -15,6 +15,10 @@ def plot_chains(result, **kwargs):
     raise NotImplementedError
 
 
+def plot_density(result, **kwargs):
+    raise NotImplementedError
+
+
 def plot_trace(result, **kwargs):
     # Argument key definitions.
     KEY_SHOW_BURNIN = "show_burnin"
