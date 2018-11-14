@@ -182,9 +182,11 @@ class HamiltonianMonteCarlo(Method):
             momentum = MultivariateNormal(torch.zeros(len(x)),
                                               torch.eye(len(x))).rsample()
 
+        momentum_next = momentum
+        x_next = x
         for l in range(self.leapfrog_steps):
-            momentum_next = momentum - self.leapfrog_stepsize/2.0*self.dU(x)
-            x_next = x + self.leapfrog_stepsize*self.dK(momentum_next)
+            momentum_next = momentum_next - self.leapfrog_stepsize/2.0*self.dU(x_next)
+            x_next = x_next + self.leapfrog_stepsize*self.dK(momentum_next)
             momentum_next = momentum_next - self.leapfrog_stepsize/2.0*self.dU(x_next)
 
         ro = (-self.U(x_next) + self.U(x) - \
