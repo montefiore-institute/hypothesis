@@ -238,8 +238,8 @@ class Chain:
         for lag in range(self.size()):
             y = self.autocorrelation(lag)
             p = y / y_0
-            if p < 0:
-                M = lag
+            if p <= 0:
+                M = lag - 1
                 break
         effective_size = (self.size() / self.integrated_autocorrelation(M))
 

@@ -15,8 +15,43 @@ def plot_chains(result, **kwargs):
     raise NotImplementedError
 
 
-def plot_density(result, **kwargs):
+def plot_densities(chains, **kwargs):
     raise NotImplementedError
+
+
+def plot_density(result, **kwargs):
+    # Argument key definitions.
+    KEY_SHOW_MEAN = "show_mean"
+    KEY_TRUTH = "truth"
+    KEY_BINS = "bins"
+    KEY_PARAMETER_INDEX = "parameter_index"
+
+    # Set argument defaults.
+    truth = None
+    show_mean = False
+    bins = 25
+    parameter_index = 0
+    # Process optional arguments.
+    if KEY_TRUTH in kwargs.keys():
+        truth = kwargs[KEY_TRUTH]
+        if type(truth) is not list:
+            truth = [truth]
+    if KEY_SHOW_MEAN in kwargs.keys():
+        show_mean = bool(kwargs[KEY_SHOW_MEAN])
+    if KEY_BINS in kwargs.keys():
+        bins = int(kwargs[KEY_BINS])
+    if KEY_PARAMETER_INDEX in kwargs.keys():
+        parameter_index = int(kwargs[KEY_PARAMETER_INDEX])
+    # Start the plotting procedure.
+    chain = result.chain(parameter_index)
+    weights = [1. / result.size()] * result.size()
+    plt.hist(chain.numpy(), bins=bins, weights=weights)
+    plt.grid(True, alpha=.7)
+    plt.minorticks_on()
+    if truth:
+         plt.axvline(truth[parameter_index], c='r', lw=2, linestyle='--', alpha=.95)
+    if show_mean:
+         plt.axvline(result.mean(parameter_index), c='y', lw=2, linestyle='--', alpha=.95)
 
 
 def plot_trace(result, **kwargs):
