@@ -151,14 +151,19 @@ class MetropolisHastings(MarkovChainMonteCarlo):
         self.log_likelihood = log_likelihood
         self.transition = transition
 
+    def likelihood_ratio(self, observations, theta_next, theta):
+        likelihood_current = self.log_likelihood(theta, observations)
+        likelihood_next = self.log_likelihood(theta_next, observations)
+        lr = likelihood_next - likelihood_current
+
+        return lr
+
     def step(self, observations, theta):
         accepted = False
 
         with torch.no_grad():
             theta_next = self.transition.sample(theta).squeeze()
-            likelihood_current = self.log_likelihood(theta, observations)
-            likelihood_next = self.log_likelihood(theta_next, observations)
-            lr = likelihood_next - likelihood_current
+            lr = self.likelihood_ratio(observations, theta_next, theta)
             if not self.transition.is_symmetric():
                 t_theta_next = self.transition.log_prob(theta, theta_next).exp()
                 t_theta = self.transition.log_prob(theta_next, theta).exp()
@@ -170,5 +175,34 @@ class MetropolisHastings(MarkovChainMonteCarlo):
             if u <= acceptance:
                 accepted = True
                 theta = theta_next
+
+        return theta, acceptance, accepted
+
+
+
+class RatioMetropolisHastings(MarkovChainMonteCarlo):
+
+    def __init__(self, ratio,
+                 transition):
+        super(RatioMetropolisHastings, self).__init__()
+        self.ratio = ratio
+        self.transition = transition
+
+    def step(self, observations, theta):
+        accepted = False
+
+        theta_next = self.transition.sample(theta).squeeze().detach()
+        lr = self.ratio(observations, theta_next, theta)
+        if not self.transition.is_symmetric():
+            t_theta_next = self.transition.log_prob(theta, theta_next).exp()
+            t_theta = self.transition.log_prob(theta_next, theta).exp()
+            p *= (t_theta_next / (t_theta + epsilon))
+        else:
+            p = 1
+        acceptance = min([1, lr * p])
+        u = np.random.uniform()
+        if u <= acceptance:
+            accepted = True
+            theta = theta_next
 
         return theta, acceptance, accepted
