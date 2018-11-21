@@ -180,7 +180,7 @@ class MetropolisHastings(MarkovChainMonteCarlo):
 
 
 
-class RatioMetropolisHastings(MarkovChainMonteCarlo):
+class LikelihoodFreeRatioMetropolisHastings(MarkovChainMonteCarlo):
 
     def __init__(self, ratio,
                  transition):
