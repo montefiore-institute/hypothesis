@@ -68,12 +68,12 @@ class MarkovChainMonteCarlo(Method):
 
 
 
-class HamiltonianMonteCarlo(MarkovChainMonteCarlo):
+class Hamiltonian(MarkovChainMonteCarlo):
 
     def __init__(self, log_likelihood,
                  leapfrog_steps,
                  leapfrog_stepsize):
-        super(HamiltonianMonteCarlo, self).__init__()
+        super(Hamiltonian, self).__init__()
         self.log_likelihood = log_likelihood
         self.leapfrog_steps = leapfrog_steps
         self.leapfrog_stepsize = leapfrog_stepsize
@@ -206,3 +206,27 @@ class LikelihoodFreeRatioMetropolisHastings(MarkovChainMonteCarlo):
             theta = theta_next
 
         return theta, acceptance, accepted
+
+
+
+class LikelihoodFreeRatioHamiltonian(MarkovChainMonteCarlo):
+
+    def __init__(self, classifier,
+                 leapfrog_steps,
+                 leapfrog_stepsize):
+        super(LikelihoodFreeRatioHamiltonian, self).__init__()
+        self.classifier = classifier
+        self.leapfrog_steps = leapfrog_steps
+        self.leapfrog_stepsize = leapfrog_stepsize
+        self.momentum = None
+
+    def _allocate_momentum(self, observations):
+        if observations[0].dim() == 0:
+            mean = torch.tensor(0).float()
+            std = torch.tensor(1).float()
+            self.momentum = Normal(mean, std)
+        else:
+            size = len(observations[0])
+            mean = torch.zeros(size)
+            std = torch.eye(size)
+            self.momentum = MultivariateNormal(mean, std)
