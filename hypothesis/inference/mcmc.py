@@ -230,3 +230,45 @@ class LikelihoodFreeRatioHamiltonian(MarkovChainMonteCarlo):
             mean = torch.zeros(size)
             std = torch.eye(size)
             self.momentum = MultivariateNormal(mean, std)
+
+    def U(self, theta, observations):
+        raise NotImplementedError
+
+    def dU(self, theta, observations):
+        raise NotImplementedError
+
+    def K(self, momentum):
+        return ((momentum ** 2) / 2).sum()
+
+    def dK(self, momentum):
+        momentum.requires_grad = True
+        energy = self.K(momentum)
+        energy.backward()
+        gradient = momentum.grad.detach()
+        momentum.requires_grad = False
+
+        return gradient
+
+    def step(self, observations, theta):
+        accepted = False
+        momentum = self.momentum.rsample()
+
+        momentum_next = momentum
+        theta_next = theta
+        # TODO Implement.
+        rho = 0.
+        acceptance = min([1, rho])
+        u = np.random.uniform()
+        if u <= acceptance:
+            accepted = False
+            theta = theta_next
+
+        return theta, acceptance, accepted
+
+    def procedure(self, observations, **kwargs):
+        # Allocate the momentum distribution.
+        self._allocate_momentum(observations)
+        # Initiate the MCMC procedure.
+        result = super().procedure(observations, **kwargs)
+
+        return result
