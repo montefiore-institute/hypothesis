@@ -1,13 +1,10 @@
 """
-Utility methods for `hypothesis`.
+Utility methods for distributions.
 """
 
 import numpy as np
 import torch
 
-
-
-epsilon = 10e-8
 
 
 def sample_distribution(distribution, num_samples):
