@@ -48,22 +48,3 @@ class H5Dataset(HypothesisDataset):
 
     def size(self):
         return self.size
-
-
-
-class SimulationDataset(HypothesisDataset):
-
-    KEY_THETAS = "thetas"
-    KEY_SAMPLES = "samples"
-
-    def __init__(self, path):
-        super(SimulationDataset, self).__init__()
-        self.file = h5.File(self.path, 'r')
-        self.thetas = self.file[KEY_THETAS]
-        self.samples = self.file[KEY_SAMPLES]
-
-    def __getitem__(self, index):
-        theta = torch.from_numpy(self.thetas[index]).float()
-        sample = torch.from_numpy(self.samples[index]).float()
-
-        return (theta, sample)
