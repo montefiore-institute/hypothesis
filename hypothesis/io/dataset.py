@@ -31,6 +31,20 @@ class HypothesisDataset(Dataset):
 
 
 
+class TensorDataset(HypothesisDataset):
+
+    def __init__(self, data):
+        super(TensorDataset, self).__init__()
+        self.data = data
+
+    def __getitem__(self, index):
+        return self.data[index].detach()
+
+    def size(self):
+        return self.data.size(0)
+
+
+
 class H5Dataset(HypothesisDataset):
 
     def __init__(self, path, name_input, name_output):

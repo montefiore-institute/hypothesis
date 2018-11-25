@@ -17,7 +17,6 @@ class Module:
         self._queue = torch.multiprocessing.Queue()
         self._running = True
         self._workers = []
-        self.start()
 
     def _process_queue(self):
         while self._running or self._queue.peek():

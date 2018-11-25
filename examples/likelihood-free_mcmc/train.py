@@ -55,8 +55,7 @@ def allocate_classifier(hidden):
         torch.nn.Linear(hidden, hidden),
         torch.nn.ReLU(),
         torch.nn.Linear(hidden, 1),
-        torch.nn.Sigmoid()
-        )
+        torch.nn.Sigmoid())
 
     return classifier
 
