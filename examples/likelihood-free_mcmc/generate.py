@@ -6,6 +6,7 @@ import argparse
 import torch
 import matplotlib.pyplot as plt
 import numpy as np
+import gc
 
 from hypothesis.inference import RatioMetropolisHastings
 from hypothesis.inference import MetropolisHastings
@@ -65,6 +66,7 @@ def metropolis_hastings(arguments):
             lr = s / (1 - s + epsilon)
             lr_next = s_next / (1 - s_next + epsilon)
             log_lr = lr_next.log().sum() - lr.log().sum()
+        gc.collect()
 
         return log_lr.exp().item()
 
