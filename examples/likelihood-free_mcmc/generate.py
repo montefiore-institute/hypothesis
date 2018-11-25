@@ -53,7 +53,7 @@ def metropolis_hastings(arguments):
             s_next = classifier(x_in_next)
             lr = s / (1 - s + epsilon)
             lr_next = s_next / (1 - s_next + epsilon)
-            log_lr = -lr.log().sum() + lr_next.log().sum()
+            log_lr = lr_next.log().sum() - lr.log().sum()
 
         return log_lr.exp()
 

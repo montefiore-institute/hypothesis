@@ -109,6 +109,12 @@ class Chain:
 
         return variance
 
+    def standard_error(self):
+        variance = self.variance()
+        effective_sample_size = self.effective_size()
+
+        return np.sqrt(variance / effective_sample_size)
+
     def size(self):
         return self.iterations()
 
