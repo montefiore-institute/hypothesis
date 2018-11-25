@@ -3,17 +3,17 @@ MCMC posterior sample generation.
 """
 
 import argparse
-import torch
 import matplotlib.pyplot as plt
 import numpy as np
+import torch
 
-from hypothesis.inference import RatioMetropolisHastings
 from hypothesis.inference import MetropolisHastings
+from hypothesis.inference import RatioMetropolisHastings
 from hypothesis.util import epsilon
-from torch.distributions.normal import Normal
-from hypothesis.visualization.mcmc import plot_trace
 from hypothesis.visualization.mcmc import plot_autocorrelation
 from hypothesis.visualization.mcmc import plot_density
+from hypothesis.visualization.mcmc import plot_trace
+from torch.distributions.normal import Normal
 
 
 
