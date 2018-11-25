@@ -7,7 +7,8 @@ import torch
 import matplotlib.pyplot as plt
 import numpy as np
 
-from hypothesis.inference import RatioMetropolisHastings as MetropolisHastings
+from hypothesis.inference import RatioMetropolisHastings
+from hypothesis.inference import MetropolisHastings
 from hypothesis.util import epsilon
 from torch.distributions.normal import Normal
 from hypothesis.visualization.mcmc import plot_trace
@@ -26,6 +27,7 @@ def main(arguments):
 def select_method(arguments):
     methods = {
         "mh": metropolis_hastings,
+        "mha": metropolis_hastings_analytical,
         "hmc": hamiltonian_monte_carlo
     }
     if arguments.method in methods.keys():
@@ -34,6 +36,15 @@ def select_method(arguments):
         method = None
 
     return method
+
+
+def show_result(result, arguments):
+    plot_density(result, show_mean=True, truth=arguments.truth, bins=50)
+    plt.show()
+    plot_trace(result, show_mean=True, truth=arguments.truth, show_burnin=True, aspect=1.)
+    plt.show()
+    plot_autocorrelation(result, max_lag=100, interval=1)
+    plt.show()
 
 
 def metropolis_hastings(arguments):
@@ -55,23 +66,39 @@ def metropolis_hastings(arguments):
             lr_next = s_next / (1 - s_next + epsilon)
             log_lr = lr_next.log().sum() - lr.log().sum()
 
-        return log_lr.exp()
+        return log_lr.exp().item()
 
     theta_0 = torch.tensor(arguments.theta0).view(-1)
     transition = NormalTransitionDistribution(.1)
-    sampler = MetropolisHastings(ratio, transition)
+    sampler = RatioMetropolisHastings(ratio, transition)
     result = sampler.infer(
         observations,
         theta_0=theta_0,
         samples=arguments.steps,
         burnin_steps=arguments.burnin)
-    plot_density(result, show_mean=True, truth=arguments.truth, bins=50)
-    plt.show()
-    plot_trace(result, show_mean=True, truth=arguments.truth, show_burnin=True, aspect=1.)
-    plt.show()
-    plot_autocorrelation(result, max_lag=100, interval=1)
-    plt.show()
-    sampler.terminate()
+    show_result(result, arguments)
+
+
+def metropolis_hastings_analytical(arguments):
+    from hypothesis.transition import NormalTransitionDistribution
+
+    def log_likelihood(theta, observations):
+        with torch.no_grad():
+            N = Normal(theta.item(), 1.)
+            likelihood = N.log_prob(observations).sum()
+
+        return likelihood
+
+    observations = generate_observations(arguments)
+    theta_0 = torch.tensor(arguments.theta0).view(-1)
+    transition = NormalTransitionDistribution(.1)
+    sampler = MetropolisHastings(log_likelihood, transition)
+    result = sampler.infer(
+        observations,
+        theta_0=theta_0,
+        samples=arguments.steps,
+        burnin_steps=arguments.burnin)
+    show_result(result, arguments)
 
 
 def generate_observations(arguments):
