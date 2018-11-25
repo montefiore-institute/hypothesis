@@ -75,10 +75,14 @@ def metropolis_hastings(arguments):
 
 
 def generate_observations(arguments):
-    truth = arguments.truth
-    n = arguments.observations
-    normal = Normal(truth, 1.)
-    observations = normal.sample(torch.Size([n])).view(-1, 1)
+    if not arguments.observations:
+        truth = arguments.truth
+        n = arguments.num_observations
+        normal = Normal(truth, 1.)
+        observations = normal.sample(torch.Size([n])).view(-1, 1)
+        torch.save(observations, "observations.th")
+    else:
+        observations = torch.load("observations.th")
 
     return observations
 
@@ -98,10 +102,11 @@ def parse_arguments():
     parser.add_argument("--method", type=str, default=None, help="Sampling method (mh, hmc).")
     parser.add_argument("--classifier", type=str, default=None, help="Path to the classifier.")
     parser.add_argument("--truth", type=float, default=1., help="Defines the true theta.")
-    parser.add_argument("--observations", type=int, default=100, help="Defines the number of observations.")
+    parser.add_argument("--num-observations", type=int, default=100, help="Defines the number of observations.")
     parser.add_argument("--burnin", type=int, default=1000, help="Number of burnin steps of the Markov Chain.")
     parser.add_argument("--steps", type=int, default=5000, help="Number of MC steps.")
     parser.add_argument("--theta0", type=float, default=5., help="Initial theta of the Markov Chain.")
+    parser.add_argument("--observations", type=str, default=None, help="Observations data to use.")
     arguments, _ = parser.parse_known_args()
 
     return arguments
