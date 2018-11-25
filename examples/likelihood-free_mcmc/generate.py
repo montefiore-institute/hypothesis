@@ -6,7 +6,6 @@ import argparse
 import torch
 import matplotlib.pyplot as plt
 import numpy as np
-import gc
 
 from hypothesis.inference import RatioMetropolisHastings
 from hypothesis.inference import MetropolisHastings
@@ -55,20 +54,18 @@ def metropolis_hastings(arguments):
     observations = generate_observations(arguments)
 
     def ratio(observations, theta_next, theta):
-        with torch.no_grad():
-            n = observations.size(0)
-            theta_next = theta_next.repeat(n).view(-1, 1)
-            theta = theta.repeat(n).view(-1, 1)
-            x_in = torch.cat([theta, observations], dim=1)
-            x_in_next = torch.cat([theta_next, observations], dim=1)
-            s = classifier(x_in)
-            s_next = classifier(x_in_next)
-            lr = s / (1 - s + epsilon)
-            lr_next = s_next / (1 - s_next + epsilon)
-            log_lr = lr_next.log().sum() - lr.log().sum()
-        gc.collect()
+        n = observations.size(0)
+        theta_next = theta_next.repeat(n).view(-1, 1)
+        theta = theta.repeat(n).view(-1, 1)
+        x_in = torch.cat([theta, observations], dim=1)
+        x_in_next = torch.cat([theta_next, observations], dim=1)
+        s = classifier(x_in)
+        s_next = classifier(x_in_next)
+        lr = (s / (1 - s + epsilon)).log().sum()
+        lr_next = (s_next / (1 - s_next + epsilon)).log().sum()
+        lr = (lr_next - lr).exp().item()
 
-        return log_lr.exp().item()
+        return lr
 
     theta_0 = torch.tensor(arguments.theta0).view(-1)
     transition = NormalTransitionDistribution(.1)
@@ -122,6 +119,7 @@ def hamiltonian_monte_carlo(arguments):
 
 def load_classifier(path):
     classifier = torch.load(path)
+    classifier.eval()
 
     return classifier
 
