@@ -22,9 +22,7 @@ def main(arguments):
     reference_dataset = ReferenceDataset(arguments.iterations)
     simulation_loader = DataLoader(simulation_dataset, num_workers=1, batch_size=arguments.batch_size)
     reference_loader = DataLoader(reference_dataset, num_workers=1, batch_size=arguments.batch_size)
-    # Training preperation.
-    classifier = allocate_classifier(arguments.hidden)
-    optimizer = torch.optim.Adam(classifier.parameters())
+    # Training preperation.  
     real = torch.ones(arguments.batch_size, 1)
     fake = torch.zeros(arguments.batch_size, 1)
     bce = torch.nn.BCELoss()
@@ -38,9 +36,13 @@ def main(arguments):
         exit()
     elif len(file_epochs) == 0:
         epoch_lower_bound = 0
+        classifier = allocate_classifier(arguments.hidden)
     else:
         file_epochs = [int(x) for x in file_epochs]
         epoch_lower_bound = max(file_epochs)+1
+        classifier = torch.load("models/{}_{}.th".format(arguments.hidden, epoch_lower_bound-1))
+        
+    optimizer = torch.optim.Adam(classifier.parameters())
 
     for epoch in range(epoch_lower_bound, arguments.epochs):
         simulation_loader = iter(DataLoader(simulation_dataset, num_workers=0, batch_size=arguments.batch_size))
