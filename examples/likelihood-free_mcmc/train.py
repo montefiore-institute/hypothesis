@@ -6,6 +6,7 @@ import argparse
 import torch
 import numpy as np
 import os
+import re
 
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
@@ -28,7 +29,20 @@ def main(arguments):
     fake = torch.zeros(arguments.batch_size, 1)
     bce = torch.nn.BCELoss()
     iterations = int(arguments.iterations / arguments.batch_size)
-    for epoch in range(arguments.epochs):
+    
+    model_files = os.listdir("models/")
+    model_files = [x for x in model_files if x.startswith("{}_".format(arguments.hidden))]
+    file_epochs = [re.search('{}_(.+?).th'.format(arguments.hidden), x).group(1) for x in model_files]
+    if 'final' in file_epochs:
+        print("Model already trained")
+        exit()
+    elif len(file_epochs) == 0:
+        epoch_lower_bound = 0
+    else:
+        file_epochs = [int(x) for x in file_epochs]
+        epoch_lower_bound = max(file_epochs)+1
+
+    for epoch in range(epoch_lower_bound, arguments.epochs):
         simulation_loader = iter(DataLoader(simulation_dataset, num_workers=0, batch_size=arguments.batch_size))
         reference_loader = iter(DataLoader(reference_dataset, num_workers=0, batch_size=arguments.batch_size))
         for iteration in range(iterations):
