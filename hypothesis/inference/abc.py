@@ -20,10 +20,6 @@ class ApproximateBayesianComputation(Method):
         self.summary = summary
         self.distance = distance
         self._epsilon = .01
-        self._reset()
-
-    def _reset(self):
-        self._num_observations = 0
 
     def epsilon(self):
         return self._epsilon
@@ -32,11 +28,12 @@ class ApproximateBayesianComputation(Method):
         sample = None
 
         s_o = self.summary(observations)
+        num_observations = observations.size(0)
         while not sample:
             theta = self.prior.sample()
-            x_theta = self.model(theta, self._num_observations)
+            x_theta = self.model(theta, num_observations)
             s_x = self.summary(x_theta)
-            d = self.distance(summary_o, s_x)
+            d = self.distance(s_o, s_x)
             if d < self._epsilon:
                 sample = theta
 
@@ -44,12 +41,10 @@ class ApproximateBayesianComputation(Method):
 
     def procedure(self, observations, **kwargs):
         samples = []
-        self._reset()
 
         num_samples = int(kwargs[self.KEY_NUM_SAMPLES])
-        self.num_observations = observations.size(0)
-        for sample_index in range(num_observations):
-            sample = self.sample()
+        for sample_index in range(num_samples):
+            sample = self.sample(observations)
             samples.append(sample)
 
         return samples
