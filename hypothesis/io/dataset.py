@@ -62,3 +62,45 @@ class H5Dataset(HypothesisDataset):
 
     def size(self):
         return self.size
+
+
+
+class SimulationDataset(HypothesisDataset):
+
+    def __init__(self, distribution, simulator, size):
+        super(SimulationDataset, self).__init__()
+        self.distribution = distribution
+        self.simulator = simulator
+        self.size = size
+
+    def size(self):
+        return self.size
+
+    def sample(self):
+        with torch.no_grad():
+            theta = self.distribution().sample()
+            theta, x_theta = self.simulator(theta)
+
+        return theta, x_theta
+
+    def __getitem__(self, index):
+        return self.sample()
+
+
+
+class ReferenceDataset(HypothesisDataset):
+
+    def __init__(self, reference, simulator, size):
+        super(ReferenceDataset, self).__init__()
+        self.reference = reference
+        self.simulator = simulator
+        self.size = size
+
+    def size(self):
+        return self.size
+
+    def sample(self):
+        with torch.no_grad():
+            theta, x_theta = self.simulator(reference)
+
+        return theta, x_theta
