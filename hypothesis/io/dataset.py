@@ -67,7 +67,7 @@ class H5Dataset(HypothesisDataset):
 
 class SimulationDataset(HypothesisDataset):
 
-    def __init__(self, distribution, simulator, size):
+    def __init__(self, distribution, simulator, size=100000):
         super(SimulationDataset, self).__init__()
         self.distribution = distribution
         self.simulator = simulator
@@ -88,9 +88,9 @@ class SimulationDataset(HypothesisDataset):
 
 
 
-class ReferenceDataset(HypothesisDataset):
+class ReferenceSimulationDataset(HypothesisDataset):
 
-    def __init__(self, reference, simulator, size):
+    def __init__(self, reference, simulator, size=100000):
         super(ReferenceDataset, self).__init__()
         self.reference = reference
         self.simulator = simulator

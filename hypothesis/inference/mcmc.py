@@ -250,12 +250,13 @@ class LikelihoodFreeRatioHamiltonian(MarkovChainMonteCarlo):
         return gradient
 
     def step(self, observations, theta):
+        # TODO Implement.
+        raise NotImplementedError
         accepted = False
         momentum = self.momentum.rsample()
 
         momentum_next = momentum
         theta_next = theta
-        # TODO Implement.
         rho = 0.
         acceptance = min([1, rho])
         u = np.random.uniform()
