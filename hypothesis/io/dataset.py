@@ -3,7 +3,6 @@ Datasets API.
 """
 
 import numpy as np
-import h5py as h5
 import torch
 
 from torch.utils.data import Dataset
@@ -19,9 +18,9 @@ class HypothesisDataset(Dataset):
         raise NotImplementedError
 
     def __len__(self):
-        return self.size()
+        return self.length()
 
-    def size(self):
+    def length(self):
         raise NotImplementedError
 
     def sample(self):
@@ -40,28 +39,8 @@ class TensorDataset(HypothesisDataset):
     def __getitem__(self, index):
         return self.data[index].detach()
 
-    def size(self):
+    def length(self):
         return self.data.size(0)
-
-
-
-class H5Dataset(HypothesisDataset):
-
-    def __init__(self, path, name_input, name_output):
-        super(H5Dataset, self).__init__()
-        self.file = h5.File(self.path, 'r')
-        self.x = self.file.get(name_input)
-        self.y = self.file.get(name_output)
-        self.size = self.file.len()
-
-    def __getitem__(self, index):
-        x = torch.from_numpy(self.x[index]).float()
-        y = torch.from_numpy(self.y[index]).float()
-
-        return (x, y)
-
-    def size(self):
-        return self.size
 
 
 
@@ -73,12 +52,12 @@ class SimulationDataset(HypothesisDataset):
         self.simulator = simulator
         self.size = size
 
-    def size(self):
+    def length(self):
         return self.size
 
     def sample(self):
         with torch.no_grad():
-            theta = self.distribution().sample()
+            theta = self.distribution.sample()
             theta, x_theta = self.simulator(theta)
 
         return theta, x_theta
@@ -91,16 +70,19 @@ class SimulationDataset(HypothesisDataset):
 class ReferenceSimulationDataset(HypothesisDataset):
 
     def __init__(self, reference, simulator, size=100000):
-        super(ReferenceDataset, self).__init__()
-        self.reference = reference
+        super(ReferenceSimulationDataset, self).__init__()
+        self.reference = torch.tensor(reference).view(1, -1).float()
         self.simulator = simulator
         self.size = size
 
-    def size(self):
+    def length(self):
         return self.size
 
     def sample(self):
         with torch.no_grad():
-            theta, x_theta = self.simulator(reference)
+            theta, x_theta = self.simulator(self.reference)
 
         return theta, x_theta
+
+    def __getitem__(self, index):
+        return self.sample()

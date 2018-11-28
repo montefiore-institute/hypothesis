@@ -213,6 +213,12 @@ class Chain:
     def first(self):
         return self._chain[0]
 
+    def min(self):
+        return self._chain.min(dim=0)
+
+    def max(self):
+        return self._chain.max(dim=0)
+
     def append(self, chain):
         # TODO Appends the specified chain.
         raise NotImplementedError
