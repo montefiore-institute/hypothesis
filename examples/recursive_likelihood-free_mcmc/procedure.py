@@ -29,14 +29,19 @@ def main(arguments):
     for iteration in tqdm(range(iterations), desc="Recursions"):
         classifier, result_lf, result_analytical = approximate_posterior(arguments)
         #plot_density(result_lf, show_mean=True, truth=arguments.truth)
+        #plot_density(result_analytical)
         #plt.show()
-        #plot_density(result_analytical, show_mean=True, truth=arguments.truth)
-        #plt.show()
-        arguments.lower = results_lf.min() - .1
-        arguments.upper = results_lf.max() + .1
+        var = result_lf.std().item()
+        arguments.lower = result_lf.min() - var
+        arguments.upper = result_lf.max() + var
         arguments.reference = (arguments.lower + arguments.upper) / 2.
-        arguments.theta0 = arguments.reference
+        arguments.theta0 = 1.
+        print(arguments)
+        print(result_lf.mean())
+        print(result_analytical.mean())
+        print("------\n")
     plot_density(result_lf, show_mean=True, truth=result_analytical.mean().item())
+    plt.show()
     print(result_analytical.mean(), "---", result_lf.mean())
 
 
@@ -95,7 +100,8 @@ def approximate_posterior(arguments):
 def optimize_classifier(arguments):
     classifier = allocate_classifier(arguments)
     classifier.train()
-    optimizer = torch.optim.Adam(classifier.parameters())
+    #optimizer = torch.optim.Adam(classifier.parameters())
+    optimizer = torch.optim.Adam(classifier.parameters(), lr=0.001)
     U = Uniform(arguments.lower, arguments.upper)
     simulator = NormalSimulator()
     simulation_dataset = SimulationDataset(U, simulator, size=arguments.size)
@@ -164,20 +170,20 @@ def allocate_observations(arguments):
 
 def parse_arguments():
     parser = argparse.ArgumentParser("Recursive Likelihood-free MCMC.")
-    parser.add_argument("--observations", type=int, default=100, help="Number of observations sampled from the observed distribution.")
+    parser.add_argument("--observations", type=int, default=200, help="Number of observations sampled from the observed distribution.")
     parser.add_argument("--truth", type=float, default=1, help="True mean of the observed distribution.")
-    parser.add_argument("--reference", type=float, default=0, help="Initial reference model parameter.")
+    parser.add_argument("--reference", type=float, default=1, help="Initial reference model parameter.")
     parser.add_argument("--hidden", type=int, default=50, help="Number of hidden units in the neural units.")
-    parser.add_argument("--iterations", type=int, default=10, help="Number of recursive iterations.")
+    parser.add_argument("--iterations", type=int, default=5, help="Number of recursive iterations.")
     parser.add_argument("--samples", type=int, default=100000, help="Number of MCMC samples.")
     parser.add_argument("--burnin", type=int, default=1000, help="Number of burnin steps.")
     parser.add_argument("--lower", type=float, default=-5, help="Initial lower-bound of the parameter space.")
     parser.add_argument("--upper", type=float, default=5, help="Initial upper-bound of the parameter space.")
     parser.add_argument("--size", type=int, default=256000, help="Dataset size.")
-    parser.add_argument("--epochs", type=int, default=100, help="Number of training epochs.")
+    parser.add_argument("--epochs", type=int, default=10, help="Number of training epochs.")
     parser.add_argument("--batch-size", type=int, default=128, help="Batch-size of the optimization procedure.")
     parser.add_argument("--data-workers", type=int, default=0, help="Number of asynchronous data workers.")
-    parser.add_argument("--theta0", type=float, default=5, help="Initial theta to start sampling from.")
+    parser.add_argument("--theta0", type=float, default=1, help="Initial theta to start sampling from.")
     arguments, _ = parser.parse_known_args()
 
     return arguments

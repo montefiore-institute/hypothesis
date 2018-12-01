@@ -214,10 +214,13 @@ class Chain:
         return self._chain[0]
 
     def min(self):
-        return self._chain.min(dim=0)
+        return self._chain.min().item()
 
     def max(self):
-        return self._chain.max(dim=0)
+        return self._chain.max().item()
+
+    def std(self):
+        return self._chain.std().max()
 
     def append(self, chain):
         # TODO Appends the specified chain.
