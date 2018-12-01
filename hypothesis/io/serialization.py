@@ -6,14 +6,14 @@ import pickle
 
 
 
-def save(object, path):
+def save(obj, path):
     with open(path, "wb") as fh:
-        pickle.dump(object, fh)
+        pickle.dump(obj, fh)
 
 
 
 def load(path):
     with open(path, "rb") as fh:
-        object = pickle.load(path)
+        obj = pickle.load(fh)
 
-    return object
+    return obj
