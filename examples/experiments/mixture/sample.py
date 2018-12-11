@@ -92,13 +92,14 @@ def metropolis_hastings_analytical(arguments):
 
         dist = MixtureOfNormals(modes, mixing_coefficients)
         likelihood = dist.log_prob(observations).sum()
+        if torch.isnan(likelihood):
+            likelihood = torch.FloatTensor([float("-Inf")])
         return likelihood
 
     observations = get_observations(arguments)
     transition = get_transition(arguments)
     theta0 = get_theta0(arguments)
-    sampler = MetropolisHastings(log_likelihood, transition,
-                                 arguments.lower, arguments.upper)
+    sampler = MetropolisHastings(log_likelihood, transition)
     result = sampler.infer(observations,
                            theta_0=theta0,
                            burnin_steps=arguments.burnin,
@@ -129,8 +130,7 @@ def metropolis_hastings_classifier(arguments):
     observations = get_observations(arguments)
     transition = get_transition(arguments)
     theta0 = get_theta0(arguments)
-    sampler = RatioMetropolisHastings(ratio, transition,
-                                      arguments.lower, arguments.upper)
+    sampler = RatioMetropolisHastings(ratio, transition)
     result = sampler.infer(observations,
                            theta_0=theta0,
                            burnin_steps=arguments.burnin,

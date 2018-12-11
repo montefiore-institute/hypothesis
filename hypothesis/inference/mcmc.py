@@ -146,12 +146,10 @@ class Hamiltonian(MarkovChainMonteCarlo):
 class MetropolisHastings(MarkovChainMonteCarlo):
 
     def __init__(self, log_likelihood,
-                 transition, lower, upper):
+                 transition):
         super(MetropolisHastings, self).__init__()
         self.log_likelihood = log_likelihood
         self.transition = transition
-        self.lower = lower
-        self.upper = upper
 
     def likelihood_ratio(self, observations, theta_next, theta):
         likelihood_current = self.log_likelihood(theta, observations)
@@ -165,8 +163,6 @@ class MetropolisHastings(MarkovChainMonteCarlo):
 
         with torch.no_grad():
             theta_next = self.transition.sample(theta).squeeze()
-            #if(theta_next < self.lower or theta_next > self.upper):
-            #    return theta, 0, accepted
             lr = self.likelihood_ratio(observations, theta_next, theta)
             if not self.transition.is_symmetric():
                 t_theta_next = self.transition.log_prob(theta, theta_next).exp()
@@ -187,19 +183,15 @@ class MetropolisHastings(MarkovChainMonteCarlo):
 class RatioMetropolisHastings(MarkovChainMonteCarlo):
 
     def __init__(self, ratio,
-                 transition, lower, upper):
+                 transition):
         super(RatioMetropolisHastings, self).__init__()
         self.ratio = ratio
         self.transition = transition
-        self.lower = lower
-        self.upper = upper
 
     def step(self, observations, theta):
         accepted = False
 
         theta_next = self.transition.sample(theta).squeeze().detach()
-        #if(theta_next < self.lower or theta_next > self.upper):
-        #    return theta, 0, accepted
 
         lr = self.ratio(observations, theta_next, theta)
         if not self.transition.is_symmetric():
