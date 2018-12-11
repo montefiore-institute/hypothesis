@@ -18,13 +18,10 @@ from tqdm import tqdm
 
 def main(arguments):
     # Data-source preperation.
-    modes, mixing_coefficients = [-5., 0., 5.], [0.4, 0.2, 0.4]
-    if arguments.modes is not None:
-        modes = arguments.modes.split(",")
-        modes = [float(x) for x in modes]
-    if arguments.mixing_coefficients is not None:
-        mixing_coefficients = arguments.mixing_coefficients.split(",")
-        mixing_coefficients = [float(x) for x in mixing_coefficients]
+    modes = arguments.modes.split(",")
+    modes = [float(x) for x in modes]
+    mixing_coefficients = arguments.mixing_coefficients.split(",")
+    mixing_coefficients = [float(x) for x in mixing_coefficients]
     dataset = SimulationDataset(2 * arguments.size, modes=modes,
                                 mixing_coefficients=mixing_coefficients,
                                 upper=arguments.upper, lower=arguments.lower)
@@ -89,16 +86,16 @@ def parse_arguments():
     parser = argparse.ArgumentParser("Likelihood-free Posterior Sampling. Demonstration 1 - Training.")
     parser.add_argument("--lr", type=float, default=0.00001, help="Learning-rate.")
     parser.add_argument("--batch-size", type=int, default=256, help="Batch-size.")
-    parser.add_argument("--upper", type=float, default=5, help="Upper-limit of the parameter space.")
-    parser.add_argument("--lower", type=float, default=-5, help="Lower-limit of the parameter space.")
+    parser.add_argument("--lower", type=float, default=0, help="Upper-limit of the parameter space.")
+    parser.add_argument("--upper", type=float, default=10, help="Lower-limit of the parameter space.")
     parser.add_argument("--epochs", type=int, default=100, help="Number of data iterations.")
     parser.add_argument("--size", type=int, default=1000000, help="Number of samples in a single dataset.")
     parser.add_argument("--hidden", type=int, default=256, help="Number of hidden units.")
     parser.add_argument("--layers", type=int, default=3, help="Number of hidden layers.")
     parser.add_argument("--workers", type=int, default=0, help="Number of asynchronous data loaders.")
     parser.add_argument("--out", type=str, default=None, help="Directory to store the models.")
-    parser.add_argument("--modes", type=str, default=None, help="Modes of the mixture.")
-    parser.add_argument("--mixing-coefficients", type=str, default=None, help="Mixing coefficients for the modes.")
+    parser.add_argument("--modes", type=str, default="-5, 0, 5", help="Modes of the mixture.")
+    parser.add_argument("--mixing-coefficients", type=str, default="0.4, 0.2, 0.4", help="Mixing coefficients for the modes.")
     arguments, _ = parser.parse_known_args()
 
     return arguments

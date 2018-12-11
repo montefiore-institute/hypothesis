@@ -27,6 +27,8 @@ def r1_regularization(y_hat, x):
 
 class AdversarialVariationalOptimization(SimulatorMethod):
 
+    KEY_STEPS = "steps"
+
     def __init__(self, simulator,
                  discriminator,
                  proposal,
@@ -39,8 +41,9 @@ class AdversarialVariationalOptimization(SimulatorMethod):
         # Initialize the state of the procedure.
         self.discriminator = discriminator
         self.proposal = proposal.clone()
+        self.batch_size = batch_size
         if not baseline:
-            baseline = AVOlBaseline(discriminator)
+            baseline = AVOBaseline(discriminator)
         self.baseline = baseline
         self._lr_discriminator = lr_discriminator
         self._lr_proposal = lr_proposal
@@ -79,7 +82,7 @@ class AdversarialVariationalOptimization(SimulatorMethod):
         )
 
     def _update_discriminator(self, observations, thetas, x_thetas):
-        self.fire_event(event.avo_update_discriminator_start, self)
+        self.fire_event(event.avo_update_discriminator_start)
         x_real = sample(observations, self.batch_size)
         x_fake = x_thetas
         x_real.requires_grad = True
@@ -91,10 +94,10 @@ class AdversarialVariationalOptimization(SimulatorMethod):
         loss.backward()
         self._o_discriminator.step()
         x_real.requires_grad = False
-        self.fire_event(event.avo_update_discriminator_end, self)
+        self.fire_event(event.avo_update_discriminator_end)
 
     def _update_proposal(self, observations, thetas, x_thetas):
-        self.fire_event(event.avo_update_proposal_start, self)
+        self.fire_event(event.avo_update_proposal_start)
         log_probabilities = self.proposal.log_prob(thetas)
         gradients = []
         for log_p in log_probabilities:
@@ -118,14 +121,14 @@ class AdversarialVariationalOptimization(SimulatorMethod):
                 p.grad = gradient_U[index].expand(p.size())
         self._o_proposal.step()
         self.proposal.fix()
-        self.fire_event(event.avo_update_proposal_end, self)
+        self.fire_event(event.avo_update_proposal_end)
 
     def _sample(self):
-        self.fire_event(event.avo_simulation_start, self)
+        self.fire_event(event.avo_simulation_start)
         thetas = self.proposal.sample(self.batch_size)
         thetas, x_thetas = self.simulator(thetas)
         self._num_simulations += self.batch_size
-        self.fire_event(event.avo_simulation_end, self)
+        self.fire_event(event.avo_simulation_end)
 
         return thetas, x_thetas
 
@@ -136,7 +139,7 @@ class AdversarialVariationalOptimization(SimulatorMethod):
 
     def procedure(self, observations, **kwargs):
         self._reset()
-        num_steps = int(kwargs["steps"])
+        num_steps = int(kwargs[self.KEY_STEPS])
         for iteration in range(num_steps):
             self.fire_event(event.iteration_start)
             self.step(observations);
