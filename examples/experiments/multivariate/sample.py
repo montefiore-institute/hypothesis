@@ -7,9 +7,9 @@ import torch
 
 from hypothesis.inference import MetropolisHastings
 from hypothesis.inference import RatioMetropolisHastings
-from hypothesis.transition import NormalTransitionDistribution
+from hypothesis.transition import MultivariateNormalTransitionDistribution
 from hypothesis.util import epsilon
-from hypothesis.distribution import MixtureOfNormals
+from torch.distributions.multivariate_normal import MultivariateNormal
 from torch.distributions.normal import Normal
 
 
@@ -31,19 +31,27 @@ def main(arguments):
         save_result(result_lf, name=name)
     else:
         result_lf = hypothesis.load(path)
+
     # Plotting.
-    bins = 50
-    minimum = min([result_analytical.min(), result_lf.min()])
-    maximum = max([result_analytical.max(), result_lf.max()])
-    binwidth = abs(maximum - minimum) / bins
-    bins = np.arange(minimum - binwidth, maximum + binwidth, binwidth)
-    chain_analytical = result_analytical.chain(0)
-    chain_lf = result_lf.chain(0)
-    plt.hist(chain_analytical.numpy(), histtype="step", bins=bins, density=True, alpha=.8, label="Analytical")
-    plt.hist(chain_lf.numpy(), histtype="step", bins=bins, density=True, alpha=.8, label="Likelihood-free")
-    plt.axvline(chain_analytical.mean().item(), c="gray", lw=2, linestyle="-.", alpha=.9)
-    plt.axvline(chain_lf.mean().item(), c="gray", lw=2, linestyle="-.", alpha=.9)
-    plt.axvline(arguments.truth, c='r', lw=2, linestyle='-', alpha=.95, label="Truth")
+    true_thetas = [float(x) for x in arguments.truth.split(",")]
+    for i in range(result_analytical.size()):
+        bins = 50
+        minimum = min([result_analytical.chain(i).min(), result_lf.chain(i).min()])
+        maximum = max([result_analytical.chain(i).max(), result_lf.chain(i).max()])
+        binwidth = abs(maximum - minimum) / bins
+        bins = np.arange(minimum - binwidth, maximum + binwidth, binwidth)
+        chain_analytical = result_analytical.chain(i)
+        chain_lf = result_lf.chain(i)
+
+        labels = [None, None, None]
+        if(i == 0):
+            labels = ["Analytical", "Likelihood-free", "Truth"]
+        plt.hist(chain_analytical.numpy(), color="orange", histtype="step", bins=bins, density=True, alpha=.8, label=labels[0])
+        plt.hist(chain_lf.numpy(), color="blue", histtype="step", bins=bins, density=True, alpha=.8, label=labels[1])
+        plt.axvline(true_thetas[i], c='r', lw=2, linestyle='-', alpha=.95, label=labels[2])
+        plt.axvline(chain_analytical.mean().item(), c="gray", lw=2, linestyle="-.", alpha=.9)
+        plt.axvline(chain_lf.mean().item(), c="gray", lw=2, linestyle="-.", alpha=.9)
+
     plt.minorticks_on()
     plt.legend()
     plt.savefig(str(arguments.observations) + ".pdf", bbox_inches="tight", pad_inches=0)
@@ -63,16 +71,10 @@ def get_observations(arguments):
         os.makedirs(path)
     path = path + str(arguments.observations) + ".th"
     if not os.path.exists(path):
-        modes = arguments.modes.split(",")
-        modes = [Normal(float(x), arguments.truth) for x in modes]
-        mixing_coefficients = arguments.mixing_coefficients.split(",")
-        mixing_coefficients = [float(x) for x in mixing_coefficients]
-
-        dist = MixtureOfNormals(modes, mixing_coefficients)
-        observations = []
-        for i in range(arguments.observations):
-            observations.append(dist.sample())
-        observations = torch.FloatTensor(observations).view(-1, 1)
+        thetas = arguments.truth.split(",")
+        thetas = torch.Tensor([float(x) for x in thetas])
+        dist = MultivariateNormal(thetas, torch.eye(arguments.dimensionality))
+        observations = dist.sample(sample_shape=torch.Size([arguments.observations]))
 
         torch.save(observations, path)
     else:
@@ -85,12 +87,7 @@ def metropolis_hastings_analytical(arguments):
     # Define the log-likelihood of the observations wrt theta.
 
     def log_likelihood(theta, observations):
-        modes = arguments.modes.split(",")
-        modes = [Normal(float(x), theta.item()) for x in modes]
-        mixing_coefficients = arguments.mixing_coefficients.split(",")
-        mixing_coefficients = [float(x) for x in mixing_coefficients]
-
-        dist = MixtureOfNormals(modes, mixing_coefficients)
+        dist = MultivariateNormal(theta, torch.eye(arguments.dimensionality))
         likelihood = dist.log_prob(observations).sum()
         if torch.isnan(likelihood):
             likelihood = torch.FloatTensor([float("-Inf")])
@@ -115,8 +112,8 @@ def metropolis_hastings_classifier(arguments):
     # Extract the approximate likelihood-ratio from the classifier.
     def ratio(observations, theta_next, theta):
         n = observations.size(0)
-        theta_next = theta_next.repeat(n).view(-1, 1)
-        theta = theta.repeat(n).view(-1, 1)
+        theta_next = theta_next.repeat(n).view(n, -1)
+        theta = theta.repeat(n).view(n, -1)
         x = torch.cat([theta, observations], dim=1)
         x_next = torch.cat([theta_next, observations], dim=1)
         s = classifier(x)
@@ -148,13 +145,15 @@ def get_classifier(arguments):
 
 
 def get_transition(arguments):
-    transition = NormalTransitionDistribution(1.)
+    transition = MultivariateNormalTransitionDistribution(torch.eye(arguments.dimensionality))
 
     return transition
 
 
 def get_theta0(arguments):
-    theta0 = torch.tensor(arguments.theta0).float().view(-1)
+    theta0 = arguments.theta0.split(",")
+    theta0 = [float(x) for x in theta0]
+    theta0 = torch.tensor(theta0).float().view(-1)
 
     return theta0
 
@@ -164,14 +163,13 @@ def parse_arguments():
     parser.add_argument("--samples", type=int, default=100000, help="Number of MCMC samples.")
     parser.add_argument("--burnin", type=int, default=5000, help="Number of burnin samples.")
     parser.add_argument("--observations", type=int, default=50, help="Number of observations.")
-    parser.add_argument("--truth", type=float, default=1, help="True model parameter (theta).")
-    parser.add_argument("--theta0", type=float, default=5, help="Initial theta of the Markov chain.")
+    parser.add_argument("--truth", type=str, default="-1, 0, 1", help="True model parameters (theta).")
+    parser.add_argument("--theta0", type=str, default="4, 5, -4", help="Initial theta of the Markov chain.")
     parser.add_argument("--classifier", type=str, default=None, help="Path to the classifier.")
     parser.add_argument("--force", type=bool, default=False, nargs='?', const=True, help="Force sampling.")
-    parser.add_argument("--modes", type=str, default="-5, 0, 5", help="Modes of the mixture.")
-    parser.add_argument("--mixing-coefficients", type=str, default="0.4, 0.2, 0.4", help="Mixing coefficients for the modes.")
     parser.add_argument("--lower", type=float, default=0, help="Lower-limit of the parameter space.")
     parser.add_argument("--upper", type=float, default=10, help="Upper-limit of the parameter space.")
+    parser.add_argument("--dimensionality", type=int, default=3, help="Dimensionality of the multivariate normal.")
     arguments, _ = parser.parse_known_args()
     if arguments.classifier is None:
         raise ValueError("No classifier has been specified.")

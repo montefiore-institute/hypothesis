@@ -9,8 +9,7 @@ import os
 
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
-from hypothesis.distribution import MixtureOfNormals
-from torch.distributions.normal import Normal
+from torch.distributions.multivariate_normal import MultivariateNormal
 from torch.distributions.uniform import Uniform
 from tqdm import tqdm
 
@@ -18,12 +17,7 @@ from tqdm import tqdm
 
 def main(arguments):
     # Data-source preperation.
-    modes = arguments.modes.split(",")
-    modes = [float(x) for x in modes]
-    mixing_coefficients = arguments.mixing_coefficients.split(",")
-    mixing_coefficients = [float(x) for x in mixing_coefficients]
-    dataset = SimulationDataset(2 * arguments.size, modes=modes,
-                                mixing_coefficients=mixing_coefficients,
+    dataset = SimulationDataset(2 * arguments.size, dimensionality=arguments.dimensionality,
                                 lower=arguments.lower, upper=arguments.upper)
     # Training preperation.
     ones = torch.ones(arguments.batch_size, 1)
@@ -69,7 +63,7 @@ def allocate_classifier(arguments):
 
     hidden = arguments.hidden
     # Add initial layer.
-    modules.append(torch.nn.Linear(2, hidden))
+    modules.append(torch.nn.Linear(2 * arguments.dimensionality, hidden))
     modules.append(torch.nn.LeakyReLU())
     # Add hidden layers.
     for i in range(arguments.layers):
@@ -86,16 +80,15 @@ def parse_arguments():
     parser = argparse.ArgumentParser("Likelihood-free Posterior Sampling. Demonstration 1 - Training.")
     parser.add_argument("--lr", type=float, default=0.00001, help="Learning-rate.")
     parser.add_argument("--batch-size", type=int, default=256, help="Batch-size.")
-    parser.add_argument("--lower", type=float, default=0, help="Lower-limit of the parameter space.")
-    parser.add_argument("--upper", type=float, default=10, help="Upper-limit of the parameter space.")
+    parser.add_argument("--lower", type=float, default=-5, help="Lower-limit of the parameter space.")
+    parser.add_argument("--upper", type=float, default=5, help="Upper-limit of the parameter space.")
     parser.add_argument("--epochs", type=int, default=100, help="Number of data iterations.")
     parser.add_argument("--size", type=int, default=1000000, help="Number of samples in a single dataset.")
     parser.add_argument("--hidden", type=int, default=256, help="Number of hidden units.")
     parser.add_argument("--layers", type=int, default=3, help="Number of hidden layers.")
     parser.add_argument("--workers", type=int, default=0, help="Number of asynchronous data loaders.")
     parser.add_argument("--out", type=str, default=None, help="Directory to store the models.")
-    parser.add_argument("--modes", type=str, default="-5, 0, 5", help="Modes of the mixture.")
-    parser.add_argument("--mixing-coefficients", type=str, default="0.4, 0.2, 0.4", help="Mixing coefficients for the modes.")
+    parser.add_argument("--dimensionality", type=int, default=3, help="Dimensionality of the multivariate normal.")
     arguments, _ = parser.parse_known_args()
 
     return arguments
@@ -103,13 +96,11 @@ def parse_arguments():
 
 class SimulationDataset(Dataset):
 
-    def __init__(self, size, modes, mixing_coefficients,
-                lower, upper):
+    def __init__(self, size, dimensionality, lower, upper):
         super(SimulationDataset, self).__init__()
         self.size = size
+        self.dimensionality = dimensionality
         self.uniform = Uniform(lower, upper)
-        self.modes = modes
-        self.mixing_coefficients = mixing_coefficients
 
     def __getitem__(self, index):
         return self.sample()
@@ -118,13 +109,8 @@ class SimulationDataset(Dataset):
         return self.size
 
     def sample(self):
-        theta = self.uniform.sample().view(-1)
-
-        components = []
-        for x in self.modes:
-            components.append(Normal(x, theta))
-
-        x_theta = MixtureOfNormals(components, self.mixing_coefficients).sample().view(-1)
+        theta = self.uniform.sample(sample_shape=torch.Size([self.dimensionality])).view(-1)
+        x_theta = MultivariateNormal(theta, torch.eye(self.dimensionality)).sample().view(-1)
 
         return theta, x_theta
 

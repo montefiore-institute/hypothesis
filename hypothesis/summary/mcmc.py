@@ -10,7 +10,14 @@ import numpy as np
 class Chains:
 
     def __init__(self, chains):
-        self.chains = chains
+        tmp_chains = []
+        for i in range(chains[0].size(0)):
+            tmp_chain = []
+            for j in range(len(chains)):
+                tmp_chain.append(chains[j][i])
+            tmp_chains.append(torch.Tensor(tmp_chain))
+
+        self.chains = tmp_chains
 
     def chain(self, index):
         return self.chains[index]
