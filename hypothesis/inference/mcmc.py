@@ -61,7 +61,7 @@ class MarkovChainMonteCarlo(Method):
         # Start sampling form the MH chain.
         thetas, probabilities, acceptances = self.run_chain(theta_0, observations, num_samples)
 
-        if(thetas[0].size(0) == 1):
+        if(thetas[0].dim() == 0):
             chain = Chain(
                 thetas, probabilities, acceptances,
                 burnin_thetas, burnin_probabilities, burnin_acceptances)

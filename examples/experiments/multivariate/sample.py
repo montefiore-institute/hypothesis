@@ -89,7 +89,7 @@ def metropolis_hastings_analytical(arguments):
     def log_likelihood(theta, observations):
         dist = MultivariateNormal(theta, torch.eye(arguments.dimensionality))
         likelihood = dist.log_prob(observations).sum()
-        if torch.isnan(likelihood):
+        if torch.isnan(likelihood) or (theta > arguments.upper).any() or (theta < arguments.lower).any():
             likelihood = torch.FloatTensor([float("-Inf")])
         return likelihood
 
@@ -112,17 +112,20 @@ def metropolis_hastings_classifier(arguments):
     # Extract the approximate likelihood-ratio from the classifier.
     def ratio(observations, theta_next, theta):
         n = observations.size(0)
-        theta_next = theta_next.repeat(n).view(n, -1)
-        theta = theta.repeat(n).view(n, -1)
-        x = torch.cat([theta, observations], dim=1)
-        x_next = torch.cat([theta_next, observations], dim=1)
-        s = classifier(x)
-        s_next = classifier(x_next)
-        lr = ((1 - s) / s).log().sum()
-        lr_next = ((1 - s_next) / s_next).log().sum()
-        lr = (lr_next - lr).exp().item()
 
-        return lr
+        if (theta_next > arguments.upper).any() or (theta_next < arguments.lower).any():
+            return 0
+        else:
+            theta_next = theta_next.repeat(n).view(n, -1)
+            theta = theta.repeat(n).view(n, -1)
+            x = torch.cat([theta, observations], dim=1)
+            x_next = torch.cat([theta_next, observations], dim=1)
+            s = classifier(x)
+            s_next = classifier(x_next)
+            lr = ((1 - s) / s).log().sum()
+            lr_next = ((1 - s_next) / s_next).log().sum()
+            lr = (lr_next - lr).exp().item()
+            return lr
 
     observations = get_observations(arguments)
     transition = get_transition(arguments)
@@ -167,8 +170,8 @@ def parse_arguments():
     parser.add_argument("--theta0", type=str, default="4, 5, -4", help="Initial theta of the Markov chain.")
     parser.add_argument("--classifier", type=str, default=None, help="Path to the classifier.")
     parser.add_argument("--force", type=bool, default=False, nargs='?', const=True, help="Force sampling.")
-    parser.add_argument("--lower", type=float, default=0, help="Lower-limit of the parameter space.")
-    parser.add_argument("--upper", type=float, default=10, help="Upper-limit of the parameter space.")
+    parser.add_argument("--lower", type=float, default=-5, help="Lower-limit of the parameter space.")
+    parser.add_argument("--upper", type=float, default=5, help="Upper-limit of the parameter space.")
     parser.add_argument("--dimensionality", type=int, default=3, help="Dimensionality of the multivariate normal.")
     arguments, _ = parser.parse_known_args()
     if arguments.classifier is None:

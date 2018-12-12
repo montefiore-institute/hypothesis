@@ -92,7 +92,7 @@ def metropolis_hastings_analytical(arguments):
 
         dist = MixtureOfNormals(modes, mixing_coefficients)
         likelihood = dist.log_prob(observations).sum()
-        if torch.isnan(likelihood):
+        if torch.isnan(likelihood) or (theta > arguments.upper).any() or (theta < arguments.lower).any():
             likelihood = torch.FloatTensor([float("-Inf")])
         return likelihood
 
@@ -115,17 +115,19 @@ def metropolis_hastings_classifier(arguments):
     # Extract the approximate likelihood-ratio from the classifier.
     def ratio(observations, theta_next, theta):
         n = observations.size(0)
-        theta_next = theta_next.repeat(n).view(-1, 1)
-        theta = theta.repeat(n).view(-1, 1)
-        x = torch.cat([theta, observations], dim=1)
-        x_next = torch.cat([theta_next, observations], dim=1)
-        s = classifier(x)
-        s_next = classifier(x_next)
-        lr = ((1 - s) / s).log().sum()
-        lr_next = ((1 - s_next) / s_next).log().sum()
-        lr = (lr_next - lr).exp().item()
-
-        return lr
+        if (theta_next > arguments.upper).any() or (theta_next < arguments.lower).any():
+            return 0
+        else:
+            theta_next = theta_next.repeat(n).view(-1, 1)
+            theta = theta.repeat(n).view(-1, 1)
+            x = torch.cat([theta, observations], dim=1)
+            x_next = torch.cat([theta_next, observations], dim=1)
+            s = classifier(x)
+            s_next = classifier(x_next)
+            lr = ((1 - s) / s).log().sum()
+            lr_next = ((1 - s_next) / s_next).log().sum()
+            lr = (lr_next - lr).exp().item()
+            return lr
 
     observations = get_observations(arguments)
     transition = get_transition(arguments)
