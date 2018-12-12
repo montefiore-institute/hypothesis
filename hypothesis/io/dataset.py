@@ -44,7 +44,7 @@ class TensorDataset(HypothesisDataset):
 
 
 
-class SimulationDataset(HypothesisDataset):
+class GenerativeDataset(HypothesisDataset):
 
     def __init__(self, distribution, simulator, size=100000):
         super(SimulationDataset, self).__init__()
@@ -67,22 +67,17 @@ class SimulationDataset(HypothesisDataset):
 
 
 
-class ReferenceSimulationDataset(HypothesisDataset):
+class SimulationDataset(HypothesisDataset):
 
-    def __init__(self, reference, simulator, size=100000):
-        super(ReferenceSimulationDataset, self).__init__()
-        self.reference = torch.tensor(reference).view(1, -1).float()
-        self.simulator = simulator
-        self.size = size
+    def __init__(self, path):
+        super(SimulationDataset, self).__init__()
+        raise NotImplementedError
 
     def length(self):
         return self.size
 
     def sample(self):
-        with torch.no_grad():
-            theta, x_theta = self.simulator(self.reference)
-
-        return theta, x_theta
+        raise NotImplementedError
 
     def __getitem__(self, index):
-        return self.sample()
+        raise NotImplementedError
