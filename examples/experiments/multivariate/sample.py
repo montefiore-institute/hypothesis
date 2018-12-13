@@ -32,6 +32,17 @@ def main(arguments):
     else:
         result_lf = hypothesis.load(path)
 
+    #Bounds for next iteration
+    new_lower = result_lf.chain(0).min()
+    new_upper = result_lf.chain(0).max()
+    for i in range(1, result_lf.size()):
+        if(result_lf.chain(i).min() < new_lower):
+            new_lower = result_lf.chain(i).min()
+        if(result_lf.chain(i).max() > new_upper):
+            new_upper = result_lf.chain(i).max()
+    print("New lower bound: {}".format(new_lower))
+    print("New upper bound: {}".format(new_upper))
+
     # Plotting.
     true_thetas = [float(x) for x in arguments.truth.split(",")]
     for i in range(result_analytical.size()):
