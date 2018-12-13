@@ -45,11 +45,11 @@ class TensorDataset(HypothesisDataset):
 
 
 
-class GenerativeDataset(HypothesisDataset):
+class SimulatorDataset(HypothesisDataset):
 
-    def __init__(self, distribution, simulator, size=100000):
+    def __init__(self, simulator, prior, size=100000):
         super(SimulationDataset, self).__init__()
-        self.distribution = distribution
+        self.prior = prior
         self.simulator = simulator
         self.size = size
 
