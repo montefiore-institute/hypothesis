@@ -53,6 +53,9 @@ def save_model(arguments, model, name):
     else:
         models_directory = "models/"
 
+    if not os.path.exists(models_directory):
+        os.makedirs(models_directory)
+
     iterations = [x for x in os.listdir(models_directory) if "iteration" in x]
     current_iteration = len(iterations)
     # If end of 1st epoch, create new dir
