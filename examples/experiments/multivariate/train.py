@@ -52,8 +52,17 @@ def save_model(arguments, model, name):
         models_directory = arguments.out + '/'
     else:
         models_directory = "models/"
+
+    iterations = [x for x in os.listdir(models_directory) if "iteration" in x]
+    current_iteration = len(iterations)
+    # If end of 1st epoch, create new dir
+    if(name.split("_")[1] == "0"):
+         current_iteration += 1
+
+    models_directory += "iteration{}/".format(current_iteration)
     if not os.path.exists(models_directory):
         os.makedirs(models_directory)
+
     path = models_directory + name + ".th"
     torch.save(model, path)
 
