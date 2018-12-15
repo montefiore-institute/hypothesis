@@ -178,7 +178,7 @@ def parse_arguments():
     parser.add_argument("--burnin", type=int, default=5000, help="Number of burnin samples.")
     parser.add_argument("--observations", type=int, default=50, help="Number of observations.")
     parser.add_argument("--truth", type=str, default="-1, 0, 1", help="True model parameters (theta).")
-    parser.add_argument("--theta0", type=str, default="4, 5, -4", help="Initial theta of the Markov chain.")
+    parser.add_argument("--theta0", type=str, default="0, 0, 0", help="Initial theta of the Markov chain.")
     parser.add_argument("--classifier", type=str, default=None, help="Path to the classifier.")
     parser.add_argument("--force", type=bool, default=False, nargs='?', const=True, help="Force sampling.")
     parser.add_argument("--lower", type=float, default=-5, help="Lower-limit of the parameter space.")
