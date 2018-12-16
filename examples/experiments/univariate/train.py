@@ -9,6 +9,7 @@ import os
 
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
+from torch.optim.lr_scheduler import StepLR
 from torch.distributions.normal import Normal
 from torch.distributions.uniform import Uniform
 from tqdm import tqdm
@@ -24,9 +25,11 @@ def main(arguments):
     criterion = torch.nn.BCELoss()
     classifier = allocate_classifier(arguments)
     optimizer = torch.optim.Adam(classifier.parameters(), lr=arguments.lr)
+    scheduler = StepLR(optimizer, step_size=50, gamma=0.1)
     iterations = int(arguments.size / arguments.batch_size)
     # Training procedure.
     for epoch in tqdm(range(arguments.epochs)):
+        scheduler.step()
         loader = iter(DataLoader(dataset, num_workers=arguments.workers, batch_size = arguments.batch_size))
         for iteration in tqdm(range(iterations)):
             theta, x_theta = next(loader)
