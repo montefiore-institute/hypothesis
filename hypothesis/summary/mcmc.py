@@ -207,6 +207,9 @@ class Chain:
 
         return x, y
 
+    def dimensions(self):
+        return len(self.first())
+
     def last(self):
         return self._chain[-1]
 
