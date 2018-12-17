@@ -37,7 +37,7 @@ class MarkovChainMonteCarlo(Method):
 
         for sample_index in range(num_samples):
             theta_0, acceptance, accepted = self.step(observations, theta_0)
-            thetas.append(theta_0.squeeze())
+            thetas.append(theta_0.squeeze().view(1, -1))
             probabilities.append(acceptance)
             acceptances.append(accepted)
 

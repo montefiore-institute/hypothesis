@@ -65,7 +65,7 @@ class Chain:
                  burnin_chain=None,
                  burnin_probabilities=None,
                  burnin_acceptances=None):
-        chain = torch.tensor(chain).squeeze()
+        chain = torch.cat(chain, dim=0).squeeze()
         instance_dim = chain[0].dim()
         if instance_dim == 0:
             chain = chain.view(-1, 1)
@@ -75,7 +75,7 @@ class Chain:
         self._probabilities = probabilities
         self._acceptances = acceptances
         if burnin_chain and burnin_probabilities:
-            burnin_chain = torch.tensor(burnin_chain).squeeze()
+            burnin_chain = torch.cat(burnin_chain, dim=0).squeeze()
             if instance_dim == 0:
                 burnin_chain = burnin_chain.view(-1, 1)
             burnin_probabilities = torch.tensor(burnin_probabilities).squeeze()
