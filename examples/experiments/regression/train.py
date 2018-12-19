@@ -126,9 +126,9 @@ class SimulationDataset(Dataset):
     def sample(self):
         theta = self.uniform.sample(sample_shape=torch.Size([self.dimensionality])).view(-1)
 
-        S = Uniform(0, 3000.000512).sample().view(-1).item()
-        ConTh = Uniform(0, 9000.001536).sample().view(-1).item()
-        ConPr = Uniform(0, 33000.005632).sample().view(-1).item()
+        S = Uniform(0, 10).sample().view(-1).item()
+        ConTh = Uniform(0, 10).sample().view(-1).item()
+        ConPr = Uniform(0, 10).sample().view(-1).item()
         T = theta[0] * S + theta[1] * ConTh + theta[2] * ConPr
 
         return theta, torch.Tensor([S, ConTh, ConPr, T])
