@@ -78,7 +78,7 @@ def allocate_classifier(arguments):
 
     hidden = arguments.hidden
     # Add initial layer.
-    modules.append(torch.nn.Linear(2 * arguments.dimensionality, hidden))
+    modules.append(torch.nn.Linear(arguments.dimensionality + 4, hidden))
     modules.append(torch.nn.LeakyReLU())
     # Add hidden layers.
     for i in range(arguments.layers):
@@ -96,7 +96,7 @@ def parse_arguments():
     parser.add_argument("--lr", type=float, default=0.00001, help="Learning-rate.")
     parser.add_argument("--batch-size", type=int, default=256, help="Batch-size.")
     parser.add_argument("--lower", type=float, default=0, help="Lower-limit of the parameter space.")
-    parser.add_argument("--upper", type=float, default=5, help="Upper-limit of the parameter space.")
+    parser.add_argument("--upper", type=float, default=0.5, help="Upper-limit of the parameter space.")
     parser.add_argument("--epochs", type=int, default=100, help="Number of data iterations.")
     parser.add_argument("--size", type=int, default=1000000, help="Number of samples in a single dataset.")
     parser.add_argument("--hidden", type=int, default=256, help="Number of hidden units.")
@@ -126,12 +126,12 @@ class SimulationDataset(Dataset):
     def sample(self):
         theta = self.uniform.sample(sample_shape=torch.Size([self.dimensionality])).view(-1)
 
-        S = Uniform(0, 3000.000512).sample().view(-1)
-        ConTh = Uniform(0, 9000.001536).sample().view(-1)
-        ConPr = Uniform(0, 33000.005632).sample().view(-1)
+        S = Uniform(0, 3000.000512).sample().view(-1).item()
+        ConTh = Uniform(0, 9000.001536).sample().view(-1).item()
+        ConPr = Uniform(0, 33000.005632).sample().view(-1).item()
         T = theta[0] * S + theta[1] * ConTh + theta[2] * ConPr
 
-        return theta, x_theta
+        return theta, torch.Tensor([S, ConTh, ConPr, T])
 
 
 if __name__ == "__main__":
