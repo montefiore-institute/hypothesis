@@ -16,13 +16,13 @@ from torch.distributions.normal import Normal
 
 def main(arguments):
     # Analytical Metropolis-Hastings.
-    name = "analytical-" + str(arguments.observations)
-    path = "results/" + name
-    if not os.path.exists(path) or arguments.force:
-        result_analytical = metropolis_hastings_analytical(arguments)
-        save_result(result_analytical, name=name)
-    else:
-        result_analytical = hypothesis.load(path)
+    #name = "analytical-" + str(arguments.observations)
+    #path = "results/" + name
+    #if not os.path.exists(path) or arguments.force:
+    #    result_analytical = metropolis_hastings_analytical(arguments)
+    #    save_result(result_analytical, name=name)
+    #else:
+    #    result_analytical = hypothesis.load(path)
     # Classifier (likelihood-free) Metropolis-Hastings.
     name = "lf-" + str(arguments.observations)
     path = "results/" + name
@@ -45,22 +45,24 @@ def main(arguments):
 
     # Plotting.
     true_thetas = [float(x) for x in arguments.truth.split(",")]
-    for i in range(result_analytical.size()):
+    for i in range(result_lf.size()):
         bins = 50
-        minimum = min([result_analytical.chain(i).min(), result_lf.chain(i).min()])
-        maximum = max([result_analytical.chain(i).max(), result_lf.chain(i).max()])
+        #minimum = min([result_analytical.chain(i).min(), result_lf.chain(i).min()])
+        #maximum = max([result_analytical.chain(i).max(), result_lf.chain(i).max()])
+        minimum = result_lf.chain(i).min()
+        maximum = result_lf.chain(i).max()
         binwidth = abs(maximum - minimum) / bins
         bins = np.arange(minimum - binwidth, maximum + binwidth, binwidth)
-        chain_analytical = result_analytical.chain(i)
+        #chain_analytical = result_analytical.chain(i)
         chain_lf = result_lf.chain(i)
 
         labels = [None, None, None]
         if(i == 0):
             labels = ["Analytical", "Likelihood-free", "Truth"]
-        plt.hist(chain_analytical.numpy(), color="orange", histtype="step", bins=bins, density=True, alpha=.8, label=labels[0])
+        #plt.hist(chain_analytical.numpy(), color="orange", histtype="step", bins=bins, density=True, alpha=.8, label=labels[0])
         plt.hist(chain_lf.numpy(), color="blue", histtype="step", bins=bins, density=True, alpha=.8, label=labels[1])
         plt.axvline(true_thetas[i], c='r', lw=2, linestyle='-', alpha=.95, label=labels[2])
-        plt.axvline(chain_analytical.mean().item(), c="gray", lw=2, linestyle="-.", alpha=.9)
+        #plt.axvline(chain_analytical.mean().item(), c="gray", lw=2, linestyle="-.", alpha=.9)
         plt.axvline(chain_lf.mean().item(), c="gray", lw=2, linestyle="-.", alpha=.9)
 
     plt.minorticks_on()
@@ -80,16 +82,15 @@ def get_observations(arguments):
     path = "observations/"
     if not os.path.exists(path):
         os.makedirs(path)
-    path = path + str(arguments.observations) + ".th"
-    if not os.path.exists(path):
-        thetas = arguments.truth.split(",")
-        thetas = torch.Tensor([float(x) for x in thetas])
-        dist = MultivariateNormal(thetas, torch.eye(arguments.dimensionality))
-        observations = dist.sample(sample_shape=torch.Size([arguments.observations]))
+    path = path + arguments.observations
 
-        torch.save(observations, path)
-    else:
-        observations = torch.load(path)
+    observations = torch.empty([1122, 4])
+    counter=0
+
+    with open(path, "r") as input_file:
+        for line in input_file:
+            observations[counter] = torch.Tensor([float(x) for x in line.split(",")])
+            counter += 1
 
     return observations
 
@@ -176,13 +177,13 @@ def parse_arguments():
     parser = argparse.ArgumentParser("Likelihood-free Posterior Sampling. Demonstration 1 - Sampling.")
     parser.add_argument("--samples", type=int, default=100000, help="Number of MCMC samples.")
     parser.add_argument("--burnin", type=int, default=5000, help="Number of burnin samples.")
-    parser.add_argument("--observations", type=int, default=50, help="Number of observations.")
-    parser.add_argument("--truth", type=str, default="-1, 0, 1", help="True model parameters (theta).")
+    parser.add_argument("--observations", type=str, default="regression.dat", help="File with observations.")
+    parser.add_argument("--truth", type=str, default="0.023568, 0.043705, 0.001538", help="True model parameters (theta).")
     parser.add_argument("--theta0", type=str, default="0, 0, 0", help="Initial theta of the Markov chain.")
     parser.add_argument("--classifier", type=str, default=None, help="Path to the classifier.")
     parser.add_argument("--force", type=bool, default=False, nargs='?', const=True, help="Force sampling.")
-    parser.add_argument("--lower", type=float, default=-5, help="Lower-limit of the parameter space.")
-    parser.add_argument("--upper", type=float, default=5, help="Upper-limit of the parameter space.")
+    parser.add_argument("--lower", type=float, default=0, help="Lower-limit of the parameter space.")
+    parser.add_argument("--upper", type=float, default=0.5, help="Upper-limit of the parameter space.")
     parser.add_argument("--dimensionality", type=int, default=3, help="Dimensionality of the multivariate normal.")
     arguments, _ = parser.parse_known_args()
     if arguments.classifier is None:
