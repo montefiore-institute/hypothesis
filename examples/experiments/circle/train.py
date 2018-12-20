@@ -79,7 +79,7 @@ def allocate_classifier(arguments):
 
     hidden = arguments.hidden
     # Add initial layer.
-    modules.append(torch.nn.Linear(arguments.dimensionality + 64*64, hidden))
+    modules.append(torch.nn.Linear(arguments.dimensionality + 32*32, hidden))
     modules.append(torch.nn.LeakyReLU())
     # Add hidden layers.
     for i in range(arguments.layers):

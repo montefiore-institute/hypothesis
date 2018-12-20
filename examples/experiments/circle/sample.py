@@ -45,8 +45,10 @@ def main(arguments):
 
     # Plotting.
     true_thetas = [float(x) for x in arguments.truth.split(",")]
+    fig, axes  = plt.subplots(1, 3, sharey=True, figsize=(10, 2.7))
     for i in range(result_lf.size()):
         bins = 50
+        ax = axes[i]
         #minimum = min([result_analytical.chain(i).min(), result_lf.chain(i).min()])
         #maximum = max([result_analytical.chain(i).max(), result_lf.chain(i).max()])
         minimum = result_lf.chain(i).min()
@@ -56,18 +58,15 @@ def main(arguments):
         #chain_analytical = result_analytical.chain(i)
         chain_lf = result_lf.chain(i)
 
-        labels = [None, None, None]
-        if(i == 0):
-            labels = ["Analytical", "Likelihood-free", "Truth"]
-        #plt.hist(chain_analytical.numpy(), color="orange", histtype="step", bins=bins, density=True, alpha=.8, label=labels[0])
-        plt.hist(chain_lf.numpy(), color="blue", histtype="step", bins=bins, density=True, alpha=.8, label=labels[1])
-        plt.axvline(true_thetas[i], c='r', lw=2, linestyle='-', alpha=.95, label=labels[2])
-        #plt.axvline(chain_analytical.mean().item(), c="gray", lw=2, linestyle="-.", alpha=.9)
-        plt.axvline(chain_lf.mean().item(), c="gray", lw=2, linestyle="-.", alpha=.9)
-
-    plt.minorticks_on()
-    plt.legend()
-    plt.savefig(str(arguments.observations) + ".pdf", bbox_inches="tight", pad_inches=0)
+        #ax.hist(chain_analytical.numpy(), histtype="step", bins=bins, density=True, alpha=.8, label="Analytical")
+        #ax.axvline(chain_analytical.mean().item(), c="gray", lw=2, linestyle="-.", alpha=.9)
+        # Likelihood-free
+        ax.hist(chain_lf.numpy(), histtype="step", bins=bins, density=True, alpha=.8, label="Likelihood-free")
+        ax.axvline(chain_lf.mean().item(), c="gray", lw=2, linestyle="-.", alpha=.9)
+        # Truth
+        ax.axvline(true_thetas[i], c='r', lw=2, linestyle='-', alpha=.95, label="Truth")
+        ax.minorticks_on()
+    fig.savefig(str(arguments.observations) + ".pdf", bbox_inches="tight", pad_inches=0)
 
 
 def save_result(result, name):
@@ -84,9 +83,9 @@ def get_observations(arguments):
         os.makedirs(path)
     path = path + str(arguments.observations) + ".th"
     if not os.path.exists(path):
-        thetas = arguments.truth.split(",")
-        thetas = torch.Tensor([float(x) for x in thetas])
-        _, observations = circle.allocate_observations(theta, 1).view(-1)
+        theta = arguments.truth.split(",")
+        theta = torch.Tensor([float(x) for x in theta])
+        observations = circle.allocate_observations(theta, 1)[1].view(-1)
         observations = observations.repeat(arguments.observations, 1)
 
         torch.save(observations, path)
@@ -161,7 +160,7 @@ def get_classifier(arguments):
 
 
 def get_transition(arguments):
-    transition = MultivariateNormalTransitionDistribution(torch.eye(arguments.dimensionality)*0.5)
+    transition = MultivariateNormalTransitionDistribution(torch.eye(arguments.dimensionality))
 
     return transition
 
@@ -178,8 +177,8 @@ def parse_arguments():
     parser = argparse.ArgumentParser("Likelihood-free Posterior Sampling. Demonstration 1 - Sampling.")
     parser.add_argument("--samples", type=int, default=100000, help="Number of MCMC samples.")
     parser.add_argument("--burnin", type=int, default=5000, help="Number of burnin samples.")
-    parser.add_argument("--observations", type=int, default=50, help="Number of observations.")
-    parser.add_argument("--truth", type=str, default="-0.5, 0.5, 0.5", help="True model parameters (theta).")
+    parser.add_argument("--observations", type=int, default=1, help="Number of observations.")
+    parser.add_argument("--truth", type=str, default="0, 0, 0.5", help="True model parameters (theta).")
     parser.add_argument("--theta0", type=str, default="0, 0, 0", help="Initial theta of the Markov chain.")
     parser.add_argument("--classifier", type=str, default=None, help="Path to the classifier.")
     parser.add_argument("--force", type=bool, default=False, nargs='?', const=True, help="Force sampling.")

@@ -45,8 +45,10 @@ def main(arguments):
 
     # Plotting.
     true_thetas = [float(x) for x in arguments.truth.split(",")]
+    fig, axes  = plt.subplots(1, 3, sharey=True, figsize=(10, 2.7))
     for i in range(result_lf.size()):
         bins = 50
+        ax = axes[i]
         #minimum = min([result_analytical.chain(i).min(), result_lf.chain(i).min()])
         #maximum = max([result_analytical.chain(i).max(), result_lf.chain(i).max()])
         minimum = result_lf.chain(i).min()
@@ -56,18 +58,15 @@ def main(arguments):
         #chain_analytical = result_analytical.chain(i)
         chain_lf = result_lf.chain(i)
 
-        labels = [None, None, None]
-        if(i == 0):
-            labels = ["Analytical", "Likelihood-free", "Truth"]
-        #plt.hist(chain_analytical.numpy(), color="orange", histtype="step", bins=bins, density=True, alpha=.8, label=labels[0])
-        plt.hist(chain_lf.numpy(), color="blue", histtype="step", bins=bins, density=True, alpha=.8, label=labels[1])
-        plt.axvline(true_thetas[i], c='r', lw=2, linestyle='-', alpha=.95, label=labels[2])
-        #plt.axvline(chain_analytical.mean().item(), c="gray", lw=2, linestyle="-.", alpha=.9)
-        plt.axvline(chain_lf.mean().item(), c="gray", lw=2, linestyle="-.", alpha=.9)
-
-    plt.minorticks_on()
-    plt.legend()
-    plt.savefig(str(arguments.observations) + ".pdf", bbox_inches="tight", pad_inches=0)
+        #ax.hist(chain_analytical.numpy(), histtype="step", bins=bins, density=True, alpha=.8, label="Analytical")
+        #ax.axvline(chain_analytical.mean().item(), c="gray", lw=2, linestyle="-.", alpha=.9)
+        # Likelihood-free
+        ax.hist(chain_lf.numpy(), histtype="step", bins=bins, density=True, alpha=.8, label="Likelihood-free")
+        ax.axvline(chain_lf.mean().item(), c="gray", lw=2, linestyle="-.", alpha=.9)
+        # Truth
+        ax.axvline(true_thetas[i], c='r', lw=2, linestyle='-', alpha=.95, label="Truth")
+        ax.minorticks_on()
+    fig.savefig(str(arguments.observations) + ".pdf", bbox_inches="tight", pad_inches=0)
 
 
 def save_result(result, name):
@@ -87,9 +86,16 @@ def get_observations(arguments):
     observations = torch.empty([1122, 4])
     counter=0
 
+    minimums = [300.000256, 0, 0, 6.7156310081]
+    maximums = [3000.000512, 9000.001536, 33000.005632, 518.4792881012]
+
     with open(path, "r") as input_file:
         for line in input_file:
-            observations[counter] = torch.Tensor([float(x) for x in line.split(",")])
+            buffer = [float(x) for x in line.split(",")]
+            #scale to [0;10]
+            for i in range(len(minimums)):
+                buffer[i] = ((buffer[i] - minimums[i]) * 10) / (maximums[i] - minimums[i])
+            observations[counter] = torch.Tensor(buffer)
             counter += 1
 
     return observations
