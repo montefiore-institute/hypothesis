@@ -45,7 +45,7 @@ def main(arguments):
 
     # Plotting.
     true_thetas = [float(x) for x in arguments.truth.split(",")]
-    fig, axes  = plt.subplots(1, 3, sharey=True, figsize=(10, 2.7))
+    fig, axes  = plt.subplots(1, 3, sharey=False, figsize=(10, 2.7))
     for i in range(result_lf.size()):
         bins = 50
         ax = axes[i]
@@ -178,7 +178,7 @@ def parse_arguments():
     parser.add_argument("--samples", type=int, default=100000, help="Number of MCMC samples.")
     parser.add_argument("--burnin", type=int, default=5000, help="Number of burnin samples.")
     parser.add_argument("--observations", type=int, default=1, help="Number of observations.")
-    parser.add_argument("--truth", type=str, default="0, 0, 0.5", help="True model parameters (theta).")
+    parser.add_argument("--truth", type=str, default="0.5, 0, 0", help="True model parameters (theta).")
     parser.add_argument("--theta0", type=str, default="0, 0, 0", help="Initial theta of the Markov chain.")
     parser.add_argument("--classifier", type=str, default=None, help="Path to the classifier.")
     parser.add_argument("--force", type=bool, default=False, nargs='?', const=True, help="Force sampling.")
