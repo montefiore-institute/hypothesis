@@ -160,7 +160,7 @@ def get_classifier(arguments):
 
 
 def get_transition(arguments):
-    transition = MultivariateNormalTransitionDistribution(torch.eye(arguments.dimensionality))
+    transition = MultivariateNormalTransitionDistribution(0.3*torch.eye(arguments.dimensionality))
 
     return transition
 
