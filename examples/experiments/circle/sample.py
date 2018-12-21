@@ -85,7 +85,7 @@ def get_observations(arguments):
     if not os.path.exists(path):
         theta = arguments.truth.split(",")
         theta = torch.Tensor([float(x) for x in theta])
-        observations = circle.allocate_observations(theta, 1)[1].view(-1)
+        observations = circle.allocate_observations(theta, 1, 32)[1].view(-1)
         observations = observations.repeat(arguments.observations, 1)
 
         torch.save(observations, path)

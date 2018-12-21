@@ -13,8 +13,8 @@ from hypothesis.simulation import Simulator
 
 
 
-def allocate_observations(theta, num_observations=100000):
-    simulator = CircleSimulator(axial_resolution=64, epsilon=.025)
+def allocate_observations(theta, num_observations=100000, axial_resolution=32):
+    simulator = CircleSimulator(axial_resolution, .025)
     theta = torch.tensor(theta).float().view(1, 3)
     theta = torch.cat([theta] * num_observations)
     _, x_o = simulator(theta)

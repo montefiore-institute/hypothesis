@@ -1,0 +1,395 @@
+sample(1:35,2)
+sample(1:35)
+plot(x,tan(x),type="o",xlab="",ylab="",xaxp=c(-pi/2,7*pi/2,4),ylim=c(-10,10))
+x<-x-pi/2
+x
+if(require(tm)){#
+    data(SOTU)#
+    corp <- SOTU#
+    corp <- tm_map(corp, removePunctuation)#
+    corp <- tm_map(corp, removePunctuation)#
+    corp <- tm_map(corp, tolower)#
+    corp <- tm_map(corp, removeNumbers)#
+    corp <- tm_map(corp, function(x)removeWords(x,stopwords()))#
+    term.matrix <- TermDocumentMatrix(corp)#
+    term.matrix <- as.matrix(term.matrix)#
+    colnames(term.matrix) <- c("SOTU 2010","SOTU 2011")#
+    comparison.cloud(term.matrix,max.words=40,random.order=FALSE)#
+    commonality.cloud(term.matrix,max.words=40,random.order=FALSE)#
+}
+comparison.cloud(term.matrix,scale=c(4,.5),max.words=300,random.order=FALSE,#
+        rot.per=.1,colors=brewer.pal(ncol(term.matrix),"Dark2"),use.r.layout=FALSE,title.size=3,...)
+c(4,.5)
+scale
+c(1,.1)
+c(1,1)
+c
+## Text mining with the R package tm#
+library(tm)#
+#
+## get a sample (10 documents) of the Reuters dataset (comes with package tm)#
+#reut21578 <- system.file("texts", "crude", package = "tm")#
+##
+#reuters <- Corpus(DirSource(reut21578), #
+#	readerControl = list(reader = readReut21578XML))#
+### download reuters21578 data first (use first 1000 documents; 1984/85)#
+file <- "reut2-000.xml" #
+reuters <- Corpus(ReutersSource(file), readerControl = list(reader = readReut21578XML))#
+#
+reuters#
+reuters[[1]]#
+#
+## Convert to Plain Text Documents#
+reuters <- tm_map(reuters, as.PlainTextDocument)#
+reuters[[1]]#
+#
+## Convert to Lower Case#
+reuters <- tm_map(reuters, tolower)#
+reuters[[1]]#
+#
+## Remove Stopwords#
+reuters <- tm_map(reuters, removeWords, stopwords("english"))#
+reuters[[1]]#
+#
+## Remove Punctuations#
+reuters <- tm_map(reuters, removePunctuation)#
+reuters[[1]]#
+#
+## Stemming#
+reuters <- tm_map(reuters, stemDocument)#
+reuters[[1]]#
+#
+## Remove Numbers#
+reuters <- tm_map(reuters, removeNumbers)#
+reuters[[1]]#
+## Eliminating Extra White Spaces#
+reuters <- tm_map(reuters, stripWhitespace)#
+reuters[[1]]#
+#
+## create a term document matrix#
+dtm <- DocumentTermMatrix(reuters)#
+inspect(dtm[1:10, 5001:5010])#
+#
+findFreqTerms(dtm, 100)#
+findAssocs(dtm, "washington", .4)#
+#washington  secretari  political     reagan republican      white      regan #
+#      1.00       0.49       0.46       0.45       0.45       0.42       0.41 #
+#staff strategist #
+#0.41       0.41 #
+## do tfxidf#
+dtm_tfxidf <- weightTfIdf(dtm)#
+inspect(dtm_tfxidf[1:10, 5001:5010])#
+#
+## do document clustering#
+#
+### k-means (this uses euclidean distance)#
+m <- as.matrix(dtm_tfxidf)#
+rownames(m) <- 1:nrow(m)#
+#
+### don't forget to normalize the vectors so Euclidean makes sense#
+norm_eucl <- function(m) m/apply(m, MARGIN=1, FUN=function(x) sum(x^2)^.5)#
+m_norm <- norm_eucl(m)#
+### cluster into 10 clusters#
+cl <- kmeans(m_norm, 10)#
+cl#
+#
+table(cl$cluster)#
+#
+### show clusters using the first 2 principal components#
+plot(prcomp(m_norm)$x, col=cl$cl)#
+#
+findFreqTerms(dtm[cl$cluster==1], 50)#
+inspect(reuters[which(cl$cluster==1)])#
+#
+## hierarchical clustering#
+library(proxy)#
+#
+### this is going to take 4-ever (O(n^2))#
+d <- dist(m, method="cosine")#
+hc <- hclust(d, method="average")#
+plot(hc)#
+#
+cl <- cutree(hc, 50)#
+table(cl)#
+findFreqTerms(dtm[cl==1], 50)
+library(tm)
+package(tm)
+install(tm)
+install.packages("tm")
+library(tm)
+install.packages("tm")
+library(tm)
+reut21578 <- system.file("texts", "crude", package = "tm")
+reuters <- Corpus(DirSource(reut21578),
+readerControl = list(reader = readReut21578XML))
+install.packages("XML")
+reuters <- Corpus(DirSource(reut21578),
+readerControl = list(reader = readReut21578XML))
+reuters
+file <- "reut2-000.xml" #
+reuters <- Corpus(ReutersSource(file), readerControl = list(reader = readReut21578XML))
+file <- "reut2-000.xml"
+reuters <- Corpus(ReutersSource(file), readerControl = list(reader = readReut21578XML))
+reuters <- Corpus(DirSource(reut21578), readerControl = list(reader = readReut21578XML))
+reuters#
+reuters[[1]]
+reuters <- tm_map(reuters, as.PlainTextDocument)
+reuters <- tm_map(reuters, tolower)
+reuters <- tm_map(reuters, removeWords, stopwords("english"))
+reuters <- tm_map(reuters, removePunctuation)
+reuters <- tm_map(reuters, stemDocument)
+reuters <- tm_map(reuters, removeNumbers)
+reuters <- tm_map(reuters, stripWhitespace)#
+reuters[[1]]#
+#
+## create a term document matrix#
+dtm <- DocumentTermMatrix(reuters)
+dtm <- DocumentTermMatrix(reuters)
+sample(1,1)
+sample(1,30)
+sample(1,20)
+sample(2,20)
+sample(2,20,20,20)
+library(ggplot2)
+install.packages("ggplot2")
+library(ggplot2)
+# create factors with value labels #
+mtcars$gear <- factor(mtcars$gear,levels=c(3,4,5),#
+  	labels=c("3gears","4gears","5gears")) #
+mtcars$am <- factor(mtcars$am,levels=c(0,1),#
+  	labels=c("Automatic","Manual")) #
+mtcars$cyl <- factor(mtcars$cyl,levels=c(4,6,8),#
+   labels=c("4cyl","6cyl","8cyl")) #
+#
+# Kernel density plots for mpg#
+# grouped by number of gears (indicated by color)#
+qplot(mpg, data=mtcars, geom="density", fill=gear, alpha=I(.5), #
+   main="Distribution of Gas Milage", xlab="Miles Per Gallon", #
+   ylab="Density")
+barplot(B, xlab="Files", ylab="AVG transfer time in normal phase * Y-axis = AVG transfer time in intensive phase", names.arg=c("100MB","300MB","1GB","2GB"),#
+border="red", density=c(2.07617237166, 3.80451064841, 4.29983550046, 3.44528531119))
+B<-c(2.07617237166, 3.80451064841, 4.29983550046, 3.44528531119)
+barplot(B, xlab="Files", ylab="AVG transfer time in normal phase * Y-axis = AVG transfer time in intensive phase", names.arg=c("100MB","300MB","1GB","2GB"))
+barplot(B, main="BNL-OSG2_SCRATCHDISK_to_ANALY_AUSTRALIA", xlab="Files", ylab="AVG transfer time in normal phase * Y-axis = AVG transfer time in intensive phase", names.arg=c("100MB","300MB","1GB","2GB"))
+B<-c(3.15177423177, 3.85062950256, 3.27622244204, 2.57319506886)#
+barplot(B, main="UKI-LT2-RHUL_SCRATCHDISK_to_ANALY_INFN-COSENZA-RECAS", xlab="Files", ylab="AVG transfer time in normal phase * Y-axis = AVG transfer time in intensive phase", names.arg=c("100MB","300MB","1GB","2GB"))
+B <- c(2.07617237166, 2.69757118188, 3.39115420106, 3.44528531119)#
+barplot(B, main="BNL->AUSTRALIA", xlab="Files", ylab="times increase in TTC from normal to intensive phase", names.arg=c("100MB","300MB","1GB","2GB"))
+B <- c(2.07617237166, 2.69757118188, 3.39115420106, 3.44528531119)#
+barplot(B, main="BNL->AUSTRALIA", xlab="Files", ylab="multiple increase in TTC from normal to intensive phase (on average)", names.arg=c("100MB","300MB","1GB","2GB"))
+B <- c(2.39144607179, 3.06626608222, 3.00621332092, 2.46065542941)#
+barplot(B, main="UKI->INFN", xlab="Files", ylab="multiple increase in TTC from normal to intensive phase (on average)", names.arg=c("100MB","300MB","1GB","2GB"))
+packages.install("forecast")
+install.packages("forecast")
+library(forecast)
+install.packages('devtools')
+library(devtools)
+install.packages("forecast")
+as.ts()
+install.packages("RcppArmadillo")
+log(2/4)
+log(4/2)
+log(4/8)
+log(8/4)
+target = function(x){#
+  if(x<0){#
+    return(0)}#
+  else {#
+    return( exp(-x))#
+  }#
+}
+x = rep(0,1000)
+x
+x[1] = 3
+x
+for(i in 2:1000){
+currentx = x[i-1]
+rnorm(1,mean=0,sd=1)
+rnorm(2,mean=0,sd=1)
+rnorm(1,mean=0,sd=1)
+plot(rnorm(1,mean=0,sd=1))
+for(i in 2:1000){
+currentx = x[i-1]
+proposedx = currentx + rnorm(1,mean=0,sd=1)
+A = target(proposedx)/target(currentx)
+if(runif(1)<A){
+x[i] = proposedx
+} else {
+x[i] = currentx
+}
+x
+runif
+runif(1)
+A
+target(3+1)
+target(3)
+target(3+1)/target(3)
+plot(x)
+hist(x)
+easyMCMC = function(niter, startval, proposalsd){
+x = rep(0,niter)
+x[1] = startval
+for(i in 2:niter){
+currentx = x[i-1]
+proposedx = rnorm(1,mean=currentx,sd=proposalsd)
+A = target(proposedx)/target(currentx)
+if(runif(1)<A){
+x[i] = proposedx
+} else {
+x[i] = currentx
+}
+return(x)
+}
+z1=easyMCMC(1000,3,1)#
+z2=easyMCMC(1000,3,1)#
+z3=easyMCMC(1000,3,1)#
+#
+plot(z1,type="l")#
+lines(z2,col=2)#
+lines(z3,col=3)
+par(mfcol=c(3,1)) #rather odd command tells R to put 3 graphs on a single page#
+maxz=max(c(z1,z2,z3))#
+hist(z1,breaks=seq(0,maxz,length=20))#
+hist(z2,breaks=seq(0,maxz,length=20))#
+hist(z3,breaks=seq(0,maxz,length=20))
+sum = 0
+for(i in 1:3000){
+x=runif(1)
+y=runif(1)
+if(x^2 + y^2 <= 1){
+sum += x^2 + y^2
+x=1
+x^2
+sum += 1
+sum = sum +1
+sum = 0
+for(i in 1:3000){
+x=runif(1)
+y=runif(1)
+if(x^2 + y^2 <=1){
+sum = sum + x^2 + y^2
+}
+sum = sum / 3000
+sum
+sum = sum * 4
+sum
+m = 0
+for(i in 1:5000){
+x=runif(1)
+y=runif(1)
+if(x^2 + y^2 <= 1){m=m+1}
+}
+m/5000*4
+pi_mc = function(iter){}
+pi_mc = function(iter){
+for(i in 1:iter){
+x=runif(1)
+y=runif(1)
+pi_mc = function(iter){
+m = 0
+for(i in 1:iter){
+x=runif(1)
+y=runif(1)
+if(x^2+y^2<=1){m=m+1}
+}
+return m/n*4
+pi_mc = function(iter){
+m = 0
+for(i in 1:iter){
+x=runif(1)
+y=runif(1)
+if(x^2+y^2<=1){m=m+1}
+}
+return(m/n*4)}
+pi_mc(1)
+pi_mc(100)
+pi_mc(300)
+pi_mc(500)
+pi_mc(700)
+pi_mc(1000)
+pi_mc(3000)
+pi_mc(5000)
+pi_mc(10000)
+pi_mc(100000)
+pi_mc = function(iter){#
+ m = 0#
+ for(i in 1:iter){#
+ x=runif(1)#
+ y=runif(1)#
+ if(x^2y^2<=1){m=m1}#
+ }#
+ return(m/iter*4)}
+pi_mc = function(iter){#
+ m = 0#
+ for(i in 1:iter){#
+ x=runif(1)#
+ y=runif(1)#
+ if(x^2y^2<=1){m=m1}#
+ return(m/iter*4)}
+pi_mc = function(iter){#
+ m = 0#
+ for(i in 1:iter){#
+ x=runif(1)#
+ y=runif(1)#
+ if(x^2y^2<=1){m=m1}#
+ }#
+ return(m/iter*4)#
+ }
+pi_mc = function(iter){#
+m = 0#
+for(i in 1:iter){#
+x=runif(1)#
+y=runif(1)#
+if(x^2y^2<=1){m=m1}#
+}#
+return(m/iter*4)#
+}
+pi_mc = function(iter){#
+m = 0#
+for(i in 1:iter){#
+x=runif(1)#
+y=runif(1)#
+if(x^2+y^2<=1){m=m1}#
+}#
+return(m/iter*4)#
+}
+d
+x
+pi_mc(1)
+pi_mc = function(iter){#
+m = 0#
+for(i in 1:iter){#
+x=runif(1)#
+y=runif(1)#
+if(x^2+y^2<=1){m=m+1}#
+}#
+return(m/iter*4)#
+}
+pi_mc(1)
+pi_mc(10)
+pi_mc(1)
+pi_mc(2)
+pi_mc(1)
+pi_mc(2)
+pi_mc(3)
+pi_mc(4)
+pi_mc(10)
+pi_mc(100)
+pi_mc(1000)
+pi_mc(10000)
+pi_mc(100000)
+pi_mc(10000000)
+setwd("~/git/hypothesis/ex")
+setwd("~/git/hypothesis/examples/experiments/regression/observations/")
+data = read.csv("regression.dat")
+head(data)
+data = read.csv("regression.dat",header=False)
+data = read.csv("regression.dat",header=FALSE)
+head(data)
+min(data$V1)
+min(data$V4)
+max(data$V1)
+max(data$V)
+max(data$V2)
+max(data$V3)
+max(data$V4)
