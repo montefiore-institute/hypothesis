@@ -38,7 +38,7 @@ class AdversarialVariationalOptimization(SimulatorMethod):
                  batch_size=32,
                  gamma=10.,
                  baseline=None,
-                 step_size=1.,
+                 step_size=.5,
                  step_frequency=10000):
         super(AdversarialVariationalOptimization, self).__init__(simulator)
         # Initialize the state of the procedure.
