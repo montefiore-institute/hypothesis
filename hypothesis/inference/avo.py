@@ -8,6 +8,7 @@ from hypothesis.engine import event
 from hypothesis.inference import SimulatorMethod
 from hypothesis.inference.baseline import AVOBaseline
 from hypothesis.util import sample
+from torch.optim.lr_scheduler import StepLR
 
 
 
@@ -36,7 +37,9 @@ class AdversarialVariationalOptimization(SimulatorMethod):
                  lr_proposal=.001,
                  batch_size=32,
                  gamma=10.,
-                 baseline=None):
+                 baseline=None,
+                 step_size=1.,
+                 step_frequency=10000):
         super(AdversarialVariationalOptimization, self).__init__(simulator)
         # Initialize the state of the procedure.
         self.discriminator = discriminator
@@ -45,6 +48,8 @@ class AdversarialVariationalOptimization(SimulatorMethod):
         if not baseline:
             baseline = AVOBaseline(discriminator)
         self.baseline = baseline
+        self._step_size = step_size
+        self._step_frequency = step_frequency
         self._lr_discriminator = lr_discriminator
         self._lr_proposal = lr_proposal
         self._real = torch.ones(self.batch_size, 1)
@@ -77,9 +82,11 @@ class AdversarialVariationalOptimization(SimulatorMethod):
         self._o_discriminator = torch.optim.RMSprop(
             self.discriminator.parameters(), lr=self._lr_discriminator
         )
+        self._steplrd = StepLR(self._o_discriminator, self._step_frequency, self._step_size)
         self._o_proposal = torch.optim.RMSprop(
             self.proposal.parameters(), lr=self._lr_proposal
         )
+        self._steplrp = StepLR(self._o_proposal, self._step_frequency, self._step_size)
 
     def _update_discriminator(self, observations, thetas, x_thetas):
         self.fire_event(event.avo_update_discriminator_start)
@@ -132,9 +139,15 @@ class AdversarialVariationalOptimization(SimulatorMethod):
 
         return thetas, x_thetas
 
+    def _steplr(self):
+        if not self._steplr:
+            self._steplr.step()
+
     def step(self, observations):
         thetas, x_thetas = self._sample()
+        self._steplrd.step()
         self._update_discriminator(observations, thetas, x_thetas)
+        self._steplrp.step()
         self._update_proposal(observations, thetas, x_thetas)
 
     def procedure(self, observations, **kwargs):
