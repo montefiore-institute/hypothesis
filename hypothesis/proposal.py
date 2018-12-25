@@ -33,8 +33,8 @@ class Proposal:
 class NormalProposal(Proposal):
 
     def __init__(self, mu=0., sigma=1.):
-        mu = torch.tensor(mu).float()
-        sigma = torch.tensor(sigma).float()
+        mu = torch.tensor(mu).float().detach()
+        sigma = torch.tensor(sigma).float().detach()
         self._distribution = Normal(mu, sigma)
         self._mu = self._distribution.loc
         self._mu.requires_grad = True
