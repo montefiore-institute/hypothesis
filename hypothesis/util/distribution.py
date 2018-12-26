@@ -8,9 +8,8 @@ import torch
 
 
 def sample_distribution(distribution, num_samples):
-    with torch.no_grad():
-        size = torch.Size([num_samples])
-        samples = distribution.sample(size)
+    size = torch.Size([num_samples])
+    samples = distribution.sample(size)
 
     return samples
 

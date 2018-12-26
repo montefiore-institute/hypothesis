@@ -63,18 +63,15 @@ class NormalProposal(Proposal):
 class MultivariateNormalProposal(Proposal):
 
     def __init__(self, mu, sigma):
-        with torch.no_grad():
-            self._mu = torch.tensor(mu).float().view(1, -1)
-            d = self._mu.shape[1]
-            self._sigma = torch.tensor(sigma).float().view(d, d)
+        self._mu = torch.tensor(mu).float()
         self._mu.requires_grad = True
+        self._sigma = torch.tensor(sigma).float()
         self._sigma.requires_grad = True
-        self._parameters = [self._mu, self._sigma]
         self._distribution = MultivariateNormal(self._mu, self._sigma)
+        self._parameters = [self._mu, self._sigma]
 
     def clone(self):
-        with torch.no_grad():
-            proposal = MultivariateNormalProposal(self._mu, self._sigma)
+        proposal = MultivariateNormalProposal(self._mu.detach(), self._sigma.detach())
 
         return proposal
 
