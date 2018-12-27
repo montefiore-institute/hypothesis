@@ -5,7 +5,7 @@
     <img src="https://img.shields.io/badge/license-BSD-lightgrey.svg" />
 </p>
 
-A Python toolkit for statistical inference.
+A Python toolkit for (likelihood-free) inference.
 
 ## Installation
 
