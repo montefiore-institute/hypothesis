@@ -59,3 +59,41 @@ def load_block(path, index):
         outputs = outputs["arr_0"]
 
     return inputs, outputs
+
+
+
+class BlockWriter:
+
+    def __init__(self, path, blocksize=10000):
+        path = sanitize_path(path)
+        self.blocksize = blocksize
+        self.path = path
+        self._reset()
+
+    def _reset():
+        self.block_index = 0
+        self.block_inputs_buffer = []
+        self.block_outputs_buffer = []
+
+    def write(self, x, y):
+        x = x.view(1, -1)
+        y = y.view(1, -1)
+        self.block_inputs_buffer.append(x)
+        self.block_outputs_buffer.append(y)
+        # Check if the block needs to be flushed.
+        if len(self.block_inputs_buffer) == self.blocksize:
+            self.flush()
+
+    def flush(self):
+        assert len(self.block_inputs_buffer) == self.blocksize
+        inputs = torch.cat(self.block_inputs_buffer, dim=0)
+        outputs = torch.cat(self.block_outputs_buffer, dim=0)
+        write_block(self.path, self.block_index, inputs, outputs)
+        self.block_index += 1
+
+    def __enter__(self):
+        self._reset()
+        initialize_dataset(self.path)
+
+    def __exit__(self, type, value, traceback):
+        self.flush()
