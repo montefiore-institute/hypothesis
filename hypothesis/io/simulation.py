@@ -62,7 +62,7 @@ def load_block(path, index):
 
 
 
-class BlockWriter:
+class block_writer:
 
     def __init__(self, path, blocksize=10000):
         path = sanitize_path(path)
