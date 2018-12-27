@@ -5,7 +5,7 @@
     <img src="https://img.shields.io/badge/license-BSD-lightgrey.svg" />
 </p>
 
-A Python tookkit for statistical inference built on PyTorch.
+A Python toolkit for statistical inference.
 
 ## Installation
 
