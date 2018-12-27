@@ -1,9 +1,8 @@
 """
-`hypothesis` is a python module for inference in settings were the likelihood is
-intractable or unatainable.
+Hypothesis is a python module for statistical inference.
 """
 
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 __author__ = [
     "Joeri Hermans",
     "Volodimir Begy"

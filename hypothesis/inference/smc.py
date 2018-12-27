@@ -1,3 +1,0 @@
-"""
-Sequential Monte Carlo methods.
-"""
