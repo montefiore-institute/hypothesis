@@ -53,6 +53,7 @@ class ApproximateBayesianComputation(Method):
         return sample
 
     def infer(self, observations, **kwargs):
+        samples = []
         self.summary_observations = self.summary(observations)
         num_samples = int(kwargs[self.KEY_NUM_SAMPLES])
         for sample_index in range(num_samples):
