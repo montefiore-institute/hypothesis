@@ -97,6 +97,11 @@ class RatioMetropolisHastings(MarkovChainMonteCarlo):
 
 
 class MetropolisHastings(RatioMetropolisHastings):
+    r"""Metropolis Hastings MCMC sampler
+
+    .. note::
+        Possible optimizations possible with the way the likelihood-ratio is obtained.
+    """
 
     def __init__(self, log_likelihood, transition):
         # Define the ratio function in terms of the log-likelihood.
