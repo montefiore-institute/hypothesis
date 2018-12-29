@@ -44,7 +44,7 @@ class ApproximateBayesianComputation(Method):
             inputs = theta.repeat(num_observations)
             hypothesis.call_hooks(hypothesis.hooks.pre_simulation, self, inputs=inputs)
             outputs = self.model(theta)
-            hypothesis.call_hooks(hypothesis.hooks.post_simulation, self, outputs=outputs)
+            hypothesis.call_hooks(hypothesis.hooks.post_simulation, self, inputs=inputs, outputs=outputs)
             summary_outputs = self.summary(outputs)
             distance = self.distance(self.summary_observations, summary_outputs)
             if distance < self.epsilon:
