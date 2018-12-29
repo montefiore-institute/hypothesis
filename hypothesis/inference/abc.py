@@ -17,6 +17,12 @@ class ApproximateBayesianComputation(Method):
         summary (lambda): Function to generate the summary statistic
         distance (lambda): Function expressing the distance between two given summary statistics
         epsilon (float): Acceptance threshold
+
+    Hooks:
+        hypothesis.hooks.pre_step
+        hypothesis.hooks.post_step
+        hypothesis.hooks.pre_simulation
+        hypothesis.hooks.post_simulation
     """
 
     KEY_NUM_SAMPLES = "samples"
@@ -36,7 +42,9 @@ class ApproximateBayesianComputation(Method):
         while not sample:
             theta = self.prior.sample()
             inputs = theta.repeat(num_observations)
+            hypothesis.call_hooks(hypothesis.hooks.pre_simulation, self, inputs=inputs)
             outputs = self.model(theta)
+            hypothesis.call_hooks(hypothesis.hooks.post_simulation, self, outputs=outputs)
             summary_outputs = self.summary(outputs)
             distance = self.distance(self.summary_observations, summary_outputs)
             if distance < self.epsilon:

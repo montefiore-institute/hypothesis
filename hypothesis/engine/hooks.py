@@ -1,6 +1,9 @@
 # Predefined hooks.
-pre_step    = "pre_step"
-post_step   = "post_step"
+pre_step          = "pre_step"
+post_step         = "post_step"
+reset             = "reset"
+pre_simulation    = "pre_simulation"
+post_simulation   = "post_simulation"
 
 # Hook storage.
 hooks = {}
