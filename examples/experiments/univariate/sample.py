@@ -9,6 +9,8 @@ from hypothesis.inference import MetropolisHastings
 from hypothesis.inference import RatioMetropolisHastings
 from hypothesis.transition import NormalTransitionDistribution
 from hypothesis.util import epsilon
+from hypothesis.inference import ApproximateBayesianComputation as ABC
+from torch.distributions.uniform import Uniform
 from torch.distributions.normal import Normal
 
 
@@ -30,18 +32,29 @@ def main(arguments):
         save_result(result_lf, name=name)
     else:
         result_lf = hypothesis.load(path)
+    #ABC
+    name = "abc-" + str(arguments.observations)
+    path = "results/" + name
+    if not os.path.exists(path) or arguments.force:
+        result_abc = abc(arguments)
+        save_result(result_abc, name=name)
+    else:
+        result_abc = hypothesis.load(path)
+
     # Plotting.
     bins = 50
-    minimum = min([result_analytical.min(), result_lf.min()])
-    maximum = max([result_analytical.max(), result_lf.max()])
+    minimum = min([result_analytical.min(), result_lf.min(), result_abc.min()])
+    maximum = max([result_analytical.max(), result_lf.max(), result_abc.max()])
     binwidth = abs(maximum - minimum) / bins
     bins = np.arange(minimum - binwidth, maximum + binwidth, binwidth)
     chain_analytical = result_analytical.chain(0)
     chain_lf = result_lf.chain(0)
     plt.hist(chain_analytical.numpy(), histtype="step", bins=bins, density=True, alpha=.8, label="Analytical")
     plt.hist(chain_lf.numpy(), histtype="step", bins=bins, density=True, alpha=.8, label="Likelihood-free")
+    plt.hist(result_abc.numpy(), histtype="step", bins=bins, density=True, alpha=.8, label="ABC")
     plt.axvline(chain_analytical.mean().item(), c="gray", lw=2, linestyle="-.", alpha=.9)
     plt.axvline(chain_lf.mean().item(), c="gray", lw=2, linestyle="-.", alpha=.9)
+    plt.axvline(result_abc.mean().item(), c="gray", lw=2, linestyle="-.", alpha=.9)
     plt.axvline(arguments.truth, c='r', lw=2, linestyle='-', alpha=.95, label="Truth")
     plt.minorticks_on()
     plt.legend()
@@ -121,6 +134,30 @@ def metropolis_hastings_classifier(arguments):
     return result
 
 
+def abc(arguments):
+
+    def forward_model(theta, num_samples=arguments.observations):
+        with torch.no_grad():
+            N = Normal(theta.item(), 1.)
+            samples = N.sample(torch.Size([num_samples]))
+            samples = samples.view(-1, 1)
+
+        return samples
+
+    def summary(x):
+        return x.mean().detach()
+
+    def distance(x_a, x_b):
+        d = (x_a - x_b).abs()
+        return d
+
+    prior = Uniform(arguments.lower, arguments.upper)
+    abc = ABC(prior, forward_model, summary, distance, epsilon=arguments.epsilon)
+    samples = abc.infer(get_observations(arguments), samples=arguments.samples)
+    samples = torch.tensor(samples)
+    return samples
+
+
 def get_classifier(arguments):
     path = arguments.classifier
     classifier = torch.load(path)
@@ -146,6 +183,9 @@ def parse_arguments():
     parser.add_argument("--samples", type=int, default=100000, help="Number of MCMC samples.")
     parser.add_argument("--burnin", type=int, default=5000, help="Number of burnin samples.")
     parser.add_argument("--observations", type=int, default=50, help="Number of observations.")
+    parser.add_argument("--upper", type=float, default=5, help="Upper-limit of the parameter space.")
+    parser.add_argument("--lower", type=float, default=-5, help="Lower-limit of the parameter space.")
+    parser.add_argument("--epsilon", type=float, default=0.05, help="ABC threshold.")
     parser.add_argument("--truth", type=float, default=1, help="True model parameter (theta).")
     parser.add_argument("--theta0", type=float, default=5, help="Initial theta of the Markov chain.")
     parser.add_argument("--classifier", type=str, default=None, help="Path to the classifier.")
