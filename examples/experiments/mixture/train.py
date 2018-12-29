@@ -91,7 +91,7 @@ def parse_arguments():
     parser.add_argument("--batch-size", type=int, default=256, help="Batch-size.")
     parser.add_argument("--lower", type=float, default=0, help="Lower-limit of the parameter space.")
     parser.add_argument("--upper", type=float, default=10, help="Upper-limit of the parameter space.")
-    parser.add_argument("--epochs", type=int, default=100, help="Number of data iterations.")
+    parser.add_argument("--epochs", type=int, default=250, help="Number of data iterations.")
     parser.add_argument("--size", type=int, default=1000000, help="Number of samples in a single dataset.")
     parser.add_argument("--hidden", type=int, default=256, help="Number of hidden units.")
     parser.add_argument("--layers", type=int, default=3, help="Number of hidden layers.")

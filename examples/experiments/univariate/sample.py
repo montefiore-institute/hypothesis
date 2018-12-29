@@ -49,16 +49,16 @@ def main(arguments):
     bins = np.arange(minimum - binwidth, maximum + binwidth, binwidth)
     chain_analytical = result_analytical.chain(0)
     chain_lf = result_lf.chain(0)
-    plt.hist(chain_analytical.numpy(), histtype="step", bins=bins, density=True, alpha=.8, label="Analytical")
-    plt.hist(chain_lf.numpy(), histtype="step", bins=bins, density=True, alpha=.8, label="Likelihood-free")
-    plt.hist(result_abc.numpy(), histtype="step", bins=bins, density=True, alpha=.8, label="ABC")
-    plt.axvline(chain_analytical.mean().item(), c="gray", lw=2, linestyle="-.", alpha=.9)
-    plt.axvline(chain_lf.mean().item(), c="gray", lw=2, linestyle="-.", alpha=.9)
-    plt.axvline(result_abc.mean().item(), c="gray", lw=2, linestyle="-.", alpha=.9)
+    plt.hist(chain_analytical.numpy(), histtype="step", bins=bins, density=True, alpha=.8, label="Analytical", color="blue")
+    plt.hist(chain_lf.numpy(), histtype="step", bins=bins, density=True, alpha=.8, label="Likelihood-free", color="orange")
+    plt.hist(result_abc.numpy(), histtype="step", bins=bins, density=True, alpha=.8, label="ABC", color="green")
+    plt.axvline(chain_analytical.mean().item(), c="blue", lw=2, linestyle="-.", alpha=.9)
+    plt.axvline(chain_lf.mean().item(), c="orange", lw=2, linestyle="-.", alpha=.9)
+    plt.axvline(result_abc.mean().item(), c="green", lw=2, linestyle="-.", alpha=.9)
     plt.axvline(arguments.truth, c='r', lw=2, linestyle='-', alpha=.95, label="Truth")
     plt.minorticks_on()
     plt.legend()
-    plt.savefig(str(arguments.observations) + ".pdf", bbox_inches="tight", pad_inches=0)
+    plt.savefig("plots/"+str(arguments.observations) + ".pdf", bbox_inches="tight", pad_inches=0)
 
 
 def save_result(result, name):
