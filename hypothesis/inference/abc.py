@@ -55,6 +55,7 @@ class ApproximateBayesianComputation(Method):
     def infer(self, observations, **kwargs):
         samples = []
         self.summary_observations = self.summary(observations)
+        samples = []
         num_samples = int(kwargs[self.KEY_NUM_SAMPLES])
         for sample_index in range(num_samples):
             hypothesis.call_hooks(hypothesis.hooks.pre_step, self)

@@ -25,6 +25,6 @@ def clear_hooks(tag=None):
     if tag is not None:
         del hooks[tag]
     else:
-        keys = hooks.keys():
+        keys = hooks.keys()
         for key in keys:
             del key
