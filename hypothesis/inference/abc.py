@@ -1,5 +1,6 @@
 """Approximate Bayesian Computation"""
 
+import hypothesis
 import numpy as np
 import torch
 
@@ -21,6 +22,7 @@ class ApproximateBayesianComputation(Method):
     KEY_NUM_SAMPLES = "samples"
 
     def __init__(self, prior, model, summary, distance, epsilon=.01):
+        super(ApproximateBayesianComputation, self).__init__()
         self.distance = distance
         self.epsilon = epsilon
         self.model = model
@@ -46,7 +48,9 @@ class ApproximateBayesianComputation(Method):
         self.summary_observations = self.summary(observations)
         num_samples = int(kwargs[self.KEY_NUM_SAMPLES])
         for sample_index in range(num_samples):
+            hypothesis.call_hooks(hypothesis.hooks.pre_step, self)
             sample = self.sample(observations)
+            hypothesis.call_hooks(hypothesis.hooks.post_step, self, sample=sample)
             samples.append(sample)
 
         return samples
