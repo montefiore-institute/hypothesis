@@ -1,9 +1,3 @@
-"""
-Adversarial Variational Optimization
-
-An implementation of arxiv.org/abs/1707.07113
-"""
-
 import torch
 
 from hypothesis.inference import Method
@@ -13,7 +7,10 @@ from hypothesis.util import sample
 
 
 class AdversarialVariationalOptimization(Method):
-    r""""""
+    r"""Adversarial Variational Optimization
+
+    An implementation of arxiv.org/abs/1707.07113
+    """
 
     KEY_STEPS = "steps"
     KEY_PROPOSAL = "proposal"
@@ -77,9 +74,36 @@ class AdversarialVariationalOptimization(Method):
         x_real.requires_grad = False
 
     def update_proposal(self, observations, thetas, x_thetas):
+        # Compute the gradients of the log probabilities.
         gradients = []
         log_probabilities = self.proposal.log_prob(thetas)
-        raise NotImplementedError
+        for log_p in log_probabilities:
+            gradient = torch.autograd(log_p, self.proposal.parameters(), create_graph=True)
+            gradients.append(gradient)
+        # Compute the REINFORCE gradient wrt the model parameters.
+        gradient_U = []
+        with torch.no_grad():
+            # Allocate a buffer for all parameters in the proposal.
+            for p in self.proposal.parameters():
+                gradient_u.append(torch.zeros_like(p))
+            # Apply a baseline for variance reduction in the theta grads.
+            p_thetas = self.baseline.apply(inputs=x_thetas, gradients=gradients)
+            # Compute the REINFORCE gradient.
+            for index, gradient in enumerate(gradients):
+                p_theta = p_thetas[index]
+                for p_index, p_gradient in enumerate(gradient):
+                    pg_theta = p_theta[p_index].squeeze()
+                    gradient_U[p_index] += -pg_theta * p_gradient
+            # Average out the REINFORCE gradient.
+            for g in gradient_U:
+                g /= self.batch_size
+            # Set the REINFORCE gradient for the optimizer.
+            for index, p in enumerate(self.proposal.parameters()):
+                p.grad = gradient_U[index].expand(p.size())
+        # Apply an optimization step.
+        self.optimizer_proposal.step()
+        self.proposal.fix()
+
 
     def sample_and_simulate(self):
         hypothesis.call_hooks(hypothesis.hooks.pre_simulation, self, inputs=inputs)
