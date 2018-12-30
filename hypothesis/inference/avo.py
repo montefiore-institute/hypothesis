@@ -1,3 +1,4 @@
+import hypothesis
 import torch
 
 from hypothesis.inference import Method
@@ -29,7 +30,7 @@ class AdversarialVariationalOptimization(Method):
             baseline = AVOBaseline(discriminator)
         self.baseline = baseline
         self.lr_discriminator = lr_discriminator
-        self.lr_proposla = lr_proposal
+        self.lr_proposal = lr_proposal
         self.gamma = float(gamma)
         self.proposal = None
         self.batch_size = 32
@@ -38,7 +39,6 @@ class AdversarialVariationalOptimization(Method):
         self.ones = torch.ones(self.batch_size, 1)
         self.zeros = torch.zeros(self.batch_size, 1)
         self.criterion = torch.nn.BCELoss()
-        self.reset()
 
     def set_criterion(self, criterion):
         self.criterion = criterion
@@ -78,14 +78,14 @@ class AdversarialVariationalOptimization(Method):
         gradients = []
         log_probabilities = self.proposal.log_prob(thetas)
         for log_p in log_probabilities:
-            gradient = torch.autograd(log_p, self.proposal.parameters(), create_graph=True)
+            gradient = torch.autograd.grad(log_p, self.proposal.parameters(), create_graph=True)
             gradients.append(gradient)
         # Compute the REINFORCE gradient wrt the model parameters.
         gradient_U = []
         with torch.no_grad():
             # Allocate a buffer for all parameters in the proposal.
             for p in self.proposal.parameters():
-                gradient_u.append(torch.zeros_like(p))
+                gradient_U.append(torch.zeros_like(p))
             # Apply a baseline for variance reduction in the theta grads.
             p_thetas = self.baseline.apply(inputs=x_thetas, gradients=gradients)
             # Compute the REINFORCE gradient.
@@ -106,8 +106,8 @@ class AdversarialVariationalOptimization(Method):
 
 
     def sample_and_simulate(self):
-        hypothesis.call_hooks(hypothesis.hooks.pre_simulation, self, inputs=inputs)
         inputs = self.proposal.sample(self.batch_size)
+        hypothesis.call_hooks(hypothesis.hooks.pre_simulation, self, inputs=inputs)
         outputs = self.model(inputs)
         hypothesis.call_hooks(hypothesis.hooks.post_simulation, self, inputs=inputs, outputs=outputs)
 

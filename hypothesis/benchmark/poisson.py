@@ -10,12 +10,12 @@ def simulator(inputs):
         poisson = torch.distributions.poisson.Poisson(inputs)
         outputs = poisson.sample().view(-1, 1)
 
-    return inputs, outputs
+    return outputs
 
 
 def allocate_observations(theta, observations=10000):
     inputs = torch.tensor(theta).float().view(-1).repeat(observations)
-    _, outputs = simulator(inputs)
+    outputs = simulator(inputs)
 
     return outputs
 
