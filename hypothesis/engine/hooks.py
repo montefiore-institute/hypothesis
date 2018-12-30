@@ -25,9 +25,9 @@ def register_hook(tag, f):
 
 
 def clear_hooks(tag=None):
-    if tag is not None:
+    if tag:
         del hooks[tag]
     else:
-        keys = hooks.keys()
+        keys = list(hooks.keys())
         for key in keys:
-            del key
+            del hooks[key]
