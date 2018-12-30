@@ -20,7 +20,8 @@ def call_hooks(tag, argument, **kwargs):
 def register_hook(tag, f):
     if tag not in hooks.keys():
         hooks[tag] = []
-    hooks[tag].append(f)
+    if f not in hooks[tag]:
+        hooks[tag].append(f)
 
 
 def clear_hooks(tag=None):
