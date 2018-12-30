@@ -10,7 +10,9 @@ from hypothesis.inference import RatioMetropolisHastings
 from hypothesis.transition import NormalTransitionDistribution
 from hypothesis.util import epsilon
 from hypothesis.distribution import MixtureOfNormals
+from hypothesis.inference import ApproximateBayesianComputation as ABC
 from torch.distributions.normal import Normal
+from torch.distributions.uniform import Uniform
 
 
 
@@ -31,22 +33,36 @@ def main(arguments):
         save_result(result_lf, name=name)
     else:
         result_lf = hypothesis.load(path)
-    # Plotting.
-    bins = 50
-    minimum = min([result_analytical.min(), result_lf.min()])
-    maximum = max([result_analytical.max(), result_lf.max()])
-    binwidth = abs(maximum - minimum) / bins
-    bins = np.arange(minimum - binwidth, maximum + binwidth, binwidth)
-    chain_analytical = result_analytical.chain(0)
-    chain_lf = result_lf.chain(0)
-    plt.hist(chain_analytical.numpy(), histtype="step", bins=bins, density=True, alpha=.8, label="Analytical")
-    plt.hist(chain_lf.numpy(), histtype="step", bins=bins, density=True, alpha=.8, label="Likelihood-free")
-    plt.axvline(chain_analytical.mean().item(), c="gray", lw=2, linestyle="-.", alpha=.9)
-    plt.axvline(chain_lf.mean().item(), c="gray", lw=2, linestyle="-.", alpha=.9)
-    plt.axvline(arguments.truth, c='r', lw=2, linestyle='-', alpha=.95, label="Truth")
-    plt.minorticks_on()
-    plt.legend()
-    plt.savefig(str(arguments.observations) + ".pdf", bbox_inches="tight", pad_inches=0)
+    #ABC
+    for epsilon in [0.05, 0.1, 0.2, 0.3]:
+
+        name = "abc-" + str(arguments.observations) + "-epsilon-" + str(epsilon)
+        path = "results/" + name
+        if not os.path.exists(path) or arguments.force:
+            result_abc = abc(arguments, epsilon)
+            save_result(result_abc, name=name)
+        else:
+            result_abc = hypothesis.load(path)
+
+        # Plotting.
+        bins = 50
+        minimum = min([result_analytical.min(), result_lf.min(), result_abc.min()])
+        maximum = max([result_analytical.max(), result_lf.max(), result_abc.max()])
+        binwidth = abs(maximum - minimum) / bins
+        bins = np.arange(minimum - binwidth, maximum + binwidth, binwidth)
+        chain_analytical = result_analytical.chain(0)
+        chain_lf = result_lf.chain(0)
+        plt.hist(chain_analytical.numpy(), histtype="step", bins=bins, density=True, alpha=.8, label="Analytical", color="blue")
+        plt.hist(chain_lf.numpy(), histtype="step", bins=bins, density=True, alpha=.8, label="Likelihood-free", color="orange")
+        plt.hist(result_abc.numpy(), histtype="step", bins=bins, density=True, alpha=.8, label="ABC", color="green")
+        plt.axvline(chain_analytical.mean().item(), c="blue", lw=2, linestyle="-.", alpha=.9)
+        plt.axvline(chain_lf.mean().item(), c="orange", lw=2, linestyle="-.", alpha=.9)
+        plt.axvline(result_abc.mean().item(), c="green", lw=2, linestyle="-.", alpha=.9)
+        plt.axvline(arguments.truth, c='r', lw=2, linestyle='-', alpha=.95, label="Truth")
+        plt.minorticks_on()
+        plt.legend()
+        plt.savefig("plots/"+str(arguments.observations) + "-epsilon-" + str(epsilon) + ".pdf", bbox_inches="tight", pad_inches=0)
+        plt.clf()
 
 
 def save_result(result, name):
@@ -139,6 +155,37 @@ def metropolis_hastings_classifier(arguments):
                            samples=arguments.samples)
 
     return result
+
+
+def abc(arguments, epsilon):
+
+    def forward_model(theta, arguments=arguments):
+        with torch.no_grad():
+            modes = arguments.modes.split(",")
+            modes = [Normal(float(x), theta.item()) for x in modes]
+            mixing_coefficients = arguments.mixing_coefficients.split(",")
+            mixing_coefficients = [float(x) for x in mixing_coefficients]
+
+            dist = MixtureOfNormals(modes, mixing_coefficients)
+            samples = []
+            for i in range(arguments.observations):
+                samples.append(dist.sample())
+            samples = torch.FloatTensor(samples).view(-1, 1)
+
+        return samples
+
+    def summary(x):
+        return x.mean().detach()
+
+    def distance(x_a, x_b):
+        d = (x_a - x_b).abs()
+        return d
+
+    prior = Uniform(arguments.lower, arguments.upper)
+    abc = ABC(prior, forward_model, summary, distance, epsilon=epsilon)
+    samples = abc.infer(get_observations(arguments), samples=arguments.samples)
+    samples = torch.tensor(samples)
+    return samples
 
 
 def get_classifier(arguments):
