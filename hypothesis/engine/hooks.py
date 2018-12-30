@@ -4,6 +4,8 @@ post_step         = "post_step"
 reset             = "reset"
 pre_simulation    = "pre_simulation"
 post_simulation   = "post_simulation"
+pre_inference     = "pre_inference"
+post_inference    = "post_inference"
 
 # Hook storage.
 hooks = {}

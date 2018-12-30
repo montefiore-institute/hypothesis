@@ -23,6 +23,8 @@ class ApproximateBayesianComputation(Method):
         hypothesis.hooks.post_step
         hypothesis.hooks.pre_simulation
         hypothesis.hooks.post_simulation
+        hypothesis.hooks.pre_inference
+        hypothesis.hooks.post_inference
     """
 
     KEY_NUM_SAMPLES = "samples"
@@ -56,10 +58,12 @@ class ApproximateBayesianComputation(Method):
         samples = []
         self.summary_observations = self.summary(observations)
         num_samples = int(kwargs[self.KEY_NUM_SAMPLES])
+        hypothesis.call_hooks(hypothesis.hooks.pre_inference, self)
         for sample_index in range(num_samples):
             hypothesis.call_hooks(hypothesis.hooks.pre_step, self)
             sample = self.sample(observations)
             hypothesis.call_hooks(hypothesis.hooks.post_step, self, sample=sample)
             samples.append(sample)
+        hypothesis.call_hooks(hypothesis.hooks.post_inference)
 
         return samples

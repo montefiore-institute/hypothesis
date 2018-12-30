@@ -58,7 +58,9 @@ class MarkovChainMonteCarlo(Method):
             burnin_acceptances = b_acceptances
             theta_0 = burnin_samples[-1]
         # Sample the main chain.
+        hypothesis.call_hooks(hypothesis.hooks.pre_inference, self)
         samples, probabilities, acceptances = self.sample(observations, theta_0, num_samples)
+        hypothesis.call_hooks(hypothesis.hooks.post_inference, self)
         # Allocate the chain summary.
         chain = Chain(samples, probabilities, acceptances,
                       burnin_samples, burnin_probabilities, burnin_acceptances)

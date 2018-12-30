@@ -129,8 +129,10 @@ class AdversarialVariationalOptimization(Method):
         if self.KEY_BATCH_SIZE in kwargs.keys():
             self.batch_size = int(kwargs[self.KEY_BATCH_SIZE])
         self.reset()
+        hypothesis.call_hooks(hypothesis.hooks.pre_inference, self)
         for step in range(steps):
             self.step(observations)
+        hypothesis.call_hooks(hypothesis.hooks.post_inference, self)
 
         return self.proposal.clone()
 
