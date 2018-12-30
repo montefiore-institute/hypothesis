@@ -13,6 +13,7 @@ class AdversarialVariationalOptimization(Method):
     An implementation of arxiv.org/abs/1707.07113
     """
 
+    DEFAULT_BATCH_SIZE = 32
     KEY_STEPS = "steps"
     KEY_PROPOSAL = "proposal"
     KEY_BATCH_SIZE = "batch_size"
@@ -33,7 +34,7 @@ class AdversarialVariationalOptimization(Method):
         self.lr_proposal = lr_proposal
         self.gamma = float(gamma)
         self.proposal = None
-        self.batch_size = 32
+        self.batch_size = self.DEFAULT_BATCH_SIZE
         self.optimizer_discriminator = None
         self.optimizer_proposal = None
         self.ones = torch.ones(self.batch_size, 1)
@@ -49,7 +50,6 @@ class AdversarialVariationalOptimization(Method):
         # Allocate the targets wrt the batch-size.
         self.ones = torch.ones(self.batch_size, 1)
         self.zeros = torch.zeros(self.batch_size, 1)
-
 
     def allocate_optimizers(self):
         # Discriminator optimizer.
