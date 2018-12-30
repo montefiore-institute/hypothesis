@@ -24,7 +24,7 @@ class Chain:
                  probabilities,
                  acceptances,
                  burnin_chain=None,
-                 burnin_probabilities,
+                 burnin_probabilities=None,
                  burnin_acceptances=None):
         # Initialize the main chain states.
         chain = torch.cat(chain, dim=0).squeeze()
@@ -80,8 +80,9 @@ class Chain:
     def size(self, burnin=False):
         size = 0
         if burnin and self.has_burnin():
-            size += len(self.burnin_chain)
-        size += len(self.chain)
+            size = len(self.burnin_chain)
+        else:
+            size = len(self.chain)
 
         return size
 
@@ -106,7 +107,7 @@ class Chain:
     def acceptance_ratio(self):
         raise NotImplementedError
 
-    def chain(self, parameter_index=None, burnin=False):
+    def get_chain(self, parameter_index=None, burnin=False):
         chain = self.chain
         if burnin and self.has_burnin():
             chain = self.burnin_chain
@@ -126,22 +127,22 @@ class Chain:
 
     def autocorrelation(self, lag, parameter_index=None):
         with torch.no_grad():
-            d = self.state_dim()
-            states = self.chain[:, parameter_index].clone()
-            mean = self.mean(parameter_index)
+            num_parameters = self.state_dim()
+            thetas = self.chain.clone()
+            sample_mean = self.mean(parameter_index)
             if lag > 0:
-                padding = torch.zeros(lag, d)
-                lagged_states = states[lag:, parameter_index].view(-1, d).clone()
-                lagged_states -= mean
-                padded_states = torch.cat([lagged_states, padding], dim=0)
+                padding = torch.zeros(lag, num_parameters)
+                lagged_thetas = thetas[lag:, parameter_index].view(-1, num_parameters).clone()
+                lagged_thetas -= sample_mean
+                padded_thetas = torch.cat([lagged_thetas, padding], dim=0)
             else:
-                padded_states = states.clone()
-            states -= mean
-            rhos = states * padded_thetas
+                padded_thetas = thetas
+            thetas -= sample_mean
+            rhos = thetas * padded_thetas
             rho = rhos.sum(dim=0).squeeze()
-            rho *= (1 / (self.size() - lag))
-        del states
-        del padded_states
+            rho *= (1. / (self.size() - lag))
+        del thetas
+        del padded_thetas
         del rhos
 
         return rho

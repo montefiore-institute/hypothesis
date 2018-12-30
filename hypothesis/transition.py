@@ -5,9 +5,9 @@ Transition proposals.
 import numpy as np
 import torch
 
-from torch.distributions.multivariate_normal import MultivariateNormalDistribution
-from torch.distributions.normal import NormalDistribution
-from torch.distributions.uniform import UniformDistribution
+from torch.distributions.multivariate_normal import MultivariateNormal as MultivariateNormalDistribution
+from torch.distributions.normal import Normal as NormalDistribution
+from torch.distributions.uniform import Uniform as UniformDistribution
 
 
 

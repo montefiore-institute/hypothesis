@@ -34,6 +34,7 @@ class MarkovChainMonteCarlo(Method):
         for sample_index in range(num_samples):
             hypothesis.call_hooks(hypothesis.hooks.pre_step, self)
             theta, probability, accepted = self.step(observations, theta)
+            theta = theta.view(1, -1)
             hypothesis.call_hooks(hypothesis.hooks.post_step, self, theta=theta, probability=probability, accepted=accepted)
             samples.append(theta)
             probabilities.append(probability)
@@ -107,7 +108,7 @@ class MetropolisHastings(RatioMetropolisHastings):
 
     def __init__(self, log_likelihood, transition):
         # Define the ratio function in terms of the log-likelihood.
-        def likelihood_ratio(self, observations, theta, theta_next):
+        def likelihood_ratio(observations, theta, theta_next):
             likelihood_current = log_likelihood(observations, theta)
             likelihood_next = log_likelihood(observations, theta_next)
             lr = likelihood_next - likelihood_current

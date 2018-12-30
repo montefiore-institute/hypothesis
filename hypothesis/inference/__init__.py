@@ -2,3 +2,5 @@ from .base import Method
 
 from .abc import ApproximateBayesianComputation
 from .avo import AdversarialVariationalOptimization
+from .mcmc import MetropolisHastings
+from .mcmc import RatioMetropolisHastings
