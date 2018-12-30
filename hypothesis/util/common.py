@@ -12,3 +12,13 @@ def sample(x, num_samples):
         samples = x[indices]
 
     return samples
+
+
+def parse_argument(**kwargs, key, default, type):
+    # Check if the key has been specified.
+    if key in kwargs.keys():
+        argument = type(kwargs[key])
+    else:
+        argument = default
+
+    return argument
