@@ -14,7 +14,7 @@ def sample(x, num_samples):
     return samples
 
 
-def parse_argument(**kwargs, key, default, type):
+def parse_argument(kwargs, key, default, type):
     # Check if the key has been specified.
     if key in kwargs.keys():
         argument = type(kwargs[key])
