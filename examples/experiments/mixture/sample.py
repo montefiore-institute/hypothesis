@@ -36,7 +36,7 @@ def main(arguments):
     else:
         result_lf = hypothesis.load(path)
     #ABC
-    for epsilon in [0.3]:
+    for epsilon in [0.5, 0.4, 0.3, 0.2, 0.1]:
 
         name = "abc-" + str(arguments.observations) + "-epsilon-" + str(epsilon)
         path = "results/" + name
@@ -198,7 +198,7 @@ def abc(arguments, epsilon):
 
     prior = Uniform(arguments.lower, arguments.upper)
     abc = ABC(prior, forward_model, summary, distance, epsilon=epsilon)
-    samples = abc.infer(get_observations(arguments), samples=500)
+    samples = abc.infer(get_observations(arguments), samples=arguments.samples)
     samples = torch.tensor(samples)
     return samples
 
@@ -247,3 +247,4 @@ if __name__ == "__main__":
     arguments = parse_arguments()
     main(arguments)
     os._exit(0)
+
