@@ -14,6 +14,8 @@ from hypothesis.inference import ApproximateBayesianComputation as ABC
 from torch.distributions.normal import Normal
 from torch.distributions.uniform import Uniform
 
+from math import pi, e, pow, sqrt
+
 
 
 def main(arguments):
@@ -34,7 +36,7 @@ def main(arguments):
     else:
         result_lf = hypothesis.load(path)
     #ABC
-    for epsilon in [0.05, 0.1, 0.2, 0.3]:
+    for epsilon in [0.3]:
 
         name = "abc-" + str(arguments.observations) + "-epsilon-" + str(epsilon)
         path = "results/" + name
@@ -174,16 +176,29 @@ def abc(arguments, epsilon):
 
         return samples
 
+    def k(x):
+        return (1/(sqrt(2*pi))) * pow(e, -(pow(x, 2)/2))
+
+    def kde(samples, x, h):
+        sum = 0
+        for sample in samples:
+            sum += k((x - sample)/h)
+        return sum*(1/len(samples)*h)
+
     def summary(x):
-        return x.mean().detach()
+        return x
 
     def distance(x_a, x_b):
-        d = (x_a - x_b).abs()
-        return d
+
+        integral = 0
+        for i in range(len(x_b)):
+            integral += pow(sqrt(kde(x_a, x_b[i].item(), 1)) - sqrt(kde(x_b, x_b[i].item(), 1)), 2)
+
+        return torch.Tensor([sqrt(integral)])
 
     prior = Uniform(arguments.lower, arguments.upper)
     abc = ABC(prior, forward_model, summary, distance, epsilon=epsilon)
-    samples = abc.infer(get_observations(arguments), samples=arguments.samples)
+    samples = abc.infer(get_observations(arguments), samples=500)
     samples = torch.tensor(samples)
     return samples
 
