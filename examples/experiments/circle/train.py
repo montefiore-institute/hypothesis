@@ -96,8 +96,8 @@ def parse_arguments():
     parser = argparse.ArgumentParser("Likelihood-free Posterior Sampling. Demonstration 1 - Training.")
     parser.add_argument("--lr", type=float, default=0.00001, help="Learning-rate.")
     parser.add_argument("--batch-size", type=int, default=256, help="Batch-size.")
-    parser.add_argument("--lower", type=float, default=-1, help="Lower-limit of the parameter space.")
-    parser.add_argument("--upper", type=float, default=1, help="Upper-limit of the parameter space.")
+    parser.add_argument("--lower", type=str, default="-0.9972356557846069, -0.06088715046644211, -0.03716924786567688", help="Lower-limit of the parameter space.")
+    parser.add_argument("--upper", type=str, default="0.9964998960494995, 0.06596662104129791, 0.062344297766685486", help="Upper-limit of the parameter space.")
     parser.add_argument("--epochs", type=int, default=250, help="Number of data iterations.")
     parser.add_argument("--size", type=int, default=1000000, help="Number of samples in a single dataset.")
     parser.add_argument("--hidden", type=int, default=256, help="Number of hidden units.")
@@ -116,7 +116,16 @@ class SimulationDataset(Dataset):
         super(SimulationDataset, self).__init__()
         self.size = size
         self.dimensionality = dimensionality
-        self.uniform = Uniform(lower, upper)
+
+        lower_bounds = lower.split(",")
+        lower_bounds = [float(x) for x in lower_bounds]
+
+        upper_bounds = upper.split(",")
+        upper_bounds = [float(x) for x in upper_bounds]
+
+        self.uniform_radius = Uniform(lower_bounds[0], upper_bounds[0])
+        self.uniform_x = Uniform(lower_bounds[1], upper_bounds[1])
+        self.uniform_y = Uniform(lower_bounds[2], upper_bounds[2])
 
     def __getitem__(self, index):
         return self.sample()
@@ -125,7 +134,13 @@ class SimulationDataset(Dataset):
         return self.size
 
     def sample(self):
-        theta = self.uniform.sample(sample_shape=torch.Size([self.dimensionality])).view(-1)
+        radius = self.uniform_radius.sample()
+        coord_x = self.uniform_x.sample()
+        coord_y = self.uniform_y.sample()
+
+        theta = torch.cat((radius, coord_x), dim=0)
+        theta = torch.cat((theta, coord_y), dim=0)
+
         _, x_o = circle.allocate_observations(theta, 1)
         return theta, x_o.view(-1)
 
