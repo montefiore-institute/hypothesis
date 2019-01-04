@@ -24,48 +24,41 @@ def main(arguments):
     #else:
     #    result_analytical = hypothesis.load(path)
     # Classifier (likelihood-free) Metropolis-Hastings.
-    name = "lf-" + str(arguments.observations) + "-positive-radius-mode"
-    path = "results/32x32/iteration2/" + name
+    name = "lf-" + str(arguments.observations)
+    path = "results/" + name
     if not os.path.exists(path) or arguments.force:
         result_lf = metropolis_hastings_classifier(arguments)
         save_result(result_lf, name=name)
     else:
-        result_lf = [hypothesis.load(path)]
-        result_lf.append(hypothesis.load(path.replace("positive", "negative")))
+        result_lf = hypothesis.load(path)
 
     #Bounds for next iteration
-    for i in range(result_lf[0].size()):
-        print("New lower bound: {}".format(min([result_lf[0].chain(i).min(), result_lf[1].chain(i).min()])))
-        print("New upper bound: {}".format(max([result_lf[0].chain(i).max(), result_lf[1].chain(i).max()])))
+    for i in range(result_lf.size()):
+        print("New lower bound: {}".format(result_lf.chain(i).min()))
+        print("New upper bound: {}".format(result_lf.chain(i).max()))
         print("###################")
 
     # Plotting.
     true_thetas = [float(x) for x in arguments.truth.split(",")]
     fig, axes  = plt.subplots(1, 3, sharey=False, figsize=(10, 2.7))
-    for i in range(result_lf[0].size()):
+    for i in range(result_lf.size()):
         bins = 50
         ax = axes[i]
         #minimum = min([result_analytical.chain(i).min(), result_lf.chain(i).min()])
         #maximum = max([result_analytical.chain(i).max(), result_lf.chain(i).max()])
-        minimum = min([result_lf[0].chain(i).min(), result_lf[1].chain(i).min()])
-        maximum = max([result_lf[0].chain(i).max(), result_lf[1].chain(i).max()])
+        minimum = result_lf.chain(i).min()
+        maximum = result_lf.chain(i).max()
         binwidth = abs(maximum - minimum) / bins
         bins = np.arange(minimum - binwidth, maximum + binwidth, binwidth)
         #chain_analytical = result_analytical.chain(i)
-        chain_lf = result_lf[0].chain(i).numpy()
-        chain_lf = np.concatenate((chain_lf, result_lf[1].chain(i).numpy()), axis=0)
+        chain_lf = result_lf.chain(i)
 
         #ax.hist(chain_analytical.numpy(), histtype="step", bins=bins, density=True, alpha=.8, label="Analytical")
         #ax.axvline(chain_analytical.mean().item(), c="gray", lw=2, linestyle="-.", alpha=.9)
         # Likelihood-free
-        ax.hist(chain_lf, histtype="step", bins=bins, density=True, alpha=.8, label="Likelihood-free")
-        if(i == 0):
-            ax.axvline(result_lf[0].chain(i).numpy().mean(), c="gray", lw=2, linestyle="-.", alpha=.9)
-            ax.axvline(result_lf[1].chain(i).numpy().mean(), c="gray", lw=2, linestyle="-.", alpha=.9)
-            ax.axvline(-true_thetas[i], c='r', lw=2, linestyle='-', alpha=.95, label="Truth")
-        else:
-            ax.axvline(chain_lf.mean(), c="gray", lw=2, linestyle="-.", alpha=.9)
-
+        ax.hist(chain_lf.numpy(), histtype="step", bins=bins, density=True, alpha=.8, label="Likelihood-free")
+        ax.axvline(chain_lf.mean().item(), c="gray", lw=2, linestyle="-.", alpha=.9)
+        # Truth
         ax.axvline(true_thetas[i], c='r', lw=2, linestyle='-', alpha=.95, label="Truth")
         ax.minorticks_on()
     fig.savefig(str(arguments.observations) + ".pdf", bbox_inches="tight", pad_inches=0)
