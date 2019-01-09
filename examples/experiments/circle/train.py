@@ -138,9 +138,9 @@ class SimulationDataset(Dataset):
         coord_x = self.uniform_x.sample()
         coord_y = self.uniform_y.sample()
 
-        theta = torch.Tensor([radius, coord_x, coord_y])
+        theta = torch.Tensor([coord_x, coord_y, radius])
 
-        _, x_o = circle.allocate_observations(theta, 1)
+        x_o = circle.allocate_observations(theta)
         return theta, x_o.view(-1)
 
 

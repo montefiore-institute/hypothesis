@@ -1,9 +1,7 @@
 """
 Circle problem.
-
-The goal of this problem is the infer the x, y and radius of a single circle.
-The module specifies two different circle problems, a deterministic one, and
-a stochastic version.
+The goal of this problem is to infer the x, y and radius of a single observed circle
+as the simulations are deterministic.
 """
 
 import numpy as np
@@ -13,59 +11,45 @@ from hypothesis.simulation import Simulator
 
 
 
-def allocate_observations(theta, num_observations=100000, axial_resolution=32):
-    simulator = CircleSimulator(axial_resolution, .025)
-    theta = torch.tensor(theta).float().view(1, 3)
-    theta = torch.cat([theta] * num_observations)
-    _, x_o = simulator(theta)
+def allocate_observations(theta):
+    inputs = torch.tensor(theta).view(1, 3)
+    simulator = CircleSimulator()
+    output = simulator(inputs)
 
-    return theta, x_o
+    return output
+
 
 
 class CircleSimulator(Simulator):
 
-    def __init__(self, axial_resolution=64, epsilon=.025):
+    def __init__(self, resolution=32, epsilon=.025):
         super(CircleSimulator, self).__init__()
-        x = np.linspace(-1, 1, axial_resolution)
-        y = np.linspace(-1, 1, axial_resolution)
+        x = np.linspace(-1, 1, resolution)
+        y = np.linspace(-1, 1, resolution)
         X, Y = np.meshgrid(x, y)
-        self._X = torch.from_numpy(X).float()
-        self._Y = torch.from_numpy(Y).float()
-        self._axial_resolution = axial_resolution
-        self._epsilon = epsilon
+        self.X = torch.from_numpy(X).float()
+        self.Y = torch.from_numpy(Y).float()
+        self.resolution = resolution
+        self.epsilon = epsilon
 
-    def _generate(self, r, x, y):
-        M = (self._X - x) ** 2 + (self._Y + y) ** 2 - (r ** 2) < self._epsilon
-        M = M.float().view(1, self._axial_resolution, self._axial_resolution)
+    def generate(self, x, y, r):
+        M = (self.X - x) ** 2 + (self.Y - y) ** 2 - (r ** 2) < self.epsilon
+        M = M.float().view(-1, self.resolution, self.resolution)
 
         return M
 
-    def forward(self, thetas):
+    def forward(self, inputs):
         samples = []
 
         with torch.no_grad():
-            batch_size = thetas.size(0)
-            radius, position = thetas.split([1, 2], dim=1)
+            batch_size = inputs.size(0)
+            position, radius = inputs.split([2, 1], dim=1)
             X, Y = position.split(1, dim=1)
             for batch_index in range(batch_size):
-                r = radius[batch_index]
                 x = X[batch_index]
                 y = Y[batch_index]
-                samples.append(self._generate(r, x, y))
+                r = radius[batch_index]
+                samples.append(self.generate(x, y, r))
             samples = torch.cat(samples, dim=0).contiguous()
 
-        return thetas, samples
-
-
-
-class StochasticCircleSimulator(Simulator):
-
-    def __init__(self, axial_resolution=64, epsilon=.025, noise=.1):
-        self._simulator = CircleSimulator(axial_resolution, epsilon)
-        self._noise = noise
-
-    def forward(self, thetas):
-        noisy_thetas = thetas + self._noise * torch.randn_like(thetas)
-        thetas, x_thetas = self._simulator(noisy_thetas)
-
-        return thetas, x_thetas
+        return samples
