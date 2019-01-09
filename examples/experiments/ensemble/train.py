@@ -53,7 +53,7 @@ def save_model(arguments, model, name):
     if arguments.out is not None:
         models_directory = arguments.out + '/'
     else:
-        models_directory = "models/hidden" + str(arguments.hidden) + "/"
+        models_directory = "models/i" + arguments.i + "/"
     if not os.path.exists(models_directory):
         os.makedirs(models_directory)
     path = models_directory + name + ".th"
@@ -86,10 +86,11 @@ def parse_arguments():
     parser.add_argument("--lower", type=float, default=-5, help="Lower-limit of the parameter space.")
     parser.add_argument("--epochs", type=int, default=250, help="Number of data iterations.")
     parser.add_argument("--size", type=int, default=1000000, help="Number of samples in a single dataset.")
-    parser.add_argument("--hidden", type=int, default=16, help="Number of hidden units.")
-    parser.add_argument("--layers", type=int, default=1, help="Number of hidden layers.")
+    parser.add_argument("--hidden", type=int, default=256, help="Number of hidden units.")
+    parser.add_argument("--layers", type=int, default=3, help="Number of hidden layers.")
     parser.add_argument("--workers", type=int, default=0, help="Number of asynchronous data loaders.")
     parser.add_argument("--out", type=str, default=None, help="Directory to store the models.")
+    parser.add_argument("--i", type=str, default=None, help="Index of ensemble member.")
     arguments, _ = parser.parse_known_args()
 
     return arguments
@@ -118,3 +119,4 @@ class SimulationDataset(Dataset):
 if __name__ == "__main__":
     arguments = parse_arguments()
     main(arguments)
+
