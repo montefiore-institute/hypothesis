@@ -10,15 +10,16 @@ import os
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
 from torch.optim.lr_scheduler import StepLR
-from torch.distributions.normal import Normal
 from torch.distributions.uniform import Uniform
 from tqdm import tqdm
 
+from hypothesis.benchmark import circle
 
 
 def main(arguments):
     # Data-source preperation.
-    dataset = SimulationDataset(2 * arguments.size, upper=arguments.upper, lower=arguments.lower)
+    dataset = SimulationDataset(2 * arguments.size, dimensionality=arguments.dimensionality,
+                                lower=arguments.lower, upper=arguments.upper)
     # Training preperation.
     ones = torch.ones(arguments.batch_size, 1)
     zeros = torch.zeros(arguments.batch_size, 1)
@@ -54,8 +55,20 @@ def save_model(arguments, model, name):
         models_directory = arguments.out + '/'
     else:
         models_directory = "models/"
+
     if not os.path.exists(models_directory):
         os.makedirs(models_directory)
+
+    iterations = [x for x in os.listdir(models_directory) if "iteration" in x]
+    current_iteration = len(iterations)
+    # If end of 1st epoch, create new dir
+    if(name.split("_")[1] == "0"):
+         current_iteration += 1
+
+    models_directory += "iteration{}/".format(current_iteration)
+    if not os.path.exists(models_directory):
+        os.makedirs(models_directory)
+
     path = models_directory + name + ".th"
     torch.save(model, path)
 
@@ -65,7 +78,7 @@ def allocate_classifier(arguments):
 
     hidden = arguments.hidden
     # Add initial layer.
-    modules.append(torch.nn.Linear(2, hidden))
+    modules.append(torch.nn.Linear(arguments.dimensionality + 32*32, hidden))
     modules.append(torch.nn.LeakyReLU())
     # Add hidden layers.
     for i in range(arguments.layers):
@@ -82,14 +95,15 @@ def parse_arguments():
     parser = argparse.ArgumentParser("Likelihood-free Posterior Sampling. Demonstration 1 - Training.")
     parser.add_argument("--lr", type=float, default=0.001, help="Learning-rate.")
     parser.add_argument("--batch-size", type=int, default=256, help="Batch-size.")
-    parser.add_argument("--upper", type=float, default=5, help="Upper-limit of the parameter space.")
-    parser.add_argument("--lower", type=float, default=-5, help="Lower-limit of the parameter space.")
+    parser.add_argument("--lower", type=str, default="-1,-1,-1", help="Lower-limit of the parameter space.")
+    parser.add_argument("--upper", type=str, default="1,1,1", help="Upper-limit of the parameter space.")
     parser.add_argument("--epochs", type=int, default=250, help="Number of data iterations.")
     parser.add_argument("--size", type=int, default=1000000, help="Number of samples in a single dataset.")
-    parser.add_argument("--hidden", type=int, default=256, help="Number of hidden units.")
+    parser.add_argument("--hidden", type=int, default=1024, help="Number of hidden units.")
     parser.add_argument("--layers", type=int, default=3, help="Number of hidden layers.")
     parser.add_argument("--workers", type=int, default=0, help="Number of asynchronous data loaders.")
     parser.add_argument("--out", type=str, default=None, help="Directory to store the models.")
+    parser.add_argument("--dimensionality", type=int, default=3, help="Dimensionality of theta.")
     arguments, _ = parser.parse_known_args()
 
     return arguments
@@ -97,10 +111,20 @@ def parse_arguments():
 
 class SimulationDataset(Dataset):
 
-    def __init__(self, size, lower=-5., upper=5.):
+    def __init__(self, size, dimensionality, lower, upper):
         super(SimulationDataset, self).__init__()
         self.size = size
-        self.uniform = Uniform(lower, upper)
+        self.dimensionality = dimensionality
+
+        lower_bounds = lower.split(",")
+        lower_bounds = [float(x) for x in lower_bounds]
+
+        upper_bounds = upper.split(",")
+        upper_bounds = [float(x) for x in upper_bounds]
+
+        self.uniform_radius = Uniform(lower_bounds[0], upper_bounds[0])
+        self.uniform_x = Uniform(lower_bounds[1], upper_bounds[1])
+        self.uniform_y = Uniform(lower_bounds[2], upper_bounds[2])
 
     def __getitem__(self, index):
         return self.sample()
@@ -109,10 +133,15 @@ class SimulationDataset(Dataset):
         return self.size
 
     def sample(self):
-        theta = self.uniform.sample().view(-1)
-        x_theta = Normal(theta, 1.).sample().view(-1)
+        radius = self.uniform_radius.sample()
+        coord_x = self.uniform_x.sample()
+        coord_y = self.uniform_y.sample()
 
-        return theta, x_theta
+        theta = torch.cat((radius, coord_x), dim=0)
+        theta = torch.cat((theta, coord_y), dim=0)
+
+        _, x_o = circle.allocate_observations(theta, 1)
+        return theta, x_o.view(-1)
 
 
 if __name__ == "__main__":
