@@ -65,6 +65,16 @@ class Chains:
 
 
 class Chain:
+    r"""
+    Summary of a Markov chain from an MCMC sampler.
+    Arguments:
+       chain (sequence): Sequence of MCMC states
+       probabilities (sequence): Sequence of proposal probabilities
+       acceptances (sequence): Sequence of accept, reject flags
+       burnin_chain (sequence): Sequence of MCMC states during the burnin period
+       burnin_probabilities (sequence): Sequence of proposal probabilities during the burnin period
+       burnin_acceptances (sequence): Sequence of accept, reject flags during the burnin period
+    """
 
     def __init__(self, chain,
                  probabilities,
@@ -72,121 +82,109 @@ class Chain:
                  burnin_chain=None,
                  burnin_probabilities=None,
                  burnin_acceptances=None):
-        chain = torch.tensor(chain).squeeze()
-        instance_dim = chain[0].dim()
-        if instance_dim == 0:
+        # Initialize the main chain states.
+        chain = torch.cat(chain, dim=0).squeeze()
+        d = chain[0].dim()
+        if d == 0:
             chain = chain.view(-1, 1)
         probabilities = torch.tensor(probabilities).squeeze()
         acceptances = acceptances
-        self._chain = chain
-        self._probabilities = probabilities
-        self._acceptances = acceptances
-        if burnin_chain and burnin_probabilities:
-            burnin_chain = torch.tensor(burnin_chain).squeeze()
-            if instance_dim == 0:
+        self.chain = chain
+        self.probabilities = probabilities
+        self.acceptances = acceptances
+        # Initialize the burnin chain states
+        if burnin_chain:
+            burnin_chain = torch.cat(burnin_chain, dim=0).squeeze()
+            if d == 0:
                 burnin_chain = burnin_chain.view(-1, 1)
             burnin_probabilities = torch.tensor(burnin_probabilities).squeeze()
             burnin_acceptances = burnin_acceptances
-        self._burnin_chain = burnin_chain
-        self._burnin_probabilities = burnin_probabilities
-        self._burnin_acceptances = burnin_acceptances
+        self.burnin_chain = burnin_chain
+        self.burnin_probabilities = burnin_probabilities
+        self.burnin_acceptances = burnin_acceptances
+
+    def _no_burnin_chain(self):
+        return ValueError("No burnin information available.")
 
     def has_burnin(self):
-        return self._burnin_chain is not None and \
-               self._burnin_probabilities is not None
+        return self.burnin_chain is not None
 
     def mean(self, parameter_index=None, burnin=False):
-        result = None
-        if burnin:
-            if self.has_burnin():
-                result = self._burnin_chain[:, parameter_index].mean()
+        chain = self.chain
+        if burnin and self.has_burnin():
+            chain = self.burnin_chain
         else:
-            result = self._chain[:, parameter_index].mean()
+            self._no_burnin_chain()
 
-        return result
+        return chain[:, parameter_index].mean()
 
-    def variance(self, burnin=False):
-        variance = 0.
-
-        if burnin:
-            if self.has_burnin():
-                variance = self._burnin_chain.std(dim=0) ** 2
+    def variance(self, parameter_index=None, burnin=False):
+        chain = self.chain
+        if burnin and self.has_burnin():
+            chain = self.burnin_chain
         else:
-            variance = self._chain.std(dim=0) ** 2
+            self._no_burnin_chain()
 
-        return variance
+        return chain[:, parameter_index].std(dim=0) ** 2
 
-    def standard_error(self):
+    def monte_carlo_error(self):
         variance = self.variance()
         effective_sample_size = self.effective_size()
 
-        return np.sqrt(variance / effective_sample_size)
+        return (variance / effective_sample_size).sqrt()
 
-    def size(self):
-        return self.iterations()
+    def size(self, burnin=False):
+        size = 0
+        if burnin and self.has_burnin():
+            size = len(self.burnin_chain)
+        else:
+            size = len(self.chain)
+
+        return size
 
     def min(self):
-        return self._chain.min()
+        return self.chain.min()
 
     def max(self):
-        return self._chain.max()
+        return self.chain.max()
 
-    def parameters(self):
-        return self._chain[0].view(-1).dim()
+    def state_dim(self):
+        return self.chain[0].view(-1).dim()
 
     def acceptances(self, burnin=False):
-        acceptances = None
-
-        if burnin:
-            if self.has_burnin():
-                acceptances = self._burnin_acceptances
+        acceptances = self.burnin_acceptances
+        if burnin and self.has_burnin():
+            acceptances = self.burnin_acceptances
         else:
-            acceptances = self._acceptances
+            self._no_burnin_chain()
 
         return acceptances
 
-    def acceptance_ratio(self, burnin=False):
+    def acceptance_ratio(self):
         raise NotImplementedError
 
-    def iterations(self, burnin=False):
-        iterations = 0
+    def get_chain(self, parameter_index=None, burnin=False):
+        chain = self.chain
         if burnin and self.has_burnin():
-            iterations = self._burnin_chain.size(0)
+            chain = self.burnin_chain
         else:
-            iterations = self._chain.size(0)
+            self._no_burnin_chain()
 
-        return iterations
+        return chain[:, parameter_index].squeeze().clone()
 
-    def chain(self, parameter_index=None, burnin=False):
-        chain = None
-
-        if burnin:
-            if self.has_burnin():
-                chain = self._burnin_chain
+    def probabilities(self, burnin=False):
+        p = self.probabilities
+        if burnin and self.has_burnin():
+            p = self.burnin_probabilities
         else:
-            chain = self._chain
-        if chain is not None:
-            chain = chain[:, parameter_index].squeeze()
+            self._no_burnin_chain()
 
-        return chain
-
-    def probabilities(self, parameter_index=None, burnin=False):
-        probabilities = None
-
-        if burnin:
-            if self.has_burnin():
-                probabilities = self._burnin_probabilities
-        else:
-            probabilities = self._chain
-        if probabilities is not None and not parameter_index:
-            probabilities = probabilities[:, parameter_index]
-
-        return probabilities.squeeze()
+        return p.squeeze()
 
     def autocorrelation(self, lag, parameter_index=None):
         with torch.no_grad():
-            num_parameters = self.parameters()
-            thetas = self._chain.clone()
+            num_parameters = self.state_dim()
+            thetas = self.chain.clone()
             sample_mean = self.mean(parameter_index)
             if lag > 0:
                 padding = torch.zeros(lag, num_parameters)
@@ -205,33 +203,14 @@ class Chain:
 
         return rho
 
-    def autocorrelation_function(self, max_lag=None, interval=1, parameter_index=None):
+    def autocorrelation_function(self, parameter_index=None, interval=1, max_lag=None):
         if not max_lag:
-            max_lag = self.iterations() - 1
+            max_lag = self.size() - 1
         x = np.arange(0, max_lag + 1, interval)
-        y_0 = self.autocorrelation(0, parameter_index)
-        y = [self.autocorrelation(tau, parameter_index) / y_0 for tau in x]
+        y_0 = self.autocorrelation(lag=0, parameter_index=parameter_index)
+        y = [self.autocorrelation(lag=tau, parameter_index=parameter_index) / y_0 for tau in x]
 
         return x, y
-
-    def last(self):
-        return self._chain[-1]
-
-    def first(self):
-        return self._chain[0]
-
-    def min(self):
-        return self._chain.min().item()
-
-    def max(self):
-        return self._chain.max().item()
-
-    def std(self):
-        return self._chain.std().max()
-
-    def append(self, chain):
-        # TODO Appends the specified chain.
-        raise NotImplementedError
 
     def integrated_autocorrelation(self, M=None, interval=1):
         int_tau = 0.
@@ -262,22 +241,14 @@ class Chain:
 
     def thin(self):
         chain = []
-
         p = self.efficiency()
-        chain = []
         probabilities = []
         acceptances = []
         for index in range(self.size()):
             u = np.random.uniform()
             if u <= p:
-                chain.append(self._chain[index])
-                probabilities.append(self._probabilities[index])
-                acceptances.append(self._acceptances[index])
+                chain.append(self.chain[index])
+                probabilities.append(self.probabilities[index])
+                acceptances.append(self.acceptances[index])
 
         return Chain(chain, probabilities, acceptances)
-
-    def probabilities(self, burnin=False):
-        if burnin:
-            return self._burnin_probabilities
-        else:
-            return self._probabilities

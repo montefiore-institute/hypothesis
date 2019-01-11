@@ -38,10 +38,18 @@ def main(arguments):
     bins = 50
     minimum = min([result_analytical.min(), result_lf.min()])
     maximum = max([result_analytical.max(), result_lf.max()])
+
+    #print("Minimum: {}".format(minimum))
+    #print("Maximum: {}".format(maximum))
+    if(arguments.ensemble_size in [8, 16, 32] and arguments.observations == 1000):
+        minimum = 0.85
+        maximum = 1.15
+        plt.xlim(minimum, maximum)
+
     binwidth = abs(maximum - minimum) / bins
     bins = np.arange(minimum - binwidth, maximum + binwidth, binwidth)
-    chain_analytical = result_analytical.chain(0)
-    chain_lf = result_lf.chain(0)
+    chain_analytical = result_analytical.chain
+    chain_lf = result_lf.chain
     plt.hist(chain_analytical.numpy(), histtype="step", bins=bins, density=True, alpha=.8, label="Analytical", color="blue")
     plt.hist(chain_lf.numpy(), histtype="step", bins=bins, density=True, alpha=.8, label="Likelihood-free", color="orange")
     plt.axvline(chain_analytical.mean().item(), c="blue", lw=2, linestyle="-.", alpha=.9)
