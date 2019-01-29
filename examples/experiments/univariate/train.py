@@ -80,13 +80,12 @@ def allocate_classifier(arguments):
 
 def parse_arguments():
     parser = argparse.ArgumentParser("Likelihood-free Posterior Sampling. Demonstration 1 - Training.")
-    parser.add_argument("--lr", type=float, default=0.001, help="Learning-rate.")
-    parser.add_argument("--batch-size", type=int, default=256, help="Batch-size.")
+    parser.add_argument("--batch-size", type=int, default=512, help="Batch-size.")
     parser.add_argument("--upper", type=float, default=5, help="Upper-limit of the parameter space.")
     parser.add_argument("--lower", type=float, default=-5, help="Lower-limit of the parameter space.")
-    parser.add_argument("--epochs", type=int, default=250, help="Number of data iterations.")
+    parser.add_argument("--epochs", type=int, default=100, help="Number of data iterations.")
     parser.add_argument("--size", type=int, default=1000000, help="Number of samples in a single dataset.")
-    parser.add_argument("--hidden", type=int, default=256, help="Number of hidden units.")
+    parser.add_argument("--hidden", type=int, default=500, help="Number of hidden units.")
     parser.add_argument("--layers", type=int, default=3, help="Number of hidden layers.")
     parser.add_argument("--workers", type=int, default=0, help="Number of asynchronous data loaders.")
     parser.add_argument("--out", type=str, default=None, help="Directory to store the models.")
