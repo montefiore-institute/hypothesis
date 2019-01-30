@@ -83,10 +83,11 @@ class Chain:
                  burnin_probabilities=None,
                  burnin_acceptances=None):
         # Initialize the main chain states.
-        chain = torch.cat(chain, dim=0).squeeze()
+        #chain = torch.cat(chain, dim=0).squeeze()
         d = chain[0].dim()
         if d == 0:
-            chain = chain.view(-1, 1)
+            chain = torch.Tensor(chain)
+        chain = chain.view(-1, 1)
         probabilities = torch.tensor(probabilities).squeeze()
         acceptances = acceptances
         self.chain = chain
@@ -94,9 +95,10 @@ class Chain:
         self.acceptances = acceptances
         # Initialize the burnin chain states
         if burnin_chain:
-            burnin_chain = torch.cat(burnin_chain, dim=0).squeeze()
+            #burnin_chain = torch.cat(burnin_chain, dim=0).squeeze()
             if d == 0:
-                burnin_chain = burnin_chain.view(-1, 1)
+                burnin_chain = torch.Tensor(burnin_chain)
+            burnin_chain = burnin_chain.view(-1, 1)
             burnin_probabilities = torch.tensor(burnin_probabilities).squeeze()
             burnin_acceptances = burnin_acceptances
         self.burnin_chain = burnin_chain

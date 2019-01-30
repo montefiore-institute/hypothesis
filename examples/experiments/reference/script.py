@@ -13,13 +13,16 @@ def main():
         classifiers = load_classifiers(ref)
         observations = get_observations()
 
-        min_x = np.amin(-5)
-        max_x = np.amax(5)
+        min_x = np.amin(-4.95)
+        max_x = np.amax(4.95)
         x_range = np.linspace(float(min_x), float(max_x), 1000)
 
         y_min = []
         y_max = []
 
+        #also get the theta, which produces the largest gap
+        max_gap = 0
+        max_gap_theta = None
         for x in x_range:
             tmp_y_min, tmp_y_max = None, None
             theta = [[x]] * 10
@@ -31,8 +34,31 @@ def main():
                     tmp_y_min = s
                 if tmp_y_max is None or tmp_y_max < s:
                     tmp_y_max = s
+            if tmp_y_max - tmp_y_min > max_gap:
+                max_gap = tmp_y_max - tmp_y_min
+                max_gap_theta = x
             y_min.append(tmp_y_min)
             y_max.append(tmp_y_max)
+
+        #then get classifiers, which produce min / max output
+        print("{} reference: maximum gap ({}) produced at theta {}.".format(ref, max_gap, max_gap_theta))
+        min_output, max_output = None, None
+        min_classifier_index, max_classifier_index = None, None
+
+        theta = [[max_gap_theta]] * 10
+        theta = torch.Tensor(theta)
+        input = torch.cat([theta, observations], dim=1).detach()
+
+        for i in range(len(classifiers)):
+            s = classifiers[i](input).log().sum().exp().item()
+            if min_output is None or min_output > s:
+                min_output = s
+                min_classifier_index = i
+            if max_output is None or max_output < s:
+                max_output = s
+                max_classifier_index =i
+        print("classifier indexes: {} and {}".format(min_classifier_index, max_classifier_index))
+        print("##############################")
 
         # variance version
         #for x in x_range:
@@ -50,7 +76,7 @@ def main():
 
         plt.figure()
         plt.fill_between(x_range, y_min, y_max)
-        plt.savefig("{}_ref.png".format(ref))
+        plt.savefig("plots/{}_ref.png".format(ref))
 
 def load_classifiers(ref):
     classifiers = []
@@ -66,7 +92,7 @@ def get_observations():
         os.makedirs(path)
     path = path + "observations.th"
     if not os.path.exists(path):
-        N = Normal(-5., 1.)
+        N = Normal(-4.5, 1.)
         observations = N.sample(torch.Size([10, 1]))
         torch.save(observations, path)
     else:
