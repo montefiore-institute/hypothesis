@@ -1,0 +1,86 @@
+/*--------------------------------------------------------------
+	TEMPLATE FILE FOR DEFINING CORTICAL PYRAMIDAL CELLS
+	---------------------------------------------------
+
+	SIMPLIFIED NEURONS:
+
+	- one compartment model and currents derived from:
+
+ 	McCormick, D.A., Wang, Z. and Huguenard, J. Neurotransmitter 
+	control of neocortical neuronal activity and excitability. 
+	Cerebral Cortex 3: 387-398, 1993.
+
+	- passive
+	- HH: Traub
+	- IM: m format
+
+	Alain Destexhe, Laval University, 1995
+
+--------------------------------------------------------------*/
+
+
+//print " "
+//print " << defining template for one-compartment sPY cell >> "
+//print " "
+
+
+begintemplate sPY		// create a new template object
+public soma
+
+create soma[1]
+
+proc init() { local v_potassium, v_sodium
+
+  v_potassium = -100		// potassium reversal potential 
+  v_sodium = 50			// sodium reversal potential 
+
+  soma {
+	Ra = 100		// geometry 
+	nseg = 1
+	diam = 96
+	L = 96			// so that area is about 29000 um2
+	cm = 1
+
+	insert pas		// leak current 
+	e_pas = -70
+	g_pas = 0.0001		// Rin = 34 Meg
+
+	// conversion with McC units: 
+	// g(S/cm2) = g(nS)*1e-9/29000e-8
+	//	    = g(nS) * 3.45e-6
+
+	insert hh2		// Hodgin-Huxley INa and IK 
+	ek = v_potassium
+	ena = v_sodium
+	vtraub_hh2 = -55	// Resting Vm, BJ was -55
+	//gnabar_hh2 = 0.05	// McCormick=15 muS, thal was 0.09
+	//gkbar_hh2 = 0.005	// spike duration of pyr cells
+	gnabar_hh2 = 0.05	// McCormick=15 muS, thal was 0.09
+	gkbar_hh2 = 0.005	// spike duration of pyr cells
+
+
+	insert im		// M current 
+	taumax_im = 1000
+	gkbar_im = 7e-5		// Diego's IM (copyrighted)
+
+//	insert iahp
+//	alpha_iahp = 1.25e9
+//	beta_iahp = 0.001
+//	gkbar_iahp = 1.7e-5	// McCormick=5 nS
+
+//	insert cad		// calcium decay
+//	depth_cad = 1		// McCormick= 0.1 um
+//	taur_cad = 5		// McCormick=1 ms !!!
+//	cainf_cad = 2.4e-4	// McCormick=0
+//	kt_cad = 0		// no pump
+  }
+
+//  print " "
+//  print "<< sPY: passive, INa, IK, IM inserted >>"
+//  print " "
+
+}
+endtemplate sPY
+
+
+
