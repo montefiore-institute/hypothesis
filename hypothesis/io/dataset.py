@@ -36,8 +36,8 @@ class GeneratorDataset(Dataset):
         self.size = size
 
     def _sample(self):
-        x = self.prior.sample().to(hypothesis.device)
-        y = self.model(x).to(hypothesis.device)
+        x = self.prior.sample()
+        y = self.model(x)
 
         return x, y
 
