@@ -9,6 +9,11 @@ __author__ = [
 ]
 __email__ = "joeri.hermans@doct.uliege.be"
 
+import torch
+
+# Check the availability of a GPU.
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
 
 
 from .engine.hooks import call_hooks

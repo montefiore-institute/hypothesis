@@ -22,7 +22,7 @@ class ParameterizedClassifierTrainer(Trainer):
             dataset, allocate_optimizer, epochs, data_workers,
             batch_size, checkpoint, validate, allocate_scheduler)
         self.epoch_iterations = int(len(dataset) / batch_size / 2)
-        self.criterion = criterion
+        self.criterion = criterion.to(hypothesis.device)
         self.zeros = torch.zeros(self.batch_size, 1)
         self.ones = torch.ones(self.batch_size, 1)
 
