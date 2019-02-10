@@ -53,7 +53,7 @@ class Trainer:
         # Perform an LR scheduling step.
         self.scheduler_step()
         loader = iter(DataLoader(self.dataset, num_workers=self.data_workers,
-            batch_size=self.batch_size), pin_memory=self.pin_memory)
+            batch_size=self.batch_size, pin_memory=self.pin_memory))
         num_iterations = self.dataset_iterations()
         for iteration in range(num_iterations):
             hypothesis.call_hooks(hypothesis.hooks.pre_checkpoint, self, iteration=iteration)
