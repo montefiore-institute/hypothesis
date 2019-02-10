@@ -45,8 +45,8 @@ def num_blocks(path):
 
 def write_block(path, identifier, inputs, outputs):
     identifier = str(identifier)
-    np.savez(inputs_path(path) + identifier + ".npz", inputs.numpy())
-    np.savez(outputs_path(path) + identifier + ".npz", outputs.numpy())
+    np.savez_compressed(inputs_path(path) + identifier + ".npz", inputs.numpy())
+    np.savez_compressed(outputs_path(path) + identifier + ".npz", outputs.numpy())
 
 
 def load_block(path, index):
