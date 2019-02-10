@@ -42,7 +42,9 @@ class GeneratorDataset(Dataset):
         return x, y
 
     def __getitem__(self, index):
-        return self._sample()
+        x, y = self._sample()
+        x_hat, y_hat = self._sample()
+        return x, y, x_hat, y_hat
 
     def __len__(self):
         return self.size

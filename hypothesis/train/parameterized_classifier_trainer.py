@@ -22,7 +22,7 @@ class ParameterizedClassifierTrainer(Trainer):
         super(ParameterizedClassifierTrainer, self).__init__(
             dataset, allocate_optimizer, epochs, data_workers,
             batch_size, checkpoint, validate, allocate_scheduler, pin_memory)
-        self.epoch_iterations = int(len(dataset) / batch_size / 2)
+        self.epoch_iterations = int(len(dataset) / batch_size)
         self.criterion = criterion.to(hypothesis.device)
         self.zeros = torch.zeros(self.batch_size, 1).to(hypothesis.device)
         self.ones = torch.ones(self.batch_size, 1).to(hypothesis.device)
@@ -32,8 +32,7 @@ class ParameterizedClassifierTrainer(Trainer):
 
     def step(self, loader):
         try:
-            thetas, x_thetas = next(loader)
-            _, x_thetas_hat = next(loader)
+            thetas, x_thetas, _, x_thetas_hat = next(loader)
             thetas = thetas.to(hypothesis.device, non_blocking=True)
             x_thetas = x_thetas.to(hypothesis.device, non_blocking=True)
             x_thetas_hat = x_thetas_hat.to(hypothesis.device, non_blocking=True)
