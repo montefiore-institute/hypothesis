@@ -14,8 +14,6 @@ import torch
 # Check the availability of a GPU.
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-
-
 from .engine.hooks import call_hooks
 from .engine.hooks import clear_hooks
 from .engine.hooks import register_hook

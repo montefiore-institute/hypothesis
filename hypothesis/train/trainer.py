@@ -11,11 +11,12 @@ class Trainer:
 
     def __init__(self, dataset, allocate_optimizer, epochs=1, data_workers=2,
                  batch_size=32, checkpoint=None, validate=None,
-                 allocate_scheduler=None):
+                 allocate_scheduler=None, pin_memory=False):
         self.allocate_optimizer = allocate_optimizer
         self.allocate_scheduler = allocate_scheduler
         self.batch_size = batch_size
         self.checkpoint = checkpoint
+        self.pin_memory = pin_memory
         self.data_workers = data_workers
         self.dataset = dataset
         self.epochs = epochs
@@ -51,9 +52,8 @@ class Trainer:
     def epoch(self, epoch):
         # Perform an LR scheduling step.
         self.scheduler_step()
-        loader = iter(DataLoader(
-            self.dataset, num_workers=self.data_workers,
-            batch_size=self.batch_size))
+        loader = iter(DataLoader(self.dataset, num_workers=self.data_workers,
+            batch_size=self.batch_size), pin_memory=self.pin_memory)
         num_iterations = self.dataset_iterations()
         for iteration in range(num_iterations):
             hypothesis.call_hooks(hypothesis.hooks.pre_checkpoint, self, iteration=iteration)
