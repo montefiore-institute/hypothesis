@@ -1,3 +1,4 @@
+import hypothesis
 import numpy as np
 import os
 import torch
@@ -35,8 +36,8 @@ class GeneratorDataset(Dataset):
         self.size = size
 
     def _sample(self):
-        x = self.prior.sample()
-        y = self.model(x)
+        x = self.prior.sample().to(hypothesis.device)
+        y = self.model(x).to(hypothesis.device)
 
         return x, y
 
@@ -95,8 +96,8 @@ class SimulationDataset(Dataset):
             self.buffer_block_index = block_index
         # Load the requested data from the buffer.
         data_index = index % self.block_elements
-        inputs = self.buffer_inputs[data_index]
-        outputs = self.buffer_outputs[data_index]
+        inputs = self.buffer_inputs[data_index].to(hypothesis.device)
+        outputs = self.buffer_outputs[data_index].to(hypothesis.device)
 
         return inputs, outputs
 
