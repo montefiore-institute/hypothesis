@@ -45,7 +45,6 @@ class ParameterizedClassifierTrainer(Trainer):
             loss.backward()
             self.optimizer.step()
         except Exception as e:
-            print(e)
             hypothesis.call_hooks(hypothesis.hooks.exception, self, exception=e)
             loss = None
 
