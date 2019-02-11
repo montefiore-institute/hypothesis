@@ -33,9 +33,9 @@ class ParameterizedClassifierTrainer(Trainer):
     def step(self, loader):
         try:
             thetas, x_thetas = next(loader)
-            _, x_thetas_hat = next(loader)
             thetas = thetas.to(hypothesis.device, non_blocking=True)
             x_thetas = x_thetas.to(hypothesis.device, non_blocking=True)
+            _, x_thetas_hat = next(loader)
             x_thetas_hat = x_thetas_hat.to(hypothesis.device, non_blocking=True)
             y = self.model(thetas, x_thetas)
             y_hat = self.model(thetas, x_thetas_hat)
