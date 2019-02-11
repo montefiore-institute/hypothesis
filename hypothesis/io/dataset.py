@@ -1,3 +1,4 @@
+import glob
 import hypothesis
 import numpy as np
 import os
@@ -76,16 +77,19 @@ class SimulationDataset(Dataset):
         self.buffer_block_index = 0
         self.buffer_inputs, self.buffer_outputs = self._load_block(self.buffer_block_index)
         # Block parameters
-        self.num_blocks = self._num_blocks()
+        self.num_blocks = self._inspect_num_blocks()
         self.block_elements = len(self.buffer_inputs)
         # Dataset size
         self.size = self.block_elements * self.num_blocks
 
+    def _inspect_num_blocks(self):
+        return len(glob.glob(self.base_inputs + "/*.npz"))
+
     def _load_block(self, block_index):
-        return load_block(self.path, block_index)
+        return load_block(self.base, block_index)
 
     def _num_blocks(self):
-        return num_blocks(self.path)
+        return self.num_blocks
 
     def __getitem__(self, index):
         # Check if the block is buffered in memory.
@@ -97,8 +101,8 @@ class SimulationDataset(Dataset):
             self.buffer_block_index = block_index
         # Load the requested data from the buffer.
         data_index = index % self.block_elements
-        inputs = self.buffer_inputs[data_index].to(hypothesis.device)
-        outputs = self.buffer_outputs[data_index].to(hypothesis.device)
+        inputs = self.buffer_inputs[data_index]
+        outputs = self.buffer_outputs[data_index]
 
         return inputs, outputs
 
