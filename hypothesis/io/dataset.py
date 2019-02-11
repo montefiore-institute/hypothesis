@@ -43,8 +43,7 @@ class GeneratorDataset(Dataset):
 
     def __getitem__(self, index):
         x, y = self._sample()
-        x_hat, y_hat = self._sample()
-        return x, y, x_hat, y_hat
+        return x, y
 
     def __len__(self):
         return self.size
