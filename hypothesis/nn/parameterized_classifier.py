@@ -61,7 +61,7 @@ class ParameterizedClassifier(AbstractParameterizedClassifier):
         n = thetas.size(0)
         thetas = thetas.view(n, -1)
         observations = observations.view(n, -1)
-        x = torch.cat([thetas, observations], dim=1)
+        x = torch.cat([observations, thetas], dim=1)
 
         return self.classifier(x)
 
