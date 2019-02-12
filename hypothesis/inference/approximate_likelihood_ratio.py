@@ -49,7 +49,7 @@ def log_likelihood_ratio(classifier, observations, theta, theta_next):
 def marginal_ratio(classifier, observations, thetas):
     r"""Computes the ratio p(x | theta) / p(x) given a set of observations."""
     s = classifier(observations, thetas)
-    ratio = ((1 - s) / (s + epsilon))
+    ratio = ((1 - s + epsilon) / (s + epsilon))
 
     return ratio
 
