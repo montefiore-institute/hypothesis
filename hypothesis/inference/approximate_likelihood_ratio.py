@@ -34,12 +34,14 @@ def log_likelihood_ratio(classifier, observations, theta, theta_next):
             return torch.tensor(float("-inf"))
     num_observations = observations.size(0)
     # Prepare the classifier inputs.
+    theta_next = theta_next.to(hypothesis.device)
+    theta = theta.to(hypothesis.device)
     theta_next = theta_next.repeat(num_observations).view(num_observations, -1)
     theta = theta.repeat(num_observations).view(num_observations, -1)
     # Compute the approximate likelihood-raito.
     ratio_next = marginal_ratio(classifier, observations, theta_next).log().sum()
     ratio = marginal_ratio(classifier, observations, theta).log().sum()
-    likelihood_ratio = (ratio_next - ratio).detach()
+    likelihood_ratio = (ratio_next - ratio).detach().to("cpu")
 
     return likelihood_ratio
 

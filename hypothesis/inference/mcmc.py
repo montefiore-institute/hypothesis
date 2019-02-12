@@ -37,7 +37,8 @@ class MarkovChainMonteCarlo(Method):
         super(MarkovChainMonteCarlo, self).__init__()
 
     def _initialize(self, observations, **kwargs):
-        pass # Nothing to do here.
+        # Transfer observations to the GPU.
+        observations = observations.to(hypothesis.device)
 
     def step(self, observations, theta):
         raise NotImplementedError
