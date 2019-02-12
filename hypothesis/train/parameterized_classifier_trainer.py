@@ -16,7 +16,7 @@ class ParameterizedClassifierTrainer(Trainer):
 
     def __init__(self, dataset, allocate_optimizer, epochs=1, data_workers=2,
                  batch_size=32, checkpoint=None, validate=None,
-                 allocate_scheduler=None, criterion=torch.nn.BCELoss(reduction="sum"),
+                 allocate_scheduler=None, criterion=torch.nn.BCELoss(reduction="mean"),
                  pin_memory=False):
         # Initialize the parent object.
         super(ParameterizedClassifierTrainer, self).__init__(
