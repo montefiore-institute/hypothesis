@@ -203,7 +203,7 @@ class Hamiltonian(MarkovChainMonteCarlo):
         return -self.log_likelihood(observations, theta)
 
     def dU(self, observations, theta):
-        theta = theta.detach()
+        theta = theta.detach().to(hypothesis.device)
         theta.requires_grad = True
         l = self.U(observations, theta)
         l.backward()
@@ -215,7 +215,7 @@ class Hamiltonian(MarkovChainMonteCarlo):
         return (.5 * momentum ** 2).sum()
 
     def dK(self, momentum):
-        momentum = momentum.detach()
+        momentum = momentum.detach().to(hypothesis.device)
         momentum.requires_grad = True
         energy = self.K(momentum)
         energy.backward()
@@ -228,6 +228,7 @@ class Hamiltonian(MarkovChainMonteCarlo):
         momentum = self.momentum.sample()
         accepted = False
 
+        observations = observations.to(hypothesis.device)
         m_next = momentum.clone()
         t_next = theta.clone()
         # Leapfrog integration
@@ -287,7 +288,7 @@ class ClassifierHamiltonian(MarkovChainMonteCarlo):
         return (.5 * momentum ** 2).sum()
 
     def dK(self, momentum):
-        momentum = momentum.detach()
+        momentum = momentum.detach().to(hypothesis.device)
         momentum.requires_grad = True
         energy = self.K(momentum)
         energy.backward()
