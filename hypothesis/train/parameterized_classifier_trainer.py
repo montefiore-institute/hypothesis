@@ -32,14 +32,23 @@ class ParameterizedClassifierTrainer(Trainer):
 
     def step(self, loader):
         try:
+            # Prepare the batch.
             thetas, x_thetas = next(loader)
             thetas = thetas.to(hypothesis.device, non_blocking=True)
             x_thetas = x_thetas.to(hypothesis.device, non_blocking=True)
-            _, x_thetas_hat = next(loader)
+            thetas_hat, x_thetas_hat = next(loader)
+            thetas_hat = thetas_hat.to(hypothesis.device, non_blocking=True)
             x_thetas_hat = x_thetas_hat.to(hypothesis.device, non_blocking=True)
+            # First pass
             y = self.model(x_thetas, thetas)
             y_hat = self.model(x_thetas_hat, thetas)
-            loss = self.criterion(y, self.zeros) + self.criterion(y_hat, self.ones)
+            # Second pass
+            y_reverse = self.model(x_thetas_hat, thetas_hat)
+            y_hat_reverse = self.model(x_thetas, thetas_hat)
+            # Combine losses and backpropagate
+            loss_a = self.criterion(y, self.zeros) + self.criterion(y_hat, self.ones)
+            loss_b = self.criterion(y_reverse, self.zeros) + self.criterion(y_hat_reverse, self.ones)
+            loss = loss_a + loss_b
             self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()

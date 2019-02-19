@@ -94,9 +94,20 @@ class Uniform(SymmetricTransition):
         return self.distribution.log_prob(thetas_next)
 
     def sample(self, thetas, samples=1):
-        x = []
+        raise NotImplementedError
 
-        with torch.no_grad():
-            pass
 
-        return x
+
+class ClassifierTransition(SymmetricTransition):
+
+    def __init__(self, classifier):
+        super(ClassifierTransition, self).__init__()
+        self.classifier = classifier
+        distribution = UniformDistribution(classifier.lower, classifier.upper)
+        self.distribution = distribution
+
+    def log_prob(self, thetas_current, thetas_next):
+        raise NotImplementedError
+
+    def sample(self, thetas, samples=1):
+        raise NotImplementedError
