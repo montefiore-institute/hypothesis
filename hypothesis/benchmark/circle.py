@@ -13,7 +13,7 @@ from hypothesis.simulation import Simulator
 
 
 def allocate_observations(theta):
-    inputs = torch.tensor(theta).view(1, 3)
+    inputs = torch.tensor(theta).view(1, 3).float()
     simulator = CircleSimulator()
     output = simulator(inputs)
 
