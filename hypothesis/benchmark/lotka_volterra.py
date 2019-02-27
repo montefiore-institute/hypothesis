@@ -29,10 +29,17 @@ class LotkaVolterraSimulator(Simulator):
         def dX_dt(X, t=0):
             return np.array([alpha * X[0] - beta * X[0] * X[1], gamma * X[0] * X[1] - delta * X[1]])
 
-        t = np.linspace(0, self.t, int(self.t/self.resolution))
+        n_entries = int(self.t/self.resolution)
+
+        t = np.linspace(0, self.t, n_entries)
         X0 = np.array([self.x, self.y])
-        X = integrate.odeint(dX_dt, X0, t)
-        return torch.FloatTensor(X).view(2, -1)
+        x, y = torch.FloatTensor(integrate.odeint(dX_dt, X0, t)).split(1, dim=1)
+
+        X = torch.empty(2, n_entries)
+        X[0] = x.view(n_entries)
+        X[1] = y.view(n_entries)
+
+        return X
 
     def forward(self, inputs):
         batch_size = inputs.size(0)
