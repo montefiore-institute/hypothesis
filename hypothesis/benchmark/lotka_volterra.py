@@ -27,7 +27,7 @@ class LotkaVolterraSimulator(Simulator):
     def generate(self, alpha, beta, gamma, delta):
 
         def dX_dt(X, t=0):
-            return np.array([alpha * X[0] - beta * X[0] * X[1], delta * X[0] * X[1] - gamma * X[1]])
+            return np.array([alpha * X[0] - beta * X[0] * X[1], gamma * X[0] * X[1] - delta * X[1]])
 
         t = np.linspace(0, self.t, int(self.t/self.resolution))
         X0 = np.array([self.x, self.y])
