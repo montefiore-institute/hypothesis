@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+from scipy import integrate
 
 from hypothesis.simulation import Simulator
 
@@ -16,34 +17,29 @@ def allocate_observations(theta):
 
 class LotkaVolterraSimulator(Simulator):
 
-    def __init__(self, x=100, y=100, t=99):
+    def __init__(self, x=10, y=10, t=100, resolution=0.001):
         super(LotkaVolterraSimulator, self).__init__()
         self.x = x
         self.y = y
         self.t = t
+        self.resolution = resolution
 
     def generate(self, alpha, beta, gamma, delta):
-        x = self.x
-        y = self.y
-        x_list = [x]
-        y_list = [y]
 
-        for i in range(self.t):
-            dx = alpha * x - beta * x * y
-            dy = delta * x * y - gamma * y
-            x += dx
-            y += dy
-            x_list.append(x)
-            y_list.append(y)
+        def dX_dt(X, t=0):
+            return np.array([alpha * X[0] - beta * X[0] * X[1], delta * X[0] * X[1] - gamma * X[1]])
 
-        return torch.FloatTensor([x_list, y_list])
+        t = np.linspace(0, self.t, int(self.t/self.resolution))
+        X0 = np.array([self.x, self.y])
+        X = integrate.odeint(dX_dt, X0, t)
+        return torch.FloatTensor(X)
 
     def forward(self, inputs):
         samples = []
 
         with torch.no_grad():
             batch_size = inputs.size(0)
-            alphas, betas, gammas, deltas = position.split(1, dim=1)
+            alphas, betas, gammas, deltas = inputs.split(1, dim=1)
             for batch_index in range(batch_size):
                 alpha = alphas[batch_index]
                 beta = betas[batch_index]
