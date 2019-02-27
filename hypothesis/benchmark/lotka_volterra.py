@@ -6,7 +6,7 @@ from hypothesis.simulation import Simulator
 
 
 def allocate_observations(theta):
-    inputs = torch.tensor(theta).view(1, 4).float()
+    inputs = torch.tensor(theta).view(-1, 4).float()
     simulator = LotkaVolterraSimulator()
     output = simulator(inputs)
 
