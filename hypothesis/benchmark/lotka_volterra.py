@@ -32,20 +32,20 @@ class LotkaVolterraSimulator(Simulator):
         t = np.linspace(0, self.t, int(self.t/self.resolution))
         X0 = np.array([self.x, self.y])
         X = integrate.odeint(dX_dt, X0, t)
-        return torch.FloatTensor(X)
+        return torch.FloatTensor(X).view(2, -1)
 
     def forward(self, inputs):
-        samples = []
+        batch_size = inputs.size(0)
+        samples = torch.empty(batch_size, 2, int(self.t/self.resolution))
 
         with torch.no_grad():
-            batch_size = inputs.size(0)
             alphas, betas, gammas, deltas = inputs.split(1, dim=1)
             for batch_index in range(batch_size):
                 alpha = alphas[batch_index]
                 beta = betas[batch_index]
                 gamma = gammas[batch_index]
                 delta = deltas[batch_index]
-                samples.append(self.generate(alpha, beta, gamma, delta))
-            samples = torch.cat(samples, dim=0).contiguous()
+                samples[batch_index] = self.generate(alpha, beta, gamma, delta)
+            print(samples)
 
         return samples
