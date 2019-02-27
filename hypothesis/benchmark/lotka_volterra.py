@@ -46,6 +46,5 @@ class LotkaVolterraSimulator(Simulator):
                 gamma = gammas[batch_index]
                 delta = deltas[batch_index]
                 samples[batch_index] = self.generate(alpha, beta, gamma, delta)
-            print(samples)
 
         return samples
