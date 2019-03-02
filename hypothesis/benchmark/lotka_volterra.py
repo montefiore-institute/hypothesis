@@ -36,9 +36,9 @@ class LotkaVolterraSimulator(Simulator):
         self.lv = mjp.LotkaVolterra([self.initial_prey, self.initial_predator], None)
 
     def _generate(self, theta):
+        self._initialize()
         self.lv.reset([self.initial_prey, self.initial_predator], theta.numpy())
         states = self.lv.sim_time(self.dt, self.duration, max_n_steps=10000, rng=np.random)
-        print(states)
         return torch.tensor(states.flatten()).float().view(1, -1, 2)
 
     def forward(self, thetas):
