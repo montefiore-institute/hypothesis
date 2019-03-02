@@ -1,57 +1,54 @@
 import numpy as np
 import torch
-from scipy import integrate
+import hypothesis.benchmark.markov_jump_processes as mjp
 
 from hypothesis.simulation import Simulator
 
 
 
-def allocate_observations(theta):
-    inputs = torch.tensor(theta).view(-1, 4).float()
-    simulator = LotkaVolterraSimulator()
-    output = simulator(inputs)
 
-    return output
+def allocate_observations(theta=None, num_observations=1):
+    # Check if a theta has been specified.
+    if theta is None:
+        inputs = torch.tensor([0.01, .5, 1, 0.01]).float()
+    else:
+        inputs = torch.tensor(theta).float()
+    inputs = inputs.view(-1, 4).repeat(num_observations)
+    simulator = LotkaVolterraSimulator()
+    outputs = simulator(inputs)
+
+    return outputs
 
 
 
 class LotkaVolterraSimulator(Simulator):
 
-    def __init__(self, x=10, y=10, t=100, resolution=0.001):
+    def __init__(self, prey=100, predator=50, t=30, dt=0.2):
         super(LotkaVolterraSimulator, self).__init__()
-        self.x = x
-        self.y = y
-        self.t = t
-        self.resolution = resolution
+        self.duration = t
+        self.initial_predator = predator
+        self.initial_prey = prey
+        self.dt = dt
+        self.lv = None
+        self._initialize()
 
-    def generate(self, alpha, beta, gamma, delta):
+    def _initialize(self):
+        self.lv = mjp.LotkaVolterra([self.initial_prey, self.initial_predator], None)
 
-        def dX_dt(X, t=0):
-            return np.array([alpha * X[0] - beta * X[0] * X[1], gamma * X[0] * X[1] - delta * X[1]])
+    def _generate(self, theta):
+        self.lv.reset([self.initial_prey, self.initial_predator], theta.numpy())
+        states = self.lv.sim_time(self.dt, self.duration, max_n_steps=10000, rng=np.random)
+        print(states)
+        return torch.tensor(states.flatten()).float().view(1, -1, 2)
 
-        n_entries = int(self.t/self.resolution)
+    def forward(self, thetas):
+        outputs = []
 
-        t = np.linspace(0, self.t, n_entries)
-        X0 = np.array([self.x, self.y])
-        x, y = torch.FloatTensor(integrate.odeint(dX_dt, X0, t)).split(1, dim=1)
+        thetas = thetas.view(-1, 4)
+        for theta in thetas:
+            theta = theta.view(-1)
+            x_theta = self._generate(theta)
+            outputs.append(x_theta)
+        outputs = torch.cat(outputs, dim=0)
 
-        X = torch.empty(2, n_entries)
-        X[0] = x.view(n_entries)
-        X[1] = y.view(n_entries)
-
-        return X
-
-    def forward(self, inputs):
-        batch_size = inputs.size(0)
-        samples = torch.empty(batch_size, 2, int(self.t/self.resolution))
-
-        with torch.no_grad():
-            alphas, betas, gammas, deltas = inputs.split(1, dim=1)
-            for batch_index in range(batch_size):
-                alpha = alphas[batch_index]
-                beta = betas[batch_index]
-                gamma = gammas[batch_index]
-                delta = deltas[batch_index]
-                samples[batch_index] = self.generate(alpha, beta, gamma, delta)
-
-        return samples
+        return outputs
