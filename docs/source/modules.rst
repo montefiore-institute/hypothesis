@@ -9,6 +9,20 @@ Documentation
 ========================
 
 .. automodule:: hypothesis.benchmark
+   :members:
+
+``hypothesis.benchmark.tractable``
+----------------------------------
+.. automodule:: hypothesis.benchmark.tractable
+.. automodule:: hypothesis.benchmark.tractable.simulator
+   :members:
+
+
+``hypothesis.benchmark.mg1``
+----------------------------
+.. automodule:: hypothesis.benchmark.mg1
+.. automodule:: hypothesis.benchmark.mg1.simulator
+   :members:
 
 ``hypothesis.nn``
 =================
@@ -21,7 +35,7 @@ Documentation
 .. automodule:: hypothesis.simulation
    :members:
 
-.. automodule:: hypothesis.simulation.simulator
+.. automodule:: hypothesis.simulation.base
    :members:
 
 ``hypothesis.summary``
