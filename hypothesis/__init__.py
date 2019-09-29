@@ -1,7 +1,7 @@
-"""Hypothesis is a python module for statistical inference.
+r"""Hypothesis is a python module for statistical inference.
 
-The module contains (approximate) inference algorithms with PyTorch
-integration. Additionally, utilities are provided for data loading, efficient
+The package contains (approximate) inference algorithms to solve statistical
+problems. Utilities are provided for data loading, efficient
 simulation, visualization, fire-and-forget inference, and validation.
 """
 
@@ -20,11 +20,13 @@ __email__ = [
 import torch
 
 
-"""str: String describing the PyTorch accelerator backend.
 
-The variable will be initialized when Hypothesis is loaded. It will check for
-the availibility of CUDA. If a CUDA enabled device is present, it will
-select the CUDA device defined in the `CUDA_VISIBLE_DEVICES` environment
-variable. If no such device is specified, it will default to GPU 0.
-"""
 accelerator = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+"""torch.device: PyTorch device describing the accelerator backend.
+
+The variable will be initialized when ``hypothesis`` is loaded for the first time.
+It will check for the availibility of a CUDA device. If a CUDA enabled device
+is present, ``hypothesis`` will select the CUDA device defined in the
+``CUDA_VISIBLE_DEVICES`` environment variable. If no such device is specified,
+the variable will default to GPU 0.
+"""
