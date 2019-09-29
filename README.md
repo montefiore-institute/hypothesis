@@ -1,4 +1,6 @@
-# hypothesis
+<p align="center">
+    <img src="https://joerihermans.com/media/hypothesis.png" />
+</p>
 
 <p align="center">
     <img src="https://img.shields.io/badge/hypothesis-v0.0.2.ALPHA-blue.svg" />
