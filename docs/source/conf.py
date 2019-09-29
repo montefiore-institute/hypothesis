@@ -33,9 +33,11 @@ release = "0.0.3"
 # ones.
 extensions = [
     "sphinx.ext.autodoc",
+    "sphinx.ext.coverage",
     "sphinx.ext.mathjax",
+    "sphinx.ext.napoleon",
     "sphinx.ext.todo",
-    "sphinx.ext.viewcode",
+    "sphinx.ext.viewcode"
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -46,6 +48,10 @@ templates_path = ["_templates"]
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
+
+# -- Options for todo extension ----------------------------------------------
+
+todo_include_todos = True
 
 # -- Options for HTML output -------------------------------------------------
 
