@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-    <img src="https://img.shields.io/badge/hypothesis-v0.0.2.ALPHA-blue.svg" />
+    <img src="https://img.shields.io/badge/hypothesis-v0.0.3.ALPHA-blue.svg" />
     <img src="https://img.shields.io/badge/license-BSD-lightgrey.svg" />
 </p>
 

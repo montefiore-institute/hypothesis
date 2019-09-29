@@ -32,9 +32,10 @@ with open(os.path.join("hypothesis", "__init__.py"), "rt") as fh:
 
 # Module requirements.
 _install_requires = [
+    "h5py",
     "numpy",
-    "torch",
-    "h5py"
+    "pandas",
+    "torch"
 ]
 
 _parameters = {
