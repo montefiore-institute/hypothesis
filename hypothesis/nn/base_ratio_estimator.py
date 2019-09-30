@@ -2,7 +2,19 @@ import torch
 
 
 
-class RatioEstimator(torch.nn.Module):
+class RatioEstimator(object):
+
+    def forward(self, xs):
+        r""""""
+        raise NotImplementedError
+
+    def log_ratio(self, xs):
+        r""""""
+        raise NotImplementedError
+
+
+
+class BaseRatioEstimator(torch.nn.Module, RatioEstimator):
     r""""""
 
     def __init__(self):

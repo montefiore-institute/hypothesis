@@ -3,7 +3,9 @@ r""""""
 
 
 from .base_conditional_ratio_estimator import BaseConditionalRatioEstimator
+from .base_conditional_ratio_estimator import ConditionalRatioEstimator
 from .base_ratio_estimator import BaseRatioEstimator
+from .base_ratio_estimator import RatioEstimator
 from .conditional_resnet_ratio_estimator import ConditionalResNet101RatioEstimator
 from .conditional_resnet_ratio_estimator import ConditionalResNet152RatioEstimator
 from .conditional_resnet_ratio_estimator import ConditionalResNet18RatioEstimator

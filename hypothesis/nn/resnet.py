@@ -73,7 +73,7 @@ class ResNet(torch.nn.Module):
 
     def _build_trunk(self):
         layers = []
-        dimensionality = self.final_planes * self.block.expansion + self.inputs_dimensionality
+        dimensionality = self.final_planes * self.block.expansion
         layers.append(torch.nn.Linear(dimensionality, self.trunk[0]))
         for index in range(1, len(self.trunk)):
             layers.append(self.activation())

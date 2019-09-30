@@ -27,14 +27,14 @@ class ResNetRatioEstimator(BaseRatioEstimator):
             trunk_dropout=trunk_dropout)
 
     def forward(self, xs):
-        log_ratio = self.resnet(xs)
+        log_ratios = self.resnet(xs)
 
-        return log_ratio.sigmoid(), log_ratio
+        return log_ratios.sigmoid(), log_ratios
 
     def log_ratio(self, xs):
-        log_ratio = self.resnet(xs)
+        log_ratios = self.resnet(xs)
 
-        return log_ratio
+        return log_ratios
 
 
 
