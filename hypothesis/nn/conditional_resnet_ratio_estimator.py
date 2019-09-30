@@ -1,0 +1,58 @@
+import torch
+
+from hypothesis.nn import BaseConditionalRatioEstimator
+from hypothesis.nn import ResNet
+
+
+
+class ConditionalResNetRatioEstimator(ResNet, ConditionalRatioEstimator):
+
+    def __init__(self, depth,
+                 dimensionality,
+                 activation=None,
+                 batchnorm=True,
+                 channels=3,
+                 convolution_bias=True,
+                 dilate=False,
+                 trunk=[4096, 4096, 4096],
+                 trunk_dropout=0.0):
+        self.dimensionality = int(dimensionality)
+        trunk.append(1) # Final output.
+        BaseConditionalRatioEstimator.__init__()
+        ResNet.__init__(
+            depth=depth,
+            activation=activation,
+            batchnorm=batchnorm,
+            channels=channels,
+            convolution_bias=convolution_bias
+            dilate=dilate,
+            trunk=trunk,
+            trunk_dropout=trunk_dropout)
+
+     def _build_trunk(self):
+        layers = []
+        dimensionality = self.final_planes * self.block.expansion + self.dimensionality
+        layers.append(torch.nn.Linear(dimensionality, self.trunk[0]))
+        for index in range(1, len(self.trunk)):
+            layers.append(self.activation())
+            layers.append(torch.nn.Linear(self.trunk[i - 1], self.trunk[i]))
+            # Check if dropout needs to be added.
+            if self.trunk_dropout > 0:
+                layers.append(torch.nn.Dropout(p=self.trunk_dropout))
+
+        return torch.nn.Sequential(*layers)
+
+    def forward(self, xs, ys):
+        log_ratios = self.log_ratio(xs, ys)
+
+        return log_ratios.sigmoid(), log_ratios
+
+    def log_ratio(self, xs, ys):
+        latents = self.network_head(ys)
+        latents = self.network_body(latents)
+        latents = latents.reshape(latents.size(0), -1) # Flatten
+        xs = inputs.reshape(-1, self.dimensionality) # Flatten inputs
+        latents = torch.cat([xs, latents], dim=1)
+        log_ratios = self.network_trunk(latents)
+
+        return log_ratios
