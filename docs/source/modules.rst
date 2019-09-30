@@ -40,3 +40,15 @@ Documentation
 
 ``hypothesis.summary``
 ======================
+
+``hypothesis.util``
+===================
+.. automodule:: hypothesis.util
+   :members:
+
+``hypothesis.util.data``
+---------------------------
+.. automodule:: hypothesis.util.data
+   :members:
+.. automodule:: hypothesis.util.data.simulator_dataset
+   :members:
