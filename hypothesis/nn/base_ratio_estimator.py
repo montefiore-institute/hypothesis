@@ -24,6 +24,6 @@ class BaseRatioEstimator(torch.nn.Module, RatioEstimator):
         r""""""
         raise NotImplementedError
 
-    def log_ratio(self, inputs)
+    def log_ratio(self, inputs):
         r""""""
         raise NotImplementedError
