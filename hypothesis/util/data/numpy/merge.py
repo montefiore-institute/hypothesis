@@ -5,6 +5,14 @@ import torch
 
 
 
+def compute_final_shape(file_names):
+    num_files = len(file_names)
+    shape = list(np.load(file_names[0])).shape
+    shape[0] *= num_files
+
+    return tuple(shape)
+
+
 def merge(pattern, output_file, tempfile=None, dtype=np.float32):
     file_names = glob.glob(pattern)
     shape = compute_final_shape(file_names)
@@ -18,11 +26,3 @@ def merge(pattern, output_file, tempfile=None, dtype=np.float32):
         rows = shape[0]
         data_map[index:index + rows, :] = data
         index += rows
-
-
-def compute_final_shape(file_names):
-    num_files = len(file_names)
-    shape = list(np.load(file_names[0])).shape
-    shape[0] *= num_files
-
-    return tuple(shape)

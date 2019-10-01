@@ -24,9 +24,18 @@ import torch
 accelerator = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 """torch.device: PyTorch device describing the accelerator backend.
 
-The variable will be initialized when ``hypothesis`` is loaded for the first time.
-It will check for the availibility of a CUDA device. If a CUDA enabled device
-is present, ``hypothesis`` will select the CUDA device defined in the
+The variable will be initialized when ``hypothesis`` is loaded for the first
+time. It will check for the availibility of a CUDA device. If a CUDA enabled
+device is present, ``hypothesis`` will select the CUDA device defined in the
 ``CUDA_VISIBLE_DEVICES`` environment variable. If no such device is specified,
 the variable will default to GPU 0.
 """
+
+################################################################################
+# Hypothesis hooks.
+################################################################################
+
+from hypothesis.engine import hook
+from hypothesis.engine.hook import call_hooks
+from hypothesis.engine.hook import clear_hooks
+from hypothesis.engine.hook import register_hook
