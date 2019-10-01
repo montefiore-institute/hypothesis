@@ -23,7 +23,7 @@ class ResNet(torch.nn.Module):
         self.activation = activation
         self.batchnorm = batchnorm
         self.channels = channels
-        self.convolution_bias = convolution_biase
+        self.convolution_bias = convolution_bias
         self.dilate = dilate
         self.dilation = 1
         self.final_planes = 0
@@ -71,11 +71,38 @@ class ResNet(torch.nn.Module):
 
         return body
 
+    def _build_layer(self, planes, blocks, stride):
+        previous_dilation = self.dilation
+        # Check if a dilated convolution is required.
+        if self.dilate:
+            self.dilation *= stride
+            stride = 1
+        new_dimensionality = planes * self.block.expansion
+        if stride != 1 or self.in_planes != new_dimensionality:
+            conv = torch.nn.Conv2d(self.in_planes, new_dimensionality, kernel_size=1, stride=stride, bias=False)
+            if self.batchnorm:
+                downsample = torch.nn.Sequential(conv, torch.nn.BatchNorm2d(new_dimensionality))
+            else:
+                downsample = conv
+        else:
+            downsample = None
+        # Build the sequence of blocks.
+        layers = []
+        block = self.block(self.in_planes, planes, stride, self.activation, previous_dilation, downsample, self.batchnorm)
+        layers.append(block)
+        self.in_planes = planes * self.block.expansion
+        stride = 1
+        for _ in range(1, blocks):
+            block = self.block(self.in_planes, planes, stride, self.activation, self.dilation, downsample=None)
+            layers.append(block)
+
+        return torch.nn.Sequential(*layers)
+
     def _build_trunk(self):
         layers = []
         dimensionality = self.final_planes * self.block.expansion
         layers.append(torch.nn.Linear(dimensionality, self.trunk[0]))
-        for index in range(1, len(self.trunk)):
+        for i in range(1, len(self.trunk)):
             layers.append(self.activation())
             layers.append(torch.nn.Linear(self.trunk[i - 1], self.trunk[i]))
             # Check if dropout needs to be added.
@@ -205,6 +232,7 @@ class ResNet18(ResNet):
                  trunk_dropout=0.0):
         depth = 18
         super(ResNet18, self).__init__(
+            depth=depth,
             activation=activation,
             batchnorm=batchnorm,
             channels=channels,
@@ -226,6 +254,7 @@ class ResNet34(ResNet):
                  trunk_dropout=0.0):
         depth = 34
         super(ResNet34, self).__init__(
+            depth=depth,
             activation=activation,
             batchnorm=batchnorm,
             channels=channels,
@@ -247,6 +276,7 @@ class ResNet50(ResNet):
                  trunk_dropout=0.0):
         depth = 50
         super(ResNet50, self).__init__(
+            depth=depth,
             activation=activation,
             batchnorm=batchnorm,
             channels=channels,
@@ -268,6 +298,7 @@ class ResNet101(ResNet):
                  trunk_dropout=0.0):
         depth = 101
         super(ResNet101, self).__init__(
+            depth=depth,
             activation=activation,
             batchnorm=batchnorm,
             channels=channels,
@@ -289,6 +320,7 @@ class ResNet152(ResNet):
                  trunk_dropout=0.0):
         depth = 152
         super(ResNet152, self).__init__(
+            depth=depth,
             activation=activation,
             batchnorm=batchnorm,
             channels=channels,
