@@ -70,6 +70,7 @@ class ConditionalResNet18RatioEstimator(ConditionalResNetRatioEstimator):
                  trunk_dropout=0.0):
         depth = 18
         super(ConditionalResNet18RatioEstimator, self).__init__(
+            depth=depth,
             activation=activation,
             batchnorm=batchnorm,
             channels=channels,
@@ -91,6 +92,7 @@ class ConditionalResNet34RatioEstimator(ConditionalResNetRatioEstimator):
                  trunk_dropout=0.0):
         depth = 34
         super(ConditionalResNet34RatioEstimator, self).__init__(
+            depth=depth,
             activation=activation,
             batchnorm=batchnorm,
             channels=channels,
@@ -112,6 +114,7 @@ class ConditionalResNet50RatioEstimator(ConditionalResNetRatioEstimator):
                  trunk_dropout=0.0):
         depth = 50
         super(ConditionalResNet50RatioEstimator, self).__init__(
+            depth=depth,
             activation=activation,
             batchnorm=batchnorm,
             channels=channels,
@@ -133,6 +136,7 @@ class ConditionalResNet101RatioEstimator(ConditionalResNetRatioEstimator):
                  trunk_dropout=0.0):
         depth = 101
         super(ConditionalResNet101RatioEstimator, self).__init__(
+            depth=depth,
             activation=activation,
             batchnorm=batchnorm,
             channels=channels,
@@ -154,6 +158,7 @@ class ConditionalResNet152RatioEstimator(ConditionalResNetRatioEstimator):
                  trunk_dropout=0.0):
         depth = 152
         super(ConditionalResNet101RatioEstimator, self).__init__(
+            depth=depth,
             activation=activation,
             batchnorm=batchnorm,
             channels=channels,

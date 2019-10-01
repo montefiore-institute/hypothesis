@@ -49,6 +49,7 @@ class ResNet18RatioEstimator(ResNetRatioEstimator):
                  trunk_dropout=0.0):
         depth = 18
         super(ResNet18RatioEstimator, self).__init__(
+            depth=depth,
             activation=activation,
             batchnorm=batchnorm,
             channels=channels,
@@ -70,6 +71,7 @@ class ResNet34RatioEstimator(ResNetRatioEstimator):
                  trunk_dropout=0.0):
         depth = 34
         super(ResNet34RatioEstimator, self).__init__(
+            depth=depth,
             activation=activation,
             batchnorm=batchnorm,
             channels=channels,
@@ -91,6 +93,7 @@ class ResNet50RatioEstimator(ResNetRatioEstimator):
                  trunk_dropout=0.0):
         depth = 50
         super(ResNet50RatioEstimator, self).__init__(
+            depth=depth,
             activation=activation,
             batchnorm=batchnorm,
             channels=channels,
@@ -112,6 +115,7 @@ class ResNet101RatioEstimator(ResNetRatioEstimator):
                  trunk_dropout=0.0):
         depth = 101
         super(ResNet101RatioEstimator, self).__init__(
+            depth=depth,
             activation=activation,
             batchnorm=batchnorm,
             channels=channels,
@@ -133,6 +137,7 @@ class ResNet152RatioEstimator(ResNetRatioEstimator):
                  trunk_dropout=0.0):
         depth = 152
         super(ResNet152RatioEstimator, self).__init__(
+            depth=depth,
             activation=activation,
             batchnorm=batchnorm,
             channels=channels,
