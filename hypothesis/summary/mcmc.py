@@ -38,10 +38,49 @@ class Chain:
         return self.samples[0].shape
 
     def autocorrelation(self, lag, parameter_index=None):
-        raise NotImplementedError
+        with torch.no_grad():
+            thetas = self.chain.clone()
+            sample_mean = self.mean(parameter_index)
+            if lag > 0:
+                padding = torch.zeros(lag, num_parameters)
+                lagged_thetas = thetas[lag:, parameter_index].clone()
+                lagged_thetas -= sample_mean
+                padded_thetas = torch.cat([lagged_thetas, padding], dim=0)
+            else:
+                padded_thetas = thetas
+            thetas -= sample_mean
+            rhos = thetas * padded_thetas
+            rho = rhos.sum(dim=0).squeeze()
+            rho *= (1. / (self.size() - lag))
+        del thetas
+        del padded_thetas
+        del rhos
+
+        return rho
+
+    def integrated_autocorrelation(self, interval=1, M=0):
+        int_tau = 0.
+        if not M:
+            M = self.size() - 1
+        c_0 = self.autocorrelation(0)
+        for index in range(M):
+            int_tau += self.autocorrelation(index) / c_0
+
+        return int_tau
 
     def effective_size(self):
-        raise NotImplementedError
+        y_0 = self.autocorrelation(0)
+        M = 0
+        for lag in range(self.size()):
+            y = self.autocorrelation(lag)
+            p = y / y_0
+            if p <= 0:
+                M = lag - 1
+                break
+        tau = self.integrated_autocorrelation(M)
+        effective_size = (self.size() / tau)
+
+        return int(abs(effective_size))
 
     def efficiency(self):
         return self.effective_size() / self.size()
