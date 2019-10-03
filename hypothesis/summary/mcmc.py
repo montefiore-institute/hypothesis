@@ -16,7 +16,7 @@ class Chain:
     def mean(self, parameter_index=None):
         return self.samples[:, parameter_index].mean(dim=0)
 
-    def std(self, parameter_index=None)
+    def std(self, parameter_index=None):
         return self.samples[:, parameter_index].std(dim=0)
 
     def variance(self, parameter_index=None):
@@ -87,3 +87,6 @@ class Chain:
 
     def thin(self):
         raise NotImplementedError
+
+    def __getitem__(self, pattern):
+        return self.samples[pattern]

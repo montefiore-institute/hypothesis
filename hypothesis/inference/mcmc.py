@@ -31,6 +31,7 @@ class MarkovChainMonteCarlo:
             samples.append(theta.view(1, -1))
             acceptance_probabilities.append(acceptance_probability)
             acceptances.append(acceptance)
+        samples = torch.cat(samples, dim=0)
         chain = Chain(samples, acceptance_probabilities, acceptances)
 
         return chain
@@ -42,10 +43,9 @@ class MetropolisHastings(MarkovChainMonteCarlo):
 
     def __init__(self, prior, log_likelihood, transition):
         super(MetropolisHastings, self).__init__(prior)
-        self.log_likelihood = log_likelihood
-        self.proposal = proposal
-        self.transition = transition
         self.denominator = None
+        self.log_likelihood = log_likelihood
+        self.transition = transition
 
     def _step(self, observations, theta):
         accepted = False
@@ -64,6 +64,7 @@ class MetropolisHastings(MarkovChainMonteCarlo):
         if u <= acceptance_probability:
             accepted = True
             theta = theta_next
+            self.denominator = numerator
 
         return theta, acceptance_probability, accepted
 
@@ -75,11 +76,11 @@ class AALRMetropolisHastings(MarkovChainMonteCarlo):
     """
 
     def __init__(self, prior, ratio_estimator, transition):
-        super(RatioEstimatorMetropolisHastings, self).__init__()
+        super(AALRMetropolisHastings, self).__init__()
+        self.denominator = None
         self.prior = prior
         self.ratio_estimator = ratio_estimator
         self.transition = transition
-        self.denominator = None
 
     def _compute_ratio(self, observations, theta):
         num_observations = len(observations)
