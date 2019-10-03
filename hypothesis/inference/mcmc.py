@@ -73,6 +73,7 @@ class MetropolisHastings(MarkovChainMonteCarlo):
 class AALRMetropolisHastings(MarkovChainMonteCarlo):
     r"""Ammortized Approximate Likelihood Ratio Metropolis Hastings
 
+    https://arxiv.org/abs/1903.04057
     """
 
     def __init__(self, prior, ratio_estimator, transition):
