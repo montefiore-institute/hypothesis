@@ -12,6 +12,7 @@ class Chain:
         self.acceptance_probabilities = acceptance_probabilities
         self.acceptances = acceptances
         self.samples = samples
+        self.shape = samples.shape
 
     def mean(self, parameter_index=None):
         return self.samples[:, parameter_index].mean(dim=0)
@@ -34,8 +35,8 @@ class Chain:
     def max(self):
         return self.samples.max(dim=0)
 
-    def shape(self):
-        return self.samples[0].shape
+    def dimensionality(self):
+        return self.samples.shape[1:]
 
     def autocorrelation(self, lag, parameter_index=None):
         with torch.no_grad():

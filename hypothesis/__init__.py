@@ -31,6 +31,13 @@ device is present, ``hypothesis`` will select the CUDA device defined in the
 the variable will default to GPU 0.
 """
 
+
+def disable_gpu():
+    r"""Disables GPU acceleration. Hypothesis' accelerator will have been
+    set to 'cpu'."""
+    hypothesis.accelerator = "cpu"
+
+
 ################################################################################
 # Hypothesis hooks.
 ################################################################################

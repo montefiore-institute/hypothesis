@@ -32,6 +32,7 @@ with open(os.path.join("hypothesis", "__init__.py"), "rt") as fh:
 
 # Module requirements.
 _install_requires = [
+    "corner",
     "h5py",
     "numpy",
     "pandas",
