@@ -18,12 +18,12 @@ class SimulatorDataset(Dataset):
         self.simulator = simulator
         self.size = int(size)
 
-    def __getitem(self, index):
+    def __getitem__(self, index):
         r"""
         Todo:
             Write docs.
         """
-        inputs = prior.sample(torch.Size([1]))
+        inputs = self.prior.sample(torch.Size([1])).unsqueeze(0)
         outputs = self.simulator(inputs)
 
         return inputs, outputs
