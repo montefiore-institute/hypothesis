@@ -2,10 +2,10 @@ r""""""
 
 
 
-from .base_conditional_ratio_estimator import BaseConditionalRatioEstimator
-from .base_conditional_ratio_estimator import ConditionalRatioEstimator
-from .base_ratio_estimator import BaseRatioEstimator
-from .base_ratio_estimator import RatioEstimator
+from .ratio_estimator import BaseRatioEstimator
+from .ratio_estimator import RatioEstimator
+from .conditional_ratio_estimator import BaseConditionalRatioEstimator
+from .conditional_ratio_estimator import ConditionalRatioEstimator
 from .resnet import ResNet
 from .resnet import ResNet101
 from .resnet import ResNet152
