@@ -8,6 +8,51 @@ import torch
 from hypothesis.summary.mcmc import Chain
 from torch.distributions.multivariate_normal import MultivariateNormal
 from torch.distributions.normal import Normal
+from torch.multiprocessing import Pool
+
+
+
+class ParallelSampler:
+
+    def __init__(self, sampler, chains=2, workers=torch.multiprocessing.cpu_count()):
+        self.chains = chains
+        self.sampler = sampler
+        self.workers = workers
+
+    def _prepare_arguments(self, observations, thetas, num_samples):
+        arguments = []
+        for theta in thetas:
+            t = (self.sampler, observations, theta, num_samples)
+            arguments.append(t)
+
+        return arguments
+
+    def _prepare_thetas(self):
+        thetas = []
+        prior = self.sampler.prior
+        for _ in range(self.chains):
+            thetas.append(prior.sample())
+
+        return thetas
+
+    def sample(self, observations, num_samples, thetas=None):
+        assert(thetas is None or len(thetas) is self.chains)
+        self.sampler.reset()
+        if thetas is None:
+            thetas = self._prepare_thetas()
+        pool = Pool(processes=self.workers)
+        arguments = self._prepare_arguments(observations, thetas, num_samples)
+        chains = pool.map(self.sample_chain, arguments)
+        del pool
+
+        return chains
+
+    @staticmethod
+    def sample_chain(arguments):
+        sampler, observations, theta, num_samples = arguments
+        chain = sampler.sample(observations, theta, num_samples)
+
+        return chain
 
 
 
@@ -21,11 +66,15 @@ class MarkovChainMonteCarlo:
     def _step(self, observations, theta):
         raise NotImplementedError
 
+    def reset(self):
+        pass
+
     def sample(self, observations, theta, num_samples):
         r""""""
         acceptance_probabilities = []
         acceptances = []
         samples = []
+        self.reset()
         for sample_index in range(num_samples):
             theta, acceptance_probability, acceptance = self._step(observations, theta)
             samples.append(theta.view(1, -1))
@@ -68,6 +117,9 @@ class MetropolisHastings(MarkovChainMonteCarlo):
 
         return theta, acceptance_probability, accepted
 
+    def reset(self):
+        self.denominator = None
+
 
 
 class AALRMetropolisHastings(MarkovChainMonteCarlo):
@@ -109,3 +161,10 @@ class AALRMetropolisHastings(MarkovChainMonteCarlo):
             theta = theta_next
 
         return theta, acceptance_probability, accepted
+
+    def reset(self):
+        self.denominator = None
+
+    def sample(self, observations, theta, num_samples):
+        assert(not self.ratio_estimator.training)
+        super(self).sample(observations, theta, num_samples)
