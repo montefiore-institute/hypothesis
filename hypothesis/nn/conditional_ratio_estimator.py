@@ -31,13 +31,14 @@ class BaseConditionalRatioEstimator(torch.nn.Module, ConditionalRatioEstimator):
 
 
 
-class ConditionalRatioEstimatorLoss(torch.nn.Module):
+class ConditionalRatioEstimatorCriterion(torch.nn.Module):
 
-    def __init__(self, ratio_estimator, criterion=None, ones=None, zeros=None):
-        self.criterion = criterion
-        self.ones = ones
-        self.zeros = zeros
+    def __init__(self, ratio_estimator, batch_size):
+        self.batch_size = batch_size
+        self.criterion = torch.nn.BCELoss()
+        self.ones = torch.ones(self.batch_size, 1)
         self.ratio_estimator = ratio_estimator
+        self.zeros = torch.zeros(self.batch_size, 1)
 
     def forward(self, batch_a, batch_b):
         inputs_a, outputs_a = batch_a
@@ -54,11 +55,25 @@ class ConditionalRatioEstimatorLoss(torch.nn.Module):
 
 
 
-class ConditionalRatioEstimatorBCEWithLogitsLoss(torch.nn.Module):
+class ConditionalRatioEstimatorLogitsCriterion(torch.nn.Module):
 
-    def __init__(self, ratio_estimator):
+    def __init__(self, ratio_estimator, batch_size):
+        self.batch_size = batch_size
         self.ratio_estimator = ratio_estimator
         self.criterion = torch.nn.BCEWithLogitsLoss()
+        self.ones = torch.ones(self.batch_size, 1)
+        self.ratio_estimator = ratio_estimator
+        self.zeros = torch.zeros(self.batch_size, 1)
 
     def forward(self, batch_a, batch_b):
-        raise NotImplementedError
+        inputs_a, outputs_a = batch_a
+        inputs_b, outputs_b = batch_b
+        _, y_dependent_a = self.ratio_estimator(inputs_a, outputs_a)
+        _, y_independent_a = self.ratio_estimator(inputs_a, outputs_b)
+        _, y_dependent_b = self.ratio_estimator(inputs_b, outputs_b)
+        _, y_independent_b = self.ratio_estimator(inputs_b, outputs_a)
+        loss_a = self.criterion(y_dependent_a, ones) + self.criterion(y_independent_a, zeros)
+        loss_b = self.criterion(y_dependent_b, ones) + self.criterion(y_independent_b, zeros)
+        loss = loss_a + loss_b
+
+        return loss
