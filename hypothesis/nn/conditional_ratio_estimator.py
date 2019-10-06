@@ -47,17 +47,17 @@ class ConditionalRatioEstimatorCriterion(torch.nn.Module):
         self.ones = torch.ones(self.chunked_batch_size, 1)
         self.zeros = torch.zeros(self.chunked_batch_size, 1)
 
-    def forward(self, inputs, outputs):
-        inputs = inputs.chunk(2)
-        outputs = outputs.chunk(2)
-        inputs_a = inputs[0]
-        inputs_b = inputs[1]
-        outputs_a = outputs[0]
-        outputs_b = outputs[1]
-        y_dependent_a, _ = self.ratio_estimator(inputs_a, outputs_a)
-        y_independent_a, _ = self.ratio_estimator(inputs_a, outputs_b)
-        y_dependent_b, _ = self.ratio_estimator(inputs_b, outputs_b)
-        y_independent_b, _ = self.ratio_estimator(inputs_b, outputs_a)
+    def forward(self, xs, ys):
+        xs = xs.chunk(2)
+        ys = ys.chunk(2)
+        xs_a = xs[0]
+        xs_b = xs[1]
+        ys_a = ys[0]
+        ys_b = ys[1]
+        y_dependent_a, _ = self.ratio_estimator(xs_a, ys_a)
+        y_independent_a, _ = self.ratio_estimator(xs_a, ys_b)
+        y_dependent_b, _ = self.ratio_estimator(xs_b, ys_b)
+        y_independent_b, _ = self.ratio_estimator(xs_b, ys_a)
         loss_a = self.criterion(y_dependent_a, self.ones) + \
                  self.criterion(y_independent_a, self.zeros)
         loss_b = self.criterion(y_dependent_b, self.ones) + \
@@ -82,17 +82,17 @@ class ConditionalRatioEstimatorLogitsCriterion(torch.nn.Module):
         self.ones = torch.ones(self.chunked_batch_size, 1)
         self.zeros = torch.zeros(self.chunked_batch_size, 1)
 
-    def forward(self, inputs, outputs):
-        inputs = inputs.chunk(2)
-        outputs = outputs.chunk(2)
-        inputs_a = inputs[0]
-        inputs_b = inputs[1]
-        outputs_a = outputs[0]
-        outputs_b = outputs[1]
-        _, y_dependent_a = self.ratio_estimator(inputs_a, outputs_a)
-        _, y_independent_a = self.ratio_estimator(inputs_a, outputs_b)
-        _, y_dependent_b = self.ratio_estimator(inputs_b, outputs_b)
-        _, y_independent_b = self.ratio_estimator(inputs_b, outputs_a)
+    def forward(self, xs, ys):
+        xs = xs.chunk(2)
+        ys = ys.chunk(2)
+        xs_a = xs[0]
+        xs_b = xs[1]
+        ys_a = ys[0]
+        ys_b = ys[1]
+        _, y_dependent_a = self.ratio_estimator(xs_a, ys_a)
+        _, y_independent_a = self.ratio_estimator(xs_a, ys_b)
+        _, y_dependent_b = self.ratio_estimator(xs_b, ys_b)
+        _, y_independent_b = self.ratio_estimator(xs_b, ys_a)
         loss_a = self.criterion(y_dependent_a, self.ones) + \
                  self.criterion(y_independent_a, self.zeros)
         loss_b = self.criterion(y_dependent_b, self.ones) + \
