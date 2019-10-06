@@ -96,24 +96,36 @@ class Chain:
         return integrated_autocorrelations
 
     def effective_size(self):
-        y_0 = self.autocorrelation(0)
+        acf = self.autocorrelations()
         M = 0
-        for lag in range(self.size()):
-            y = self.autocorrelation(lag)
-            p = y / y_0
+        size = self.size()
+        a_0 = acf[0]
+        for lag in range(size):
+            a = acf[lag]
+            p = a / a_0
             if p <= 0:
                 M = lag - 1
                 break
         tau = self.integrated_autocorrelation(M)
-        effective_size = (self.size() / tau)
+        effective_size = (size / (tau + 1))
 
         return int(abs(effective_size))
 
     def efficiency(self):
         return self.effective_size() / self.size()
 
-    def thin(self):
-        raise NotImplementedError
+    def thin(self, proportion=None):
+        if proportion is None:
+            proportion = self.efficiency()
+        indices = np.arange(self.size())
+        num_samples = int(proportion * self.size())
+        sampled_indices = np.random.choice(indices, size=num_samples)
+        samples = self.samples[sampled_indices]
+
+        return Chain(samples, None, None)
+
+    def thinned(self):
+        return self.acceptance_probabilities is None or self.acceptances is None
 
     def __getitem__(self, pattern):
         return self.samples[pattern]
