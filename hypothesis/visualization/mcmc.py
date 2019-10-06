@@ -19,6 +19,27 @@ def plot_density(chain):
     raise NotImplementedError
 
 
+def plot_autocorrelation(chain, interval=2, max_lag=100, radius=1.1):
+    if max_lag is None:
+        max_lag = chain.size()
+    autocorrelations = chain.autocorrelations()[:max_lag]
+    lags = np.arange(0, max_lag, interval)
+    autocorrelations = autocorrelations[lags]
+    plt.ylim([-radius, radius])
+    center = .5
+    for index, lag in enumerate(lags):
+        autocorrelation = autocorrelations[index]
+        plt.axvline(lag, center, center + autocorrelation / 2 / radius, c="black")
+    plt.xlabel("Lag")
+    plt.ylabel("Autocorrelation")
+    plt.minorticks_on()
+    plt.axhline(0, linestyle="--", c="black", alpha=.75, lw=2)
+    make_square(plt.gca())
+    figure = plt.gcf()
+
+    return figure
+
+
 def plot_trace(chain, parameter_index=None):
     nrows = chain.dimensionality()
     figure, rows = plt.subplots(nrows, 2, sharey=False, sharex=False, figsize=(2 * 7, 2))

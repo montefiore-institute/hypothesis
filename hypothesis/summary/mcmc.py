@@ -2,6 +2,7 @@ r"""Summary objects and statistics for Markov chain Monte Carlo methods."""
 
 import numpy as np
 import torch
+import warnings
 
 
 
@@ -54,17 +55,20 @@ class Chain:
         return self.autocorrelations()[lag]
 
     def autocorrelations(self):
-        samples = self.samples.numpy()
-        samples = np.atleast_1d(samples)
-        axis = 0
-        m = [slice(None), ] * len(x.shape)
-        n = samples.shape[axis]
-        f = np.fft.fft(x - np.mean(samples, axis=axis), n=2 * n, axis=axis)
-        m[axis] = slice(0, n)
-        samples = np.fft.ifft(f * np.conjugate(f), axis=axis)[m].real
-        acf = samples / samples[m]
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            samples = self.samples.numpy()
+            samples = np.atleast_1d(samples)
+            axis = 0
+            m = [slice(None), ] * len(samples.shape)
+            n = samples.shape[axis]
+            f = np.fft.fft(samples - np.mean(samples, axis=axis), n=2 * n, axis=axis)
+            m[axis] = slice(0, n)
+            samples = np.fft.ifft(f * np.conjugate(f), axis=axis)[m].real
+            m[axis] = 0
+            acf = samples / samples[m]
 
-        return acf
+        return torch.from_numpy(acf).float()
 
     def integrated_autocorrelation(self, max_lag=None):
         autocorrelations = self.autocorrelations()
@@ -73,7 +77,7 @@ class Chain:
             max_lag = self.size()
         a_0 = autocorrelations[0]
         for index in range(max_lag):
-            integrated_autocorrelation += autocorrelations[index] / a_0
+            integrated_autocorrelation += autocorrelations[index]
 
         return integrated_autocorrelation
 
@@ -85,7 +89,7 @@ class Chain:
             max_lag = self.size()
         a_0 = autocorrelations[0]
         for index in range(max_lag):
-            integrated_autocorrelation += autocorrelations[index] / a_0
+            integrated_autocorrelation += autocorrelations[index]
             if index % interval == 0:
                 integrated_autocorrelations.append(integrated_autocorrelation)
 
