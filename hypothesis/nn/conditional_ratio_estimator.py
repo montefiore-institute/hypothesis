@@ -39,7 +39,8 @@ class ConditionalRatioEstimatorCriterion(torch.nn.Module):
         super(ConditionalRatioEstimatorCriterion, self).__init__()
         # Check if a valid batch size has been supplied.
         if batch_size % 2 != 0:
-            raise NotDivisibleByTwoException("Only batch sizes divisible by two are permitted.")
+            raise NotDivisibleByTwoException(
+                "Only batch sizes divisible by two are permitted.")
         assert(batch_size % 2 == 0)
         self.chunked_batch_size = batch_size // 2
         self.criterion = torch.nn.BCELoss()
@@ -74,7 +75,8 @@ class ConditionalRatioEstimatorLogitsCriterion(torch.nn.Module):
         super(ConditionalRatioEstimatorLogitsCriterion, self).__init__()
         # Check if a valid batch size has been supplied.
         if batch_size % 2 != 0:
-            raise NotDivisibleByTwoException("Only batch sizes divisible by two are permitted.")
+            raise NotDivisibleByTwoException(
+                "Only batch sizes divisible by two are permitted.")
         self.chunked_batch_size = batch_size // 2
         self.ratio_estimator = ratio_estimator
         self.criterion = torch.nn.BCEWithLogitsLoss()
