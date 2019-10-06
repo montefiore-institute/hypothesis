@@ -107,7 +107,9 @@ class Chain:
                 M = lag - 1
                 break
         tau = self.integrated_autocorrelation(M)
-        effective_size = (size / (tau + 1))
+        if tau == 0:
+            tau = 1
+        effective_size = size / tau
 
         return int(abs(effective_size))
 
@@ -124,7 +126,7 @@ class Chain:
 
         return Chain(samples, None, None)
 
-    def thinned(self):
+    def is_thinned(self):
         return self.acceptance_probabilities is None or self.acceptances is None
 
     def __getitem__(self, pattern):
