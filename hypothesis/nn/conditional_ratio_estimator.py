@@ -58,8 +58,6 @@ class ConditionalRatioEstimatorCriterion(torch.nn.Module):
         y_independent_a, _ = self.ratio_estimator(inputs_a, outputs_b)
         y_dependent_b, _ = self.ratio_estimator(inputs_b, outputs_b)
         y_independent_b, _ = self.ratio_estimator(inputs_b, outputs_a)
-        print(y_dependent_a.shape)
-        print(self.chunked_batch_size)
         loss_a = self.criterion(y_dependent_a, self.ones) + \
                  self.criterion(y_independent_a, self.zeros)
         loss_b = self.criterion(y_dependent_b, self.ones) + \
