@@ -15,16 +15,28 @@ class Chain:
         self.shape = samples.shape
 
     def mean(self, parameter_index=None):
-        return self.samples[:, parameter_index].mean(dim=0)
+        with torch.no_grad():
+            mean = self.samples[:, parameter_index].mean(dim=0).squeeze()
+
+        return mean
 
     def std(self, parameter_index=None):
-        return self.samples[:, parameter_index].std(dim=0)
+        with torch.no_grad():
+            std = self.samples[:, parameter_index].std(dim=0).squeeze()
+
+        return std
 
     def variance(self, parameter_index=None):
-        return self.std(parameter_index) ** 2
+        with torch.no_grad():
+            variance = self.std(parameter_index) ** 2
+
+        return variance
 
     def monte_carlo_error(self):
-        return (self.variance() / self.effective_size()).sqrt()
+        with torch.no_grad():
+            mc_error = (self.variance() / self.effective_size()).sqrt()
+
+        return mc_error
 
     def size(self):
         return len(self.samples)
@@ -36,38 +48,48 @@ class Chain:
         return self.samples.max(dim=0)
 
     def dimensionality(self):
-        return self.samples.shape[1:]
+        return self.samples.shape[1:][0]
 
-    def autocorrelation(self, lag, parameter_index=None):
-        with torch.no_grad():
-            thetas = self.chain.clone()
-            sample_mean = self.mean(parameter_index)
-            if lag > 0:
-                padding = torch.zeros(lag, num_parameters)
-                lagged_thetas = thetas[lag:, parameter_index].clone()
-                lagged_thetas -= sample_mean
-                padded_thetas = torch.cat([lagged_thetas, padding], dim=0)
-            else:
-                padded_thetas = thetas
-            thetas -= sample_mean
-            rhos = thetas * padded_thetas
-            rho = rhos.sum(dim=0).squeeze()
-            rho *= (1. / (self.size() - lag))
-        del thetas
-        del padded_thetas
-        del rhos
+    def autocorrelation(self, lag):
+        return self.autocorrelations()[lag]
 
-        return rho
+    def autocorrelations(self):
+        samples = self.samples.numpy()
+        samples = np.atleast_1d(samples)
+        axis = 0
+        m = [slice(None), ] * len(x.shape)
+        n = samples.shape[axis]
+        f = np.fft.fft(x - np.mean(samples, axis=axis), n=2 * n, axis=axis)
+        m[axis] = slice(0, n)
+        samples = np.fft.ifft(f * np.conjugate(f), axis=axis)[m].real
+        acf = samples / samples[m]
 
-    def integrated_autocorrelation(self, interval=1, M=0):
-        int_tau = 0.
-        if not M:
-            M = self.size() - 1
-        c_0 = self.autocorrelation(0)
-        for index in range(M):
-            int_tau += self.autocorrelation(index) / c_0
+        return acf
 
-        return int_tau
+    def integrated_autocorrelation(self, max_lag=None):
+        autocorrelations = self.autocorrelations()
+        integrated_autocorrelation = 0.
+        if max_lag is None:
+            max_lag = self.size()
+        a_0 = autocorrelations[0]
+        for index in range(max_lag):
+            integrated_autocorrelation += autocorrelations[index] / a_0
+
+        return integrated_autocorrelation
+
+    def integrated_autocorrelations(self, interval=1, max_lag=None):
+        autocorrelations = self.autocorrelations()
+        integrated_autocorrelation = 0.
+        integrated_autocorrelations = []
+        if max_lag is None:
+            max_lag = self.size()
+        a_0 = autocorrelations[0]
+        for index in range(max_lag):
+            integrated_autocorrelation += autocorrelations[index] / a_0
+            if index % interval == 0:
+                integrated_autocorrelations.append(integrated_autocorrelation)
+
+        return integrated_autocorrelations
 
     def effective_size(self):
         y_0 = self.autocorrelation(0)

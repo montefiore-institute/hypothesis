@@ -20,8 +20,8 @@ def plot_density(chain):
 
 
 def plot_trace(chain, parameter_index=None):
-    nrows = chain.dimensionality()[0]
-    figure, rows = plt.subplots(nrows, 2, sharey=False, sharex=False, figsize=(5, 5))
+    nrows = chain.dimensionality()
+    figure, rows = plt.subplots(nrows, 2, sharey=False, sharex=False, figsize=(2 * 7, 2))
     num_samples = chain.size()
     def display(ax_trace, ax_density, theta_index=1):
         # Trace
@@ -41,8 +41,9 @@ def plot_trace(chain, parameter_index=None):
         ax_density.set_xlim(limits)
         # Aspects
         make_square(ax_density)
-        set_aspect(ax_trace, 1)
-        make_square(ax_density)
+        ax_trace.set_aspect("auto")
+        ax_trace.set_position([0, 0, .7, 1])
+        ax_density.set_position([.28, 0, 1, 1])
     if nrows > 1:
         for index, ax_trace, ax_density in enumerate(rows):
             display(ax_trace, ax_density)
