@@ -6,6 +6,8 @@ from .ratio_estimator import BaseRatioEstimator
 from .ratio_estimator import RatioEstimator
 from .conditional_ratio_estimator import BaseConditionalRatioEstimator
 from .conditional_ratio_estimator import ConditionalRatioEstimator
+from .conditional_ratio_estimator import ConditionalRatioEstimatorCriterion
+from .conditional_ratio_estimator import ConditionalRatioEstimatorLogitsCriterion
 from .resnet import ResNet
 from .resnet import ResNet101
 from .resnet import ResNet152

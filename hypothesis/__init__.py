@@ -36,13 +36,3 @@ def disable_gpu():
     r"""Disables GPU acceleration. Hypothesis' accelerator will have been
     set to 'cpu'."""
     hypothesis.accelerator = "cpu"
-
-
-################################################################################
-# Hypothesis hooks.
-################################################################################
-
-from hypothesis.engine import hook
-from hypothesis.engine.hook import call_hooks
-from hypothesis.engine.hook import clear_hooks
-from hypothesis.engine.hook import register_hook

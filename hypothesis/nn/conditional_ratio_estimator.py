@@ -34,6 +34,7 @@ class BaseConditionalRatioEstimator(torch.nn.Module, ConditionalRatioEstimator):
 
 
 class ConditionalRatioEstimatorCriterion(torch.nn.Module):
+    r""""""
 
     def __init__(self, ratio_estimator, batch_size):
         super(ConditionalRatioEstimatorCriterion, self).__init__()
@@ -77,6 +78,7 @@ class ConditionalRatioEstimatorCriterion(torch.nn.Module):
 
 
 class ConditionalRatioEstimatorLogitsCriterion(torch.nn.Module):
+    r""""""
 
     def __init__(self, ratio_estimator, batch_size):
         super(ConditionalRatioEstimatorLogitsCriterion, self).__init__()
