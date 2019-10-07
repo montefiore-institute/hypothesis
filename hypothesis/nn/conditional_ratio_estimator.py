@@ -33,10 +33,9 @@ class BaseConditionalRatioEstimator(torch.nn.Module, ConditionalRatioEstimator):
 
 
 
-class ConditionalRatioEstimatorCriterion(torch.nn.Module):
+class ConditionalRatioEstimatorCriterion:
 
     def __init__(self, ratio_estimator, batch_size):
-        super(ConditionalRatioEstimatorCriterion, self).__init__()
         # Check if a valid batch size has been supplied.
         if batch_size % 2 != 0:
             raise NotDivisibleByTwoException(
@@ -49,9 +48,9 @@ class ConditionalRatioEstimatorCriterion(torch.nn.Module):
         self.zeros = torch.zeros(self.chunked_batch_size, 1)
 
     def to(self, device):
-        self.criterion.to(device)
-        self.ones.to(device)
-        self.zeros.to(device)
+        self.criterion = self.criterion.to(device)
+        self.ones = self.ones.to(device)
+        self.zeros = self.zeros.to(device)
 
         return self
 
@@ -76,10 +75,9 @@ class ConditionalRatioEstimatorCriterion(torch.nn.Module):
 
 
 
-class ConditionalRatioEstimatorLogitsCriterion(torch.nn.Module):
+class ConditionalRatioEstimatorLogitsCriterion:
 
     def __init__(self, ratio_estimator, batch_size):
-        super(ConditionalRatioEstimatorLogitsCriterion, self).__init__()
         # Check if a valid batch size has been supplied.
         if batch_size % 2 != 0:
             raise NotDivisibleByTwoException(
@@ -92,9 +90,9 @@ class ConditionalRatioEstimatorLogitsCriterion(torch.nn.Module):
         self.zeros = torch.zeros(self.chunked_batch_size, 1)
 
     def to(self, device):
-        self.criterion.to(device)
-        self.ones.to(device)
-        self.zeros.to(device)
+        self.criterion = self.criterion.to(device)
+        self.ones = self.ones.to(device)
+        self.zeros = self.zeros.to(device)
 
         return self
 
