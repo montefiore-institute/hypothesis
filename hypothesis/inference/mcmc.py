@@ -5,7 +5,6 @@ import hypothesis
 import numpy as np
 import torch
 
-from hypothesis.engine import Procedure
 from hypothesis.summary.mcmc import Chain
 from torch.distributions.multivariate_normal import MultivariateNormal
 from torch.distributions.normal import Normal
@@ -57,15 +56,12 @@ class ParallelSampler:
 
 
 
-class MarkovChainMonteCarlo(Procedure):
+class MarkovChainMonteCarlo:
     r""""""
 
     def __init__(self, prior):
         super(MarkovChainMonteCarlo, self).__init__()
         self.prior = prior
-
-    def _register_events(self):
-        pass
 
     def _step(self, observations, theta):
         raise NotImplementedError
