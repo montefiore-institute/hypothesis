@@ -64,6 +64,9 @@ class MarkovChainMonteCarlo(Procedure):
         super(MarkovChainMonteCarlo, self).__init__()
         self.prior = prior
 
+    def _register_events(self):
+        pass
+
     def _step(self, observations, theta):
         raise NotImplementedError
 
