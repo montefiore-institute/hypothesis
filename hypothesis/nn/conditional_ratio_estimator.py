@@ -33,9 +33,10 @@ class BaseConditionalRatioEstimator(torch.nn.Module, ConditionalRatioEstimator):
 
 
 
-class ConditionalRatioEstimatorCriterion:
+class ConditionalRatioEstimatorCriterion(torch.nn.Module):
 
     def __init__(self, ratio_estimator, batch_size):
+        super(ConditionalRatioEstimatorCriterion, self).__init__()
         # Check if a valid batch size has been supplied.
         if batch_size % 2 != 0:
             raise NotDivisibleByTwoException(
@@ -75,9 +76,10 @@ class ConditionalRatioEstimatorCriterion:
 
 
 
-class ConditionalRatioEstimatorLogitsCriterion:
+class ConditionalRatioEstimatorLogitsCriterion(torch.nn.Module):
 
     def __init__(self, ratio_estimator, batch_size):
+        super(ConditionalRatioEstimatorLogitsCriterion, self).__init__()
         # Check if a valid batch size has been supplied.
         if batch_size % 2 != 0:
             raise NotDivisibleByTwoException(
