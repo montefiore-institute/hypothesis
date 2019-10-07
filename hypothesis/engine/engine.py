@@ -1,4 +1,5 @@
 from hypothesis.exception import NoSuchEventException
+from hypothesis.exception import NoEventRegistrationException
 
 
 
@@ -12,7 +13,7 @@ class Procedure:
         self._register_events()
 
     def _register_events(self):
-        raise NotImplementedError
+        raise NoEventRegistrationException
 
     def _event_exists(self, event):
         return event in self.hooks.keys()
@@ -32,7 +33,7 @@ class Procedure:
     def add_event_handler(self, event, f):
         # Check if the specified event exists.
         if not self._event_exists():
-            raise NoSuchEventException()
+            raise NoSuchEventException
         self.hooks[event].append(f)
 
     def clear_event_handler(self, event):
@@ -48,7 +49,7 @@ class Procedure:
     def call_event(self, event, **kwargs):
         # Check if the specified event exists.
         if not self._event_exists():
-            raise NoSuchEventException()
+            raise NoSuchEventException
         handlers = self.hooks[event]
         for handler in handlers:
             handler(self, **kwargs)
