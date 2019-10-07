@@ -48,6 +48,11 @@ class ConditionalRatioEstimatorCriterion(torch.nn.Module):
         self.ones = torch.ones(self.chunked_batch_size, 1)
         self.zeros = torch.zeros(self.chunked_batch_size, 1)
 
+    def to(self, device):
+        self.criterion.to(device)
+        self.ones.to(device)
+        self.zeros.to(device)
+
     def forward(self, xs, ys):
         xs = xs.chunk(2)
         ys = ys.chunk(2)
@@ -83,6 +88,11 @@ class ConditionalRatioEstimatorLogitsCriterion(torch.nn.Module):
         self.ratio_estimator = ratio_estimator
         self.ones = torch.ones(self.chunked_batch_size, 1)
         self.zeros = torch.zeros(self.chunked_batch_size, 1)
+
+    def to(self, device):
+        self.criterion.to(device)
+        self.ones.to(device)
+        self.zeros.to(device)
 
     def forward(self, xs, ys):
         xs = xs.chunk(2)
