@@ -53,6 +53,8 @@ class ConditionalRatioEstimatorCriterion(torch.nn.Module):
         self.ones.to(device)
         self.zeros.to(device)
 
+        return self
+
     def forward(self, xs, ys):
         xs = xs.chunk(2)
         ys = ys.chunk(2)
@@ -93,6 +95,8 @@ class ConditionalRatioEstimatorLogitsCriterion(torch.nn.Module):
         self.criterion.to(device)
         self.ones.to(device)
         self.zeros.to(device)
+
+        return self
 
     def forward(self, xs, ys):
         xs = xs.chunk(2)
