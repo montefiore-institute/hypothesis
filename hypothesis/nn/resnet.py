@@ -93,7 +93,7 @@ class ResNet(torch.nn.Module):
         self.in_planes = planes * self.block.expansion
         stride = 1
         for _ in range(1, blocks):
-            block = self.block(self.in_planes, planes, stride, self.activation, self.dilation, downsample=None, self.batchnorm)
+            block = self.block(self.in_planes, planes, stride, self.activation, self.dilation, downsample=None, batchnorm=self.batchnorm)
             layers.append(block)
 
         return torch.nn.Sequential(*layers)

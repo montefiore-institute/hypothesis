@@ -9,7 +9,7 @@ class MLPRatioEstimator(BaseRatioEstimator):
 
     def __init__(self, shape_xs, layers=(128, 128), activation=torch.nn.ELU):
         super(MLPRatioEstimator, self).__init__()
-        self.dimensionality = 1.
+        self.dimensionality = 1
         for shape_element in shape_xs:
             self.dimensionality *= shape_element
         mappings = []
@@ -21,6 +21,7 @@ class MLPRatioEstimator(BaseRatioEstimator):
             mappings.append(torch.nn.Linear(
                 current_layer, next_layer))
         mappings.append(activation())
+        mappings.append(torch.nn.Linear(layers[-1], 1))
         self.network = torch.nn.Sequential(*mappings)
 
     def forward(self, xs):

@@ -9,18 +9,19 @@ class ConditionalMLPRatioEstimator(BaseConditionalRatioEstimator):
 
     def __init__(self, shape_xs, shape_ys, layers=(128, 128), activation=torch.nn.ELU):
         super(ConditionalMLPRatioEstimator, self).__init__()
-        self.dimensionality_xs = 1.
-        self.dimensionality_ys = 1.
+        self.dimensionality_xs = 1
+        self.dimensionality_ys = 1
         self.dimensionality = self._compute_dimensionality(shape_xs, shape_ys)
         mappings = []
         mappings.append(torch.nn.Linear(self.dimensionality, layers[0]))
         for layer_index in range(len(layers) - 1):
             mappings.append(activation())
             current_layer = layers[layer_index]
-            next_layer = layers[layer_index] + 1
+            next_layer = layers[layer_index + 1]
             mappings.append(torch.nn.Linear(
                 current_layer, next_layer))
         mappings.append(activation())
+        mappings.append(torch.nn.Linear(layers[-1], 1))
         self.network = torch.nn.Sequential(*mappings)
 
     def _compute_dimensionality(self, shape_xs, shape_ys):
