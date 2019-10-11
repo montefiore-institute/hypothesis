@@ -12,8 +12,9 @@ class ExponentialAverage(BaseMetric):
         self.decay = decay
         self.initial_value = initial_value
         self.current_value = initial_value
+        self.history = []
         if initial_value is not None:
-            self.history = [self.current_value]
+            self.history.append(self.current_value)
 
     def update(self, value):
         # Check if the current value was initialized.
