@@ -29,7 +29,7 @@ class ConditionalMLPRatioEstimator(BaseConditionalRatioEstimator):
         for shape_element in shape_ys:
             self.dimensionality_ys *= shape_element
 
-       return self.dimensionality_xs + self.dimensionality_ys
+        return self.dimensionality_xs + self.dimensionality_ys
 
     def forward(self, xs, ys):
         log_ratio = self.log_ratio(xs, ys)
