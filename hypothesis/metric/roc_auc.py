@@ -39,20 +39,23 @@ class AreaUnderCurveMetric(BaseStateMetric):
         self.workers = workers
 
     def update(self):
+        self.model.eval()
         predictions = []
         targets = []
-        self.model.eval()
-        data_loader = DataLoader(dataset,
-            batch_size=self.batch_size,
-            shuffle=True,
-            workers=self.workers)
-        for x, y in data_loader:
-            x = x.to(hypothesis.accelerator, non_blocking=True)
-            y = y.to(hypothesis.accelerator, non_blocking=True)
-            y_hat = self.model(x)
-            predictions.append(y_hat.cpu())
-            targets.append(y.cpu())
-        predictions = torch.cat(predictions, dim=0)
-        targets = torch.cat(targets, dim=0)
-        auc = roc_auc_curve(predictions, targets)
+
+        with torch.no_grad():
+            data_loader = DataLoader(dataset,
+                batch_size=self.batch_size,
+                shuffle=True,
+                workers=self.workers)
+            for x, y in data_loader:
+                x = x.to(hypothesis.accelerator, non_blocking=True)
+                y = y.to(hypothesis.accelerator, non_blocking=True)
+                y_hat = self.model(x)
+                predictions.append(y_hat.cpu())
+                targets.append(y.cpu())
+            del data_loader
+            predictions = torch.cat(predictions, dim=0)
+            targets = torch.cat(targets, dim=0)
+            auc = float(roc_auc_curve(predictions, targets))
         self.update(auc)
