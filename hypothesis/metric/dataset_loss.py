@@ -22,7 +22,7 @@ class DatasetLossMetric(BaseStateMetric):
 
     def __init__(self, model, criterion, dataset,
         batch_size=32,
-        workers=1.
+        workers=1,
         batch_handler=_default_batch_handler):
         super(DatasetLossMetric).__init__()
         self.batch_size = batch_size
