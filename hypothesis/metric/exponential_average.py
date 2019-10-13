@@ -1,20 +1,16 @@
 import numpy as np
 import torch
 
-from hypothesis.metric import BaseMetric
+from hypothesis.metric import BaseValueMetric
 
 
 
-class ExponentialAverage(BaseMetric):
+class ExponentialAverageMetric(BaseValueMetric):
     r""""""
 
-    def __init__(self, initial_value=None, decay=.95):
+    def __init__(self, initial_value=None, decay=.99):
+        super(ExponentialAverageMetric, self).__init__(initial_value)
         self.decay = decay
-        self.initial_value = initial_value
-        self.current_value = initial_value
-        self.history = []
-        if initial_value is not None:
-            self.history.append(self.current_value)
 
     def update(self, value):
         # Check if the current value was initialized.
@@ -22,16 +18,4 @@ class ExponentialAverage(BaseMetric):
             next_value = self.decay * value + (1 - self.decay) * self.current_value
         else:
             next_value = value
-        self.history.append(next_value)
-        self.current_value = next_value
-
-    def reset(self):
-        self.current_value = self.initial_value
-        if initial_value is not None:
-            self.history = [self.initial_value]
-
-    def __getitem__(self, pattern):
-        return self.history[pattern]
-
-    def __len__(self):
-        return len(self.history)
+        self._set_current_value(value)
