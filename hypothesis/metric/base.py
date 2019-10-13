@@ -30,7 +30,7 @@ class BaseValueMetric(BaseMetric):
 
     def reset(self):
         self.current_value = self.initial_value
-        if initial_value is not None:
+        if self.initial_value is not None:
             self.history = [self.initial_value]
 
     def __getitem__(self, pattern):
