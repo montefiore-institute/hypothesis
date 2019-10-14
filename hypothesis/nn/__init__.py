@@ -14,6 +14,7 @@ from .resnet import ResNet152
 from .resnet import ResNet18
 from .resnet import ResNet34
 from .resnet import ResNet50
+from .multi_layer_perceptron import MultiLayerPerceptron
 from .conditional_resnet_ratio_estimator import ConditionalResNet101RatioEstimator
 from .conditional_resnet_ratio_estimator import ConditionalResNet152RatioEstimator
 from .conditional_resnet_ratio_estimator import ConditionalResNet18RatioEstimator
@@ -28,4 +29,3 @@ from .resnet_ratio_estimator import ResNet50RatioEstimator
 from .resnet_ratio_estimator import ResNetRatioEstimator
 from .mlp_ratio_estimator import MLPRatioEstimator
 from .conditional_mlp_ratio_estimator import ConditionalMLPRatioEstimator
-from .multi_layer_perceptron import MultiLayerPerceptron
