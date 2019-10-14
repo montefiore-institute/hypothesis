@@ -13,7 +13,7 @@ class MLPRatioEstimator(BaseRatioEstimator):
         self.dimensionality = 1
         for shape_element in shape_xs:
             self.dimensionality *= shape_element
-        self.mlp = MLP(shape_xs=self.dimensionality, ys=(1,),
+        self.mlp = MLP(shape_xs=(self.dimensionality,), ys=(1,),
             layers=layers, activation=activation, normalize=False)
 
     def forward(self, xs):
