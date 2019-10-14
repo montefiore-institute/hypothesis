@@ -13,7 +13,7 @@ class ConditionalMLPRatioEstimator(BaseConditionalRatioEstimator):
         self.dimensionality_ys = 1
         self.dimensionality = self._compute_dimensionality(shape_xs, shape_ys)
         self.mlp = MLP(shape_xs=self.dimensionality,
-            shape_ys=1, layers=layers, activation=activation, normalize=False)
+            shape_ys=(1,), layers=layers, activation=activation, normalize=False)
 
     def _compute_dimensionality(self, shape_xs, shape_ys):
         for shape_element in shape_xs:
