@@ -1,28 +1,19 @@
 import torch
 
 from hypothesis.nn import BaseConditionalRatioEstimator
+from hypothesis.nn import MultiLayerPerceptron as MLP
 
 
 
-class ConditionalMLPRatioEstimator(BaseConditionalRatioEstimator):
-    r""""""
+class ConditionalRatioEstimator(BaseConditionalRatioEstimator):
 
     def __init__(self, shape_xs, shape_ys, layers=(128, 128), activation=torch.nn.ELU):
         super(ConditionalMLPRatioEstimator, self).__init__()
         self.dimensionality_xs = 1
         self.dimensionality_ys = 1
         self.dimensionality = self._compute_dimensionality(shape_xs, shape_ys)
-        mappings = []
-        mappings.append(torch.nn.Linear(self.dimensionality, layers[0]))
-        for layer_index in range(len(layers) - 1):
-            mappings.append(activation())
-            current_layer = layers[layer_index]
-            next_layer = layers[layer_index + 1]
-            mappings.append(torch.nn.Linear(
-                current_layer, next_layer))
-        mappings.append(activation())
-        mappings.append(torch.nn.Linear(layers[-1], 1))
-        self.network = torch.nn.Sequential(*mappings)
+        self.mlp = MLP(shape_xs=self.dimensionality,
+            shape_ys=1, layers=layers, activation=activation, normalize=False)
 
     def _compute_dimensionality(self, shape_xs, shape_ys):
         for shape_element in shape_xs:
@@ -42,4 +33,4 @@ class ConditionalMLPRatioEstimator(BaseConditionalRatioEstimator):
         ys = ys.view(-1, self.dimensionality_ys)
         x = torch.cat([xs, ys], dim=1)
 
-        return self.network(x)
+        return self.mlp(x)

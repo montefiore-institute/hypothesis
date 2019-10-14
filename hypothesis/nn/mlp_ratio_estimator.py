@@ -1,6 +1,7 @@
 import torch
 
 from hypothesis.nn import BaseRatioEstimator
+from hypothesis.nn import MultiLayerPerceptron as MLP
 
 
 
@@ -12,17 +13,8 @@ class MLPRatioEstimator(BaseRatioEstimator):
         self.dimensionality = 1
         for shape_element in shape_xs:
             self.dimensionality *= shape_element
-        mappings = []
-        mappings.append(torch.nn.Linear(self.dimensionality, layers[0]))
-        for layer_index in range(len(layers) - 1):
-            mappings.append(activation())
-            current_layer = layers[layer_index]
-            next_layer = layers[layer_index + 1]
-            mappings.append(torch.nn.Linear(
-                current_layer, next_layer))
-        mappings.append(activation())
-        mappings.append(torch.nn.Linear(layers[-1], 1))
-        self.network = torch.nn.Sequential(*mappings)
+        self.mlp = MLP(shape_xs=self.dimensionality, ys=1,
+            layers=layers, activation=activation, normalize=False)
 
     def forward(self, xs):
         log_ratio = self.log_ratio(xs)
@@ -33,4 +25,4 @@ class MLPRatioEstimator(BaseRatioEstimator):
     def log_ratio(self, xs):
         xs = xs.view(-1, self.dimensionality)
 
-        return self.network(xs)
+        return self.mlp(xs)

@@ -28,3 +28,4 @@ from .resnet_ratio_estimator import ResNet50RatioEstimator
 from .resnet_ratio_estimator import ResNetRatioEstimator
 from .mlp_ratio_estimator import MLPRatioEstimator
 from .conditional_mlp_ratio_estimator import ConditionalMLPRatioEstimator
+from .multi_layer_perceptron import MultiLayerPerceptron
