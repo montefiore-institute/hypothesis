@@ -5,7 +5,7 @@ from hypothesis.nn import MultiLayerPerceptron as MLP
 
 
 
-class ConditionalRatioEstimator(BaseConditionalRatioEstimator):
+class ConditionalMLPRatioEstimator(BaseConditionalRatioEstimator):
 
     def __init__(self, shape_xs, shape_ys, layers=(128, 128), activation=torch.nn.ELU):
         super(ConditionalMLPRatioEstimator, self).__init__()
