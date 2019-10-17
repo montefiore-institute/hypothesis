@@ -37,3 +37,27 @@ class Simulator(torch.nn.Module):
             Subclasses should describe the expected format of ``inputs``.
         """
         pass
+
+
+
+class ParallelSimulator(Simulator):
+
+    def __init__(self, simulator, workers=2):
+        self.simulator = simulator
+        self.workers = workers
+        self.pool = Pool(processes=self.workers)
+
+    def forward(self, inputs):
+        arguments = self._prepare_batch(inputs)
+        outputs = pool.map(self._simulate, arguments)
+        outputs = torch.cat(outputs, dim=0)
+
+        return outputs
+
+    def terminate(self):
+        del self.pool
+        self.pool = None
+
+    @staticmethod
+    def _simulate(simulator, inputs):
+        return simulator(inputs)
