@@ -1,5 +1,7 @@
 import torch
 
+from torch.multiprocessing import Pool
+
 
 
 class Simulator(torch.nn.Module):
@@ -48,15 +50,22 @@ class ParallelSimulator(Simulator):
         self.workers = workers
         self.pool = Pool(processes=self.workers)
 
-    def _prepare_batch(self, inputs):
+    def _prepare_arguments(self, inputs):
+        arguments = []
+
         chunks = inputs.shape[0] // self.workers
         if chunks == 0:
             chunks = 1
-        return inputs.split(chunks, dim=0)
+        chunks = inputs.split(chunks, dim=0)
+        for chunk in chunks:
+            a = (self.simulator, chunk)
+            arguments.append(a)
+
+        return arguments
 
     def forward(self, inputs):
-        arguments = self._prepare_batch(inputs)
-        outputs = pool.map(self._simulate, arguments)
+        arguments = self._prepare_arguments(inputs)
+        outputs = self.pool.map(self._simulate, arguments)
         outputs = torch.cat(outputs, dim=0)
 
         return outputs
@@ -67,5 +76,7 @@ class ParallelSimulator(Simulator):
         self.simulator.terminate()
 
     @staticmethod
-    def _simulate(simulator, inputs):
+    def _simulate(arguments):
+        simulator, inputs = arguments
+
         return simulator(inputs)
