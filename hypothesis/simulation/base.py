@@ -47,6 +47,12 @@ class ParallelSimulator(Simulator):
         self.workers = workers
         self.pool = Pool(processes=self.workers)
 
+    def _prepare_batch(self, inputs):
+        chunks = inputs.shape[0] // self.workers
+        if chunks == 0:
+            chunks = 1
+        return inputs.split(chunks, dim=0)
+
     def forward(self, inputs):
         arguments = self._prepare_batch(inputs)
         outputs = pool.map(self._simulate, arguments)
