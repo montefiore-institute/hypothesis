@@ -1,5 +1,6 @@
 import glob
 import numpy as np
+import os
 import tempfile
 import torch
 
@@ -26,3 +27,4 @@ def merge(pattern, output_file, tempfile=None, dtype=np.float32):
         rows = shape[0]
         data_map[index:index + rows, :] = data
         index += rows
+    os.remove(tempfile)
