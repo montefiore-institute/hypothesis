@@ -43,6 +43,7 @@ class Simulator(torch.nn.Module):
 class ParallelSimulator(Simulator):
 
     def __init__(self, simulator, workers=2):
+        super(ParallelSimulator, self).__init__()
         self.simulator = simulator
         self.workers = workers
         self.pool = Pool(processes=self.workers)
@@ -63,6 +64,7 @@ class ParallelSimulator(Simulator):
     def terminate(self):
         del self.pool
         self.pool = None
+        self.simulator.terminate()
 
     @staticmethod
     def _simulate(simulator, inputs):
