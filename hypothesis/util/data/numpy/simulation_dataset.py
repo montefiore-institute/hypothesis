@@ -11,7 +11,7 @@ class NumpySimulationDataset(Dataset):
     def __init__(self, inputs, outputs):
         super(NumpySimulationDataset, self).__init__()
         if not os.path.exists(inputs) or not os.path.exists(outputs):
-            raise Valuerror("Please specify a proper inputs or outputs path.")
+            raise ValueError("Please specify a proper inputs or outputs path.")
         # Inputs properties.
         self.inputs_path = inputs
         self.inputs_fd = open(self.inputs_path, "rb")
