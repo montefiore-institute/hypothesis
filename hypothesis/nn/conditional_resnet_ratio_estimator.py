@@ -61,7 +61,9 @@ class ConditionalResNetRatioEstimator(ResNet, ConditionalRatioEstimator):
 
 class ConditionalResNet18RatioEstimator(ConditionalResNetRatioEstimator):
 
-    def __init__(self, activation=None,
+    def __init__(self,
+                 dimensionality,
+                 activation=None,
                  batchnorm=True,
                  channels=3,
                  convolution_bias=True,
@@ -70,12 +72,13 @@ class ConditionalResNet18RatioEstimator(ConditionalResNetRatioEstimator):
                  trunk_dropout=0.0):
         depth = 18
         super(ConditionalResNet18RatioEstimator, self).__init__(
-            depth=depth,
             activation=activation,
             batchnorm=batchnorm,
             channels=channels,
             convolution_bias=convolution_bias,
+            depth=depth,
             dilate=dilate,
+            dimensionality=dimensionality,
             trunk=trunk,
             trunk_dropout=trunk_dropout)
 
@@ -83,7 +86,8 @@ class ConditionalResNet18RatioEstimator(ConditionalResNetRatioEstimator):
 
 class ConditionalResNet34RatioEstimator(ConditionalResNetRatioEstimator):
 
-    def __init__(self, activation=None,
+    def __init__(self, dimensionality,
+                 activation=None,
                  batchnorm=True,
                  channels=3,
                  convolution_bias=True,
@@ -98,6 +102,7 @@ class ConditionalResNet34RatioEstimator(ConditionalResNetRatioEstimator):
             channels=channels,
             convolution_bias=convolution_bias,
             dilate=dilate,
+            dimensionality=dimensionality,
             trunk=trunk,
             trunk_dropout=trunk_dropout)
 
@@ -105,7 +110,8 @@ class ConditionalResNet34RatioEstimator(ConditionalResNetRatioEstimator):
 
 class ConditionalResNet50RatioEstimator(ConditionalResNetRatioEstimator):
 
-    def __init__(self, activation=None,
+    def __init__(self, dimensionality,
+                 activation=None,
                  batchnorm=True,
                  channels=3,
                  convolution_bias=True,
@@ -120,6 +126,7 @@ class ConditionalResNet50RatioEstimator(ConditionalResNetRatioEstimator):
             channels=channels,
             convolution_bias=convolution_bias,
             dilate=dilate,
+            dimensionality=dimensionality,
             trunk=trunk,
             trunk_dropout=trunk_dropout)
 
@@ -127,7 +134,8 @@ class ConditionalResNet50RatioEstimator(ConditionalResNetRatioEstimator):
 
 class ConditionalResNet101RatioEstimator(ConditionalResNetRatioEstimator):
 
-    def __init__(self, activation=None,
+    def __init__(self, dimensionality,
+                 activation=None,
                  batchnorm=True,
                  channels=3,
                  convolution_bias=True,
@@ -142,6 +150,7 @@ class ConditionalResNet101RatioEstimator(ConditionalResNetRatioEstimator):
             channels=channels,
             convolution_bias=convolution_bias,
             dilate=dilate,
+            dimensionality=dimensionality,
             trunk=trunk,
             trunk_dropout=trunk_dropout)
 
@@ -149,7 +158,8 @@ class ConditionalResNet101RatioEstimator(ConditionalResNetRatioEstimator):
 
 class ConditionalResNet152RatioEstimator(ConditionalResNetRatioEstimator):
 
-    def __init__(self, activation=None,
+    def __init__(self, dimensionality,
+                 activation=None,
                  batchnorm=True,
                  channels=3,
                  convolution_bias=True,
@@ -164,5 +174,6 @@ class ConditionalResNet152RatioEstimator(ConditionalResNetRatioEstimator):
             channels=channels,
             convolution_bias=convolution_bias,
             dilate=dilate,
+            dimensionality=dimensionality,
             trunk=trunk,
             trunk_dropout=trunk_dropout)
