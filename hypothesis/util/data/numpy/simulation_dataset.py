@@ -18,7 +18,7 @@ class NumpySimulationDataset(Dataset):
         self.inputs_fd = open(self.inputs_path, "rb")
         self.inputs_header, self.inputs_header_offset = self._parse_header(self.inputs_fd)
         self.inputs_fd.close()
-        self.inputs_data_shape = self.inputs_header["shape"][-2:]
+        self.inputs_data_shape = self.inputs_header["shape"][1:]
         self.inputs_data_type = self.inputs_header["descr"]
         self.inputs_data_counts = self._compute_counts(self.inputs_data_shape)
         self.inputs_data_bytes = int(self.inputs_data_type[-1]) * self.inputs_data_counts
@@ -28,7 +28,7 @@ class NumpySimulationDataset(Dataset):
         self.outputs_fd = open(self.outputs_path, "rb")
         self.outputs_header, self.outputs_header_offset = self._parse_header(self.outputs_fd)
         self.outputs_fd.close()
-        self.outputs_data_shape = self.outputs_header["shape"][-2:]
+        self.outputs_data_shape = self.outputs_header["shape"][1:]
         self.outputs_data_type = self.outputs_header["descr"]
         self.outputs_data_counts = self._compute_counts(self.outputs_data_shape)
         self.outputs_data_bytes = int(self.outputs_data_type[-1]) * self.outputs_data_counts
