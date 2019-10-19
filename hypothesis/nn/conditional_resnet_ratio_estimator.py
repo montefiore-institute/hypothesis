@@ -6,7 +6,6 @@ from hypothesis.nn import ResNet
 
 
 class ConditionalResNetRatioEstimator(ResNet, ConditionalRatioEstimator):
-
     def __init__(self, depth,
                  dimensionality,
                  activation=None,
@@ -18,8 +17,8 @@ class ConditionalResNetRatioEstimator(ResNet, ConditionalRatioEstimator):
                  trunk_dropout=0.0):
         self.dimensionality = int(dimensionality)
         trunk.append(1) # Final output.
-        BaseConditionalRatioEstimator.__init__()
-        ResNet.__init__(
+        ConditionalRatioEstimator.__init__(self)
+        ResNet.__init__(self,
             depth=depth,
             activation=activation,
             batchnorm=batchnorm,
@@ -33,7 +32,7 @@ class ConditionalResNetRatioEstimator(ResNet, ConditionalRatioEstimator):
         layers = []
         dimensionality = self.final_planes * self.block.expansion + self.dimensionality
         layers.append(torch.nn.Linear(dimensionality, self.trunk[0]))
-        for index in range(1, len(self.trunk)):
+        for i in range(1, len(self.trunk)):
             layers.append(self.activation())
             layers.append(torch.nn.Linear(self.trunk[i - 1], self.trunk[i]))
             # Check if dropout needs to be added.
@@ -51,7 +50,7 @@ class ConditionalResNetRatioEstimator(ResNet, ConditionalRatioEstimator):
         latents = self.network_head(ys)
         latents = self.network_body(latents)
         latents = latents.reshape(latents.size(0), -1) # Flatten
-        xs = inputs.reshape(-1, self.dimensionality) # Flatten inputs
+        xs = xs.reshape(-1, self.dimensionality) # Flatten inputs
         latents = torch.cat([xs, latents], dim=1)
         log_ratios = self.network_trunk(latents)
 

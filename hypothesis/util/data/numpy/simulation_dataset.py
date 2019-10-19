@@ -33,6 +33,8 @@ class NumpySimulationDataset(Dataset):
         self.outputs_data_counts = self._compute_counts(self.outputs_data_shape)
         self.outputs_data_bytes = int(self.outputs_data_type[-1]) * self.outputs_data_counts
         self.outputs_fd = None
+        # General dataset properties.
+        self.size = self.outputs_header["shape"][0]
 
     def _parse_header(self, fd):
         r"""
@@ -61,10 +63,10 @@ class NumpySimulationDataset(Dataset):
         inputs = np.fromfile(self.inputs_fd, dtype=self.inputs_data_type, count=self.inputs_data_counts)
         outputs = np.fromfile(self.outputs_fd, dtype=self.outputs_data_type, count=self.outputs_data_counts)
 
-        return inputs.reshape(self.inputs_data_shape[1:]), outputs.reshape(self.outputs_data_shape[1:])
+        return inputs.reshape(self.inputs_data_shape), outputs.reshape(self.outputs_data_shape)
 
     def __len__(self):
-        return self.inputs_data_shape[0]
+        return self.size
 
     def __del__(self):
         r""""""
@@ -85,7 +87,7 @@ class NumpySimulationDataset(Dataset):
     @staticmethod
     def _compute_counts(shape):
         counts = 1
-        for dimensionality in shape[1:]:
+        for dimensionality in shape:
             counts *= dimensionality
 
         return counts
