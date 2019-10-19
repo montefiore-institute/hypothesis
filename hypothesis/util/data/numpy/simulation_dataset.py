@@ -1,3 +1,4 @@
+import numpy as np
 import os
 import torch
 
@@ -19,8 +20,8 @@ class NumpySimulationDataset(Dataset):
         self.inputs_fd.close()
         self.inputs_data_shape = self.inputs_header["shape"][-2:]
         self.inputs_data_type = self.inputs_header["descr"]
-        self.inputs_data_counts = self.inputs_data_shape[0] * self.inputs_data_shape[1]
-        self.inputs_data_bytes = int(self.inputs_data_type[-1] * self.inputs_data_counts)
+        self.inputs_data_counts = self._compute_counts(self.inputs_data_shape)
+        self.inputs_data_bytes = int(self.inputs_data_type[-1]) * self.inputs_data_counts
         self.inputs_fd = None
         # Outputs properties.
         self.outputs_path = outputs
@@ -29,8 +30,8 @@ class NumpySimulationDataset(Dataset):
         self.outputs_fd.close()
         self.outputs_data_shape = self.outputs_header["shape"][-2:]
         self.outputs_data_type = self.outputs_header["descr"]
-        self.outputs_data_counts = self.outputs_data_shape[0] * self.outputs_data_shape[1]
-        self.outputs_data_bytes = int(self.outputs_data_type[-1] * self.outputs_data_counts)
+        self.outputs_data_counts = self._compute_counts(self.outputs_data_shape)
+        self.outputs_data_bytes = int(self.outputs_data_type[-1]) * self.outputs_data_counts
         self.outputs_fd = None
 
     def _parse_header(self, fd):
@@ -46,7 +47,7 @@ class NumpySimulationDataset(Dataset):
         prefix = fd.read(10) # Read fixed header.
         header_offset = int.from_bytes(prefix[-2:], byteorder="little")
         header = eval(fd.read(header_offset)) # Not very secure but whatever.
-        header_offset = header_offset + 10
+        header_offset += 10
 
         return header, header_offset
 
@@ -60,7 +61,10 @@ class NumpySimulationDataset(Dataset):
         inputs = np.fromfile(self.inputs_fd, dtype=self.inputs_data_type, count=self.inputs_data_counts)
         outputs = np.fromfile(self.outputs_fd, dtype=self.outputs_data_type, count=self.outputs_data_counts)
 
-        return inputs.reshape(self.inputs_data_shape), outputs.reshape(self.outputs_data_shape)
+        return inputs.reshape(self.inputs_data_shape[1:]), outputs.reshape(self.outputs_data_shape[1:])
+
+    def __len__(self):
+        return self.inputs_data_shape[0]
 
     def __del__(self):
         r""""""
@@ -73,7 +77,15 @@ class NumpySimulationDataset(Dataset):
     def __getitem__(self, index):
         r""""""
         inputs, outputs = self._retrieve(index)
-        inputs = torch.from_numpy(inputs).float()
-        outputs = torch.from_numpy(outputs).float()
+        inputs = torch.from_numpy(inputs)
+        outputs = torch.from_numpy(outputs)
 
         return inputs, outputs
+
+    @staticmethod
+    def _compute_counts(shape):
+        counts = 1
+        for dimensionality in shape[1:]:
+            counts *= dimensionality
+
+        return counts
