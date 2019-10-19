@@ -27,4 +27,5 @@ def merge(pattern, output_file, tempfile=None, dtype=np.float32):
         rows = shape[0]
         data_map[index:index + rows, :] = data
         index += rows
-    os.rename(tempfile, output_file)
+    np.save(output_file, data_map)
+    os.remove(tempfile)
