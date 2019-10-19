@@ -62,7 +62,7 @@ class NumpySimulationDataset(Dataset):
 
         return inputs.reshape(self.inputs_data_shape), outputs.reshape(self.outputs_data_shape)
 
-    def __del__(sel):
+    def __del__(self):
         r""""""
         if hasattr(self, "inputs_fd") and self.inputs_fd is not None:
             self.inputs_fd.close()
