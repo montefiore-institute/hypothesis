@@ -49,8 +49,8 @@ class ConditionalResNetRatioEstimator(ResNet, ConditionalRatioEstimator):
     def log_ratio(self, xs, ys):
         latents = self.network_head(ys)
         latents = self.network_body(latents)
-        latents = latents.reshape(latents.size(0), -1) # Flatten
-        xs = xs.reshape(-1, self.dimensionality) # Flatten inputs
+        latents = latents.view(latents.size(0), -1) # Flatten
+        xs = xs.view(-1, self.dimensionality) # Flatten inputs
         latents = torch.cat([xs, latents], dim=1)
         log_ratios = self.network_trunk(latents)
 
