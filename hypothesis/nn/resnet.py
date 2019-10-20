@@ -6,7 +6,7 @@ import torch
 class ResNet(torch.nn.Module):
 
     def __init__(self, depth,
-                 activation=None,
+                 activation=torch.nn.ReLU,
                  batchnorm=True,
                  channels=3,
                  convolution_bias=True,
@@ -16,9 +16,6 @@ class ResNet(torch.nn.Module):
         super(ResNet, self).__init__()
         # Load the specified ResNet configuration.
         self.block, self.layer_blocks = self._load_configuration(depth)
-        # Check if a custom activation function has been specified.
-        if activation is None:
-            activation = torch.nn.ReLU
         # Network properties
         self.activation = activation
         self.batchnorm = batchnorm
