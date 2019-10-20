@@ -16,6 +16,7 @@ def compute_final_shape(file_names):
 
 def merge(pattern, output_file, tempfile=None, dtype=np.float32):
     file_names = glob.glob(pattern)
+    file_names.sort()
     shape = compute_final_shape(file_names)
     if tempfile is None:
         _, tempfile = tempfile.pkstemp()
