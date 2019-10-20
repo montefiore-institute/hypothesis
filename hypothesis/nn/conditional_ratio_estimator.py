@@ -89,7 +89,6 @@ class ConditionalRatioEstimatorLogitsCriterion(torch.nn.Module):
         self.chunked_batch_size = batch_size // 2
         self.ratio_estimator = ratio_estimator
         self.criterion = torch.nn.BCEWithLogitsLoss()
-        self.ratio_estimator = ratio_estimator
         self.ones = torch.ones(self.chunked_batch_size, 1)
         self.zeros = torch.zeros(self.chunked_batch_size, 1)
 
