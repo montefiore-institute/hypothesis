@@ -14,7 +14,7 @@ class MLPRatioEstimator(BaseRatioEstimator):
         for shape_element in shape_xs:
             self.dimensionality *= shape_element
         self.mlp = MLP(shape_xs=(self.dimensionality,), ys=(1,),
-            layers=layers, activation=activation, normalize=False)
+            layers=layers, activation=activation, transform_output=None)
 
     def forward(self, xs):
         log_ratio = self.log_ratio(xs)

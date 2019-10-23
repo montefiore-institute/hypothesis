@@ -6,7 +6,7 @@ class MultiLayerPerceptron(torch.nn.Module):
 
     def __init__(self, shape_xs, shape_ys,
         layers=(128, 128), activation=torch.nn.ELU,
-        normalize=True):
+        transform_output="normalize"):
         super(MultiLayerPerceptron, self).__init__()
         self.dimensionality_xs = 1
         self.dimensionality_ys = 1
@@ -23,12 +23,14 @@ class MultiLayerPerceptron(torch.nn.Module):
                 current_layer, next_layer))
         mappings.append(activation())
         mappings.append(torch.nn.Linear(layers[-1], self.dimensionality_ys))
-        if normalize:
+        if transform_output is "normalize":
             if self.dimensionality_ys > 1:
                 layer = torch.nn.Softmax(dim=0)
             else:
                 layer = torch.nn.Sigmoid()
-            mappings.append(layer)
+             mappings.append(layer)
+        elif transform_output is not None:
+            mappings.append(transform_output())
         self.network = torch.nn.Sequential(*mappings)
 
     def _compute_dimensionality(self):
