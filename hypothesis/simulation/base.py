@@ -46,9 +46,9 @@ class ParallelSimulator(Simulator):
 
     def __init__(self, simulator, workers=2):
         super(ParallelSimulator, self).__init__()
+        self.pool = Pool(processes=workers)
         self.simulator = simulator
         self.workers = workers
-        self.pool = Pool(processes=self.workers)
 
     def _prepare_arguments(self, inputs):
         arguments = []
@@ -71,6 +71,7 @@ class ParallelSimulator(Simulator):
         return outputs
 
     def terminate(self):
+        self.pool.close()
         del self.pool
         self.pool = None
         self.simulator.terminate()
