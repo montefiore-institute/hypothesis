@@ -21,3 +21,6 @@ class AdversarialVariationalOptimization(Procedure):
             baseline = AVOBaseline(discriminator)
         self.baseline = baseline
         self.gamma = gamma
+
+    def optimize(proposal, observations, num_steps=1):
+        raise NotImplementedError
