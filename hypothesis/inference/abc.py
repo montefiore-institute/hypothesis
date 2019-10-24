@@ -1,11 +1,13 @@
 r"""Approximate Bayesian Computation"""
 
-import numpy as np
-import torch
+import hypothesis
+
+from hypothesis.engine import Procedure
 
 
 
-class ApproximateBayesianComputation:
+class ApproximateBayesianComputation(Procedure):
+    r""""""
 
     def __init__(self, simulator, prior, summary, acceptor):
         super(ApproximateBayesianComputation, self).__init__()
@@ -17,6 +19,10 @@ class ApproximateBayesianComputation:
         # Sampler properties.
         self.summary_observation = None
         self.reset()
+
+    def _register_events(self):
+        # TODO Implement.
+        pass
 
     def _draw_posterior_sample(self):
         sample = None

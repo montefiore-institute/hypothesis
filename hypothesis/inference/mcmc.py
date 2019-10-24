@@ -5,6 +5,7 @@ import hypothesis
 import numpy as np
 import torch
 
+from hypothesis.engine import Procedure
 from hypothesis.summary.mcmc import Chain
 from torch.distributions.multivariate_normal import MultivariateNormal
 from torch.distributions.normal import Normal
