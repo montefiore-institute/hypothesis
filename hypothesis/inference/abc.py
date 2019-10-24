@@ -19,6 +19,10 @@ class ApproximateBayesianComputation(Procedure):
         self.simulator = simulator
         self.summary = summary
 
+    def _register_events(self):
+        # TODO Implement.
+        pass
+
     def _draw_posterior_sample(self, summary_observation):
         sample = None
 
@@ -66,7 +70,6 @@ class ParallelApproximateBayesianComputation:
         return arguments
 
     def sample(self, observation, num_samples=1):
-        self.abc.reset()
         arguments = self._prepare_arguments(observation, num_samples)
         outputs = self.pool.map(self._sample, arguments)
         outputs = torch.cat(outputs, dim=0)

@@ -1,4 +1,5 @@
 import hypothesis
+import numpy as np
 import torch
 
 from hypothesis.engine import Procedure
@@ -22,12 +23,16 @@ class ApproximateBayesianComputationSequentialMonteCarlo(Procedure):
         self.covariance = None
         self._reset()
 
+    def _register_events(self):
+        # TODO Implement.
+        pass
+
     def _reset(self):
         self.covariance = None
         self.particles = []
         self.weights = []
 
-    def _sample_from_prior(summary_observation):
+    def _sample_from_prior(self, summary_observation):
         initial_weight = 1 / self.num_particles
         # Sample
         for particle_index in range(self.num_particles):
