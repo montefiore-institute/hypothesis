@@ -18,12 +18,6 @@ class ApproximateBayesianComputation(Procedure):
         self.prior = prior
         self.simulator = simulator
         self.summary = summary
-        # Sampler properties.
-        self.reset()
-
-    def _register_events(self):
-        # TODO Implement.
-        pass
 
     def _draw_posterior_sample(self, summary_observation):
         sample = None
@@ -36,10 +30,6 @@ class ApproximateBayesianComputation(Procedure):
                 sample = prior_sample.unsqueeze(0)
 
         return sample
-
-    def reset(self):
-        # Nothing to do here.
-        pass
 
     def sample(self, observation, num_samples=1):
         samples = []
