@@ -28,7 +28,7 @@ class MultiLayerPerceptron(torch.nn.Module):
                 layer = torch.nn.Softmax(dim=0)
             else:
                 layer = torch.nn.Sigmoid()
-             mappings.append(layer)
+            mappings.append(layer)
         elif transform_output is not None:
             mappings.append(transform_output())
         self.network = torch.nn.Sequential(*mappings)
