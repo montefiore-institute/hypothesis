@@ -130,7 +130,7 @@ class AALRMetropolisHastings(MarkovChainMonteCarlo):
     """
 
     def __init__(self, prior, ratio_estimator, transition):
-        super(AALRMetropolisHastings, self).__init__()
+        super(AALRMetropolisHastings, self).__init__(prior)
         self.denominator = None
         self.prior = prior
         self.ratio_estimator = ratio_estimator
