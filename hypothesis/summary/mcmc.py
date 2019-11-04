@@ -116,11 +116,14 @@ class Chain:
     def efficiency(self):
         return self.effective_size() / self.size()
 
-    def thin(self, proportion=None):
+    def thin(self, proportion=None, num_samples=None):
         if proportion is None:
             proportion = self.efficiency()
         indices = np.arange(self.size())
-        num_samples = int(proportion * self.size())
+        if num_samples is not None:
+            num_samples = num_samples
+        else:
+            num_samples = int(proportion * self.size())
         sampled_indices = np.random.choice(indices, size=num_samples)
         samples = self.samples[sampled_indices]
 
