@@ -1,80 +1,88 @@
-"""Approximate Bayesian Computation"""
+r"""Approximate Bayesian Computation"""
 
 import hypothesis
-import numpy as np
 import torch
 
-from hypothesis.inference import Method
+from hypothesis.engine import Procedure
+from torch.multiprocessing import Pool
 
 
 
-class ApproximateBayesianComputation(Method):
-    r"""Vanilla Approximate Bayesian Computation
+class ApproximateBayesianComputation(Procedure):
+    r""""""
 
-    Arguments:
-        prior (Distribution): Prior distribution over the parameters of interest
-        model (Simulator): TODO
-        summary (lambda): Function to generate the summary statistic
-        distance (lambda): Function expressing the distance between two given summary statistics
-        epsilon (float): Acceptance threshold
-
-    Hooks:
-        hypothesis.hooks.start
-        hypothesis.hooks.completed
-        hypothesis.hooks.pre_step
-        hypothesis.hooks.post_step
-        hypothesis.hooks.pre_simulation
-        hypothesis.hooks.post_simulation
-        hypothesis.hooks.pre_inference
-        hypothesis.hooks.post_inference
-    """
-
-    KEY_NUM_SAMPLES = "samples"
-
-    def __init__(self, prior, model, summary, distance, epsilon=.01):
+    def __init__(self, simulator, prior, summary, acceptor):
         super(ApproximateBayesianComputation, self).__init__()
-        self.distance = distance
-        self.epsilon = epsilon
-        self.model = model
+        # Main classical ABC properties.
+        self.acceptor = acceptor
         self.prior = prior
+        self.simulator = simulator
         self.summary = summary
-        self.summary_observations = None
 
-    def sample(self, observations):
-        accepted = False
-        num_observations = observations.size(0)
+    def _register_events(self):
+        # TODO Implement.
+        pass
+
+    def _draw_posterior_sample(self, summary_observation):
         sample = None
-        while not accepted:
-            theta = self.prior.sample()
-            inputs = theta.repeat(num_observations)
-            hypothesis.call_hooks(hypothesis.hooks.pre_simulation, self, inputs=inputs)
-            try:
-                outputs = self.model(inputs)
-            except Exception as e:
-                hypothesis.call_hooks(hypothesis.hooks.exception, self, exception=e)
-                continue
-            hypothesis.call_hooks(hypothesis.hooks.post_simulation, self, inputs=inputs, outputs=outputs)
-            summary_outputs = self.summary(outputs)
-            distance = self.distance(self.summary_observations, summary_outputs)
-            if distance < self.epsilon:
-                accepted = True
-                sample = theta
+
+        while sample is None:
+            prior_sample = self.prior.sample()
+            x = self.simulator(prior_sample)
+            s = self.summary(x)
+            if self.acceptor(s, summary_observation):
+                sample = prior_sample.unsqueeze(0)
 
         return sample
 
-    def infer(self, observations, **kwargs):
+    def sample(self, observation, num_samples=1):
         samples = []
-        self.summary_observations = self.summary(observations)
-        num_samples = int(kwargs[self.KEY_NUM_SAMPLES])
-        hypothesis.call_hooks(hypothesis.hooks.pre_inference, self)
-        counter = 0
-        for sample_index in range(num_samples):
-            hypothesis.call_hooks(hypothesis.hooks.pre_step, self)
-            sample = self.sample(observations)
-            counter += 1
-            print(counter)
-            hypothesis.call_hooks(hypothesis.hooks.post_step, self, sample=sample)
-            samples.append(sample)
-        hypothesis.call_hooks(hypothesis.hooks.post_inference, self, samples=samples)
+
+        summary_observation = self.summary(observation)
+        for _ in range(num_samples):
+            samples.append(self._draw_posterior_sample(summary_observation))
+        samples = torch.cat(samples, dim=0)
 
         return samples
+
+
+
+class ParallelApproximateBayesianComputation:
+
+    def __init__(self, abc, workers=2):
+        super(ParallelApproximateBayesianComputation, self).__init__()
+        self.abc = abc
+        self.pool = Pool(processes=workers)
+        self.workers = workers
+
+    def _prepare_arguments(self, observation, num_samples):
+        arguments = []
+
+        inputs = torch.arange(num_samples)
+        num_chunks = num_samples // self.workers
+        if num_chunks == 0:
+            num_chunks = 1
+        chunks = inputs.split(num_chunks, dim=0)
+        for chunk in chunks:
+            a = (self.abc, observation, len(chunk))
+            arguments.append(a)
+
+        return arguments
+
+    def sample(self, observation, num_samples=1):
+        arguments = self._prepare_arguments(observation, num_samples)
+        outputs = self.pool.map(self._sample, arguments)
+        outputs = torch.cat(outputs, dim=0)
+
+        return outputs
+
+    def __del__(self):
+        self.pool.close()
+        del self.pool
+        self.pool = None
+
+    @staticmethod
+    def _sample(arguments):
+        abc, observation, n = arguments
+
+        return abc.sample(observation, num_samples=n)

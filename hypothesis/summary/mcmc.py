@@ -1,199 +1,139 @@
-"""
-Summaries and statistics for Markov chain Monte Carlo methods.
-"""
+r"""Summary objects and statistics for Markov chain Monte Carlo methods."""
 
 import numpy as np
 import torch
+import warnings
 
 
 
 class Chain:
-    r"""
-    Summary of a Markov chain from an MCMC sampler.
+    r"""Summary of a Markov chain produced by an MCMC sampler."""
 
-    Arguments:
-       chain (sequence): Sequence of MCMC states
-       probabilities (sequence): Sequence of proposal probabilities
-       acceptances (sequence): Sequence of accept, reject flags
-       burnin_chain (sequence): Sequence of MCMC states during the burnin period
-       burnin_probabilities (sequence): Sequence of proposal probabilities during the burnin period
-       burnin_acceptances (sequence): Sequence of accept, reject flags during the burnin period
-    """
-
-    def __init__(self, chain,
-                 probabilities,
-                 acceptances,
-                 burnin_chain=None,
-                 burnin_probabilities=None,
-                 burnin_acceptances=None):
-        # Initialize the main chain states.
-        chain = torch.cat(chain, dim=0).squeeze()
-        d = chain[0].dim()
-        if d == 0:
-            chain = chain.view(-1, 1)
-        probabilities = torch.tensor(probabilities).squeeze()
-        acceptances = acceptances
-        self.chain = chain
-        self.probabilities = probabilities
+    def __init__(self, samples, acceptance_probabilities, acceptances):
+        self.acceptance_probabilities = acceptance_probabilities
         self.acceptances = acceptances
-        # Initialize the burnin chain states
-        if burnin_chain:
-            burnin_chain = torch.cat(burnin_chain, dim=0).squeeze()
-            if d == 0:
-                burnin_chain = burnin_chain.view(-1, 1)
-            burnin_probabilities = torch.tensor(burnin_probabilities).squeeze()
-            burnin_acceptances = burnin_acceptances
-        self.burnin_chain = burnin_chain
-        self.burnin_probabilities = burnin_probabilities
-        self.burnin_acceptances = burnin_acceptances
+        self.samples = samples
+        self.shape = samples.shape
 
-    def _no_burnin_chain(self):
-        return ValueError("No burnin information available.")
+    def mean(self, parameter_index=None):
+        with torch.no_grad():
+            mean = self.samples[:, parameter_index].mean(dim=0).squeeze()
 
-    def has_burnin(self):
-        return self.burnin_chain is not None
+        return mean
 
-    def mean(self, parameter_index=None, burnin=False):
-        chain = self.chain
-        if burnin and self.has_burnin():
-            chain = self.burnin_chain
-        else:
-            self._no_burnin_chain()
+    def std(self, parameter_index=None):
+        with torch.no_grad():
+            std = self.samples[:, parameter_index].std(dim=0).squeeze()
 
-        return chain[:, parameter_index].mean(dim=0).squeeze()
+        return std
 
-    def variance(self, parameter_index=None, burnin=False):
-        chain = self.chain
-        if burnin and self.has_burnin():
-            chain = self.burnin_chain
-        else:
-            self._no_burnin_chain()
+    def variance(self, parameter_index=None):
+        with torch.no_grad():
+            variance = self.std(parameter_index) ** 2
 
-        return (chain[:, parameter_index].std(dim=0) ** 2).squeeze()
+        return variance
 
     def monte_carlo_error(self):
-        variance = self.variance()
-        effective_sample_size = self.effective_size()
+        with torch.no_grad():
+            mc_error = (self.variance() / self.effective_size()).sqrt()
 
-        return (variance / effective_sample_size).sqrt()
+        return mc_error
 
-    def size(self, burnin=False):
-        size = 0
-        if burnin and self.has_burnin():
-            size = len(self.burnin_chain)
-        else:
-            size = len(self.chain)
-
-        return size
+    def size(self):
+        return len(self.samples)
 
     def min(self):
-        return self.chain.min()
+        return self.samples.min(dim=0)
 
     def max(self):
-        return self.chain.max()
+        return self.samples.max(dim=0)
 
-    def state_dim(self):
-        return self.chain[0].view(-1).dim()
+    def dimensionality(self):
+        return self.samples.shape[1:][0]
 
-    def acceptances(self, burnin=False):
-        acceptances = self.burnin_acceptances
-        if burnin and self.has_burnin():
-            acceptances = self.burnin_acceptances
-        else:
-            self._no_burnin_chain()
+    def autocorrelation(self, lag):
+        return self.autocorrelations()[lag]
 
-        return acceptances
+    def autocorrelations(self):
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            samples = self.samples.numpy()
+            samples = np.atleast_1d(samples)
+            axis = 0
+            m = [slice(None), ] * len(samples.shape)
+            n = samples.shape[axis]
+            f = np.fft.fft(samples - np.mean(samples, axis=axis), n=2 * n, axis=axis)
+            m[axis] = slice(0, n)
+            samples = np.fft.ifft(f * np.conjugate(f), axis=axis)[m].real
+            m[axis] = 0
+            acf = samples / samples[m]
 
-    def acceptance_ratio(self):
-        raise NotImplementedError
+        return torch.from_numpy(acf).float()
 
-    def get_chain(self, parameter_index=None, burnin=False):
-        chain = self.chain
-        if burnin and self.has_burnin():
-            chain = self.burnin_chain
-        else:
-            self._no_burnin_chain()
+    def integrated_autocorrelation(self, max_lag=None):
+        autocorrelations = self.autocorrelations()
+        integrated_autocorrelation = 0.
+        if max_lag is None:
+            max_lag = self.size()
+        a_0 = autocorrelations[0]
+        for index in range(max_lag):
+            integrated_autocorrelation += autocorrelations[index]
 
-        return chain[:, parameter_index].squeeze().clone()
+        return integrated_autocorrelation
 
-    def probabilities(self, burnin=False):
-        p = self.probabilities
-        if burnin and self.has_burnin():
-            p = self.burnin_probabilities
-        else:
-            self._no_burnin_chain()
+    def integrated_autocorrelations(self, interval=1, max_lag=None):
+        autocorrelations = self.autocorrelations()
+        integrated_autocorrelation = 0.
+        integrated_autocorrelations = []
+        if max_lag is None:
+            max_lag = self.size()
+        a_0 = autocorrelations[0]
+        for index in range(max_lag):
+            integrated_autocorrelation += autocorrelations[index]
+            if index % interval == 0:
+                integrated_autocorrelations.append(integrated_autocorrelation)
 
-        return p.squeeze()
-
-    def autocorrelation(self, lag, parameter_index=None):
-        with torch.no_grad():
-            num_parameters = self.state_dim()
-            thetas = self.chain.clone()
-            sample_mean = self.mean(parameter_index)
-            if lag > 0:
-                padding = torch.zeros(lag, num_parameters)
-                lagged_thetas = thetas[lag:, parameter_index].view(-1, num_parameters).clone()
-                lagged_thetas -= sample_mean
-                padded_thetas = torch.cat([lagged_thetas, padding], dim=0)
-            else:
-                padded_thetas = thetas
-            thetas -= sample_mean
-            rhos = thetas * padded_thetas
-            rho = rhos.sum(dim=0).squeeze()
-            rho *= (1. / (self.size() - lag))
-        del thetas
-        del padded_thetas
-        del rhos
-
-        return rho
-
-    def autocorrelation_function(self, parameter_index=None, interval=1, max_lag=None):
-        if not max_lag:
-            max_lag = self.size() - 1
-        x = np.arange(0, max_lag + 1, interval)
-        y_0 = self.autocorrelation(lag=0, parameter_index=parameter_index)
-        y = [self.autocorrelation(lag=tau, parameter_index=parameter_index) / y_0 for tau in x]
-
-        return x, y
-
-    def integrated_autocorrelation(self, M=None, interval=1):
-        int_tau = 0.
-        if not M:
-            M = self.size() - 1
-        c_0 = self.autocorrelation(0)
-        for index in range(M):
-            int_tau += self.autocorrelation(index) / c_0
-
-        return int_tau
-
-    def efficiency(self):
-        return self.effective_size() / self.size()
+        return integrated_autocorrelations
 
     def effective_size(self):
-        # TODO Support multi-dimensional
-        y_0 = self.autocorrelation(0)
+        acf = self.autocorrelations()
         M = 0
-        for lag in range(self.size()):
-            y = self.autocorrelation(lag)
-            p = y / y_0
+        size = self.size()
+        a_0 = acf[0]
+        for lag in range(size):
+            a = acf[lag]
+            p = a / a_0
             if p <= 0:
                 M = lag - 1
                 break
         tau = self.integrated_autocorrelation(M)
-        effective_size = (self.size() / tau)
+        if tau == 0:
+            tau = 1
+        effective_size = size / tau
 
         return int(abs(effective_size))
 
-    def thin(self):
-        chain = []
-        p = self.efficiency()
-        probabilities = []
-        acceptances = []
-        for index in range(self.size()):
-            u = np.random.uniform()
-            if u <= p:
-                chain.append(self.chain[index])
-                probabilities.append(self.probabilities[index])
-                acceptances.append(self.acceptances[index])
+    def efficiency(self):
+        return self.effective_size() / self.size()
 
-        return Chain(chain, probabilities, acceptances)
+    def thin(self, proportion=None, num_samples=None):
+        if proportion is None:
+            proportion = self.efficiency()
+        indices = np.arange(self.size())
+        if num_samples is not None:
+            num_samples = num_samples
+        else:
+            num_samples = int(proportion * self.size())
+        sampled_indices = np.random.choice(indices, size=num_samples)
+        samples = self.samples[sampled_indices]
+
+        return Chain(samples, None, None)
+
+    def is_thinned(self):
+        return self.acceptance_probabilities is None or self.acceptances is None
+
+    def __getitem__(self, pattern):
+        return self.samples[pattern]
+
+    def __len__(self):
+        return self.size()

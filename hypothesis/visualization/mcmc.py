@@ -1,92 +1,75 @@
-"""
-Visualization mechanisms for Markov chain Monte Carlo.
-"""
+r""""""
 
+import corner
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-from hypothesis.util.common import parse_argument
+from hypothesis.summary.mcmc import Chain
+from hypothesis.visualization.util import make_square
+from hypothesis.visualization.util import set_aspect
 
 
 
-# Constants
-KEY_BINS = "bins"
-KEY_INTERVAL = "interval"
-KEY_MAX_LAG = "max_lag"
-KEY_PARAMETER_INDEX = "parameter_index"
-KEY_RADIUS = "radius"
-KEY_SHOW_BURNIN = "show_burnin"
-KEY_SHOW_MEAN = "show_mean"
-KEY_TRUTH = "truth"
-KEY_OFFSET = "offset"
+def plot_autocorrelation(chain, parameter_index=None):
+    raise NotImplementedError
 
 
-def plot_density(result, **kwargs):
-    # Fetch the specified arguments, or their defaults.
-    bins = parse_argument(kwargs, key=KEY_BINS, default=25, type=int)
-    parameter_index = parse_argument(kwargs, key=KEY_PARAMETER_INDEX, default=0, type=int)
-    show_mean = parse_argument(kwargs, key=KEY_SHOW_MEAN, default=False, type=bool)
-    truth = parse_argument(kwargs, key=KEY_TRUTH, default=None, type=float)
-    chain = result.get_chain(parameter_index=parameter_index)
-    weights = [1 / result.size()] * result.size()
-    plt.hist(chain.numpy(), bins=bins, weights=weights)
-    plt.grid(True, alpha=.75)
-    plt.minorticks_on()
-    if truth:
-        plt.axvline(truth, c='r', lw=2, linestyle="--",)
-    if show_mean:
-        plt.axvline(result.mean(parameter_index=parameter_index), c='y', lw=2, linestyle="--", alpha=.75)
+def plot_density(chain):
+    raise NotImplementedError
 
 
-def plot_trace(result, **kwargs):
-    # Fetch the specified arguments, or their defaults.
-    parameter_index = parse_argument(kwargs, key=KEY_PARAMETER_INDEX, default=0, type=int)
-    show_burnin = parse_argument(kwargs, key=KEY_SHOW_BURNIN, default=False, type=bool)
-    show_mean = parse_argument(kwargs, key=KEY_SHOW_MEAN, default=True, type=bool)
-    truth = parse_argument(kwargs, key=KEY_TRUTH, default=None, type=float)
-    offset = parse_argument(kwargs, key=KEY_OFFSET, default=.1, type=float)
-    # Start the plotting procedure.
-    max_iterations = result.size()
-    chain = result.get_chain(parameter_index=parameter_index, burnin=False)
-    min_chain = chain.min().item()
-    max_chain = chain.max().item()
-    # Plot the burnin, if requested and available.
-    if show_burnin and result.has_burnin():
-        burnin_iterations = result.size(burnin=True)
-        max_iterations += burnin_iterations
-        burnin_chain = result.get_chain(parameter_index=parameter_index, burnin=True)
-        chain = torch.cat([burnin_chain, chain], dim=0)
-        plt.axvspan(0, burnin_iterations, alpha=.25, color="gray")
-    # Check if the mean needs to be displayed.
-    if show_mean:
-        chain_mean = chain.mean(dim=0)
-        plt.axhline(chain_mean, c='y', linestyle="--", lw=2, alpha=.95, zorder=10)
-    x = np.arange(1, max_iterations + 1)
-    plt.grid(True, alpha=.4)
-    plt.minorticks_on()
-    plt.plot(x, chain.numpy(), alpha=.9)
-    plt.xlim([0, max_iterations])
-    plt.ylim([min_chain - offset, max_chain + offset])
-
-
-def plot_autocorrelation(result, **kwargs):
-    # Fetch the specified arguments, or their defaults.
-    parameter_index = parse_argument(kwargs, key=KEY_PARAMETER_INDEX, default=0, type=int)
-    radius = parse_argument(kwargs, key=KEY_RADIUS, default=1.1, type=float)
-    max_lag = parse_argument(kwargs, key=KEY_MAX_LAG, default=None, type=int)
-    interval = parse_argument(kwargs, key=KEY_INTERVAL, default=5, type=int)
-    # Compute the autocorrelation function.
-    x, y = result.autocorrelation_function(max_lag=max_lag, interval=interval, parameter_index=parameter_index)
+def plot_autocorrelation(chain, interval=2, max_lag=100, radius=1.1):
+    if max_lag is None:
+        max_lag = chain.size()
+    autocorrelations = chain.autocorrelations()[:max_lag]
+    lags = np.arange(0, max_lag, interval)
+    autocorrelations = autocorrelations[lags]
     plt.ylim([-radius, radius])
-    # Plot the autocorrelation at the specified lags.
-    for index in range(len(x)):
-        lag = x[index]
-        autocorrelation = y[index]
-        center = .5
+    center = .5
+    for index, lag in enumerate(lags):
+        autocorrelation = autocorrelations[index]
         plt.axvline(lag, center, center + autocorrelation / 2 / radius, c="black")
-    plt.minorticks_on()
-    plt.grid(True, alpha=.75)
-    plt.axhline(0, linestyle="--", c='r', alpha=.75, lw=1)
     plt.xlabel("Lag")
     plt.ylabel("Autocorrelation")
+    plt.minorticks_on()
+    plt.axhline(0, linestyle="--", c="black", alpha=.75, lw=2)
+    make_square(plt.gca())
+    figure = plt.gcf()
+
+    return figure
+
+
+def plot_trace(chain, parameter_index=None):
+    nrows = chain.dimensionality()
+    figure, rows = plt.subplots(nrows, 2, sharey=False, sharex=False, figsize=(2 * 7, 2))
+    num_samples = chain.size()
+    def display(ax_trace, ax_density, theta_index=1):
+        # Trace
+        ax_trace.minorticks_on()
+        ax_trace.plot(range(num_samples), chain.samples.numpy(), color="black", lw=2)
+        ax_trace.set_xlim([0, num_samples])
+        ax_trace.set_xticks([])
+        ax_trace.set_ylabel(r"$\theta_" + str(theta_index) + "$")
+        limits = ax_trace.get_ylim()
+        # Density
+        ax_density.minorticks_on()
+        ax_density.hist(chain.samples.numpy(), bins=50, lw=2, color="black", histtype="step", density=True)
+        ax_density.yaxis.tick_right()
+        ax_density.yaxis.set_label_position("right")
+        ax_density.set_ylabel("Probability mass function")
+        ax_density.set_xlabel(r"$\theta_" + str(theta_index) + "$")
+        ax_density.set_xlim(limits)
+        # Aspects
+        make_square(ax_density)
+        ax_trace.set_aspect("auto")
+        ax_trace.set_position([0, 0, .7, 1])
+        ax_density.set_position([.28, 0, 1, 1])
+    if nrows > 1:
+        for index, ax_trace, ax_density in enumerate(rows):
+            display(ax_trace, ax_density)
+    else:
+        ax_trace, ax_density = rows
+        display(ax_trace, ax_density)
+
+    return figure
