@@ -64,7 +64,7 @@ class MarkovChainMonteCarlo:
         super(MarkovChainMonteCarlo, self).__init__()
         self.prior = prior
 
-    def _step(self, observations, theta):
+    def _step(self, theta, observations):
         raise NotImplementedError
 
     def reset(self):
@@ -76,9 +76,11 @@ class MarkovChainMonteCarlo:
         acceptances = []
         samples = []
         self.reset()
+        theta = theta.view(1, -1)
         for sample_index in range(num_samples):
-            theta, acceptance_probability, acceptance = self._step(observations, theta)
-            samples.append(theta.view(1, -1))
+            theta, acceptance_probability, acceptance = self._step(theta, observations)
+            theta = theta.view(1, -1)
+            samples.append(theta)
             acceptance_probabilities.append(acceptance_probability)
             acceptances.append(acceptance)
         samples = torch.cat(samples, dim=0)
@@ -97,7 +99,7 @@ class MetropolisHastings(MarkovChainMonteCarlo):
         self.log_likelihood = log_likelihood
         self.transition = transition
 
-    def _step(self, observations, theta):
+    def _step(self, theta, observations):
         accepted = False
 
         theta_next = self.transition.sample(theta)
@@ -136,14 +138,14 @@ class AALRMetropolisHastings(MarkovChainMonteCarlo):
         self.ratio_estimator = ratio_estimator
         self.transition = transition
 
-    def _compute_ratio(self, observations, theta):
-        num_observations = len(observations)
+    def _compute_ratio(self, theta, observations):
+        num_observations = observations.shape[0]
         thetas = theta.repeat(num_observations, 1)
-        _, log_ratio = self.ratio_estimator(thetas, observations)
+        _, log_ratios = self.ratio_estimator(thetas, observations)
 
-        return log_ratio.sum().cpu()
+        return log_ratios.sum().cpu()
 
-    def _step(self, observations, theta):
+    def _step(self, theta, observations):
         accepted = False
 
         theta_next = self.transition.sample(theta)
@@ -160,6 +162,7 @@ class AALRMetropolisHastings(MarkovChainMonteCarlo):
         if u <= acceptance_probability:
             accepted = True
             theta = theta_next
+            self.denominator = numerator
 
         return theta, acceptance_probability, accepted
 
@@ -168,4 +171,6 @@ class AALRMetropolisHastings(MarkovChainMonteCarlo):
 
     def sample(self, observations, theta, num_samples):
         assert(not self.ratio_estimator.training)
-        super(self).sample(observations, theta, num_samples)
+        chain = super(AALRMetropolisHastings, self).sample(observations, theta, num_samples)
+
+        return chain
