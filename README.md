@@ -11,18 +11,20 @@ A Python toolkit for (likelihood-free) inference.
 
 ## Installation
 
-### Pip
-
-```sh
-pip install hypothesis
-```
-
 ### From source
 
 ```sh
 git clone https://github.com/montefiore-ai/hypothesis
 cd hypothesis && pip install -e .
 ```
+
+## TODOs
+
+- [ ] Adversarial Variational Optimization
+- [ ] Benchmarks
+- [ ] Documentation
+- [ ] More example notebooks
+- [ ] Workflows
 
 ## License
 
