@@ -131,3 +131,6 @@ class Chain:
 
     def __getitem__(self, pattern):
         return self.samples[pattern]
+
+    def __len__(self):
+        return self.size()
