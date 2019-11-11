@@ -30,3 +30,7 @@ def merge(pattern, output_file, tempfile=None, dtype=np.float32):
         index += rows
     np.save(output_file, data_map)
     os.remove(tempfile)
+
+
+def write(path, data):
+    np.save(path, data)
