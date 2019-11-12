@@ -4,11 +4,12 @@ import torch
 
 class LeNet(torch.nn.Module):
 
-    def __init__(self, activation=torch.nn.ReLU, batchnorm=True, trunk=(256, 256, 256, 1)):
+    def __init__(self, shape_xs, activation=torch.nn.ReLU, batchnorm=True, trunk=(256, 256, 256, 1)):
         super(LeNet, self).__init__()
         self.activation = activation(inplace=True)
         self.head_conv_1 = torch.nn.Conv2d(1, 6, 5)
         self.head_conv_2 = torch.nn.Conv2d(6, 16, 5)
+        self.shape_xs = shape_xs
         self.latent_dimensionality = 100
         layers = []
         layer = torch.nn.Linear(self.latent_dimensionality, trunk[0])
