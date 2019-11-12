@@ -1,4 +1,7 @@
 import torch
+import torch.nn.functional as F
+
+from hypothesis.nn.util import compute_output_shape
 
 
 
@@ -16,30 +19,32 @@ class LeNet(torch.nn.Module):
         self.shape_xs = shape_xs
         self.shape_ys = shape_ys
         self.dimensionality_ys = 1
-        self._compute_dimensionality()
         self.latent_dimensionality = None
-        mappings = []
+        self._compute_dimensionality()
+        layers = []
         layer = torch.nn.Linear(self.latent_dimensionality, trunk[0])
-        mappings.append(layer)
+        layers.append(layer)
         for index in range(1, len(trunk)):
-            mappings.append(self.activation)
+            layers.append(self.activation)
             layer = torch.nn.Linear(trunk[index - 1], trunk[index])
-            mappings.append(layer)
-        mappings.append(self.activation)
-        mappings.append(torch.nn.Linear(trunk[-1], self.dimensionality_ys))
+            layers.append(layer)
+        layers.append(self.activation)
+        layers.append(torch.nn.Linear(trunk[-1], self.dimensionality_ys))
         if transform_output is "normalize":
             if self.dimensionality_ys > 1:
                 layer = torch.nn.Softmax(dim=0)
             else:
                 layer = torch.nn.Sigmoid()
-            mappings.append(layer)
+            layers.append(layer)
         elif transform_output is not None:
-            mappings.append(transform_output())
+            layers.append(transform_output())
         self.trunk = torch.nn.Sequential(*layers)
 
     def _compute_dimensionality(self):
         for shape_element in self.shape_ys:
             self.dimensionality_ys *= shape_element
+        self.latent_dimensionality = compute_output_shape(
+            self._forward_head, self.shape_xs)
 
     def _forward_head(self, xs):
         zs = self.activation(self.head_conv_1(xs))
