@@ -16,15 +16,16 @@ class ResNetRatioEstimator(BaseRatioEstimator):
                  trunk=[4096, 4096, 4096],
                  trunk_dropout=0.0):
         super(BaseRatioEstimator, self).__init__()
-        trunk.append(1) # Add final output.
         self.resnet = ResNet(depth,
+            shape_ys=(1,),
             activation=activation,
             batchnorm=batchnorm,
             channels=channels,
             convolution_bias=convolution_bias,
             dilate=dilate,
             trunk=trunk,
-            trunk_dropout=trunk_dropout)
+            trunk_dropout=trunk_dropout,
+            transform_output=None)
 
     def forward(self, xs):
         log_ratios = self.resnet.log_ratio(xs)
@@ -32,7 +33,7 @@ class ResNetRatioEstimator(BaseRatioEstimator):
         return log_ratios.sigmoid(), log_ratios
 
     def log_ratio(self, xs):
-        return self.resnet.log_ratio(xs)
+        return self.resnet(xs)
 
 
 

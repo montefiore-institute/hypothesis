@@ -7,12 +7,14 @@ class ResNet(torch.nn.Module):
 
     def __init__(self, depth,
                  activation=torch.nn.ReLU,
+                 shape_ys=(1,)
                  batchnorm=True,
                  channels=3,
                  convolution_bias=True,
                  dilate=False,
-                 trunk=[4096, 4096, 4096, 1],
-                 trunk_dropout=0.0):
+                 trunk=(4096, 4096, 4096),
+                 trunk_dropout=0.0,
+                 transform_output="normalize"):
         super(ResNet, self).__init__()
         # Load the specified ResNet configuration.
         self.block, self.layer_blocks = self._load_configuration(depth)
@@ -27,10 +29,17 @@ class ResNet(torch.nn.Module):
         self.in_planes = 64
         self.trunk = trunk
         self.trunk_dropout = trunk_dropout
+        self.shape_ys = shape_ys
+        self.dimensionality_ys = 1
+        self._compute_dimensionality()
         # Build the model structure according to the configuration.
         self.network_head = self._build_head()
         self.network_body = self._build_body()
-        self.network_trunk = self._build_trunk()
+        self.network_trunk = self._build_trunk(transform_output)
+
+    def _compute_dimensionality(self):
+        for shape_element in self.shape_xs:
+            self.dimensionality_xs *= shape_element
 
     def _build_head(self):
         head = []
@@ -95,7 +104,7 @@ class ResNet(torch.nn.Module):
 
         return torch.nn.Sequential(*layers)
 
-    def _build_trunk(self):
+    def _build_trunk(self, transform_output):
         layers = []
         dimensionality = self.final_planes * self.block.expansion
         layers.append(torch.nn.Linear(dimensionality, self.trunk[0]))
@@ -105,19 +114,26 @@ class ResNet(torch.nn.Module):
             # Check if dropout needs to be added.
             if self.trunk_dropout > 0:
                 layers.append(torch.nn.Dropout(p=self.trunk_dropout))
+        layers.append(self.activation())
+        layers.append(torch.nn.Linear(self.trunk[-1], self.dimensionality_ys))
+        # Append output transformation.
+        if transform_output is "normalize":
+            if self.dimensionality_ys > 1:
+                layer = torch.nn.Softmax(dim=0)
+            else:
+                layer = torch.nn.Sigmoid()
+            layers.append(layer)
+        elif transform_output is not None:
+            layers.append(transform_output())
 
         return torch.nn.Sequential(*layers)
 
-    def log_ratio(self, xs):
+    def forward(self, xs):
         latents = self.network_head(xs)
         latents = self.network_body(latents)
         latents = latents.reshape(latents.size(0), -1) # Flatten
-        log_ratio = self.network_trunk(latents)
 
-        return log_ratio
-
-    def forward(self, xs):
-        return self.log_ratio(xs).sigmoid()
+        return self.network_trunk(latents)
 
     def _load_configuration(self, depth):
         # Build the configuration mapping.

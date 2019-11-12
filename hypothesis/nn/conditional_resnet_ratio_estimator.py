@@ -20,13 +20,15 @@ class ConditionalResNetRatioEstimator(ResNet, ConditionalRatioEstimator):
         ConditionalRatioEstimator.__init__(self)
         ResNet.__init__(self,
             depth=depth,
+            shape_ys=(1,),
             activation=activation,
             batchnorm=batchnorm,
             channels=channels,
             convolution_bias=convolution_bias,
             dilate=dilate,
             trunk=trunk,
-            trunk_dropout=trunk_dropout)
+            trunk_dropout=trunk_dropout,
+            transform_output=None)
 
     def _build_trunk(self):
         layers = []
