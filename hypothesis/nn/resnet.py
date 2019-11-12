@@ -108,13 +108,16 @@ class ResNet(torch.nn.Module):
 
         return torch.nn.Sequential(*layers)
 
-    def forward(self, xs):
+    def log_ratio(self, xs):
         latents = self.network_head(xs)
         latents = self.network_body(latents)
         latents = latents.reshape(latents.size(0), -1) # Flatten
         log_ratio = self.network_trunk(latents)
 
         return log_ratio
+
+    def forward(self, xs):
+        return self.log_ratio(xs).sigmoid()
 
     def _load_configuration(self, depth):
         # Build the configuration mapping.
