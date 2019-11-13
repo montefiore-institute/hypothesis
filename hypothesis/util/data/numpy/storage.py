@@ -25,19 +25,21 @@ class Storage:
     def _retrieve(self, index):
         if self.fd is None:
             self.fd = open(self.path, "rb")
-        self.fd.seek(self.header_offset + index * self.data_bytes)
+        self.fd.seek(self.offset + index * self.data_bytes)
         data = np.fromfile(self.fd, dtype=self.data_type, count=self.data_dimensionality)
 
         return data.reshape(self.data_shape)
+
+    def close(self):
+        if self.fd is not None:
+            self.fd.close()
+        self.fd = None
 
     def __getitem__(self, index):
         data = self._retrieve(index)
         item = torch.from_numpy(data)
 
         return item
-
-    def __getitem__(self, index):
-        raise
 
     def __len__(self):
         return self.size
