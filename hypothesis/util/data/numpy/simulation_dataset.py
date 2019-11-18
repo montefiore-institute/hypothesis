@@ -20,8 +20,9 @@ class SimulationDataset(Dataset):
 
     def __del__(self):
         r""""""
-        self.storage_inputs.close()
-        self.storage_outputs.close()
+        if hasttr(self, "storage_inputs") and self.storage_inputs is not None:
+            self.storage_inputs.close()
+            self.storage_outputs.close()
 
     def __getitem__(self, index):
         r""""""
