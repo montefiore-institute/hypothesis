@@ -17,10 +17,22 @@ class Dataset(BaseDataset):
             storage_type = InMemoryStorage
         else:
             storage_type = PersistentStorage
-        self.storages = [storage_type(path) for path in paths]
+        if len(paths) > 1:
+            self.storages = [storage_type(path) for path in paths]
+            self.retriever = self._retrieve_multi_storage
+        else:
+            self.storage = storage_type(paths[0])
+            self.retriever = self._retrieve_single_storage
+            self.storages = [self.storage]
+
+    def _retrieve_multi_storage(self, index):
+        return tuple(torch.from_numpy(storage[index]).unsqueeze(0) for storage in self.storages)
+
+    def _retrieve_single_storage(self, index):
+        return torch.from_numpy(self.storage[index]).unsqueeze(0)
 
     def __getitem__(self, index):
-        return tuple(torch.from_numpy(storage[index]).unsqueeze(0) for storage in self.storages)
+        return self.retriever(index)
 
     def __del__(self):
         for index in range(len(self.storages)):
