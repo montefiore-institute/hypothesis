@@ -21,7 +21,7 @@ class BaseStorage:
 class InMemoryStorage(BaseStorage):
 
     def __init__(self, path):
-        super(Storage, self).__init__()
+        super(InMemoryStorage, self).__init__()
         # Check if the specified path exists.
         if not os.path.exists(path):
             raise ValueError("The path", path, "does not exists.")
@@ -40,7 +40,7 @@ class InMemoryStorage(BaseStorage):
         return self.data[index]
 
 
-class Storage(BaseStorage):
+class PersistentStorage(BaseStorage):
 
     def __init__(self, path):
         super(Storage, self).__init__()

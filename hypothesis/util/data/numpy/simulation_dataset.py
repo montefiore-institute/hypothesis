@@ -3,8 +3,8 @@ import os
 import torch
 
 from torch.utils.data import Dataset
-from hypothesis.util.data.numpy import Storage
 from hypothesis.util.data.numpy import InMemoryStorage
+from hypothesis.util.data.numpy import PersistentStorage
 
 
 
@@ -17,8 +17,8 @@ class SimulationDataset(Dataset):
             self.storage_inputs = InMemoryStorage(inputs)
             self.storage_outputs = InMemoryStorage(outputs)
         else:
-            self.storage_inputs = Storage(inputs)
-            self.storage_outputs = Storage(outputs)
+            self.storage_inputs = PersistentStorage(inputs)
+            self.storage_outputs = PersistentStorage(outputs)
 
     def __len__(self):
         return len(self.storage_inputs)
