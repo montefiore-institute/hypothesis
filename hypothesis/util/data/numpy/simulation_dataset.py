@@ -4,16 +4,21 @@ import torch
 
 from torch.utils.data import Dataset
 from hypothesis.util.data.numpy import Storage
+from hypothesis.util.data.numpy import InMemoryStorage
 
 
 
 class SimulationDataset(Dataset):
     r""""""
 
-    def __init__(self, inputs, outputs):
+    def __init__(self, inputs, outputs, in_memory=False):
         super(SimulationDataset, self).__init__()
-        self.storage_inputs = Storage(inputs)
-        self.storage_outputs = Storage(outputs)
+        if in_memory:
+            self.storage_inputs = InMemoryStorage(inputs)
+            self.storage_outputs = InMemoryStorage(outputs)
+        else:
+            self.storage_inputs = Storage(inputs)
+            self.storage_outputs = Storage(outputs)
 
     def __len__(self):
         return len(self.storage_inputs)

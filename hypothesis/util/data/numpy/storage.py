@@ -3,10 +3,47 @@ import os
 import torch
 
 
+class BaseStorage:
 
-class Storage:
+    def close(self):
+        raise NotImplementedError
+
+    def __len__(self):
+        raise NotImplementedError
+
+    def __getitem__(self):
+        raise NotImplementedError
+
+    def __del__(self):
+        self.close()
+
+
+class InMemoryStorage:
 
     def __init__(self, path):
+        super(Storage, self).__init__()
+        # Check if the specified path exists.
+        if not os.path.exists(path):
+            raise ValueError("The path", path, "does not exists.")
+        # Storage properties.
+        self.path = path
+        self.data = np.load(path)
+
+    def close(self):
+        del self.data
+        self.data = None
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, index):
+        return self.data[index]
+
+
+class Storage(BaseStorage):
+
+    def __init__(self, path):
+        super(Storage, self).__init__()
         # Check if the specified path exists.
         if not os.path.exists(path):
             raise ValueError("The path", path, "does not exists.")
@@ -43,9 +80,6 @@ class Storage:
 
     def __len__(self):
         return self.size
-
-    def __del__(self):
-        self.close()
 
     @staticmethod
     def _compute_dimensionality(shape):

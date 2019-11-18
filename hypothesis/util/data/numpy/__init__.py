@@ -1,3 +1,4 @@
+from .storage import InMemoryStorage
 from .storage import Storage
 from .simulation_dataset import SimulationDataset
 from .util import compute_final_shape
