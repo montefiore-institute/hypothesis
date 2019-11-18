@@ -18,7 +18,7 @@ class BaseStorage:
         self.close()
 
 
-class InMemoryStorage:
+class InMemoryStorage(BaseStorage):
 
     def __init__(self, path):
         super(Storage, self).__init__()
