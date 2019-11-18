@@ -20,6 +20,8 @@ class LeNet(torch.nn.Module):
         self.dimensionality_ys = 1
         self.latent_dimensionality = None
         self._compute_dimensionality()
+
+    def _build_trunk(self, trunk, transform_output):
         layers = []
         layer = torch.nn.Linear(self.latent_dimensionality, trunk[0])
         layers.append(layer)

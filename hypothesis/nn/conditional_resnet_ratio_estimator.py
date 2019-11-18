@@ -6,6 +6,8 @@ from hypothesis.nn import ResNet
 
 
 class ConditionalResNetRatioEstimator(ResNet, ConditionalRatioEstimator):
+    r""""""
+
     def __init__(self, depth,
                  dimensionality,
                  activation=None,
