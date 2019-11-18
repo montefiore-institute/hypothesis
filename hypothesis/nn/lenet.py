@@ -1,7 +1,7 @@
 import torch
 import torch.nn.functional as F
 
-from hypothesis.nn.util import compute_output_shape
+from hypothesis.nn.util import compute_output_dimensionality
 
 
 
@@ -9,7 +9,6 @@ class LeNet(torch.nn.Module):
 
     def __init__(self, shape_xs, shape_ys,
                  activation=torch.nn.ReLU,
-                 batchnorm=True,
                  trunk=(256, 256, 256),
                  transform_output="normalize"):
         super(LeNet, self).__init__()
@@ -43,7 +42,7 @@ class LeNet(torch.nn.Module):
     def _compute_dimensionality(self):
         for shape_element in self.shape_ys:
             self.dimensionality_ys *= shape_element
-        self.latent_dimensionality = compute_output_shape(
+        self.latent_dimensionality = compute_output_dimensionality(
             self._forward_head, self.shape_xs)
 
     def _forward_head(self, xs):
@@ -58,12 +57,8 @@ class LeNet(torch.nn.Module):
     def _forward_trunk(self, zs):
         return self.trunk(zs)
 
-    def log_ratio(self, xs):
+    def forward(self, xs):
         zs = self._forward_head(xs)
         ys = self._forward_trunk(zs)
-        zs = zs.view(self.shape_ys)
 
         return ys
-
-    def forward(self, xs):
-        return self.log_ratio(xs).sigmoid()
