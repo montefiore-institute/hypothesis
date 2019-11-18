@@ -11,7 +11,7 @@ class SimulationDataset(Dataset):
     r""""""
 
     def __init__(self, inputs, outputs):
-        super(NumpySimulationDataset, self).__init__()
+        super(SimulationDataset, self).__init__()
         self.storage_inputs = Storage(inputs)
         self.storage_outputs = Storage(outputs)
 
