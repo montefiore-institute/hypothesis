@@ -20,7 +20,7 @@ class Dataset(BaseDataset):
         self.storages = [storage_type(path) for path in paths]
 
     def __getitem__(self, index):
-        return tuple(storage[index].unsqueeze(0) for storage in self.storages)
+        return tuple(torch.from_numpy(storage[index]).unsqueeze(0) for storage in self.storages)
 
     def __del__(self):
         for index in range(len(self.storages)):
