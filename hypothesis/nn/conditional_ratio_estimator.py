@@ -33,6 +33,30 @@ class BaseConditionalRatioEstimator(torch.nn.Module, ConditionalRatioEstimator):
 
 
 
+class ConditionalRatioEstimatorEnsemble(BaseConditionalRatioEstimator):
+    r""""""
+
+    def __init__(self, ratio_estimators, reduction=torch.mean):
+        super(ConditionalRatioEstimatorEnsemble, self).__init__()
+        self.ratio_estimators = ratio_estimators
+        self.reduction = reduction
+
+    def forward(self, xs, ys):
+        log_ratios = self.log_ratios(xs, ys)
+
+        return log_ratios.sigmoid(), log_ratios
+
+    def log_ratio(self, xs, ys):
+        log_ratios = []
+        for ratio_estimator in self.ratio_estimators:
+            log_ratios.append(ratio_estimator.log_ratio(xs, ys))
+        log_ratios = torch.cat(log_ratios, dim=1)
+        log_ratios = self.reduction(log_ratios, axis=1)
+
+        return log_ratios
+
+
+
 class ConditionalRatioEstimatorCriterion(torch.nn.Module):
     r""""""
 
