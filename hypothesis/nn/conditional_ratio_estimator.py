@@ -46,12 +46,13 @@ class ConditionalRatioEstimatorEnsemble(BaseConditionalRatioEstimator):
 
         return log_ratios.sigmoid(), log_ratios
 
-    def log_ratio(self, xs, ys):
+    def log_ratio(self, xs, ys, reduction=True):
         log_ratios = []
         for ratio_estimator in self.ratio_estimators:
             log_ratios.append(ratio_estimator.log_ratio(xs, ys))
         log_ratios = torch.cat(log_ratios, dim=1)
-        log_ratios = self.reduction(log_ratios, axis=1)
+        if reduction:
+            log_ratios = self.reduction(log_ratios, axis=1)
 
         return log_ratios
 
