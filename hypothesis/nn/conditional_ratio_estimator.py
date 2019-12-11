@@ -36,25 +36,44 @@ class BaseConditionalRatioEstimator(torch.nn.Module, ConditionalRatioEstimator):
 class ConditionalRatioEstimatorEnsemble(BaseConditionalRatioEstimator):
     r""""""
 
-    def __init__(self, ratio_estimators, reduction=torch.mean):
+    def __init__(self, ratio_estimators, reduce="mean"):
         super(ConditionalRatioEstimatorEnsemble, self).__init__()
         self.ratio_estimators = ratio_estimators
-        self.reduction = reduction
+        self.reduce = self._allocate_reduce(reduce)
 
     def forward(self, xs, ys):
         log_ratios = self.log_ratios(xs, ys)
 
         return log_ratios.sigmoid(), log_ratios
 
-    def log_ratio(self, xs, ys, reduction=True):
+    def log_ratio(self, xs, ys, reduce=True):
         log_ratios = []
         for ratio_estimator in self.ratio_estimators:
             log_ratios.append(ratio_estimator.log_ratio(xs, ys))
         log_ratios = torch.cat(log_ratios, dim=1)
-        if reduction:
-            log_ratios = self.reduction(log_ratios, axis=1)
+        if reduce:
+            log_ratios = self.reduce(log_ratios, axis=1)
 
         return log_ratios
+
+    @staticmethod
+    def _allocate_reduce(f):
+        reductions = {
+            "mean": ConditionalRatioEstimatorEnsemble._reduce_mean,
+            "median": ConditionalRatioEstimatorEnsemble._reduce_median}
+        reduce = None
+        if hasattr(f, "__call__"):
+            return f
+        else:
+            return reductions[f]
+
+    @staticmethod
+    def _reduce_mean(ratios):
+        return ratios.mean(dim=1)
+
+    @staticmethod
+    def _reduce_median(ratios):
+        return ratios.median(dim=1).values
 
 
 
