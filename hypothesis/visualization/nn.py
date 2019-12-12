@@ -32,6 +32,8 @@ def plot_losses(losses_train, losses_test, epochs=None, log=True, figsize=None):
         plot_loss(axes[1], losses_test, epochs=epochs, title="Test loss",
             xlabel="Epochs", ylabel=None)
         figure.tight_layout()
+        make_square(axes[0])
+        make_square(axes[1])
 
     return figure
 
