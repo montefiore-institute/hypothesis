@@ -16,8 +16,9 @@ class ConditionalMLPRatioEstimator(BaseConditionalRatioEstimator):
         super(ConditionalMLPRatioEstimator, self).__init__()
         self.dimensionality_inputs = compute_dimensionality(shape_inputs)
         self.dimensionality_outputs = compute_dimensionality(shape_outputs)
+        shared_dimensionality = self.dimensionality_inputs + self.dimensionality_outputs
         self.mlp = MLP(
-            shape_xs=(dimensionality_inputs + dimensionality_outputs,),
+            shape_xs=(shared_dimensionality,),
             shape_ys=(1,),
             activation=activation,
             dropout=dropout,
