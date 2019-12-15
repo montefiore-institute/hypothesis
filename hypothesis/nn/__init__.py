@@ -13,3 +13,4 @@ from .resnet import ResNet
 from .resnet_ratio_estimator import ResNetRatioEstimator
 from .mlp_ratio_estimator import MLPRatioEstimator
 from .conditional_mlp_ratio_estimator import ConditionalMLPRatioEstimator
+from .conditional_resnet_ratio_estimator import ConditionalResNetRatioEstimator
