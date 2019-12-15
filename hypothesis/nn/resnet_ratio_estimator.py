@@ -8,139 +8,31 @@ from hypothesis.nn import ResNet
 class ResNetRatioEstimator(BaseRatioEstimator):
 
     def __init__(self, depth,
-                 activation=None,
-                 batchnorm=True,
+                 shape_xs,
+                 activation=torch.nn.ReLU,
                  channels=3,
-                 convolution_bias=True,
+                 batchnorm=True,
+                 convolution_bias=False,
                  dilate=False,
-                 trunk=[4096, 4096, 4096],
+                 trunk=(512, 512, 512),
                  trunk_dropout=0.0):
         super(BaseRatioEstimator, self).__init__()
-        self.resnet = ResNet(depth,
+        # Allocate the resnet model
+        self.resnet_log_ratio = ResNet(depth=depth,
+            shape_xs=shape_xs,
             shape_ys=(1,),
             activation=activation,
             batchnorm=batchnorm,
-            channels=channels,
             convolution_bias=convolution_bias,
             dilate=dilate,
             trunk=trunk,
             trunk_dropout=trunk_dropout,
-            transform_output=None)
+            ys_transform=None)
 
     def forward(self, xs):
-        log_ratios = self.resnet.log_ratio(xs)
+        log_ratios = self.log_ratio(xs)
 
         return log_ratios.sigmoid(), log_ratios
 
     def log_ratio(self, xs):
-        return self.resnet(xs)
-
-
-
-class ResNet18RatioEstimator(ResNetRatioEstimator):
-
-    def __init__(self, activation=None,
-                 batchnorm=True,
-                 channels=3,
-                 convolution_bias=True,
-                 dilate=False,
-                 trunk=[4096, 4096, 4096],
-                 trunk_dropout=0.0):
-        depth = 18
-        super(ResNet18RatioEstimator, self).__init__(
-            depth=depth,
-            activation=activation,
-            batchnorm=batchnorm,
-            channels=channels,
-            convolution_bias=convolution_bias,
-            dilate=dilate,
-            trunk=trunk,
-            trunk_dropout=trunk_dropout)
-
-
-
-class ResNet34RatioEstimator(ResNetRatioEstimator):
-
-    def __init__(self, activation=None,
-                 batchnorm=True,
-                 channels=3,
-                 convolution_bias=True,
-                 dilate=False,
-                 trunk=[4096, 4096, 4096],
-                 trunk_dropout=0.0):
-        depth = 34
-        super(ResNet34RatioEstimator, self).__init__(
-            depth=depth,
-            activation=activation,
-            batchnorm=batchnorm,
-            channels=channels,
-            convolution_bias=convolution_bias,
-            dilate=dilate,
-            trunk=trunk,
-            trunk_dropout=trunk_dropout)
-
-
-
-class ResNet50RatioEstimator(ResNetRatioEstimator):
-
-    def __init__(self, activation=None,
-                 batchnorm=True,
-                 channels=3,
-                 convolution_bias=True,
-                 dilate=False,
-                 trunk=[4096, 4096, 4096],
-                 trunk_dropout=0.0):
-        depth = 50
-        super(ResNet50RatioEstimator, self).__init__(
-            depth=depth,
-            activation=activation,
-            batchnorm=batchnorm,
-            channels=channels,
-            convolution_bias=convolution_bias,
-            dilate=dilate,
-            trunk=trunk,
-            trunk_dropout=trunk_dropout)
-
-
-
-class ResNet101RatioEstimator(ResNetRatioEstimator):
-
-    def __init__(self, activation=None,
-                 batchnorm=True,
-                 channels=3,
-                 convolution_bias=True,
-                 dilate=False,
-                 trunk=[4096, 4096, 4096],
-                 trunk_dropout=0.0):
-        depth = 101
-        super(ResNet101RatioEstimator, self).__init__(
-            depth=depth,
-            activation=activation,
-            batchnorm=batchnorm,
-            channels=channels,
-            convolution_bias=convolution_bias,
-            dilate=dilate,
-            trunk=trunk,
-            trunk_dropout=trunk_dropout)
-
-
-
-class ResNet152RatioEstimator(ResNetRatioEstimator):
-
-    def __init__(self, activation=None,
-                 batchnorm=True,
-                 channels=3,
-                 convolution_bias=True,
-                 dilate=False,
-                 trunk=[4096, 4096, 4096],
-                 trunk_dropout=0.0):
-        depth = 152
-        super(ResNet152RatioEstimator, self).__init__(
-            depth=depth,
-            activation=activation,
-            batchnorm=batchnorm,
-            channels=channels,
-            convolution_bias=convolution_bias,
-            dilate=dilate,
-            trunk=trunk,
-            trunk_dropout=trunk_dropout)
+        return self.resnet_log_ratio(xs)

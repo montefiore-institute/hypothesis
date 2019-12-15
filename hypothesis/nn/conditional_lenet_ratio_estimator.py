@@ -31,8 +31,8 @@ class ConditionalLeNetRatioEstimator(LeNet, ConditionalRatioEstimator):
         return log_ratios.sigmoid(), log_ratios
 
     def log_ratio(self, xs, ys):
-        zs = self._forward_head(xs)
-        zs = torch.cat([zs, ys], dim=1)
+        zs = self._forward_head(ys)
+        zs = torch.cat([zs, xs], dim=1)
         log_ratios = self._forward_trunk(zs)
 
         return log_ratios

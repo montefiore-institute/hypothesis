@@ -5,150 +5,193 @@ import torch
 
 class ResNet(torch.nn.Module):
 
-    def __init__(self, depth,
-                 activation=torch.nn.ReLU,
-                 shape_ys=(1,),
-                 batchnorm=True,
-                 channels=3,
-                 convolution_bias=True,
-                 dilate=False,
-                 trunk=(4096, 4096, 4096),
-                 trunk_dropout=0.0,
-                 transform_output="normalize"):
+    def __init__(self,
+        depth,
+        shape_xs,
+        dimensionality=None,
+        activation=torch.nn.ReLU,
+        shape_ys=(1,),
+        batchnorm=True,
+        channels=3,
+        convolution_bias=False,
+        dilate=False,
+        groups=1,
+        trunk=(512, 512, 512),
+        trunk_dropout=0.0,
+        width_per_group=64,
+        in_planes=64,
+        ys_transform="normalize"):
         super(ResNet, self).__init__()
-        # Load the specified ResNet configuration.
-        self.block, self.layer_blocks = self._load_configuration(depth)
-        # Network properties
-        self.activation = activation
+        # Infer dimensionality from input shape.
+        if dimensionality is None:
+            dimensionality = len(shape_xs)
+        # Check invariant
+        if dimensionality != len(shape_xs):
+            raise ValueError("Dimensionality cannot differ from the dimensionality of shape_xs.")
+        # Dimensionality and architecture properties.
+        self.dimensionality = dimensionality
+        self.block, self.blocks_per_layer, modules = self._load_configuration(dimensionality, depth)
+        self.module_convolution = modules[0]
+        self.module_batchnorm = modules[1]
+        self.module_maxpool = modules[2]
+        self.module_adaptive_avg_pool = modules[3]
+        self.module_activation = activation
+        # Network properties.
         self.batchnorm = batchnorm
         self.channels = channels
         self.convolution_bias = convolution_bias
         self.dilate = dilate
         self.dilation = 1
-        self.final_planes = 0
-        self.in_planes = 64
-        self.trunk = trunk
-        self.trunk_dropout = trunk_dropout
-        self.shape_ys = shape_ys
-        self.dimensionality_ys = 1
-        self._compute_dimensionality()
-        # Build the model structure according to the configuration.
+        self.groups = groups
+        self.in_planes = in_planes
+        self.shape_xs = shape_xs
+        self.width_per_group = 64
+        # Network structures.
         self.network_head = self._build_head()
         self.network_body = self._build_body()
-        self.network_trunk = self._build_trunk(transform_output)
-
-    def _compute_dimensionality(self):
-        for shape_element in self.shape_xs:
-            self.dimensionality_xs *= shape_element
+        self.embedding_dim = self._embedding_dimensionality()
+        self.network_trunk = self._build_trunk(trunk, float(trunk_dropout), ys_transform)
 
     def _build_head(self):
-        head = []
-        convolution = torch.nn.Conv2d(
+        mappings = []
+        # Convolution
+        mappings.append(self.module_convolution(
             self.channels,
             self.in_planes,
             kernel_size=7,
             stride=2,
             padding=3,
-            bias=self.convolution_bias)
-        activation = self.activation(inplace=True)
-        max_pooling = torch.nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
-        head.append(convolution)
+            bias=self.convolution_bias))
+        # Batch normalization
         if self.batchnorm:
-            batch_normalization = torch.nn.BatchNorm2d(self.in_planes)
-            head.append(batch_normalization)
-        head.append(activation)
-        head.append(max_pooling)
-        head = torch.nn.Sequential(*head)
+            mappings.append(self.module_batchnorm(self.in_planes))
+        # Activation
+        mappings.append(self.module_activation(inplace=True))
+        # Max pooling
+        mappings.append(self.module_maxpool(
+            kernel_size=3,
+            padding=1,
+            stride=2))
 
-        return head
+        return torch.nn.Sequential(*mappings)
 
     def _build_body(self):
-        layers = []
-        stride = 1
+        mappings = []
         exponent = int(np.log2(self.in_planes))
-        for layer_index, blocks in enumerate(self.layer_blocks):
+        stride = 1
+        for layer_index, blocks in enumerate(self.blocks_per_layer):
             planes = 2 ** (exponent + layer_index)
-            layer = self._build_layer(planes=planes, blocks=blocks, stride=stride)
+            mappings.append(self._build_layer(
+                planes=planes,
+                blocks=blocks,
+                stride=stride))
             stride = 2
-            layers.append(layer)
-        layers.append(torch.nn.AdaptiveAvgPool2d((1, 1)))
-        body = torch.nn.Sequential(*layers)
-        self.final_planes = planes
+        # Adaptive average pooling.
+        shape = [1 for _ in range(self.dimensionality)]
+        mappings.append(self.module_adaptive_avg_pool(shape))
 
-        return body
+        return torch.nn.Sequential(*mappings)
 
     def _build_layer(self, planes, blocks, stride):
+        mappings = []
         previous_dilation = self.dilation
-        # Check if a dilated convolution is required.
         if self.dilate:
             self.dilation *= stride
             stride = 1
-        new_dimensionality = planes * self.block.expansion
-        if stride != 1 or self.in_planes != new_dimensionality:
-            conv = torch.nn.Conv2d(self.in_planes, new_dimensionality, kernel_size=1, stride=stride, bias=False)
-            if self.batchnorm:
-                downsample = torch.nn.Sequential(conv, torch.nn.BatchNorm2d(new_dimensionality))
-            else:
-                downsample = conv
+        # Check if a downsampling function needs to be allocated.
+        if stride != 1 or self.in_planes != planes * self.block.EXPANSION:
+                downsample = torch.nn.Sequential(self.module_convolution(
+                    self.in_planes,
+                    planes * self.block.EXPANSION,
+                    bias=self.convolution_bias,
+                    kernel_size=1,
+                    stride=stride),
+                self.module_batchnorm(planes * self.block.EXPANSION))
         else:
             downsample = None
-        # Build the sequence of blocks.
-        layers = []
-        block = self.block(self.in_planes, planes, stride, self.activation, previous_dilation, downsample, self.batchnorm)
-        layers.append(block)
-        self.in_planes = planes * self.block.expansion
-        stride = 1
+        # Allocate the blocks in the current layer.
+        mappings.append(self.block(
+            dimensionality=self.dimensionality,
+            downsample=downsample,
+            groups=self.groups,
+            in_planes=self.in_planes,
+            out_planes=planes,
+            stride=stride,
+            width_per_group=self.width_per_group))
+        self.in_planes = planes * self.block.EXPANSION
         for _ in range(1, blocks):
-            block = self.block(self.in_planes, planes, stride, self.activation, self.dilation, downsample=None, batchnorm=self.batchnorm)
-            layers.append(block)
+            mappings.append(self.block(
+                batchnorm=self.batchnorm,
+                dilation=self.dilation,
+                dimensionality=self.dimensionality,
+                groups=self.groups,
+                in_planes=self.in_planes,
+                out_planes=planes,
+                width_per_group=self.width_per_group))
 
-        return torch.nn.Sequential(*layers)
+        return torch.nn.Sequential(*mappings)
 
-    def _build_trunk(self, transform_output):
-        layers = []
-        dimensionality = self.final_planes * self.block.expansion
-        layers.append(torch.nn.Linear(dimensionality, self.trunk[0]))
-        for i in range(1, len(self.trunk)):
-            layers.append(self.activation())
-            layers.append(torch.nn.Linear(self.trunk[i - 1], self.trunk[i]))
-            # Check if dropout needs to be added.
-            if self.trunk_dropout > 0:
-                layers.append(torch.nn.Dropout(p=self.trunk_dropout))
-        layers.append(self.activation())
-        layers.append(torch.nn.Linear(self.trunk[-1], self.dimensionality_ys))
-        # Append output transformation.
+    def _build_trunk(self, trunk, dropout, transform_output):
+        mappings = []
+
+        # Build trunk
+        mappings.append(torch.nn.Linear(self.embedding_dim, trunk[0]))
+        for index in range(1, len(trunk)):
+            mappings.append(self.module_activation(inplace=True))
+            if dropout > 0:
+                mappings.append(torch.nn.Dropout(p=dropout))
+            mappings.append(torch.nn.Linear(trunk[index - 1], trunk[index]))
+        # Compute output dimensionality
+        output_shape = 1
+        for dim in self.shape_ys:
+            output_shape *= dim
+        # Add final fully connected mapping
+        mappings.append(torch.nn.Linear(trunk[-1], output_shape))
+        # Add output normalization
         if transform_output is "normalize":
-            if self.dimensionality_ys > 1:
-                layer = torch.nn.Softmax(dim=0)
+            if output_shape > 1:
+                output_mapping = torch.nn.Softmax(dim=0)
             else:
-                layer = torch.nn.Sigmoid()
-            layers.append(layer)
+                output_mapping = torch.nn.Sigmoid()
         elif transform_output is not None:
-            layers.append(transform_output())
+            output_mapping = transform_output()
+        if output_mapping is not None:
+            mappings.append(output_mapping)
 
-        return torch.nn.Sequential(*layers)
+        return torch.nn.Sequential(*mappings)
 
-    def forward(self, xs):
-        latents = self.network_head(xs)
-        latents = self.network_body(latents)
-        latents = latents.reshape(latents.size(0), -1) # Flatten
-
-        return self.network_trunk(latents)
-
-    def _load_configuration(self, depth):
-        # Build the configuration mapping.
-        mapping = {
+    def _load_configuration(self, dimensionality, depth):
+        modules = load_modules(dimensionality)
+        configurations = {
             18: self._load_configuration_18,
             34: self._load_configuration_34,
             50: self._load_configuration_50,
             101: self._load_configuration_101,
             152: self._load_configuration_152}
         # Check if the desired configuration exists.
-        if depth not in mapping.keys():
+        if depth not in configurations.keys():
             raise ValueError("The specified ResNet configuration (", depth, ") does not exist.")
-        loader = mapping[depth]
+        configuration_loader = configurations[depth]
+        block, blocks_per_layer = configuration_loader()
 
-        return loader()
+        return block, blocks_per_layer, modules
+
+    def _embedding_dimensionality(self):
+        shape = (1, self.channels) + self.shape_xs
+        with torch.no_grad():
+            x = torch.randn(shape)
+            latents = self.network_body(self.network_head(x)).view(-1)
+            dimensionality = len(latents)
+
+        return dimensionality
+
+    def forward(self, xs):
+        zs = self.network_head(xs)
+        zs = self.network_body(zs)
+        zs = zs.view(-1, self.embedding_dim) # Flatten
+        ys = self.network_trunk(zs)
+
+        return ys
 
     @staticmethod
     def _load_configuration_18():
@@ -173,174 +216,204 @@ class ResNet(torch.nn.Module):
 
 
 class BasicBlock(torch.nn.Module):
-    expansion = 1
+    EXPANSION = 1
 
-    def __init__(self, in_planes, out_planes, stride=1, activation=None, dilation=1, downsample=None, batchnorm=True):
+    def __init__(self, dimensionality,
+        in_planes,
+        out_planes,
+        activation=torch.nn.ReLU,
+        batchnorm=True,
+        bias=False,
+        dilation=1,
+        downsample=None,
+        stride=1,
+        groups=1,
+        width_per_group=64):
         super(BasicBlock, self).__init__()
-        # Build the forward model.
-        layers = []
-        self.downsample = downsample
-        self.activation_function = activation(inplace=True)
-        layer = torch.nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride, padding=dilation, dilation=dilation, bias=False)
-        layers.append(layer)
-        if batchnorm:
-            layers.append(torch.nn.BatchNorm2d(out_planes))
-        layers.append(activation(inplace=True))
-        layer = torch.nn.Conv2d(out_planes, out_planes, kernel_size=3, stride=1, padding=dilation, dilation=dilation, bias=False)
-        layers.append(layer)
-        if batchnorm:
-            layers.append(torch.nn.BatchNorm2d(out_planes))
-        self.model = torch.nn.Sequential(*layers)
+        # Load the requested modules depending on the dimensionality.
+        modules = load_modules(dimensionality)
+        self.module_convolution = modules[0]
+        self.module_batchnorm = modules[1]
+        self.module_maxpool = modules[2]
+        self.module_adaptive_avg_pool = modules[3]
+        # Block properties.
+        self.module_activation = activation
+        self.activation = activation(inplace=True)
+        self.bias = bias
+        self.batchnorm = batchnorm
+        self.dilation = dilation
         self.in_planes = in_planes
         self.out_planes = out_planes
         self.stride = stride
+        # Assign the downsampling mapping, if specified.
+        self.downsample_mapping = downsample
+        # Build the residual mapping.
+        self.residual_mapping = self._build_residual_mapping()
+
+    def _build_residual_mapping(self):
+        mappings = []
+
+        # Convolution
+        mappings.append(self.module_convolution(
+            self.in_planes,
+            self.out_planes,
+            bias=self.bias,
+            dilation=self.dilation,
+            kernel_size=3,
+            padding=self.dilation,
+            stride=self.stride))
+        # Batch normalization
+        if self.batchnorm:
+            mappings.append(self.module_batchnorm(self.out_planes))
+            # Activation
+        mappings.append(self.module_activation(inplace=True))
+        # Convolution
+        mappings.append(self.module_convolution(
+            self.out_planes,
+            self.out_planes,
+            bias=self.bias,
+            dilation=self.dilation,
+            kernel_size=3,
+            padding=self.dilation,
+            stride=1))
+        # Batch normalization
+        if self.batchnorm:
+            mappings.append(self.module_batchnorm(self.out_planes))
+
+        return torch.nn.Sequential(*mappings)
 
     def forward(self, x):
         identity = x
-        if self.downsample is not None:
-            identity = self.downsample(identity)
-        y = identity + self.model(x)
+        if self.downsample_mapping is not None:
+            identity = self.downsample_mapping(identity)
+        y = self.activation(identity + self.residual_mapping(x))
 
-        return self.activation_function(y)
+        return y
 
 
 
 class Bottleneck(torch.nn.Module):
-    expansion = 4
+    EXPANSION = 4
 
-    def __init__(self, in_planes, out_planes, stride=1, activation=None, dilation=1, downsample=None, batchnorm=True):
+    def __init__(self, dimensionality,
+        in_planes,
+        out_planes,
+        activation=torch.nn.ReLU,
+        batchnorm=True,
+        bias=False,
+        dilation=1,
+        downsample=None,
+        stride=1,
+        groups=1,
+        width_per_group=64):
         super(Bottleneck, self).__init__()
-        # Build the forward function.
-        layers = []
-        self.downsample = downsample
-        self.activation_function = activation(inplace=True)
-        layers.append(torch.nn.Conv2d(in_planes, out_planes, kernel_size=1, stride=1))
-        if batchnorm:
-            layers.append(torch.nn.BatchNorm2d(out_planes))
-        layers.append(activation(inplace=True))
-        layers.append(torch.nn.Conv2d(out_planes, out_planes, kernel_size=3, stride=stride, padding=dilation, dilation=dilation))
-        if batchnorm:
-            layers.append(torch.nn.BatchNorm2d(out_planes))
-        layers.append(activation(inplace=True))
-        layers.append(torch.nn.Conv2d(out_planes, out_planes * self.expansion, kernel_size=1, stride=1))
-        if batchnorm:
-            layers.append(torch.nn.BatchNorm2d(out_planes * self.expansion))
-        self.model = torch.nn.Sequential(*layers)
+        # Load the requested modules depending on the dimensionality.
+        modules = load_modules(dimensionality)
+        self.module_convolution = modules[0]
+        self.module_batchnorm = modules[1]
+        self.module_maxpool = modules[2]
+        self.module_adaptive_avg_pool = modules[3]
+        # Block properties.
+        self.module_activation = activation
+        self.activation = activation(inplace=True)
+        self.bias = bias
+        self.batchnorm = batchnorm
+        self.dilation = dilation
+        self.in_planes = in_planes
+        self.out_planes = out_planes
+        self.stride = stride
+        self.groups = groups
+        self.width_per_group = width_per_group
+        self.width = int(self.out_planes * (self.width_per_group // 64)) * self.groups
+        # Assign the downsampling mapping, if specified.
+        self.downsample_mapping = downsample
+        # Build the residual mapping.
+        self.residual_mapping = self._build_residual_mapping()
+
+    def _build_residual_mapping(self):
+        mappings = []
+
+        # Convolution
+        mappings.append(self.module_convolution(
+            self.in_planes,
+            self.width,
+            bias=self.bias,
+            kernel_size=1,
+            stride=1))
+        # Batch normalization
+        if self.batchnorm:
+            mappings.append(self.module_batchnorm(self.width))
+        # Activation
+        mappings.append(self.module_activation(inplace=True))
+        # Convolution
+        mappings.append(self.module_convolution(
+            self.width,
+            self.width,
+            kernel_size=3,
+            stride=self.stride,
+            groups=self.groups,
+            dilation=self.dilation,
+            padding=self.dilation,
+            bias=self.bias))
+        # Batch normalization
+        if self.batchnorm:
+            mappings.append(self.module_batchnorm(self.width))
+        # Activation
+        mappings.append(self.module_activation(inplace=True))
+        # Convolution
+        mappings.append(self.module_convolution(
+            self.width,
+            self.out_planes * self.EXPANSION,
+            bias=self.bias,
+            kernel_size=1,
+            stride=1))
+        # Batch normalization
+        if self.batchnorm:
+            mappings.append(self.module_batchnorm(self.out_planes * self.EXPANSION))
+
+        return torch.nn.Sequential(*mappings)
 
     def forward(self, x):
         identity = x
-        if self.downsample is not None:
-            identity = self.downsample(identity)
-        y = identity + self.model(x)
+        if self.downsample_mapping is not None:
+            identity = self.downsample_mapping(identity)
+        y = self.activation(identity + self.residual_mapping(x))
 
-        return self.activation_function(y)
-
-
-
-class ResNet18(ResNet):
-
-    def __init__(self, activation=None,
-                 batchnorm=True,
-                 channels=3,
-                 convolution_bias=True,
-                 dilate=False,
-                 trunk=[4096, 4096, 4096, 1],
-                 trunk_dropout=0.0):
-        depth = 18
-        super(ResNet18, self).__init__(
-            depth=depth,
-            activation=activation,
-            batchnorm=batchnorm,
-            channels=channels,
-            convolution_bias=convolution_bias,
-            dilate=dilate,
-            trunk=trunk,
-            trunk_dropout=trunk_dropout)
+        return y
 
 
 
-class ResNet34(ResNet):
+def load_modules(dimensionality):
+    configurations = {
+        1: load_modules_1_dimensional,
+        2: load_modules_2_dimensional,
+        3: load_modules_3_dimensional}
 
-    def __init__(self, activation=None,
-                 batchnorm=True,
-                 channels=3,
-                 convolution_bias=True,
-                 dilate=False,
-                 trunk=[4096, 4096, 4096, 1],
-                 trunk_dropout=0.0):
-        depth = 34
-        super(ResNet34, self).__init__(
-            depth=depth,
-            activation=activation,
-            batchnorm=batchnorm,
-            channels=channels,
-            convolution_bias=convolution_bias,
-            dilate=dilate,
-            trunk=trunk,
-            trunk_dropout=trunk_dropout)
+    return configurations[dimensionality]()
 
 
+def load_modules_1_dimensional():
+    c = torch.nn.Conv1d
+    b = torch.nn.BatchNorm1d
+    m = torch.nn.MaxPool1d
+    a = torch.nn.AdaptiveAvgPool1d
 
-class ResNet50(ResNet):
-
-    def __init__(self, activation=None,
-                 batchnorm=True,
-                 channels=3,
-                 convolution_bias=True,
-                 dilate=False,
-                 trunk=[4096, 4096, 4096, 1],
-                 trunk_dropout=0.0):
-        depth = 50
-        super(ResNet50, self).__init__(
-            depth=depth,
-            activation=activation,
-            batchnorm=batchnorm,
-            channels=channels,
-            convolution_bias=convolution_bias,
-            dilate=dilate,
-            trunk=trunk,
-            trunk_dropout=trunk_dropout)
+    return c, b, m, a
 
 
+def load_modules_2_dimensional():
+    c = torch.nn.Conv2d
+    b = torch.nn.BatchNorm2d
+    m = torch.nn.MaxPool2d
+    a = torch.nn.AdaptiveAvgPool2d
 
-class ResNet101(ResNet):
-
-    def __init__(self, activation=None,
-                 batchnorm=True,
-                 channels=3,
-                 convolution_bias=True,
-                 dilate=False,
-                 trunk=[4096, 4096, 4096, 1],
-                 trunk_dropout=0.0):
-        depth = 101
-        super(ResNet101, self).__init__(
-            depth=depth,
-            activation=activation,
-            batchnorm=batchnorm,
-            channels=channels,
-            convolution_bias=convolution_bias,
-            dilate=dilate,
-            trunk=trunk,
-            trunk_dropout=trunk_dropout)
+    return c, b, m, a
 
 
+def load_modules_3_dimensional():
+    c = torch.nn.Conv3d
+    b = torch.nn.BatchNorm3d
+    m = torch.nn.MaxPool3d
+    a = torch.nn.AdaptiveAvgPool3d
 
-class ResNet152(ResNet):
-
-    def __init__(self, activation=None,
-                 batchnorm=True,
-                 channels=3,
-                 convolution_bias=True,
-                 dilate=False,
-                 trunk=[4096, 4096, 4096, 1],
-                 trunk_dropout=0.0):
-        depth = 152
-        super(ResNet152, self).__init__(
-            depth=depth,
-            activation=activation,
-            batchnorm=batchnorm,
-            channels=channels,
-            convolution_bias=convolution_bias,
-            dilate=dilate,
-            trunk=trunk,
-            trunk_dropout=trunk_dropout)
+    return c, b, m, a
