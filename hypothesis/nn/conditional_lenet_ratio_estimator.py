@@ -1,3 +1,4 @@
+import hypothesis.default
 import torch
 
 from hypothesis.nn import ConditionalRatioEstimator

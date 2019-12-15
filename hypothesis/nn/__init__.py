@@ -9,11 +9,7 @@ from .conditional_ratio_estimator import ConditionalRatioEstimator
 from .conditional_ratio_estimator import ConditionalRatioEstimatorCriterion
 from .conditional_ratio_estimator import ConditionalRatioEstimatorEnsemble
 from .multi_layer_perceptron import MultiLayerPerceptron
-from .resnet_ratio_estimator import ResNet101RatioEstimator
-from .resnet_ratio_estimator import ResNet152RatioEstimator
-from .resnet_ratio_estimator import ResNet18RatioEstimator
-from .resnet_ratio_estimator import ResNet34RatioEstimator
-from .resnet_ratio_estimator import ResNet50RatioEstimator
+from .resnet import ResNet
 from .resnet_ratio_estimator import ResNetRatioEstimator
 from .mlp_ratio_estimator import MLPRatioEstimator
 from .conditional_mlp_ratio_estimator import ConditionalMLPRatioEstimator
