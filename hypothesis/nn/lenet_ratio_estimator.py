@@ -7,7 +7,7 @@ from hypothesis.nn import LeNet
 class LeNetRatioEstimator(BaseRatioEstimator):
     r""""""
 
-    def __init__(self, shape_xs, trunk=(256, 256, 256), activation=torch.nn.ReLU):
+    def __init__(self, shape_xs, trunk=(256, 256, 256), activation=hypothesis.default.activation):
         super(LeNetRatioEstimator, self).__init__()
         self.lenet = LeNet(shape_xs=shape_x, shape_ys=(1,),
             trunk=trunk, activation=activation, transform_output=None)

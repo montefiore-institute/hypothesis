@@ -8,7 +8,7 @@ class ResNet(torch.nn.Module):
     def __init__(self,
         depth,
         shape_xs,
-        activation=torch.nn.ReLU,
+        activation=hypothesis.default.activation,
         shape_ys=(1,),
         batchnorm=True,
         channels=3,

@@ -10,7 +10,7 @@ class ConditionalResNetRatioEstimator(ResNet, ConditionalRatioEstimator):
     def __init__(self, depth,
         shape_inputs,
         shape_outputs,
-        activation=torch.nn.ReLU,
+        activation=hypothesis.default.activation,
         channels=3,
         batchnorm=True,
         convolution_bias=False,

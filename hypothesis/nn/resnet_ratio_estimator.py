@@ -9,7 +9,7 @@ class ResNetRatioEstimator(BaseRatioEstimator):
 
     def __init__(self, depth,
                  shape_xs,
-                 activation=torch.nn.ReLU,
+                 activation=hypothesis.default.activation,
                  channels=3,
                  batchnorm=True,
                  convolution_bias=False,

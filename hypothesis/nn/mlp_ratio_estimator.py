@@ -1,3 +1,4 @@
+import hypothesis
 import torch
 
 from hypothesis.nn import BaseRatioEstimator
@@ -8,7 +9,7 @@ from hypothesis.nn import MultiLayerPerceptron as MLP
 class MLPRatioEstimator(BaseRatioEstimator):
     r""""""
 
-    def __init__(self, shape_xs, layers=(128, 128), activation=torch.nn.ELU):
+    def __init__(self, shape_xs, layers=(128, 128), activation=hypothesis.default.activation):
         super(MLPRatioEstimator, self).__init__()
         self.dimensionality = 1
         for shape_element in shape_xs:

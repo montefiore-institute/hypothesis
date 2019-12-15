@@ -8,7 +8,7 @@ from hypothesis.nn import LeNet
 class ConditionalLeNetRatioEstimator(LeNet, ConditionalRatioEstimator):
     r""""""
 
-    def __init__(self, shape_inputs, shape_outputs, activation=torch.nn.ReLU, trunk=(256, 256, 256)):
+    def __init__(self, shape_inputs, shape_outputs, activation=hypothesis.default.activation, trunk=(256, 256, 256)):
         ConditionalRatioEstimator.__init__(self)
         LeNet.__init__(self, shape_ys=shape_inputs, shape_xs=shape_outputs,
             activation=activation, trunk=trunk, transform_output=None)

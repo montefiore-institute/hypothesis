@@ -5,7 +5,7 @@ import torch
 class MultiLayerPerceptron(torch.nn.Module):
 
     def __init__(self, shape_xs, shape_ys,
-        layers=(128, 128), activation=torch.nn.ELU,
+        layers=(128, 128), activation=hypothesis.default.activation,
         transform_output="normalize"):
         super(MultiLayerPerceptron, self).__init__()
         self.dimensionality_xs = 1

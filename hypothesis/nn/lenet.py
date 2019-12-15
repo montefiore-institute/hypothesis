@@ -8,7 +8,7 @@ from hypothesis.nn.util import compute_output_dimensionality
 class LeNet(torch.nn.Module):
 
     def __init__(self, shape_xs, shape_ys,
-                 activation=torch.nn.ReLU,
+                 activation=hypothesis.default.activation,
                  trunk=(256, 256, 256),
                  transform_output="normalize"):
         super(LeNet, self).__init__()
