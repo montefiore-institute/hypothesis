@@ -15,6 +15,7 @@ class ConditionalResNetRatioEstimator(ResNet, ConditionalRatioEstimator):
         batchnorm=True,
         convolution_bias=False,
         dilate=False,
+        in_planes=64,
         trunk=(512, 512, 512),
         trunk_dropout=0.0):
         # Update dimensionality data
@@ -34,6 +35,7 @@ class ConditionalResNetRatioEstimator(ResNet, ConditionalRatioEstimator):
             convolution_bias=convolution_bias,
             dilate=dilate,
             trunk=trunk,
+            in_planes=in_planes,
             trunk_dropout=trunk_dropout,
             outputs_transform=None)
 
