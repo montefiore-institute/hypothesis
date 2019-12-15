@@ -8,7 +8,6 @@ class ResNet(torch.nn.Module):
     def __init__(self,
         depth,
         shape_xs,
-        dimensionality=None,
         activation=torch.nn.ReLU,
         shape_ys=(1,),
         batchnorm=True,
@@ -25,9 +24,6 @@ class ResNet(torch.nn.Module):
         # Infer dimensionality from input shape.
         if dimensionality is None:
             dimensionality = len(shape_xs)
-        # Check invariant
-        if dimensionality != len(shape_xs):
-            raise ValueError("Dimensionality cannot differ from the dimensionality of shape_xs.")
         # Dimensionality and architecture properties.
         self.dimensionality = dimensionality
         self.block, self.blocks_per_layer, modules = self._load_configuration(dimensionality, depth)

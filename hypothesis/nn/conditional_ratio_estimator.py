@@ -6,11 +6,11 @@ from hypothesis.exception import NotDivisibleByTwoException
 
 class ConditionalRatioEstimator(object):
 
-    def forward(self, xs, ys):
+    def forward(self, inputs, outputs):
         r""""""
         raise NotImplementedError
 
-    def log_ratio(self, xs, ys):
+    def log_ratio(self, inputs, outputs):
         r""""""
         raise NotImplementedError
 
@@ -23,11 +23,11 @@ class BaseConditionalRatioEstimator(torch.nn.Module, ConditionalRatioEstimator):
         ConditionalRatioEstimator.__init__(self)
         torch.nn.Module.__init__(self)
 
-    def forward(self, xs, ys):
+    def forward(self, inputs, outputs):
         r""""""
         raise NotImplementedError
 
-    def log_ratio(self, xs, ys):
+    def log_ratio(self, inputs, outputs):
         r""""""
         raise NotImplementedError
 
@@ -41,15 +41,15 @@ class ConditionalRatioEstimatorEnsemble(BaseConditionalRatioEstimator):
         self.ratio_estimators = ratio_estimators
         self.reduce = self._allocate_reduce(reduce)
 
-    def forward(self, xs, ys):
-        log_ratios = self.log_ratios(xs, ys)
+    def forward(self, inputs, outputs):
+        log_ratios = self.log_ratios(inputs, outputs)
 
         return log_ratios.sigmoid(), log_ratios
 
-    def log_ratio(self, xs, ys, reduce=True):
+    def log_ratio(self, inputs, outputs, reduce=True):
         log_ratios = []
         for ratio_estimator in self.ratio_estimators:
-            log_ratios.append(ratio_estimator.log_ratio(xs, ys))
+            log_ratios.append(ratio_estimator.log_ratio(inputs, outputs))
         log_ratios = torch.cat(log_ratios, dim=1)
         if reduce:
             log_ratios = self.reduce(log_ratios, axis=1)
@@ -100,17 +100,17 @@ class ConditionalRatioEstimatorCriterion(torch.nn.Module):
 
         return self
 
-    def forward(self, xs, ys):
-        xs = xs.chunk(2)
-        ys = ys.chunk(2)
-        xs_a = xs[0]
-        xs_b = xs[1]
-        ys_a = ys[0]
-        ys_b = ys[1]
-        y_dependent_a, _ = self.ratio_estimator(xs_a, ys_a)
-        y_independent_a, _ = self.ratio_estimator(xs_a, ys_b)
-        y_dependent_b, _ = self.ratio_estimator(xs_b, ys_b)
-        y_independent_b, _ = self.ratio_estimator(xs_b, ys_a)
+    def forward(self, inputs, outputs):
+        inputs = inputs.chunk(2)
+        outputs = outputs.chunk(2)
+        inputs_a = inputs[0]
+        inputs_b = inputs[1]
+        outputs_a = outputs[0]
+        outputs_b = outputs[1]
+        y_dependent_a, _ = self.ratio_estimator(inputs_a, outputs_a)
+        y_independent_a, _ = self.ratio_estimator(inputs_a, outputs_b)
+        y_dependent_b, _ = self.ratio_estimator(inputs_b, outputs_b)
+        y_independent_b, _ = self.ratio_estimator(inputs_b, outputs_a)
         loss_a = self.criterion(y_dependent_a, self.ones) + \
                  self.criterion(y_independent_a, self.zeros)
         loss_b = self.criterion(y_dependent_b, self.ones) + \

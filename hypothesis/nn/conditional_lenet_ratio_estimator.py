@@ -8,9 +8,9 @@ from hypothesis.nn import LeNet
 class ConditionalLeNetRatioEstimator(LeNet, ConditionalRatioEstimator):
     r""""""
 
-    def __init__(self, shape_xs, shape_ys, activation=torch.nn.ReLU, trunk=(256, 256, 256)):
+    def __init__(self, shape_inputs, shape_outputs, activation=torch.nn.ReLU, trunk=(256, 256, 256)):
         ConditionalRatioEstimator.__init__(self)
-        LeNet.__init__(self, shape_xs=shape_xs, shape_ys=shape_ys,
+        LeNet.__init__(self, shape_ys=shape_inputs, shape_xs=shape_outputs,
             activation=activation, trunk=trunk, transform_output=None)
 
     def _build_trunk(self, trunk, transform_output):
@@ -25,14 +25,14 @@ class ConditionalLeNetRatioEstimator(LeNet, ConditionalRatioEstimator):
         layers.append(torch.nn.Linear(trunk[-1], 1))
         self.trunk = torch.nn.Sequential(*layers)
 
-    def forward(self, xs, ys):
-        log_ratios = self.log_ratio(xs, ys)
+    def forward(self, inputs, outputs):
+        log_ratios = self.log_ratio(inputs, outputs)
 
         return log_ratios.sigmoid(), log_ratios
 
-    def log_ratio(self, xs, ys):
-        zs = self._forward_head(ys)
-        zs = torch.cat([zs, xs], dim=1)
+    def log_ratio(self, inputs, outputs):
+        zs = self._forward_head(outputs)
+        zs = torch.cat([zs, inputs], dim=1)
         log_ratios = self._forward_trunk(zs)
 
         return log_ratios
