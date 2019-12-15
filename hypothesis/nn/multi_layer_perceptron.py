@@ -4,6 +4,8 @@ r"""Multilayer Perceptron
 import hypothesis
 import torch
 
+from hypothesis.nn.util import compute_dimensionality
+
 
 
 class MultiLayerPerceptron(torch.nn.Module):
@@ -16,17 +18,18 @@ class MultiLayerPerceptron(torch.nn.Module):
         super(MultiLayerPerceptron, self).__init__()
         mappings = []
         dropout = float(dropout)
+        # Dimensionality properties
+        self.xs_dimensionality = compute_dimensionality(shape_xs)
+        self.ys_dimensionality = compute_dimensionality(shape_ys)
         # Allocate input mapping
-        mappings.append(torch.nn.Linear(
-            self.compute_dimensionality(shape_xs), layers[0]))
+        mappings.append(torch.nn.Linear(self.xs_dimensionality, layers[0]))
         # Allocate internal network structure
         for index in range(1, len(layers)):
             mappings.append(self._make_layer(activation, dropout,
                 layers[index - 1], layers[index]))
         # Allocate tail
-        ys_dimensionality = self.compute_dimensionality(shape_ys)
         mappings.append(activation(inplace=True))
-        mappings.append(layers[-1], ys_dimensionality)
+        mappings.append(torch.nn.Linear(layers[-1], self.ys_dimensionality))
         operation = None
         if transform_output is "normalize":
             if ys_dimensionality > 1:
@@ -36,7 +39,7 @@ class MultiLayerPerceptron(torch.nn.Module):
         elif transform_output is not None:
             operation = transform_output()
         if operation is not None:
-            self.mapping.append(operation)
+            mappings.append(operation)
         # Allocate sequential mapping
         self.mapping = torch.nn.Sequential(*mappings)
 
@@ -50,14 +53,8 @@ class MultiLayerPerceptron(torch.nn.Module):
 
         return torch.nn.Sequential(*mappings)
 
-
     def forward(self, xs):
-        return self.mapping(xs)
+        xs = xs.view(-1, self.xs_dimensionality)
+        y = self.mapping(xs)
 
-    @staticmethod
-    def compute_dimensionality(shape):
-        dimensionality = 1
-        for dim in shape:
-            dimensionality *= dim
-
-        return dimensionality
+        return y

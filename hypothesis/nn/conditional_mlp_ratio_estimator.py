@@ -3,26 +3,26 @@ import torch
 
 from hypothesis.nn import BaseConditionalRatioEstimator
 from hypothesis.nn import MultiLayerPerceptron as MLP
+from hypothesis.nn.util import compute_dimensionality
 
 
 
 class ConditionalMLPRatioEstimator(BaseConditionalRatioEstimator):
 
-    def __init__(self, shape_inputs, shape_outputs, layers=(128, 128), activation=hypothesis.default.activation):
+    def __init__(self, shape_inputs, shape_outputs,
+            activation=hypothesis.default.activation,
+            dropout=0.0,
+            layers=(128, 128)):
         super(ConditionalMLPRatioEstimator, self).__init__()
-        self.dimensionality_inputs = 1
-        self.dimensionality_outputs = 1
-        self.dimensionality = self._compute_dimensionality(shape_inputs, shape_outputs)
-        self.mlp = MLP(shape_xs=(self.dimensionality,), shape_ys=(1,),
-            layers=layers, activation=activation, transform_output=None)
-
-    def _compute_dimensionality(self, shape_inputs, shape_outputs):
-        for shape_element in shape_inputs:
-            self.dimensionality_inputs *= shape_element
-        for shape_element in shape_outputs:
-            self.dimensionality_outputs *= shape_element
-
-        return self.dimensionality_inputs + self.dimensionality_outputs
+        self.dimensionality_inputs = compute_dimensionality(shape_inputs)
+        self.dimensionality_outputs = compute_dimensionality(shape_outputs)
+        self.mlp = MLP(
+            shape_xs=(dimensionality_inputs + dimensionality_outputs,),
+            shape_ys=(1,),
+            activation=activation,
+            dropout=dropout,
+            layers=layers,
+            transform_output=None)
 
     def forward(self, inputs, outputs):
         log_ratio = self.log_ratio(inputs, outputs)
