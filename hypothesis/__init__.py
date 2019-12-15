@@ -43,6 +43,11 @@ def enable_gpu():
     return torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
+def gpu_available():
+    r"""Checks if GPU acceleration is available."""
+    return hypothesis.accelerator is not "cpu"
+
+
 ################################################################################
 # Hypothesis' defaults
 ################################################################################
