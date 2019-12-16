@@ -53,7 +53,7 @@ class ConditionalRatioEstimatorEnsemble(BaseConditionalRatioEstimator):
             log_ratios.append(ratio_estimator.log_ratio(inputs, outputs))
         log_ratios = torch.cat(log_ratios, dim=1)
         if reduce:
-            log_ratios = self.reduce(log_ratios, dim=1)
+            log_ratios = self.reduce(log_ratios)
 
         return log_ratios
 
