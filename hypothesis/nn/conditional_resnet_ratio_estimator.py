@@ -28,7 +28,7 @@ class ConditionalResNetRatioEstimator(ResNet, ConditionalRatioEstimator):
         self.dimensionality_outputs = 1
         for dim in shape_outputs:
             self.dimensionality_outputs *= dim
-        super(ConditionalRatioEstimator, self).__init__(depth=depth,
+        super(ResNet, self).__init__(depth=depth,
             shape_xs=shape_outputs,
             shape_ys=(1,),
             activation=activation,
@@ -39,6 +39,7 @@ class ConditionalResNetRatioEstimator(ResNet, ConditionalRatioEstimator):
             in_planes=in_planes,
             trunk_dropout=trunk_dropout,
             outputs_transform=None)
+        super(ConditionalRatioEstimator, self).__init__()
 
     def _build_trunk(self, trunk, dropout, transform_output):
         mappings = []
