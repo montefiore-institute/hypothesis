@@ -52,7 +52,7 @@ class ResNet(torch.nn.Module):
         self.network_trunk = self._build_trunk(trunk, float(trunk_dropout), ys_transform)
 
     def _build_head(self):
-vv        mappings = []
+        mappings = []
         # Convolution
         mappings.append(self.module_convolution(
             self.channels,
