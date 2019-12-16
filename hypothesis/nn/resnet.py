@@ -2,8 +2,8 @@ import hypothesis
 import numpy as np
 import torch
 
-from hypothesis.nn.util import compute_dimensionality
 from hypothesis.nn.util import allocate_output_transform
+from hypothesis.nn.util import compute_dimensionality
 
 
 class ResNet(torch.nn.Module):
@@ -11,20 +11,20 @@ class ResNet(torch.nn.Module):
     def __init__(self,
         depth,
         shape_xs,
-        activation=hypothesis.default.activation,
         shape_ys=(1,),
+        activation=hypothesis.default.activation,
         batchnorm=True,
         channels=3,
         convolution_bias=False,
         dilate=False,
         groups=1,
+        in_planes=64,
         trunk=(512, 512, 512),
         trunk_dropout=0.0,
         width_per_group=64,
-        in_planes=64,
         ys_transform=hypothesis.default.output_transform):
         super(ResNet, self).__init__()
-        # Infer dimensionality from input shape.
+        # Infer dimensionality from the input shape.
         dimensionality = len(shape_xs)
         # Dimensionality and architecture properties.
         self.dimensionality = dimensionality
