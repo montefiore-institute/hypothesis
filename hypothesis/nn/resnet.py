@@ -43,6 +43,7 @@ class ResNet(torch.nn.Module):
         self.groups = groups
         self.in_planes = in_planes
         self.shape_xs = shape_xs
+        self.shape_ys = shape_ys
         self.width_per_group = 64
         # Network structures.
         self.network_head = self._build_head()

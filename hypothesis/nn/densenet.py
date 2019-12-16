@@ -30,7 +30,15 @@ class DenseNet(torch.nn.Module):
         # Dimensionality and architecture properties.
         self.module_convolution = modules[0]
         self.modules_batchnorm = modules[1]
+        self.module_maxpool = modules[2]
         self.module_activation = activation
+        # Network properties
+        self.batchnorm = batchnorm
+        self.channels = channels
+        self.convolution_bias = convolution_bias
+        self.in_planes = in_planes
+        self.shape_xs = shape_xs
+        self.shape_ys = shape_ys
         # Network structure
         self.network_head = self._build_head()
         self.network_body = self._build_body()
@@ -38,6 +46,25 @@ class DenseNet(torch.nn.Module):
 
     def _build_head(self):
         mappings = []
+
+        # Convolution
+        mappings.append(self.module_convolution(
+            self.channels,
+            self.in_planes,
+            bias=self.convolution_bias,
+            kernel_size=7,
+            padding=3,
+            stride=2))
+        # Batch normalization
+        if self.batchnorm:
+            mappings.append(self.module_batchnorm(self.in_planes))
+        # Activation
+        mappings.append(self.module_activation(inplace=True))
+        # Max pooling
+        mappings.append(self.module_maxpool(
+            kernel_size=3,
+            padding=1,
+            stride=2))
 
         return torch.nn.Sequential(*mappings)
 
