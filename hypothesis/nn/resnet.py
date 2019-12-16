@@ -19,8 +19,8 @@ class ResNet(torch.nn.Module):
         dilate=False,
         groups=1,
         in_planes=64,
-        trunk=(512, 512, 512),
-        trunk_dropout=0.0,
+        trunk=hypothesis.default.trunk,
+        trunk_dropout=hypothesis.default.dropout,
         width_per_group=64,
         ys_transform=hypothesis.default.output_transform):
         super(ResNet, self).__init__()

@@ -18,15 +18,34 @@ class DenseNet(torch.nn.Module):
         bottleneck_factor=4,
         channels=3,
         convolution_bias=False,
-        dense_dropout=0.0,
+        dense_dropout=hypothesis.default.dropout,
         growth_rate=32,
         in_planes=64,
-        trunk=(512, 512, 512),
-        trunk_dropout=0.0,
+        trunk=hypothesis.default.trunk,
+        trunk_dropout=hypothesis.default.dropout,
         ys_transform=hypothesis.default.output_transform):
         super(DenseNet, self).__init__()
         # Infer the dimensionality from the input shape.
         dimensionality = len(shape_xs)
+        # Dimensionality and architecture properties.
+        self.module_convolution = modules[0]
+        self.modules_batchnorm = modules[1]
+        self.module_activation = activation
+        # Network structure
+        self.network_head = self._build_head()
+        self.network_body = self._build_body()
+        self.network_trunk = self._build_trunk(trunk, trunk_dropout, ys_transform)
+
+    def _build_head(self):
+        mappings = []
+
+        return torch.nn.Sequential(*mappings)
+
+    def _build_body(self):
+        raise NotImplementedError
+
+    def _build_trunk(self, config, dropout, ys_transform):
+        raise NotImplementedError
 
     def forward(self):
         raise NotImplementedError
