@@ -5,6 +5,7 @@ import hypothesis
 import torch
 
 from hypothesis.nn.util import compute_dimensionality
+from hypothesis.nn.util import allocate_output_transform
 
 
 
@@ -30,14 +31,7 @@ class MultiLayerPerceptron(torch.nn.Module):
         # Allocate tail
         mappings.append(activation(inplace=True))
         mappings.append(torch.nn.Linear(layers[-1], self.ys_dimensionality))
-        operation = None
-        if transform_output is "normalize":
-            if ys_dimensionality > 1:
-                operation = torch.nn.Softmax(dim=0)
-            else:
-                operation = torch.nn.Sigmoid()
-        elif transform_output is not None:
-            operation = transform_output()
+        operation = allocate_output_transform(transform_output, self.ys_dimensionality)
         if operation is not None:
             mappings.append(operation)
         # Allocate sequential mapping

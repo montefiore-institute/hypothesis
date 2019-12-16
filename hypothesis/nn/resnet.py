@@ -2,6 +2,7 @@ import hypothesis
 import numpy as np
 import torch
 
+from hypothesis.nn.util import allocate_output_transform
 
 
 class ResNet(torch.nn.Module):
@@ -20,7 +21,7 @@ class ResNet(torch.nn.Module):
         trunk_dropout=0.0,
         width_per_group=64,
         in_planes=64,
-        ys_transform="normalize"):
+        ys_transform=hypothesis.default.output_transform):
         super(ResNet, self).__init__()
         # Infer dimensionality from input shape.
         dimensionality = len(shape_xs)
@@ -144,13 +145,7 @@ class ResNet(torch.nn.Module):
         # Add final fully connected mapping
         mappings.append(torch.nn.Linear(trunk[-1], output_shape))
         # Add output normalization
-        if transform_output is "normalize":
-            if output_shape > 1:
-                output_mapping = torch.nn.Softmax(dim=0)
-            else:
-                output_mapping = torch.nn.Sigmoid()
-        elif transform_output is not None:
-            output_mapping = transform_output()
+        output_mapping = allocate_output_transform(transform_output, output_shape)
         if output_mapping is not None:
             mappings.append(output_mapping)
 
