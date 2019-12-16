@@ -2,6 +2,7 @@ import hypothesis
 import numpy as np
 import torch
 
+from hypothesis.nn.util import compute_dimensionality
 from hypothesis.nn.util import allocate_output_transform
 
 
@@ -139,9 +140,7 @@ class ResNet(torch.nn.Module):
                 mappings.append(torch.nn.Dropout(p=dropout))
             mappings.append(torch.nn.Linear(trunk[index - 1], trunk[index]))
         # Compute output dimensionality
-        output_shape = 1
-        for dim in self.shape_ys:
-            output_shape *= dim
+        output_shape = compute_dimensionality(self.shape_ys)
         # Add final fully connected mapping
         mappings.append(torch.nn.Linear(trunk[-1], output_shape))
         # Add output normalization
