@@ -34,10 +34,11 @@ class ConditionalResNetRatioEstimator(ResNet, ConditionalRatioEstimator):
             shape_ys=(1,),
             activation=activation,
             batchnorm=batchnorm,
+            channels=channels,
             convolution_bias=convolution_bias,
             dilate=dilate,
-            trunk=trunk,
             in_planes=in_planes,
+            trunk=trunk,
             trunk_dropout=trunk_dropout,
             ys_transform=None)
         ConditionalRatioEstimator.__init__(self)

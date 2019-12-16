@@ -24,6 +24,7 @@ class ResNetRatioEstimator(BaseRatioEstimator):
             shape_ys=(1,),
             activation=activation,
             batchnorm=batchnorm,
+            channels=channels,
             convolution_bias=convolution_bias,
             dilate=dilate,
             trunk=trunk,
