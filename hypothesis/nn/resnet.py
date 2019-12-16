@@ -23,8 +23,7 @@ class ResNet(torch.nn.Module):
         ys_transform="normalize"):
         super(ResNet, self).__init__()
         # Infer dimensionality from input shape.
-        if dimensionality is None:
-            dimensionality = len(shape_xs)
+        dimensionality = len(shape_xs)
         # Dimensionality and architecture properties.
         self.dimensionality = dimensionality
         self.block, self.blocks_per_layer, modules = self._load_configuration(dimensionality, depth)
