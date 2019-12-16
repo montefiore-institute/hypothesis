@@ -30,3 +30,12 @@ class DenseNet(torch.nn.Module):
 
     def forward(self):
         raise NotImplementedError
+
+    def _load_configuration(self, dimensionality, depth):
+        modules = load_modules(dimensionality)
+        raise NotImplementedError
+
+
+
+def load_modules(dimensionality):
+    raise NotImplementedError

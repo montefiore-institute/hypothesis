@@ -9,7 +9,7 @@ from hypothesis.visualization.util import set_aspect
 
 
 
-def plot_losses(losses_train, losses_test, epochs=None, log=True, figsize=None):
+def plot_losses(losses_train, losses_test, epochs=None, log=True, figsize=None, ylim=None):
     with torch.no_grad():
         # Check if the losses have to be converted to log-space.
         if log:
@@ -32,6 +32,9 @@ def plot_losses(losses_train, losses_test, epochs=None, log=True, figsize=None):
         plot_loss(axes[1], losses_test, epochs=epochs, title="Test loss",
             xlabel="Epochs", ylabel=None)
         figure.tight_layout()
+        if ylim is not None:
+            axes[0].set_ylim(ylim)
+            axes[1].set_ylim(ylim)
         make_square(axes[0])
         make_square(axes[1])
 
