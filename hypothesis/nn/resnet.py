@@ -6,6 +6,7 @@ from hypothesis.nn.util import allocate_output_transform
 from hypothesis.nn.util import compute_dimensionality
 
 
+
 class ResNet(torch.nn.Module):
 
     def __init__(self,
@@ -25,10 +26,9 @@ class ResNet(torch.nn.Module):
         ys_transform=hypothesis.default.output_transform):
         super(ResNet, self).__init__()
         # Infer dimensionality from the input shape.
-        dimensionality = len(shape_xs)
+        self.dimensionality = len(shape_xs)
         # Dimensionality and architecture properties.
-        self.dimensionality = dimensionality
-        self.block, self.blocks_per_layer, modules = self._load_configuration(dimensionality, depth)
+        self.block, self.blocks_per_layer, modules = self._load_configuration(depth)
         self.module_convolution = modules[0]
         self.module_batchnorm = modules[1]
         self.module_maxpool = modules[2]
@@ -52,7 +52,7 @@ class ResNet(torch.nn.Module):
         self.network_trunk = self._build_trunk(trunk, float(trunk_dropout), ys_transform)
 
     def _build_head(self):
-        mappings = []
+vv        mappings = []
         # Convolution
         mappings.append(self.module_convolution(
             self.channels,
@@ -151,8 +151,8 @@ class ResNet(torch.nn.Module):
 
         return torch.nn.Sequential(*mappings)
 
-    def _load_configuration(self, dimensionality, depth):
-        modules = load_modules(dimensionality)
+    def _load_configuration(self, depth):
+        modules = load_modules(self.dimensionality)
         configurations = {
             18: self._load_configuration_18,
             34: self._load_configuration_34,
