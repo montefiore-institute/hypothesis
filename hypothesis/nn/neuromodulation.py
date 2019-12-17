@@ -25,7 +25,7 @@ class ModulatedReLU(BaseModulatedModule):
         self.slopes = None
 
     def forward(self, x):
-        return F.relu(self.slopes * x)
+        return F.relu(self.slopes + x)
 
     def update(self, context):
         self.slopes = self.controller(context)

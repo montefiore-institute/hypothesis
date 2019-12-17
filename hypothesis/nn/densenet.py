@@ -128,6 +128,39 @@ class DenseNet(torch.nn.Module):
         modules = load_modules(self.dimensionality)
         raise NotImplementedError
 
+    @staticmethod
+    def _load_configuration_121(dimensionality):
+        raise NotImplementedError
+
+    @staticmethod
+    def _load_configuration_161(dimensionality):
+        raise NotImplementedError
+
+    @staticmethod
+    def _load_configuration_169(dimensionality):
+        raise NotImplementedError
+
+    @staticmethod
+    def _load_configuration_201(dimensionality):
+        raise NotImplementedError
+
+
+
+class DenseBlock(torch.nn.Module):
+
+    def __init__(self, dimensionality,
+        batchnorm,
+        bottleneck_factor,
+        dimensionality,
+        dropout,
+        growth_rate,
+        num_input_features,
+        num_layers):
+        super(DenseBlock, self).__init__()
+
+    def forward(self, x):
+        raise NotImplementedError
+
 
 
 def load_modules(dimensionality):
