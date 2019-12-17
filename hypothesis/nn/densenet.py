@@ -151,7 +151,6 @@ class DenseBlock(torch.nn.Module):
     def __init__(self, dimensionality,
         batchnorm,
         bottleneck_factor,
-        dimensionality,
         dropout,
         growth_rate,
         num_input_features,
