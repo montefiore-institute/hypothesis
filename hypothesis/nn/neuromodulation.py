@@ -12,10 +12,7 @@ class BaseModulatedModule(torch.nn.Module):
     def forward(self, x):
         raise NotImplementedError
 
-    def forward(self, context, x):
-        raise NotImplementedError
-
-    def update_context(self, context):
+    def update(self, context):
         raise NotImplementedError
 
 
@@ -30,10 +27,5 @@ class ModulatedReLU(BaseModulatedModule):
     def forward(self, x):
         return F.relu(self.slopes * x)
 
-    def forward(self, context, x):
-        self.slopes = self.controller(context)
-
-        return self.forward(x)
-
-    def update_context(self, context):
+    def update(self, context):
         self.slopes = self.controller(context)
