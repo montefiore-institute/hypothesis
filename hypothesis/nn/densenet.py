@@ -19,8 +19,6 @@ class DenseNet(torch.nn.Module):
         channels=3,
         convolution_bias=False,
         dense_dropout=hypothesis.default.dropout,
-        growth_rate=32,
-        in_planes=64,
         trunk=hypothesis.default.trunk,
         trunk_dropout=hypothesis.default.dropout,
         ys_transform=hypothesis.default.output_transform):
@@ -28,7 +26,7 @@ class DenseNet(torch.nn.Module):
         # Infer the dimensionality from the input shape.
         self.dimensionality = len(shape_xs)
         # Dimensionality and architecture properties.
-        config, modules = self._load_configuration(depth)
+        growth_rate, in_planes, config, modules = self._load_configuration(depth)
         self.module_convolution = modules[0]
         self.modules_batchnorm = modules[1]
         self.module_maxpool = modules[2]
@@ -127,23 +125,46 @@ class DenseNet(torch.nn.Module):
 
     def _load_configuration(self, depth):
         modules = load_modules(self.dimensionality)
-        raise NotImplementedError
+        configurations = {
+            121: _load_configuration_121,
+            161: _load_configuration_161,
+            169: _load_configuration_169,
+            201: _load_configuration_201}
+        growth_rate, input_features, layers = configurations[depth]()
+
+        return growth_rate, input_features, config, modules
 
     @staticmethod
     def _load_configuration_121(dimensionality):
-        raise NotImplementedError
+        growth_rate = 32
+        input_features = 64
+        config = [6, 12, 24, 16]
+
+        return growth_rate, input_features, config
 
     @staticmethod
     def _load_configuration_161(dimensionality):
-        raise NotImplementedError
+        growth_rate = 48
+        input_features = 96
+        config = [6, 12, 36, 24]
+
+        return growth_rate, input_features, config
 
     @staticmethod
     def _load_configuration_169(dimensionality):
-        raise NotImplementedError
+        growth_rate = 32
+        input_features = 64
+        config = [6, 12, 32, 32]
+
+        return growth_rate, input_features, config
 
     @staticmethod
     def _load_configuration_201(dimensionality):
-        raise NotImplementedError
+        growth_rate = 32
+        input_features = 64
+        config = [6, 12, 48, 32]
+
+        return growth_rate, input_features, config
 
 
 
@@ -181,10 +202,10 @@ class DenseBlock(torch.nn.Module):
 class DenseLayer(torch.nn.Module):
 
     def __init__(self, dimensionality,
-        activation = activation,
-        batchnorm=batchnorm,
-        bottleneck_factor=bottleneck_factor,
-        dropout=dropout,
+        activation,
+        batchnorm,
+        bottleneck_factor_factor,
+        dropout,
         num_input_features):
         super(DenseLayer, self).__init__()
         # Load the modules depending on the dimensionality
