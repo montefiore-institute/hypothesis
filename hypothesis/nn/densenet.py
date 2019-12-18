@@ -10,9 +10,9 @@ from hypothesis.nn.util import compute_dimensionality
 class DenseNet(torch.nn.Module):
 
     def __init__(self,
-        depth,
         shape_xs,
         shape_ys=(1,),
+        depth=121, # Default DenseNet configuration
         activation=hypothesis.default.activation,
         batchnorm=True,
         bottleneck_factor=4,
@@ -28,7 +28,7 @@ class DenseNet(torch.nn.Module):
         # Dimensionality and architecture properties.
         growth_rate, in_planes, config, modules = self._load_configuration(depth)
         self.module_convolution = modules[0]
-        self.modules_batchnorm = modules[1]
+        self.module_batchnorm = modules[1]
         self.module_maxpool = modules[2]
         self.module_average_pooling = modules[3]
         self.module_activation = activation
@@ -79,7 +79,7 @@ class DenseNet(torch.nn.Module):
                 bottleneck_factor=bottleneck_factor,
                 dimensionality=self.dimensionality,
                 dropout=dropout,
-                growth_rate=self.growth_rate,
+                growth_rate=growth_rate,
                 num_input_features=num_features,
                 num_layers=num_layers))
             num_features += num_layers * growth_rate
@@ -126,16 +126,16 @@ class DenseNet(torch.nn.Module):
     def _load_configuration(self, depth):
         modules = load_modules(self.dimensionality)
         configurations = {
-            121: _load_configuration_121,
-            161: _load_configuration_161,
-            169: _load_configuration_169,
-            201: _load_configuration_201}
-        growth_rate, input_features, layers = configurations[depth]()
+            121: self._load_configuration_121,
+            161: self._load_configuration_161,
+            169: self._load_configuration_169,
+            201: self._load_configuration_201}
+        growth_rate, input_features, config = configurations[depth]()
 
         return growth_rate, input_features, config, modules
 
     @staticmethod
-    def _load_configuration_121(dimensionality):
+    def _load_configuration_121():
         growth_rate = 32
         input_features = 64
         config = [6, 12, 24, 16]
@@ -143,7 +143,7 @@ class DenseNet(torch.nn.Module):
         return growth_rate, input_features, config
 
     @staticmethod
-    def _load_configuration_161(dimensionality):
+    def _load_configuration_161():
         growth_rate = 48
         input_features = 96
         config = [6, 12, 36, 24]
@@ -151,7 +151,7 @@ class DenseNet(torch.nn.Module):
         return growth_rate, input_features, config
 
     @staticmethod
-    def _load_configuration_169(dimensionality):
+    def _load_configuration_169():
         growth_rate = 32
         input_features = 64
         config = [6, 12, 32, 32]
@@ -159,7 +159,7 @@ class DenseNet(torch.nn.Module):
         return growth_rate, input_features, config
 
     @staticmethod
-    def _load_configuration_201(dimensionality):
+    def _load_configuration_201():
         growth_rate = 32
         input_features = 64
         config = [6, 12, 48, 32]
@@ -188,6 +188,7 @@ class DenseBlock(torch.nn.Module):
                 bottleneck_factor=bottleneck_factor,
                 dimensionality=dimensionality,
                 dropout=dropout,
+                growth_rate=growth_rate,
                 num_input_features=num_input_features + index * growth_rate))
 
     def forward(self, x):
@@ -204,14 +205,15 @@ class DenseLayer(torch.nn.Module):
     def __init__(self, dimensionality,
         activation,
         batchnorm,
-        bottleneck_factor_factor,
+        bottleneck_factor,
         dropout,
+        growth_rate,
         num_input_features):
         super(DenseLayer, self).__init__()
         # Load the modules depending on the dimensionality
         modules = load_modules(dimensionality)
         self.module_convolution = modules[0]
-        self.modules_batchnorm = modules[1]
+        self.module_batchnorm = modules[1]
         self.module_maxpool = modules[2]
         self.module_average_pooling = modules[3]
         self.module_activation = activation
@@ -219,9 +221,10 @@ class DenseLayer(torch.nn.Module):
         self.network_mapping = self._build_mapping(batchnorm,
             bottleneck_factor,
             dropout,
+            growth_rate,
             num_input_features)
 
-    def _build_mapping(self, batchnorm, bottleneck_factor, dropout, num_input_features):
+    def _build_mapping(self, batchnorm, bottleneck_factor, dropout, growth_rate, num_input_features):
         mappings = []
 
         # Bottleneck
