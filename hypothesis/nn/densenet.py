@@ -76,6 +76,7 @@ class DenseNet(torch.nn.Module):
         for index, num_layers in enumerate(config):
             # DenseBlock
             mappings.append(DenseBlock(
+                activation=self.module_activation,
                 batchnorm=self.batchnorm,
                 bottleneck_factor=bottleneck_factor,
                 dimensionality=self.dimensionality,
@@ -149,6 +150,7 @@ class DenseNet(torch.nn.Module):
 class DenseBlock(torch.nn.Module):
 
     def __init__(self, dimensionality,
+        activation,
         batchnorm,
         bottleneck_factor,
         dropout,
@@ -156,9 +158,84 @@ class DenseBlock(torch.nn.Module):
         num_input_features,
         num_layers):
         super(DenseBlock, self).__init__()
+        # Add the layers to the block.
+        self.layers = []
+        for index in range(num_layers):
+            self.layers.append(DenseLayer(
+                activation=activation,
+                batchnorm=batchnorm,
+                bottleneck_factor=bottleneck_factor,
+                dimensionality=dimensionality,
+                dropout=dropout,
+                num_input_features=num_input_features + index * growth_rate))
 
     def forward(self, x):
-        raise NotImplementedError
+        features = [x]
+        for layer in self.layers:
+            features.append(layer(features))
+
+        return torch.cat(features, dim=1)
+
+
+
+class DenseLayer(torch.nn.Module):
+
+    def __init__(self, dimensionality,
+        activation = activation,
+        batchnorm=batchnorm,
+        bottleneck_factor=bottleneck_factor,
+        dropout=dropout,
+        num_input_features):
+        super(DenseLayer, self).__init__()
+        # Load the modules depending on the dimensionality
+        modules = load_modules(dimensionality)
+        self.module_convolution = modules[0]
+        self.modules_batchnorm = modules[1]
+        self.module_maxpool = modules[2]
+        self.module_average_pooling = modules[3]
+        self.module_activation = activation
+        # Construct the dense layer
+        self.network_mapping = self._build_mapping(batchnorm,
+            bottleneck_factor,
+            dropout,
+            num_input_features)
+
+    def _build_mapping(self, batchnorm, bottleneck_factor, dropout, num_input_features):
+        mappings = []
+
+        # Bottleneck
+        # Batch normalization
+        if batchnorm:
+            mappings.append(self.module_batchnorm(num_input_features))
+        # Activation
+        mappings.append(self.module_activation(inplace=True))
+        # Convolution
+        mappings.append(self.module_convolution(
+            num_input_features,
+            bottleneck_factor * growth_rate,
+            kernel_size=1,
+            stride=1,
+            bias=False))
+        # Normalization
+        mappings.append(self.module_batchnorm(bottleneck_factor * growth_rate))
+        # Activation
+        mappings.append(self.module_activation(inplace=True))
+        # Convolution
+        mappings.append(self.module_convolution(
+            bottleneck_factor * growth_rate,
+            growth_rate,
+            kernel_size=3,
+            stride=1,
+            padding=1,
+            bias=False))
+        # Dropout
+        if dropout > 0:
+            mappings.append(torch.nn.Dropout(p=dropout))
+
+        return torch.nn.Sequential(*mappings)
+
+    def forward(self, x):
+        return self.network_mapping(x)
 
 
 
