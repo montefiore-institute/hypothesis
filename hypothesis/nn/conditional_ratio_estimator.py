@@ -2,7 +2,7 @@ import hypothesis
 import torch
 
 from hypothesis.exception import NotDivisibleByTwoException
-from hypothesis.nn.neuromodulation import BaseModulatedModule
+from hypothesis.nn.neuromodulation import BaseNeuromodulatedModule
 
 
 
@@ -78,6 +78,7 @@ class ConditionalRatioEstimatorEnsemble(BaseConditionalRatioEstimator):
         return ratios.median(dim=1).values
 
 
+
 class NeuromodulatedConditionalRatioEstimator(BaseConditionalRatioEstimator):
 
     def __init__(self, ratio_estimator):
@@ -88,9 +89,15 @@ class NeuromodulatedConditionalRatioEstimator(BaseConditionalRatioEstimator):
             raise ValueError("No neuromodulated modules have been found!")
 
     def _find_neuromodulated_modules(self):
-        raise NotImplementedError
+        modules = []
 
-    def forward(self, inputs, outputs)
+        for module in self.ratio_estimator.modules():
+            if isinstance(module, BaseNeuromodulatedModule):
+                modules.append(modules)
+
+        return modules
+
+    def forward(self, inputs, outputs):
         log_ratios = self.log_ratio(inputs, outputs)
 
         return log_ratios.sigmoid(), log_ratios
@@ -101,6 +108,7 @@ class NeuromodulatedConditionalRatioEstimator(BaseConditionalRatioEstimator):
             module.update(inputs)
 
         return self.ratio_estimator.log_ratio(inputs, outputs)
+
 
 
 class ConditionalRatioEstimatorCriterion(torch.nn.Module):
