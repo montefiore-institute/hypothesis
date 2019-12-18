@@ -31,6 +31,7 @@ class DenseNet(torch.nn.Module):
         self.module_batchnorm = modules[1]
         self.module_maxpool = modules[2]
         self.module_average_pooling = modules[3]
+        self.module_adaptive_average_pooling = modules[4]
         self.module_activation = activation
         # Network properties
         self.batchnorm = batchnorm
@@ -42,6 +43,7 @@ class DenseNet(torch.nn.Module):
         # Network structure
         self.network_head = self._build_head()
         self.network_body = self._build_body(config, bottleneck_factor, dense_dropout, growth_rate)
+        self.embedding_dim = self._embedding_dimensionality()
         self.network_trunk = self._build_trunk(trunk, trunk_dropout, ys_transform)
 
     def _build_head(self):
@@ -92,6 +94,11 @@ class DenseNet(torch.nn.Module):
         # Batch normalization
         if self.batchnorm:
             mappings.append(self.module_batchnorm(num_features))
+        # Activation
+        mappings.append(self.module_activation(inplace=True))
+        # Adaptive average pooling
+        pooling_shape = [1 for _ in range(self.dimensionality)]
+        mappings.append(self.module_adaptive_average_pooling(pooling_shape))
 
         return torch.nn.Sequential(*mappings)
 
@@ -117,11 +124,41 @@ class DenseNet(torch.nn.Module):
 
         return torch.nn.Sequential(*mappings)
 
-    def _build_trunk(self, config, dropout, ys_transform):
-        raise NotImplementedError
+    def _embedding_dimensionality(self):
+        shape = (1, self.channels) + self.shape_xs
+        with torch.no_grad():
+            x = torch.randn(shape)
+            latents = self.network_body(self.network_head(x)).view(-1)
+            dimensionality = len(latents)
 
-    def forward(self):
-        raise NotImplementedError
+        return dimensionality
+
+    def _build_trunk(self, trunk, dropout, transform_output):
+        mappings = []
+
+        # Build trunk
+        mappings.append(torch.nn.Linear(self.embedding_dim, trunk[0]))
+        for index in range(1, len(trunk)):
+            mappings.append(self.module_activation(inplace=True))
+            if dropout > 0:
+                mappings.append(torch.nn.Dropout(p=dropout))
+            mappings.append(torch.nn.Linear(trunk[index - 1], trunk[index]))
+        # Compute output dimensionality
+        output_shape = compute_dimensionality(self.shape_ys)
+        # Add final fully connected mapping
+        mappings.append(torch.nn.Linear(trunk[-1], output_shape))
+        # Add output normalization
+        output_mapping = allocate_output_transform(transform_output, output_shape)
+        if output_mapping is not None:
+            mappings.append(output_mapping)
+
+        return torch.nn.Sequential(*mappings)
+
+    def forward(self, x):
+        z = self.network_head(x)
+        z = self.network_body(z).view(-1, self.embedding_dim)
+
+        return self.network_trunk(z)
 
     def _load_configuration(self, depth):
         modules = load_modules(self.dimensionality)
@@ -259,7 +296,9 @@ class DenseLayer(torch.nn.Module):
         return torch.nn.Sequential(*mappings)
 
     def forward(self, x):
-        return self.network_mapping(x)
+        z = torch.cat(x, dim=1)
+
+        return self.network_mapping(z)
 
 
 
@@ -277,8 +316,9 @@ def load_modules_1_dimensional():
     b = torch.nn.BatchNorm1d
     m = torch.nn.MaxPool1d
     a = torch.nn.AvgPool1d
+    ap = torch.nn.AdaptiveAvgPool1d
 
-    return c, b, m, a
+    return c, b, m, a, ap
 
 
 def load_modules_2_dimensional():
@@ -286,8 +326,9 @@ def load_modules_2_dimensional():
     b = torch.nn.BatchNorm2d
     m = torch.nn.MaxPool2d
     a = torch.nn.AvgPool2d
+    ap = torch.nn.AdaptiveAvgPool2d
 
-    return c, b, m, a
+    return c, b, m, a, ap
 
 
 def load_modules_3_dimensional():
@@ -295,5 +336,6 @@ def load_modules_3_dimensional():
     b = torch.nn.BatchNorm3d
     m = torch.nn.MaxPool3d
     a = torch.nn.AvgPool3d
+    ap = torch.nn.AdaptiveAvgPool3d
 
-    return c, b, m, a
+    return c, b, m, a, ap
