@@ -3,6 +3,7 @@ import torch
 
 from hypothesis.nn import ConditionalRatioEstimator
 from hypothesis.nn import ResNet
+from hypothesis.nn.util import compute_dimensionality
 
 
 
@@ -18,17 +19,13 @@ class ConditionalResNetRatioEstimator(ResNet, ConditionalRatioEstimator):
         convolution_bias=False,
         dilate=False,
         in_planes=64,
-        trunk=(512, 512, 512),
-        trunk_dropout=0.0):
+        trunk=hypothesis.default.trunk,
+        trunk_dropout=hypothesis.default.dropout):
         # Update dimensionality data
         self.shape_inputs = shape_inputs
-        self.dimensionality_inputs = 1
-        for dim in shape_inputs:
-            self.dimensionality_inputs *= dim
+        self.dimensionality_inputs = compute_dimensionality(shape_inputs)
         self.shape_outputs = shape_outputs
-        self.dimensionality_outputs = 1
-        for dim in shape_outputs:
-            self.dimensionality_outputs *= dim
+        self.dimensionality_outputs = compute_dimensionality(shape_outputs)
         ResNet.__init__(self,
             depth=depth,
             shape_xs=shape_outputs,
