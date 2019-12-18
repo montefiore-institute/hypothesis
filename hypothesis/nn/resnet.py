@@ -10,9 +10,9 @@ from hypothesis.nn.util import compute_dimensionality
 class ResNet(torch.nn.Module):
 
     def __init__(self,
-        depth,
         shape_xs,
         shape_ys=(1,),
+        depth=18, # Default ResNet depth
         activation=hypothesis.default.activation,
         batchnorm=True,
         channels=3,
