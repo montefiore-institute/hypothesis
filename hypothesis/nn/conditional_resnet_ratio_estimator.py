@@ -8,9 +8,10 @@ from hypothesis.nn import ResNet
 
 class ConditionalResNetRatioEstimator(ResNet, ConditionalRatioEstimator):
 
-    def __init__(self, depth,
+    def __init__(self,
         shape_inputs,
         shape_outputs,
+        depth=18, # Default ResNet depth
         activation=hypothesis.default.activation,
         channels=3,
         batchnorm=True,

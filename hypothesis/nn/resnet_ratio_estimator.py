@@ -8,18 +8,19 @@ from hypothesis.nn import ResNet
 
 class ResNetRatioEstimator(BaseRatioEstimator):
 
-    def __init__(self, depth,
-                 shape_xs,
-                 activation=hypothesis.default.activation,
-                 channels=3,
-                 batchnorm=True,
-                 convolution_bias=False,
-                 dilate=False,
-                 trunk=(512, 512, 512),
-                 trunk_dropout=0.0):
+    def __init__(self,
+        shape_xs,
+        depth=18, # Default ResNet depth
+        activation=hypothesis.default.activation,
+        channels=3,
+        batchnorm=True,
+        convolution_bias=False,
+        dilate=False,
+        trunk=(512, 512, 512),
+        trunk_dropout=0.0):
         super(BaseRatioEstimator, self).__init__()
-        # Allocate the resnet model
-        self.resnet_log_ratio = ResNet(depth=depth,
+        # Allocate the ResNet model
+        self.resnet = ResNet(depth=depth,
             shape_xs=shape_xs,
             shape_ys=(1,),
             activation=activation,
@@ -37,4 +38,4 @@ class ResNetRatioEstimator(BaseRatioEstimator):
         return log_ratios.sigmoid(), log_ratios
 
     def log_ratio(self, xs):
-        return self.resnet_log_ratio(xs)
+        return self.resnet(xs)
