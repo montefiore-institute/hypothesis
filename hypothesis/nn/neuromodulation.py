@@ -4,10 +4,10 @@ import torch.nn.functional as F
 
 
 
-class BaseModulatedModule(torch.nn.Module):
+class BaseNeuromodulatedModule(torch.nn.Module):
 
     def __init__(self):
-        super(BaseModulatedModule, self).__init__()
+        super(BaseNeuromodulatedModule, self).__init__()
 
     def forward(self, x):
         raise NotImplementedError
@@ -17,10 +17,10 @@ class BaseModulatedModule(torch.nn.Module):
 
 
 
-class ModulatedReLU(BaseModulatedModule):
+class NeuromodulatedReLU(BaseNeuromodulatedModule):
 
     def __init__(self, controller, inplace=False):
-        super(ModulatedReLU, self).__init__()
+        super(NeuromodulatedReLU, self).__init__()
         self.controller = controller
         self.slopes = None
 
