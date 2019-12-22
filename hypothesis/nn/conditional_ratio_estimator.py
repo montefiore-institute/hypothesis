@@ -114,7 +114,7 @@ class NeuromodulatedConditionalRatioEstimator(BaseConditionalRatioEstimator):
 class ConditionalRatioEstimatorCriterion(torch.nn.Module):
     r""""""
 
-    def __init__(self, ratio_estimator, batch_size):
+    def __init__(self, ratio_estimator, batch_size, gamma=0.0):
         super(ConditionalRatioEstimatorCriterion, self).__init__()
         # Check if a valid batch size has been supplied.
         if batch_size % 2 != 0:
@@ -126,15 +126,13 @@ class ConditionalRatioEstimatorCriterion(torch.nn.Module):
         self.ratio_estimator = ratio_estimator
         self.ones = torch.ones(self.chunked_batch_size, 1)
         self.zeros = torch.zeros(self.chunked_batch_size, 1)
+        self.gamma = float(gamma)
+        if self.gamma > 0:
+            self.compute_loss = self._compute_loss
+        else:
+            self.compute_loss = self._compute_loss_with_density_constraint
 
-    def to(self, device):
-        self.criterion = self.criterion.to(device)
-        self.ones = self.ones.to(device)
-        self.zeros = self.zeros.to(device)
-
-        return self
-
-    def forward(self, inputs, outputs):
+    def _compute_loss(self, inputs, outputs):
         inputs = inputs.chunk(2)
         outputs = outputs.chunk(2)
         inputs_a = inputs[0]
@@ -152,6 +150,19 @@ class ConditionalRatioEstimatorCriterion(torch.nn.Module):
         loss = loss_a + loss_b
 
         return loss
+
+    def _compute_loss_with_density_constraint(self, inputs, outputs):
+        raise NotImplementedError
+
+    def to(self, device):
+        self.criterion = self.criterion.to(device)
+        self.ones = self.ones.to(device)
+        self.zeros = self.zeros.to(device)
+
+        return self
+
+    def forward(self, inputs, outputs):
+        return self.compute_loss(inputs, outputs)
 
 
 
