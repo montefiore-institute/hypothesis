@@ -128,9 +128,9 @@ class ConditionalRatioEstimatorCriterion(torch.nn.Module):
         self.zeros = torch.zeros(self.chunked_batch_size, 1)
         self.gamma = float(gamma)
         if self.gamma > 0:
-            self.compute_loss = self._compute_loss
-        else:
             self.compute_loss = self._compute_loss_with_density_constraint
+        else:
+            self.compute_loss = self._compute_loss
 
     def _compute_loss(self, inputs, outputs):
         inputs = inputs.chunk(2)
