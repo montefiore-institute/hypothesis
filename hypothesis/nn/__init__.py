@@ -9,6 +9,7 @@ from .conditional_ratio_estimator import ConditionalRatioEstimator
 from .conditional_ratio_estimator import ConditionalRatioEstimatorCriterion
 from .conditional_ratio_estimator import ConditionalRatioEstimatorLogitsCriterion
 from .conditional_ratio_estimator import ConditionalRatioEstimatorEnsemble
+from .conditional_ratio_estimator import BaseNeuromodulatedConditionalRatioEstimator
 from .conditional_ratio_estimator import NeuromodulatedConditionalRatioEstimator
 from .multi_layer_perceptron import MultiLayerPerceptron
 from .densenet import DenseNet
@@ -18,6 +19,7 @@ from .resnet_ratio_estimator import ResNetRatioEstimator
 from .mlp_ratio_estimator import MLPRatioEstimator
 from .conditional_mlp_ratio_estimator import ConditionalMLPRatioEstimator
 from .conditional_resnet_ratio_estimator import ConditionalResNetRatioEstimator
+from .conditional_resnet_ratio_estimator import NeuromodulatedConditionalResNetRatioEstimator
 from .conditional_densenet_ratio_estimator import ConditionalDenseNetRatioEstimator
 from .neuromodulation import NeuromodulatedELU
 from .neuromodulation import NeuromodulatedReLU

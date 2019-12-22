@@ -1,6 +1,7 @@
 r"""Hypothesis defaults.
 """
 
+import hypothesis
 import numpy as np
 import torch
 
@@ -8,7 +9,6 @@ import torch
 
 activation = torch.nn.ReLU
 r"""Default activation function in Hypothesis."""
-
 
 output_transform = "normalize"
 r"""Default output transformation for neural networks.
