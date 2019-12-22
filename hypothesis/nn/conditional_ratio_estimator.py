@@ -101,37 +101,10 @@ class BaseNeuromodulatedConditionalRatioEstimator(BaseConditionalRatioEstimator)
         for module in self.neuromodulated_modules:
             module.update(inputs)
 
-
-
-class NeuromodulatedConditionalRatioEstimator(BaseConditionalRatioEstimator):
-
-    def __init__(self, ratio_estimator):
-        super(ModulatedConditionalRatioEstimator, self).__init__()
-        self.ratio_estimator = ratio_estimator
-        self.neuromodulated_modules = self._find_modulated_modules()
-        if len(self.neuromodulated_modules) == 0:
-            raise ValueError("No neuromodulated modules have been found!")
-
-    def _find_neuromodulated_modules(self):
-        modules = []
-
-        for module in self.ratio_estimator.modules():
-            if isinstance(module, BaseNeuromodulatedModule):
-                modules.append(modules)
-
-        return modules
-
     def forward(self, inputs, outputs):
-        log_ratios = self.log_ratio(inputs, outputs)
-
-        return log_ratios.sigmoid(), log_ratios
-
-    def log_ratio(self, inputs, outputs):
-        # Update the context of the neuromodulated modules.
-        for module in self.neuromodulated_modules:
-            module.update(inputs)
-
-        return self.ratio_estimator.log_ratio(inputs, outputs)
+        if context is not None:
+            self.update(inputs)
+        raise NotImplementedError
 
 
 
