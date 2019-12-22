@@ -12,10 +12,10 @@ class BaseNeuromodulatedModule(torch.nn.Module):
     def forward(self, x):
         raise NotImplementedError
 
-    def forward(self, x, context):
+    def forward(self, x, z):
         raise NotImplementedError
 
-    def update(self, context):
+    def update(self, z):
         raise NotImplementedError
 
 
@@ -31,12 +31,12 @@ class NeuromodulatedELU(BaseNeuromodulatedModule):
     def forward(self, x):
         return self.activation(x + self.bias)
 
-    def forward(self, x, context):
-        self.update(context)
+    def forward(self, x, z):
+        self.update(z)
         return self.forward(x)
 
-    def update(self, context):
-        self.bias = self.controller(context)
+    def update(self, z):
+        self.bias = self.controller(z)
 
 
 
@@ -51,12 +51,12 @@ class NeuromodulatedReLU(BaseNeuromodulatedModule):
     def forward(self, x):
         return self.activation(x + self.bias)
 
-    def forward(self, x, context):
-        self.update(context)
+    def forward(self, x, z):
+        self.update(z)
         return self.forward(x)
 
-    def update(self, context):
-        self.bias = self.controller(context)
+    def update(self, z):
+        self.bias = self.controller(z)
 
 
 
@@ -71,9 +71,9 @@ class NeuromodulatedTanh(BaseNeuromodulatedModule):
     def forward(self, x):
         return self.activation(x + self.bias)
 
-    def forward(self, x, context):
-        self.update(context)
+    def forward(self, x, z):
+        self.update(z)
         return self.forward(x)
 
-    def update(self, context):
-        self.bias = self.controller(context)
+    def update(self, z):
+        self.bias = self.controller(z)
