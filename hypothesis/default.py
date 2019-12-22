@@ -1,9 +1,6 @@
 r"""Hypothesis defaults.
 """
 
-import matplotlib as mpl
-import matplotlib.plot as plt
-import matplotlib.style
 import numpy as np
 import torch
 

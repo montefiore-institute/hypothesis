@@ -19,3 +19,6 @@ from .mlp_ratio_estimator import MLPRatioEstimator
 from .conditional_mlp_ratio_estimator import ConditionalMLPRatioEstimator
 from .conditional_resnet_ratio_estimator import ConditionalResNetRatioEstimator
 from .conditional_densenet_ratio_estimator import ConditionalDenseNetRatioEstimator
+from .neuromodulation import NeuromodulatedELU
+from .neuromodulation import NeuromodulatedReLU
+from .neuromodulation import NeuromodulatedTanh
