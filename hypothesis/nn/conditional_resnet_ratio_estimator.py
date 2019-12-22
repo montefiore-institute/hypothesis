@@ -92,7 +92,7 @@ class NeuromodulatedConditionalResNetRatioEstimator(ResNet, BaseNeuromodulatedCo
             depth=depth,
             shape_xs=shape_outputs,
             shape_ys=(1,),
-            activation=,
+            activation=activation,
             batchnorm=batchnorm,
             channels=channels,
             convolution_bias=convolution_bias,
