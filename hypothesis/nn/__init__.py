@@ -10,7 +10,6 @@ from .conditional_ratio_estimator import ConditionalRatioEstimatorCriterion
 from .conditional_ratio_estimator import ConditionalRatioEstimatorLogitsCriterion
 from .conditional_ratio_estimator import ConditionalRatioEstimatorEnsemble
 from .conditional_ratio_estimator import BaseNeuromodulatedConditionalRatioEstimator
-from .conditional_ratio_estimator import NeuromodulatedConditionalRatioEstimator
 from .multi_layer_perceptron import MultiLayerPerceptron
 from .densenet import DenseNet
 from .densenet_ratio_estimator import DenseNetRatioEstimator
