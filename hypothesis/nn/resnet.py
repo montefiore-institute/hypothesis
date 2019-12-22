@@ -48,7 +48,7 @@ class ResNet(torch.nn.Module):
         # Network structures.
         self.network_head = self._build_head()
         self.network_body = self._build_body()
-        self.embedding_dim = 0
+        self.embedding_dim = self._embedding_dimensionality()
         self.network_trunk = self._build_trunk(trunk, float(trunk_dropout), ys_transform)
 
     def _build_head(self):
@@ -136,7 +136,6 @@ class ResNet(torch.nn.Module):
         mappings = []
 
         # Build trunk
-        self.embedding_dim = self._embedding_dimensionality()
         mappings.append(torch.nn.Linear(self.embedding_dim, trunk[0]))
         for index in range(1, len(trunk)):
             mappings.append(self.module_activation(inplace=True))
