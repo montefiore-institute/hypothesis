@@ -9,13 +9,10 @@ class BaseNeuromodulatedModule(torch.nn.Module):
     def __init__(self):
         super(BaseNeuromodulatedModule, self).__init__()
 
-    def forward(self, x):
+    def forward(self, x, context=None):
         raise NotImplementedError
 
-    def forward(self, x, z):
-        raise NotImplementedError
-
-    def update(self, z):
+    def update(self, context):
         raise NotImplementedError
 
 
@@ -28,15 +25,13 @@ class NeuromodulatedELU(BaseNeuromodulatedModule):
         self.controller = controller
         self.bias = None
 
-    def forward(self, x):
+    def forward(self, x, context=None):
+        if context is not None:
+            self.update(context)
         return self.activation(x + self.bias)
 
-    def forward(self, x, z):
-        self.update(z)
-        return self.forward(x)
-
-    def update(self, z):
-        self.bias = self.controller(z)
+    def update(self, context):
+        self.bias = self.controller(context)
 
 
 
@@ -48,15 +43,13 @@ class NeuromodulatedReLU(BaseNeuromodulatedModule):
         self.controller = controller
         self.bias = None
 
-    def forward(self, x):
+    def forward(self, x, context=None):
+        if context is not None:
+            self.update(context)
         return self.activation(x + self.bias)
 
-    def forward(self, x, z):
-        self.update(z)
-        return self.forward(x)
-
-    def update(self, z):
-        self.bias = self.controller(z)
+    def update(self, context):
+        self.bias = self.controller(context)
 
 
 
@@ -68,12 +61,10 @@ class NeuromodulatedTanh(BaseNeuromodulatedModule):
         self.controller = controller
         self.bias = None
 
-    def forward(self, x):
+    def forward(self, x, context=None):
+        if context is not None:
+            self.update(context)
         return self.activation(x + self.bias)
 
-    def forward(self, x, z):
-        self.update(z)
-        return self.forward(x)
-
-    def update(self, z):
-        self.bias = self.controller(z)
+    def update(self, context):
+        self.bias = self.controller(context)
