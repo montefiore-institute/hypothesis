@@ -7,6 +7,7 @@ from .ratio_estimator import RatioEstimator
 from .conditional_ratio_estimator import BaseConditionalRatioEstimator
 from .conditional_ratio_estimator import ConditionalRatioEstimator
 from .conditional_ratio_estimator import ConditionalRatioEstimatorCriterion
+from .conditional_ratio_estimator import ConditionalRatioEstimatorLogitsCriterion
 from .conditional_ratio_estimator import ConditionalRatioEstimatorEnsemble
 from .conditional_ratio_estimator import NeuromodulatedConditionalRatioEstimator
 from .multi_layer_perceptron import MultiLayerPerceptron
