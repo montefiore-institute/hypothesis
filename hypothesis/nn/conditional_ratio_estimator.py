@@ -83,7 +83,7 @@ class BaseNeuromodulatedConditionalRatioEstimator(BaseConditionalRatioEstimator)
 
     def __init__(self):
         super(BaseNeuromodulatedConditionalRatioEstimator, self).__init__()
-        self.neuromodulated_modules = self._find_modulated_modules()
+        self.neuromodulated_modules = self._find_neuromodulated_modules()
         if len(self.neuromodulated_modules) == 0:
             raise ValueError("No neuromodulated modules have been found!")
 
