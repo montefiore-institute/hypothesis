@@ -1,7 +1,6 @@
 import hypothesis
 import torch
 
-from hypothesis.nn import BaseNeuromodulatedConditionalRatioEstimator
 from hypothesis.nn import ConditionalRatioEstimator
 from hypothesis.nn import ResNet
 from hypothesis.nn.util import compute_dimensionality
