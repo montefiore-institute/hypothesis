@@ -168,6 +168,6 @@ class ConditionalRatioEstimatorCriterion(torch.nn.Module):
 
 class ConditionalRatioEstimatorLogitsCriterion(ConditionalRatioEstimatorCriterion):
 
-    def __init__(self, ratio_estimator, batch_size):
-        super(ConditionalRatioEstimatorLogitsCriterion, self).__init__(ratio_estimator, batch_size)
+    def __init__(self, ratio_estimator, batch_size, gamma=0.0):
+        super(ConditionalRatioEstimatorLogitsCriterion, self).__init__(ratio_estimator, batch_size, gamma)
         self.criterion = torch.nn.BCEWtihLogitsLoss()
