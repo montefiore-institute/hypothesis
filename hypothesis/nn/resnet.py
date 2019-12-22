@@ -24,7 +24,7 @@ class ResNet(torch.nn.Module):
         trunk_dropout=hypothesis.default.dropout,
         width_per_group=64,
         ys_transform=hypothesis.default.output_transform):
-        super(ResNet, self).__init__()
+        torch.nn.Module.__init__(self)
         # Infer dimensionality from the input shape.
         self.dimensionality = len(shape_xs)
         # Dimensionality and architecture properties.
@@ -48,7 +48,7 @@ class ResNet(torch.nn.Module):
         # Network structures.
         self.network_head = self._build_head()
         self.network_body = self._build_body()
-        self.embedding_dim = self._embedding_dimensionality()
+        self.embedding_dim = 0
         self.network_trunk = self._build_trunk(trunk, float(trunk_dropout), ys_transform)
 
     def _build_head(self):
@@ -110,6 +110,7 @@ class ResNet(torch.nn.Module):
             downsample = None
         # Allocate the blocks in the current layer.
         mappings.append(self.block(
+            activation=self.module_activation,
             dimensionality=self.dimensionality,
             downsample=downsample,
             groups=self.groups,
@@ -120,6 +121,7 @@ class ResNet(torch.nn.Module):
         self.in_planes = planes * self.block.EXPANSION
         for _ in range(1, blocks):
             mappings.append(self.block(
+                activation=self.module_activation,
                 batchnorm=self.batchnorm,
                 dilation=self.dilation,
                 dimensionality=self.dimensionality,
@@ -134,6 +136,7 @@ class ResNet(torch.nn.Module):
         mappings = []
 
         # Build trunk
+        self.embedding_dim = self._embedding_dimensionality()
         mappings.append(torch.nn.Linear(self.embedding_dim, trunk[0]))
         for index in range(1, len(trunk)):
             mappings.append(self.module_activation(inplace=True))

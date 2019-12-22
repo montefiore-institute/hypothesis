@@ -23,7 +23,7 @@ class NeuromodulatedELU(BaseNeuromodulatedModule):
         super(NeuromodulatedELU, self).__init__()
         self.activation = torch.nn.ELU(inplace=inplace)
         self.controller = controller
-        self.bias = None
+        self.bias = torch.randn(1, 1)
 
     def forward(self, x, context=None):
         if context is not None:
@@ -41,7 +41,7 @@ class NeuromodulatedReLU(BaseNeuromodulatedModule):
         super(NeuromodulatedReLU, self).__init__()
         self.activation = torch.nn.ReLU(inplace=inplace)
         self.controller = controller
-        self.bias = None
+        self.bias = torch.randn(1, 1)
 
     def forward(self, x, context=None):
         if context is not None:
@@ -59,7 +59,7 @@ class NeuromodulatedTanh(BaseNeuromodulatedModule):
         super(NeuromodulatedTanh, self).__init__()
         self.activation = torch.nn.Tanh(inplace=inplace)
         self.controller = controller
-        self.bias = None
+        self.bias = torch.randn(1, 1)
 
     def forward(self, x, context=None):
         if context is not None:

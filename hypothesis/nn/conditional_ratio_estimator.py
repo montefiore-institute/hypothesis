@@ -2,7 +2,6 @@ import hypothesis
 import torch
 
 from hypothesis.exception import NotDivisibleByTwoException
-from hypothesis.nn.neuromodulation import BaseNeuromodulatedModule
 
 
 
@@ -76,30 +75,6 @@ class ConditionalRatioEstimatorEnsemble(BaseConditionalRatioEstimator):
     @staticmethod
     def _reduce_median(ratios):
         return ratios.median(dim=1).values
-
-
-
-class BaseNeuromodulatedConditionalRatioEstimator(BaseConditionalRatioEstimator):
-
-    def __init__(self):
-        super(BaseNeuromodulatedConditionalRatioEstimator, self).__init__()
-        self.neuromodulated_modules = self._find_neuromodulated_modules()
-        if len(self.neuromodulated_modules) == 0:
-            raise ValueError("No neuromodulated modules have been found!")
-
-    def _find_neuromodulated_modules(self):
-        modules = []
-
-        for module in self.modules():
-            if isinstance(module, BaseNeuromodulatedModule):
-                modules.append(modules)
-
-        return modules
-
-    def update(self, inputs):
-        # Update the context of the neuromodulated modules.
-        for module in self.neuromodulated_modules:
-            module.update(inputs)
 
 
 
