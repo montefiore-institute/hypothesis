@@ -79,7 +79,7 @@ class NeuromodulatedConditionalResNetRatioEstimator(ResNet, BaseNeuromodulatedCo
 
     def __init__(self,
         shape_outputs,
-        neuromodulated_activation,
+        activation,
         depth=18, # Default ResNet depth
         channels=3,
         batchnorm=True,
@@ -92,7 +92,7 @@ class NeuromodulatedConditionalResNetRatioEstimator(ResNet, BaseNeuromodulatedCo
             depth=depth,
             shape_xs=shape_outputs,
             shape_ys=(1,),
-            activation=activation,
+            activation=,
             batchnorm=batchnorm,
             channels=channels,
             convolution_bias=convolution_bias,
