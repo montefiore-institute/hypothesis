@@ -90,7 +90,7 @@ class BaseNeuromodulatedConditionalRatioEstimator(BaseConditionalRatioEstimator)
     def _find_neuromodulated_modules(self):
         modules = []
 
-        for module in self.ratio_estimator.modules():
+        for module in self.modules():
             if isinstance(module, BaseNeuromodulatedModule):
                 modules.append(modules)
 
