@@ -101,11 +101,6 @@ class BaseNeuromodulatedConditionalRatioEstimator(BaseConditionalRatioEstimator)
         for module in self.neuromodulated_modules:
             module.update(inputs)
 
-    def forward(self, inputs, outputs):
-        if context is not None:
-            self.update(inputs)
-        raise NotImplementedError
-
 
 
 class ConditionalRatioEstimatorCriterion(torch.nn.Module):
