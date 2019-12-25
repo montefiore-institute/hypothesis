@@ -23,16 +23,16 @@ class ConditionalDenseNetRatioEstimator(DenseNet, ConditionalRatioEstimator):
         self.dimensionality_inputs = compute_dimensionality(shape_inputs)
         self.shape_outputs = shape_outputs
         self.dimensionality_outputs = compute_dimensionality(shape_outputs)
-        DenseNet.__init__(
+        DenseNet.__init__(self,
             activation=activation,
             batchnorm=batchnorm,
             channels=channels,
             dense_dropout=dense_dropout,
-            dense_trunk=dense_trunk,
             depth=depth,
             shape_xs=shape_outputs,
             shape_ys=(1,),
             trunk=trunk,
+            trunk_dropout=trunk_dropout,
             ys_transform=None)
         ConditionalRatioEstimator.__init__(self)
 
@@ -46,14 +46,8 @@ class ConditionalDenseNetRatioEstimator(DenseNet, ConditionalRatioEstimator):
             if dropout > 0:
                 mappings.append(torch.nn.Dropout(p=dropout))
             mappings.append(torch.nn.Linear(trunk[index - 1], trunk[index]))
-        # Compute output dimensionality
-        output_shape = compute_dimensionality(self.shape_ys)
         # Add final fully connected mapping
-        mappings.append(torch.nn.Linear(trunk[-1], output_shape))
-        # Add output normalization
-        output_mapping = allocate_output_transform(transform_output, output_shape)
-        if output_mapping is not None:
-            mappings.append(output_mapping)
+        mappings.append(torch.nn.Linear(trunk[-1], 1))
 
         return torch.nn.Sequential(*mappings)
 
