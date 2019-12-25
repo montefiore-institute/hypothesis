@@ -136,7 +136,7 @@ class DenseNet(torch.nn.Module):
 
         return dimensionality
 
-    def _build_trunk(self, trunk, dropout, transform_output):
+    def _build_trunk(self, trunk, trunk_activation, dropout, transform_output):
         mappings = []
 
         # Build trunk
