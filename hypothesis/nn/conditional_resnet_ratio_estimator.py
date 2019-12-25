@@ -20,6 +20,7 @@ class ConditionalResNetRatioEstimator(ResNet, ConditionalRatioEstimator):
         dilate=False,
         in_planes=64,
         trunk=hypothesis.default.trunk,
+        trunk_activation=None,
         trunk_dropout=hypothesis.default.dropout):
         # Update dimensionality data
         self.shape_inputs = shape_inputs
@@ -37,6 +38,7 @@ class ConditionalResNetRatioEstimator(ResNet, ConditionalRatioEstimator):
             dilate=dilate,
             in_planes=in_planes,
             trunk=trunk,
+            trunk_activation=trunk_activation,
             trunk_dropout=trunk_dropout,
             ys_transform=None)
         ConditionalRatioEstimator.__init__(self)

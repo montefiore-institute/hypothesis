@@ -20,6 +20,7 @@ class DenseNet(torch.nn.Module):
         convolution_bias=False,
         dense_dropout=hypothesis.default.dropout,
         trunk=hypothesis.default.trunk,
+        trunk_activation=None,
         trunk_dropout=hypothesis.default.dropout,
         ys_transform=hypothesis.default.output_transform):
         super(DenseNet, self).__init__()
@@ -44,7 +45,9 @@ class DenseNet(torch.nn.Module):
         self.network_head = self._build_head()
         self.network_body = self._build_body(config, bottleneck_factor, dense_dropout, growth_rate)
         self.embedding_dim = self._embedding_dimensionality()
-        self.network_trunk = self._build_trunk(trunk, trunk_dropout, ys_transform)
+        if trunk_activation is None:
+            trunk_activation = activation
+        self.network_trunk = self._build_trunk(trunk, trunk_activation, float(trunk_dropout), ys_transform)
 
     def _build_head(self):
         mappings = []
@@ -139,7 +142,7 @@ class DenseNet(torch.nn.Module):
         # Build trunk
         mappings.append(torch.nn.Linear(self.embedding_dim, trunk[0]))
         for index in range(1, len(trunk)):
-            mappings.append(self.module_activation(inplace=True))
+            mappings.append(trunk_activation(inplace=True))
             if dropout > 0:
                 mappings.append(torch.nn.Dropout(p=dropout))
             mappings.append(torch.nn.Linear(trunk[index - 1], trunk[index]))

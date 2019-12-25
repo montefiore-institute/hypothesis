@@ -17,6 +17,7 @@ class DenseNetRatioEstimator(BaseRatioEstimator):
         bottleneck_factor=4,
         dense_dropout=hypothesis.default.dropout,
         trunk=hypothesis.default.trunk,
+        trunk_activation=None,
         trunk_dropout=hypothesis.default.dropout):
         super(DenseNetRatioEstimator, self).__init__()
         # Allocate the DenseNet model
@@ -30,6 +31,7 @@ class DenseNetRatioEstimator(BaseRatioEstimator):
             shape_xs=shape_xs,
             shape_ys=(1,),
             trunk=trunk,
+            trunk_activation=trunk_activation,
             trunk_dropout=trunk_dropout,
             ys_transform=None)
 

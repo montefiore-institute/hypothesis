@@ -21,6 +21,7 @@ class ResNet(torch.nn.Module):
         groups=1,
         in_planes=64,
         trunk=hypothesis.default.trunk,
+        trunk_activation=None,
         trunk_dropout=hypothesis.default.dropout,
         width_per_group=64,
         ys_transform=hypothesis.default.output_transform):
@@ -49,7 +50,9 @@ class ResNet(torch.nn.Module):
         self.network_head = self._build_head()
         self.network_body = self._build_body()
         self.embedding_dim = self._embedding_dimensionality()
-        self.network_trunk = self._build_trunk(trunk, float(trunk_dropout), ys_transform)
+        if trunk_activation is None:
+            trunk_activation = activation
+        self.network_trunk = self._build_trunk(trunk, trunk_activation, float(trunk_dropout), ys_transform)
 
     def _build_head(self):
         mappings = []
@@ -132,13 +135,13 @@ class ResNet(torch.nn.Module):
 
         return torch.nn.Sequential(*mappings)
 
-    def _build_trunk(self, trunk, dropout, transform_output):
+    def _build_trunk(self, trunk, trunk_activation, dropout, transform_output):
         mappings = []
 
         # Build trunk
         mappings.append(torch.nn.Linear(self.embedding_dim, trunk[0]))
         for index in range(1, len(trunk)):
-            mappings.append(self.module_activation(inplace=True))
+            mappings.append(trunk_activation(inplace=True))
             if dropout > 0:
                 mappings.append(torch.nn.Dropout(p=dropout))
             mappings.append(torch.nn.Linear(trunk[index - 1], trunk[index]))

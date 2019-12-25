@@ -18,6 +18,7 @@ class ConditionalDenseNetRatioEstimator(DenseNet, ConditionalRatioEstimator):
         dense_dropout=hypothesis.default.dropout,
         depth=121, # Default DenseNet configuration
         trunk=hypothesis.default.trunk,
+        trunk_activation=None,
         trunk_dropout=hypothesis.default.dropout):
         self.shape_inputs = shape_inputs
         self.dimensionality_inputs = compute_dimensionality(shape_inputs)
@@ -32,6 +33,7 @@ class ConditionalDenseNetRatioEstimator(DenseNet, ConditionalRatioEstimator):
             shape_xs=shape_outputs,
             shape_ys=(1,),
             trunk=trunk,
+            trunk_activation=trunk_activation,
             trunk_dropout=trunk_dropout,
             ys_transform=None)
         ConditionalRatioEstimator.__init__(self)
