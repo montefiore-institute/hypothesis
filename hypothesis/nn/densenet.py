@@ -217,7 +217,7 @@ class DenseBlock(torch.nn.Module):
         num_layers):
         super(DenseBlock, self).__init__()
         # Add the layers to the block.
-        self.layers = []
+        self.layers = torch.nn.ModuleList()
         for index in range(num_layers):
             self.layers.append(DenseLayer(
                 activation=activation,
