@@ -38,7 +38,7 @@ class ConditionalDenseNetRatioEstimator(DenseNet, ConditionalRatioEstimator):
             ys_transform=None)
         ConditionalRatioEstimator.__init__(self)
 
-    def _build_trunk(self, trunk, dropout, transform_output):
+    def _build_trunk(self, trunk, trunk_activation, dropout, transform_output):
         mappings = []
 
         # Build trunk
