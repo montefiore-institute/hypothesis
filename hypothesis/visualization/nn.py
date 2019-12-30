@@ -55,4 +55,3 @@ def plot_loss(ax, losses, epochs=None, title=None, xlabel=None, ylabel=None):
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
         ax.minorticks_on()
-        make_square(ax)
