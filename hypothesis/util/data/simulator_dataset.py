@@ -23,8 +23,14 @@ class SimulatorDataset(Dataset):
         Todo:
             Write docs.
         """
-        inputs = self.prior.sample(torch.Size([1])).unsqueeze(0)
-        outputs = self.simulator(inputs)
+        passed = False
+        while not passed:
+            try:
+                inputs = self.prior.sample(torch.Size([1])).unsqueeze(0)
+                outputs = self.simulator(inputs)
+                passed = True
+            except Exception as e:
+                print(e)
 
         return inputs, outputs
 
