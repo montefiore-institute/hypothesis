@@ -148,21 +148,22 @@ class AALRMetropolisHastings(MarkovChainMonteCarlo):
     def _step(self, theta, observations):
         accepted = False
 
-        theta_next = self.transition.sample(theta)
-        lnl_theta_next = self._compute_ratio(theta_next, observations)
-        numerator = self.prior.log_prob(theta_next) + lnl_theta_next
-        if self.denominator is None:
-            lnl_theta = self._compute_ratio(theta, observations)
-            self.denominator = self.prior.log_prob(theta) + lnl_theta
-        acceptance_ratio = (numerator - self.denominator)
-        if not self.transition.is_symmetrical():
-            raise NotImplementedError
-        acceptance_probability = min([1, acceptance_ratio.exp().item()])
-        u = np.random.uniform()
-        if u <= acceptance_probability:
-            accepted = True
-            theta = theta_next
-            self.denominator = numerator
+        with torch.no_grad():
+            theta_next = self.transition.sample(theta)
+            lnl_theta_next = self._compute_ratio(theta_next, observations)
+            numerator = self.prior.log_prob(theta_next).sum() + lnl_theta_next
+            if self.denominator is None:
+                lnl_theta = self._compute_ratio(theta, observations)
+                self.denominator = self.prior.log_prob(theta).sum() + lnl_theta
+            acceptance_ratio = (numerator - self.denominator)
+            if not self.transition.is_symmetrical():
+                raise NotImplementedError
+            acceptance_probability = min([1, acceptance_ratio.exp().item()])
+            u = np.random.uniform()
+            if u <= acceptance_probability:
+                accepted = True
+                theta = theta_next
+                self.denominator = numerator
 
         return theta, acceptance_probability, accepted
 
