@@ -43,7 +43,7 @@ class ConditionalRatioEstimatorEnsemble(BaseConditionalRatioEstimator):
         self.reduce = self._allocate_reduce(reduce)
 
     def forward(self, inputs, outputs):
-        log_ratios = self.log_ratios(inputs, outputs)
+        log_ratios = self.log_ratio(inputs, outputs)
 
         return log_ratios.sigmoid(), log_ratios
 
