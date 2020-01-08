@@ -151,10 +151,10 @@ class AALRMetropolisHastings(MarkovChainMonteCarlo):
         with torch.no_grad():
             theta_next = self.transition.sample(theta)
             lnl_theta_next = self._compute_ratio(theta_next, observations)
-            numerator = self.prior.log_prob(theta_next).sum() + lnl_theta_next
+            numerator = self.prior.log_prob(theta_next) + lnl_theta_next
             if self.denominator is None:
                 lnl_theta = self._compute_ratio(theta, observations)
-                self.denominator = self.prior.log_prob(theta).sum() + lnl_theta
+                self.denominator = self.prior.log_prob(theta) + lnl_theta
             acceptance_ratio = (numerator - self.denominator)
             if not self.transition.is_symmetrical():
                 raise NotImplementedError

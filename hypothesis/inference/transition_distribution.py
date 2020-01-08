@@ -68,7 +68,7 @@ class MultivariateNormal(SymmetricalTransition):
     def log_prob(self, mean, conditionals):
         normal = MultivariateNormalDistribution(mean, self.sigma)
 
-        return normal.log_prob(conditionals)
+        return normal.log_prob(conditionals).sum()
 
     def sample(self, means, samples=1):
         x = []
