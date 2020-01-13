@@ -68,7 +68,7 @@ class PersistentStorage(BaseStorage):
         return data.reshape(self.data_shape)
 
     def close(self):
-        if self.fd is not None:
+        if hasattr(self, "fd") self.fd is not None:
             self.fd.close()
         self.fd = None
 
