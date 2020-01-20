@@ -81,7 +81,7 @@ class ConditionalRatioEstimatorEnsemble(BaseConditionalRatioEstimator):
 class ConditionalRatioEstimatorCriterion(torch.nn.Module):
     r""""""
 
-    def __init__(self, ratio_estimator, batch_size, gamma=0.0):
+    def __init__(self, ratio_estimator, batch_size):
         super(ConditionalRatioEstimatorCriterion, self).__init__()
         # Check if a valid batch size has been supplied.
         if batch_size % 2 != 0:
@@ -93,11 +93,6 @@ class ConditionalRatioEstimatorCriterion(torch.nn.Module):
         self.ratio_estimator = ratio_estimator
         self.ones = torch.ones(self.chunked_batch_size, 1)
         self.zeros = torch.zeros(self.chunked_batch_size, 1)
-        self.gamma = float(gamma)
-        if self.gamma > 0:
-            self.compute_loss = self._compute_loss_with_density_constraint
-        else:
-            self.compute_loss = self._compute_loss
 
     def _compute_loss(self, inputs, outputs):
         inputs = inputs.chunk(2)
@@ -118,9 +113,6 @@ class ConditionalRatioEstimatorCriterion(torch.nn.Module):
 
         return loss
 
-    def _compute_loss_with_density_constraint(self, inputs, outputs):
-        raise NotImplementedError
-
     def to(self, device):
         self.criterion = self.criterion.to(device)
         self.ones = self.ones.to(device)
@@ -129,12 +121,12 @@ class ConditionalRatioEstimatorCriterion(torch.nn.Module):
         return self
 
     def forward(self, inputs, outputs):
-        return self.compute_loss(inputs, outputs)
+        return self._compute_loss(inputs, outputs)
 
 
 
 class ConditionalRatioEstimatorLogitsCriterion(ConditionalRatioEstimatorCriterion):
 
-    def __init__(self, ratio_estimator, batch_size, gamma=0.0):
-        super(ConditionalRatioEstimatorLogitsCriterion, self).__init__(ratio_estimator, batch_size, gamma)
+    def __init__(self, ratio_estimator, batch_size):
+        super(ConditionalRatioEstimatorLogitsCriterion, self).__init__(ratio_estimator, batch_size)
         self.criterion = torch.nn.BCEWtihLogitsLoss()
