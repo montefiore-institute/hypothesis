@@ -130,3 +130,22 @@ class ConditionalRatioEstimatorLogitsCriterion(ConditionalRatioEstimatorCriterio
     def __init__(self, ratio_estimator, batch_size):
         super(ConditionalRatioEstimatorLogitsCriterion, self).__init__(ratio_estimator, batch_size)
         self.criterion = torch.nn.BCEWtihLogitsLoss()
+
+    def _compute_loss(self, inputs, outputs):
+        inputs = inputs.chunk(2)
+        outputs = outputs.chunk(2)
+        inputs_a = inputs[0]
+        inputs_b = inputs[1]
+        outputs_a = outputs[0]
+        outputs_b = outputs[1]
+        y_dependent_a = self.ratio_estimator.log_ratio(inputs_a, outputs_a)
+        y_independent_a = self.ratio_estimator.log_ratio(inputs_a, outputs_b)
+        y_dependent_b = self.ratio_estimator.log_ratio(inputs_b, outputs_b)
+        y_independent_b = self.ratio_estimator.log_ratio(inputs_b, outputs_a)
+        loss_a = self.criterion(y_dependent_a, self.ones) + \
+                 self.criterion(y_independent_a, self.zeros)
+        loss_b = self.criterion(y_dependent_b, self.ones) + \
+                 self.criterion(y_independent_b, self.zeros)
+        loss = loss_a + loss_b
+
+        return loss
