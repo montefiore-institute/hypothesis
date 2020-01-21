@@ -1,4 +1,4 @@
-class SimulationException(Exception):
+class SimulatorException(Exception):
     r""""""
 
     def __init__(self, message=None):
