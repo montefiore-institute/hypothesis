@@ -1,3 +1,8 @@
+r"""A module to describe ratio esitmators which approximate the ratio
+
+   p(x|theta)/p(x) <=> p(x,theta)/p(x)p(theta).
+"""
+
 import hypothesis
 import torch
 
