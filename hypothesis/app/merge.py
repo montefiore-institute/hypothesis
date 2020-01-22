@@ -9,13 +9,21 @@ import numpy as np
 import os
 import torch
 
+from hypothesis.util.data.numpy import merge as numpy_merge
+
 
 
 def main(arguments):
-    raise NotImplementedError
+    procedure = select_extension_procedure(arguments)
+    procedure(arguments)
 
 
 def procedure_numpy(arguments):
+    tempfile = str(uuid.uuid4())
+    raise NotImplementedError
+
+
+def procedure_numpy_in_memory(arguments):
     raise NotImplementedError
 
 
@@ -23,10 +31,19 @@ def procedure_torch(arguments):
     raise NotImplementedError
 
 
-def select_extension_procedure(extension):
+def procedure_torch_in_memory(arguments):
+    raise NotImplementedError
+
+
+def select_extension_procedure(arguments):
+    extension = arguments.extension
+    if arguments.in_memory:
+        extension += "-in-memory"
     mappings = {
         "numpy": procedure_numpy,
-        "torch": procedure_torch}
+        "numpy-in-memory": procedure_numpy_in_memory,
+        "torch": procedure_torch,x
+        "torch-in-memory": procedure_torch_in_memory}
     if extension in mappings.keys():
         procedure = mappings[extension]
     else:
@@ -37,14 +54,16 @@ def select_extension_procedure(extension):
 
 def parse_arguments():
     parser = argparse.ArgumentParser("Merge: merging data files for your convenience.")
+    parser.add_argument("--dimension", type=int, default=0, help="Dimension in which to merge the data (default: 0).")
     parser.add_argument("--extension", type=str, default=None, help="Data file to process, available options: numpy, torch. (default: none).")
     parser.add_argument("--files", type=str, default=None, help="A list of files delimited by ',' or a glob pattern (default: none).")
     parser.add_argument("--in-memory", action="store_true", help="Processes all chunks in memory (default: false).")
     parser.add_argument("--out", type=str, default=None, help="Output path to store the result (default: none).")
     parser.add_argument("--sort", action="store_true", help="Sort the input files before processing (default: false).")
+    parser.add_argument("--tempfile", type=str, default=None, help="Path of the temporary file to store the intermediate results, only accessible to non in-memory operations. (default: none).")
     arguments, _ = parser.parse_known_args()
     # Check if a proper extension has been specified.
-    if select_extension_procedure(arguments.extension) is None:
+    if select_extension_procedure(arguments) is None:
         raise ValueError("The specified extention (", arguments.extension, ") does not exists.")
     # Check if files to merge have been specified.
     if arguments.files is None:
