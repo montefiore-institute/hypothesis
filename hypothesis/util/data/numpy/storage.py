@@ -30,8 +30,9 @@ class InMemoryStorage(BaseStorage):
         self.data = np.load(path)
 
     def close(self):
-        del self.data
-        self.data = None
+        if hasattr(self, "data"):
+            del self.data
+            self.data = None
 
     def __len__(self):
         return len(self.data)
