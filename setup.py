@@ -34,6 +34,7 @@ with open(os.path.join("hypothesis", "__init__.py"), "rt") as fh:
 _install_requires = [
     "argparse",
     "corner",
+    "glob",
     "numpy",
     "pandas",
     "sklearn",
