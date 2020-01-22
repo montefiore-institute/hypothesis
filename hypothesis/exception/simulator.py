@@ -4,4 +4,4 @@ class SimulatorException(Exception):
     def __init__(self, message=None):
         if message is None:
             message = "Unspecified simulation error."
-        super(SimulationException, self).__init__(message)
+        super(SimulatorException, self).__init__(message)
