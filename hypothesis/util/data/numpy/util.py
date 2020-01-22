@@ -44,6 +44,8 @@ def merge_on_disk(input_files, output_files, shape, dtype=None, axis=0, tempfile
 
 def insert_data(input_files, datamap, axis=0):
     index = 0
+    if axis > 0:
+        datamap = np.rollaxis(datamap, axis)
     for file_name in input_files:
         data = np.load(file_name)
         num_rows = data.shape[0]
