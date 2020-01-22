@@ -35,12 +35,13 @@ class Dataset(BaseDataset):
         return self.retriever(index)
 
     def __del__(self):
-        for index in range(len(self.storages)):
-            storage = self.storages[index]
-            storage.close()
-            del storage
-            self.storages[index] = None
-        self.storages = None
+        if hasattr(self, "storages"):
+            for index in range(len(self.storages)):
+                storage = self.storages[index]
+                storage.close()
+                del storage
+                self.storages[index] = None
+            self.storages = None
 
     def __len__(self):
         return len(self.storages[0])
