@@ -19,8 +19,8 @@ def main(arguments):
 
 
 def procedure_numpy(arguments):
-    numpy_merge(input_files,
-        arguments.out,
+    numpy_merge(input_files=arguments.files,
+        output_file=arguments.out,
         tempfile=arguments.tempfile,
         in_memory=arguments.in_memory,
         axis=arguments.dimension)
