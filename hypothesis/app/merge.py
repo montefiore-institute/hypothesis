@@ -19,31 +19,22 @@ def main(arguments):
 
 
 def procedure_numpy(arguments):
-    tempfile = str(uuid.uuid4())
-    raise NotImplementedError
-
-
-def procedure_numpy_in_memory(arguments):
-    raise NotImplementedError
+    numpy_merge(input_files,
+        arguments.out,
+        tempfile=arguments.tempfile,
+        in_memory=arguments.in_memory,
+        axis=arguments.dimension)
 
 
 def procedure_torch(arguments):
     raise NotImplementedError
 
 
-def procedure_torch_in_memory(arguments):
-    raise NotImplementedError
-
-
 def select_extension_procedure(arguments):
     extension = arguments.extension
-    if arguments.in_memory:
-        extension += "-in-memory"
     mappings = {
         "numpy": procedure_numpy,
-        "numpy-in-memory": procedure_numpy_in_memory,
-        "torch": procedure_torch,x
-        "torch-in-memory": procedure_torch_in_memory}
+        "torch": procedure_torch}
     if extension in mappings.keys():
         procedure = mappings[extension]
     else:
