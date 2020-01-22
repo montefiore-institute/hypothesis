@@ -29,7 +29,7 @@ class Dataset(BaseDataset):
         return tuple(torch.from_numpy(storage[index]).unsqueeze(0) for storage in self.storages)
 
     def _retrieve_single_storage(self, index):
-        return torch.from_numpy(self.storage[index]).unsqueeze(0)
+        return torch.from_numpy(self.storage[index])
 
     def __getitem__(self, index):
         return self.retriever(index)
