@@ -30,6 +30,21 @@ Variable will be initialized when ``hypothesis`` is loaded fro the first time.
 """
 
 
+
+workers = cpu_count
+"""int: Number of default workers.
+
+Default number of workers in Hypothesis.
+"""
+
+
+def set_workers(n):
+    r"""Sets the number of default hypothesis workers."""
+    assert(n >= 1)
+    hypothesis.workers = n
+
+
+
 accelerator = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 """torch.device: PyTorch device describing the accelerator backend.
 

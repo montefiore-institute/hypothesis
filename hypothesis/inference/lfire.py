@@ -17,7 +17,7 @@ class LFIRE(Procedure, torch.nn.Module):
     def __init__(self, simulator, prior,
             simulation_batch_size=10000,
             summary=None,
-            parallelism=hypothesis.cpu_count,
+            parallelism=hypothesis.workers,
             approximations=1):
         Procedure.__init__(self)
         torch.nn.Module.__init__(self)
