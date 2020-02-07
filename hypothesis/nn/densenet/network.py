@@ -2,6 +2,11 @@ import hypothesis
 import hypothesis.nn.densenet
 import torch
 
+from .default import batchnorm as default_batchnorm
+from .default import bottleneck_factor as default_bottleneck_factor
+from .default import channels as default_channels
+from .default import convolution_bias as default_convolution_bias
+from .default import depth as default_depth
 from hypothesis.nn import MLP
 from hypothesis.nn.densenet import DenseNetHead
 
@@ -13,11 +18,11 @@ class DenseNet(torch.nn.Module):
         shape_xs,
         shape_ys,
         activation=hypothesis.default.activation,
-        batchnorm=hypothesis.nn.densenet.default.batchnorm,
-        bottleneck_factor=hypothesis.nn.densenet.default.bottleneck_factor,
-        channels=hypothesis.nn.densenet.default.channels,
-        convolution_bias=hypothesis.nn.densenet.default.convolution_bias,
-        depth=hypothesis.nn.densenet.default.depth,
+        batchnorm=default_batchnorm,
+        bottleneck_factor=default_bottleneck_factor,
+        channels=default_channels,
+        convolution_bias=default_convolution_bias,
+        depth=default_depth,
         dropout=hypothesis.default.dropout,
         trunk_activation=None,
         trunk_dropout=None,

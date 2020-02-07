@@ -1,7 +1,13 @@
 import hypothesis
+import hypothesis.nn
 import hypothesis.nn.densenet
 import torch
 
+from .default import batchnorm as default_batchnorm
+from .default import bottleneck_factor as default_bottleneck_factor
+from .default import channels as default_channels
+from .default import convolution_bias as default_convolution_bias
+from .default import depth as default_depth
 from hypothesis.nn.densenet.util import load_configuration_121
 from hypothesis.nn.densenet.util import load_configuration_161
 from hypothesis.nn.densenet.util import load_configuration_169
@@ -10,17 +16,16 @@ from hypothesis.nn.densenet.util import load_modules
 from hypothesis.nn.util import compute_dimensionality
 
 
-
 class DenseNetHead(torch.nn.Module):
 
     def __init__(self,
         shape_xs,
         activation=hypothesis.default.activation,
-        batchnorm=hypothesis.nn.densenet.default.batchnorm,
-        bottleneck_factor=hypothesis.nn.densenet.default.bottleneck_factor,
-        channels=hypothesis.nn.densenet.default.channels,
-        convolution_bias=hypothesis.nn.densenet.default.convolution_bias,
-        depth=hypothesis.nn.densenet.default.depth,
+        batchnorm=default_batchnorm,
+        bottleneck_factor=default_bottleneck_factor,
+        channels=default_channels,
+        convolution_bias=default_convolution_bias,
+        depth=default_depth,
         dropout=hypothesis.default.dropout):
         super(DenseNetHead, self).__init__()
         # Infer the dimensionality from the input shape.

@@ -8,6 +8,6 @@ from .neuromodulation import NeuromodulatedReLU
 from .neuromodulation import NeuromodulatedSELU
 from .neuromodulation import NeuromodulatedTanh
 # DenseNet
-from .densnet import DenseNetHead
+from .densenet import DenseNetHead
+from .densenet import DenseNet
 # ResNet
-from .resnet import ResNetHead
