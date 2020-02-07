@@ -1,4 +1,5 @@
-r"""Multilayer Perceptron
+r"""Multilayered Perceptron
+
 """
 
 import hypothesis
@@ -9,14 +10,14 @@ from hypothesis.nn.util import allocate_output_transform
 
 
 
-class MultiLayerPerceptron(torch.nn.Module):
+class MultiLayeredPerceptron(torch.nn.Module):
 
     def __init__(self, shape_xs, shape_ys,
         activation=hypothesis.default.activation,
-        dropout=0.0,
-        layers=(128, 128),
+        dropout=hypothesis.default.dropout,
+        layers=hypothesis.default.trunk,
         transform_output="normalize"):
-        super(MultiLayerPerceptron, self).__init__()
+        super(MultiLayeredPerceptron, self).__init__()
         mappings = []
         dropout = float(dropout)
         # Dimensionality properties

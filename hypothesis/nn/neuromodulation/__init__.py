@@ -3,4 +3,4 @@ from .controller import default_neuromodulation_controller
 from .elu import NeuromodulatedELU
 from .relu import NeuromodulatedReLU
 from .selu import NeuromodulatedSELU
-from .tanh import NeuromodulatedELU
+from .tanh import NeuromodulatedTanh
