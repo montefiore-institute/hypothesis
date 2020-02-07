@@ -1,24 +1,25 @@
-r"""Utilities for the normal benchmark.
+r"""Utilities for the M/G/1 benchmark.
 
 """
 
 import torch
+import torch.distributions.uniform
 
-from torch.distributions.normal import Normal
-
+from hypothesis.exception import IntractableException
 
 
 def allocate_prior():
-    return Uniform(-10, 10)
+    lower = torch.tensor([0, 0, 0]).float()
+    upper = torch.tensor([10, 10, 1/3]).float()
+    return Uniform(lower, upper)
 
 
 def allocate_truth():
-    return torch.tensor([0]).float()
+    return torch.tensor([1, 5, .2]).float()
 
 
 def log_likelihood(theta, x):
-    return Normal(theta, 1).log_prob(x)
-
+    raise IntractableException
 
 
 class Uniform(torch.distributions.uniform.Uniform):

@@ -13,7 +13,7 @@ class TractableSimulator(Simulator):
     """
 
     def __init__(self):
-        super(Simulator, self).__init__()
+        super(TractableSimulator, self).__init__()
 
     def _generate(self, input):
         mean = torch.tensor([input[0], input[1]])

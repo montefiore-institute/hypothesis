@@ -5,7 +5,6 @@ r"""Utilities for the tractable benchmark.
 import torch
 
 from torch.distributions.multivariate_normal import MultivariateNormal as Normal
-import torch.distributions.uniform
 
 
 
