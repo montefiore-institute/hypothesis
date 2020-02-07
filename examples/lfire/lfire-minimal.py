@@ -15,6 +15,7 @@ from hypothesis.visualization.util import make_square
 
 
 
+@torch.no_grad()
 def main(arguments):
     simulator = Simulator()
     prior = allocate_prior()
@@ -28,12 +29,22 @@ def main(arguments):
         simulator=simulator)
     inputs = torch.linspace(prior.low, prior.high, arguments.posterior_resolution).view(-1, 1)
     observations = observation.repeat(arguments.posterior_resolution).view(-1, 1)
-    log_ratios = lfire.log_ratios(inputs, observations)
+    log_ratios = lfire.log_ratios(inputs, observations, reduce=False)
+    print(log_ratios)
     # Check if the results have to be shown.
     if arguments.show:
         plt.axvline(truth.numpy(), lw=2, color="C0")
         plt.minorticks_on()
-        plt.plot(inputs.numpy(), log_ratios.exp().numpy(), lw=2, color="black")
+        # Check if error-bars have to be computed (reduce / no-reduce).
+        if log_ratios.shape[1] > 1:
+            ratios = log_ratios.exp().mean(dim=1)
+            stds = log_ratios.exp().std(dim=1).numpy()
+        else:
+            ratios = log_ratios.exp()
+            stds = None
+        inputs = inputs.numpy()
+        ratios = ratios.numpy()
+        plt.errorbar(inputs, ratios, yerr=stds, lw=2, color="black")
         plt.title("LFIRE likelihood-to-evidence")
         plt.xlabel(r"$\theta$")
         plt.ylabel(r"$p(\theta\vert x)$")
