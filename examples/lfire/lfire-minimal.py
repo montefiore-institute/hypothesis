@@ -21,9 +21,11 @@ def main(arguments):
     truth = torch.tensor(arguments.truth)
     observation = simulator(truth)
     lfire = LFIRE(
-        simulator=simulator,
+        approximations=arguments.approximations,
+        parallelism=arguments.parallelism,
         prior=prior,
-        simulation_batch_size=arguments.simulations)
+        simulation_batch_size=arguments.simulations,
+        simulator=simulator)
     inputs = torch.linspace(prior.low, prior.high, arguments.posterior_resolution).view(-1, 1)
     observations = observation.repeat(arguments.posterior_resolution).view(-1, 1)
     log_ratios = lfire.log_ratios(inputs, observations)
@@ -32,7 +34,7 @@ def main(arguments):
         plt.axvline(truth.numpy(), lw=2, color="C0")
         plt.minorticks_on()
         plt.plot(inputs.numpy(), log_ratios.exp().numpy(), lw=2, color="black")
-        plt.title("LFIRE approximate posterior")
+        plt.title("LFIRE likelihood-to-evidence")
         plt.xlabel(r"$\theta$")
         plt.ylabel(r"$p(\theta\vert x)$")
         make_square(plt.gca())
@@ -41,6 +43,8 @@ def main(arguments):
 
 def parse_arguments():
     parser = argparse.ArgumentParser("LFIRE Posterior Inference: minimal example on a tractable problem.")
+    parser.add_argument("--approximations", type=int, default=1, help="Number of ratio approximations per iteration (default: 1).")
+    parser.add_argument("--parallelism", type=int, default=1, help="Parallelism to fit LFIRE (default: 1).")
     parser.add_argument("--posterior-resolution", type=int, default=100, help="Grid-resolution of the posterior (default: 100).")
     parser.add_argument("--show", action="store_true", help="Show the obtained posterior (default: false).")
     parser.add_argument("--simulations", type=int, default=100000, help="Number of simulations to draw at every evaluation of the model parameter (default: 100000).")
