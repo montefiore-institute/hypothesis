@@ -38,7 +38,7 @@ class LFIRE(Procedure, torch.nn.Module):
     def _register_events(self):
         pass # No events to register.
 
-    def approximate_log_ratio(self, marginal_data, theta, x):
+    def approximate_log_ratio(self, marginal_data, theta, x, reduce=True):
         likelihood_data = self.simulate_likelihood_data(theta)
         data = torch.cat([likelihood_data, marginal_data], dim=0).numpy()
         ones = torch.ones(self.simulation_batch_size, 1)
@@ -54,8 +54,13 @@ class LFIRE(Procedure, torch.nn.Module):
             model.fit(data, labels)
             log_ratio = model.intercept_ + np.sum(np.multiply(model.coef_, x))
             log_ratios.append(torch.tensor(log_ratio).view(1, 1))
+        log_ratios = torch.cat(log_ratios, dim=1)
+        if reduce:
+            result = log_ratios.mean()
+        else:
+            result = log_ratios
 
-        return torch.cat(log_ratios, dim=1)
+        return result
 
     def reset(self):
         pass
@@ -82,10 +87,7 @@ class LFIRE(Procedure, torch.nn.Module):
             marginal_data = self.simulate_marginal_data()
         # Compute every log likelihood-to-evidence ratio.
         for theta, x in zip(inputs, outputs):
-            log_ratios.append(self.approximate_log_ratio(marginal_data, theta, x))
+            log_ratios.append(self.approximate_log_ratio(marginal_data, theta, x, reduce=reduce))
         log_ratios = torch.cat(log_ratios, dim=0)
-        # Check if the log ratio approximations have to be reduced.
-        if reduce and self.approximations > 1:
-            log_ratios = log_ratios.mean(dim=1)
 
         return log_ratios
