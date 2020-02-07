@@ -18,7 +18,11 @@ class DenseNet(torch.nn.Module):
         channels=hypothesis.nn.densenet.default.channels,
         convolution_bias=hypothesis.nn.densenet.default.convolution_bias,
         depth=hypothesis.nn.densenet.default.depth,
-        dropout=hypothesis.default.dropout):
+        dropout=hypothesis.default.dropout,
+        trunk_activation=None,
+        trunk_dropout=None,
+        trunk_layers=hypothesis.default.trunk,
+        transform_output="normalize"):
         super(DenseNet, self).__init__()
         # Compute the dimensionality of the inputs.
         self.dimensionality = len(shape_xs)
@@ -33,5 +37,22 @@ class DenseNet(torch.nn.Module):
             dropout=dropout)
         # Compute the embedding dimensionality of the head.
         embedding_dim = self.head.embedding_dimensionality()
+        # Check if custom trunk settings have been defined.
+        if trunk_activation is None:
+            trunk_activation = activation
+        if trunk_dropout is None:
+            trunk_dropout = dropout
         # Construct the trunk of the network.
-        raise NotImplementedError
+        self.trunk = MLP(
+            shape_xs=(embedding_dim,),
+            shape_ys=shape_ys,
+            activation=trunk_activation,
+            dropout=trunk_dropout,
+            layers=trunk_layers,
+            transform_output=transform_output)
+
+    def forward(self, x):
+        z = self.head(x)
+        y = self.trunk(z)
+
+        return y
