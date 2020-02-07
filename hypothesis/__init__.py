@@ -39,7 +39,7 @@ Default number of workers in Hypothesis.
 
 
 def set_workers(n):
-    r"""Sets the number of default hypothesis workers."""
+    r"""Sets the number of default parallel hypothesis workers."""
     assert(n >= 1)
     hypothesis.workers = n
 
