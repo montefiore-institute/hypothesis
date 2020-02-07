@@ -5,8 +5,8 @@ r"""Multilayered Perceptron
 import hypothesis
 import torch
 
-from hypothesis.nn.util import compute_dimensionality
 from hypothesis.nn.util import allocate_output_transform
+from hypothesis.nn.util import compute_dimensionality
 
 
 

@@ -1,29 +1,27 @@
 import hypothesis
-import numpy as np
 import torch
 
-from hypothesis.nn.util import allocate_output_transform
+from hypothesis.nn.densenet.util import load_configuration_121
+from hypothesis.nn.densenet.util import load_configuration_161
+from hypothesis.nn.densenet.util import load_configuration_169
+from hypothesis.nn.densenet.util import load_configuration_201
+from hypothesis.nn.densenet.util import load_modules
 from hypothesis.nn.util import compute_dimensionality
 
 
 
-class DenseNet(torch.nn.Module):
+class DenseNetHead(torch.nn.Module):
 
     def __init__(self,
         shape_xs,
-        shape_ys=(1,),
         depth=121, # Default DenseNet configuration
         activation=hypothesis.default.activation,
-        batchnorm=True,
+        batchnorm=hypothesis.default.batchnorm,
         bottleneck_factor=4,
-        channels=3,
-        convolution_bias=False,
-        dense_dropout=hypothesis.default.dropout,
-        trunk=hypothesis.default.trunk,
-        trunk_activation=None,
-        trunk_dropout=hypothesis.default.dropout,
-        ys_transform=hypothesis.default.output_transform):
-        super(DenseNet, self).__init__()
+        channels=hypothesis.default.channels,
+        convolution_bias=hypothesis.default.convolution_bias,
+        dropout=hypothesis.default.dropout):
+        super(DenseNetHead, self).__init__()
         # Infer the dimensionality from the input shape.
         self.dimensionality = len(shape_xs)
         # Dimensionality and architecture properties.
@@ -40,14 +38,10 @@ class DenseNet(torch.nn.Module):
         self.convolution_bias = convolution_bias
         self.in_planes = in_planes
         self.shape_xs = shape_xs
-        self.shape_ys = shape_ys
         # Network structure
         self.network_head = self._build_head()
-        self.network_body = self._build_body(config, bottleneck_factor, dense_dropout, growth_rate)
+        self.network_body = self._build_body(config, bottleneck_factor, dropout, growth_rate)
         self.embedding_dim = self._embedding_dimensionality()
-        if trunk_activation is None:
-            trunk_activation = activation
-        self.network_trunk = self._build_trunk(trunk, trunk_activation, float(trunk_dropout), ys_transform)
 
     def _build_head(self):
         mappings = []
@@ -136,75 +130,25 @@ class DenseNet(torch.nn.Module):
 
         return dimensionality
 
-    def _build_trunk(self, trunk, trunk_activation, dropout, transform_output):
-        mappings = []
-
-        # Build trunk
-        mappings.append(torch.nn.Linear(self.embedding_dim, trunk[0]))
-        for index in range(1, len(trunk)):
-            mappings.append(trunk_activation(inplace=True))
-            if dropout > 0:
-                mappings.append(torch.nn.Dropout(p=dropout))
-            mappings.append(torch.nn.Linear(trunk[index - 1], trunk[index]))
-        # Compute output dimensionality
-        output_shape = compute_dimensionality(self.shape_ys)
-        # Add final fully connected mapping
-        mappings.append(torch.nn.Linear(trunk[-1], output_shape))
-        # Add output normalization
-        output_mapping = allocate_output_transform(transform_output, output_shape)
-        if output_mapping is not None:
-            mappings.append(output_mapping)
-
-        return torch.nn.Sequential(*mappings)
+    def embedding_dimensionality(self):
+        return self.embedding_dim
 
     def forward(self, x):
         z = self.network_head(x)
-        z = self.network_body(z).view(-1, self.embedding_dim)
+        z = self.network_body(z)
 
-        return self.network_trunk(z)
+        return z
 
     def _load_configuration(self, depth):
         modules = load_modules(self.dimensionality)
         configurations = {
-            121: self._load_configuration_121,
-            161: self._load_configuration_161,
-            169: self._load_configuration_169,
-            201: self._load_configuration_201}
+            121: load_configuration_121,
+            161: load_configuration_161,
+            169: load_configuration_169,
+            201: load_configuration_201}
         growth_rate, input_features, config = configurations[depth]()
 
         return growth_rate, input_features, config, modules
-
-    @staticmethod
-    def _load_configuration_121():
-        growth_rate = 32
-        input_features = 64
-        config = [6, 12, 24, 16]
-
-        return growth_rate, input_features, config
-
-    @staticmethod
-    def _load_configuration_161():
-        growth_rate = 48
-        input_features = 96
-        config = [6, 12, 36, 24]
-
-        return growth_rate, input_features, config
-
-    @staticmethod
-    def _load_configuration_169():
-        growth_rate = 32
-        input_features = 64
-        config = [6, 12, 32, 32]
-
-        return growth_rate, input_features, config
-
-    @staticmethod
-    def _load_configuration_201():
-        growth_rate = 32
-        input_features = 64
-        config = [6, 12, 48, 32]
-
-        return growth_rate, input_features, config
 
 
 
@@ -258,7 +202,8 @@ class DenseLayer(torch.nn.Module):
         self.module_average_pooling = modules[3]
         self.module_activation = activation
         # Construct the dense layer
-        self.network_mapping = self._build_mapping(batchnorm,
+        self.network_mapping = self._build_mapping(
+            batchnorm,
             bottleneck_factor,
             dropout,
             growth_rate,
@@ -267,12 +212,11 @@ class DenseLayer(torch.nn.Module):
     def _build_mapping(self, batchnorm, bottleneck_factor, dropout, growth_rate, num_input_features):
         mappings = []
 
-        # Bottleneck
         # Batch normalization
         if batchnorm:
             mappings.append(self.module_batchnorm(num_input_features))
         # Activation
-        mappings.append(self.module_activation(inplace=True))
+        mappings.append(self.module_activation())
         # Convolution
         mappings.append(self.module_convolution(
             num_input_features,
@@ -283,7 +227,7 @@ class DenseLayer(torch.nn.Module):
         # Normalization
         mappings.append(self.module_batchnorm(bottleneck_factor * growth_rate))
         # Activation
-        mappings.append(self.module_activation(inplace=True))
+        mappings.append(self.module_activation())
         # Convolution
         mappings.append(self.module_convolution(
             bottleneck_factor * growth_rate,
@@ -302,43 +246,3 @@ class DenseLayer(torch.nn.Module):
         z = torch.cat(x, dim=1)
 
         return self.network_mapping(z)
-
-
-
-def load_modules(dimensionality):
-    configurations = {
-        1: load_modules_1_dimensional,
-        2: load_modules_2_dimensional,
-        3: load_modules_3_dimensional}
-
-    return configurations[dimensionality]()
-
-
-def load_modules_1_dimensional():
-    c = torch.nn.Conv1d
-    b = torch.nn.BatchNorm1d
-    m = torch.nn.MaxPool1d
-    a = torch.nn.AvgPool1d
-    ap = torch.nn.AdaptiveAvgPool1d
-
-    return c, b, m, a, ap
-
-
-def load_modules_2_dimensional():
-    c = torch.nn.Conv2d
-    b = torch.nn.BatchNorm2d
-    m = torch.nn.MaxPool2d
-    a = torch.nn.AvgPool2d
-    ap = torch.nn.AdaptiveAvgPool2d
-
-    return c, b, m, a, ap
-
-
-def load_modules_3_dimensional():
-    c = torch.nn.Conv3d
-    b = torch.nn.BatchNorm3d
-    m = torch.nn.MaxPool3d
-    a = torch.nn.AvgPool3d
-    ap = torch.nn.AdaptiveAvgPool3d
-
-    return c, b, m, a, ap
