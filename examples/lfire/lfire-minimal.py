@@ -30,7 +30,6 @@ def main(arguments):
     inputs = torch.linspace(prior.low, prior.high, arguments.posterior_resolution).view(-1, 1)
     observations = observation.repeat(arguments.posterior_resolution).view(-1, 1)
     log_ratios = lfire.log_ratios(inputs, observations, reduce=False)
-    print(log_ratios)
     # Check if the results have to be shown.
     if arguments.show:
         plt.axvline(truth.numpy(), lw=2, color="C0")
