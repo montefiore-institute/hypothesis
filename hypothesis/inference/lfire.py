@@ -53,9 +53,9 @@ class LFIRE(Procedure, torch.nn.Module):
                 "cut_point": 0})
             model.fit(data, labels)
             log_ratio = model.intercept_ + np.sum(np.multiply(model.coef_, x))
-            log_ratios.append(torch.tensor(log_ratio).view(-1))
+            log_ratios.append(torch.tensor(log_ratio).view(1, 1))
 
-        return torch.cat(log_ratios, dim=0).mean()
+        return torch.cat(log_ratios, dim=1)
 
     def reset(self):
         pass
@@ -73,7 +73,7 @@ class LFIRE(Procedure, torch.nn.Module):
 
         return outputs
 
-    def log_ratios(self, inputs, outputs, marginal_data=None):
+    def log_ratios(self, inputs, outputs, marginal_data=None, reduce=True):
         log_ratios = []
 
         # Check if marginal data has been specified.
@@ -84,5 +84,8 @@ class LFIRE(Procedure, torch.nn.Module):
         for theta, x in zip(inputs, outputs):
             log_ratios.append(self.approximate_log_ratio(marginal_data, theta, x))
         log_ratios = torch.cat(log_ratios, dim=0)
+        # Check if the log ratio approximations have to be reduced.
+        if reduce and self.approximations > 1:
+            log_ratios = log_ratios.mean(dim=1)
 
         return log_ratios
