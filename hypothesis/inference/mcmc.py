@@ -57,12 +57,15 @@ class ParallelSampler:
 
 
 
-class MarkovChainMonteCarlo:
+class MarkovChainMonteCarlo(Procedure):
     r""""""
 
     def __init__(self, prior):
         super(MarkovChainMonteCarlo, self).__init__()
         self.prior = prior
+
+    def _register_events(self):
+        pass # No events to register.
 
     def _step(self, theta, observations):
         raise NotImplementedError
