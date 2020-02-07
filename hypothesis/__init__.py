@@ -1,4 +1,5 @@
-r"""Hypothesis is a python module for statistical inference.
+r"""Hypothesis is a python module for statistical inference and the
+mechanization of science.
 
 The package contains (approximate) inference algorithms to solve statistical
 problems. Utilities are provided for data loading, efficient
@@ -14,11 +15,19 @@ __email__ = [
 
 
 ################################################################################
-# Load PyTorch, and set related global variables.
+# Global variables
 ################################################################################
 
+import multiprocessing
 import torch
 
+
+
+cpu_count = multiprocessing.cpu_count()
+"""int: Number of available processor cores.
+
+Variable will be initialized when ``hypothesis`` is loaded fro the first time.
+"""
 
 
 accelerator = torch.device("cuda" if torch.cuda.is_available() else "cpu")

@@ -3,6 +3,7 @@ r"""Likelihood-free Inference By Ratio Estimation.
 Implementation adapted from `https://github.com/elfi-dev/zoo/blob/master/pylfire/pylfire/methods/lfire.py`
 """
 
+import hypothesis
 import numpy as np
 import torch
 
@@ -16,7 +17,7 @@ class LFIRE(Procedure, torch.nn.Module):
     def __init__(self, simulator, prior,
             simulation_batch_size=10000,
             summary=None,
-            parallelism=1,
+            parallelism=hypothesis.cpu_count,
             approximations=1):
         Procedure.__init__(self)
         torch.nn.Module.__init__(self)
@@ -38,6 +39,7 @@ class LFIRE(Procedure, torch.nn.Module):
     def _register_events(self):
         pass # No events to register.
 
+    @torch.no_grad()
     def approximate_log_ratio(self, marginal_data, theta, x, reduce=True):
         likelihood_data = self.simulate_likelihood_data(theta)
         data = torch.cat([likelihood_data, marginal_data], dim=0).numpy()
@@ -54,6 +56,7 @@ class LFIRE(Procedure, torch.nn.Module):
             model.fit(data, labels)
             log_ratio = model.intercept_ + np.sum(np.multiply(model.coef_, x))
             log_ratios.append(torch.tensor(log_ratio).view(1, 1))
+            del model # Free memory
         log_ratios = torch.cat(log_ratios, dim=1)
         if reduce:
             result = log_ratios.mean()
@@ -78,6 +81,7 @@ class LFIRE(Procedure, torch.nn.Module):
 
         return outputs
 
+    @torch.no_grad()
     def log_ratios(self, inputs, outputs, marginal_data=None, reduce=True):
         log_ratios = []
 
