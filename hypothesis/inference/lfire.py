@@ -1,4 +1,4 @@
-or"""Likelihood-free Inference By Ratio Estimation.
+r"""Likelihood-free Inference By Ratio Estimation.
 
 """
 
@@ -13,7 +13,8 @@ from hypothesis.engine import Procedure
 class LFIRE(Procedure, torch.nn.Module):
 
     def __init__(self, simulator, prior, simulation_batch_size=10000, summary=None):
-        super(LFIRE, self).__init__()
+        Procedure.__init__(self)
+        torch.nn.Module.__init__(self)
         self.prior = prior
         self.simulation_batch_size = int(simulation_batch_size)
         self.simulator = simulator

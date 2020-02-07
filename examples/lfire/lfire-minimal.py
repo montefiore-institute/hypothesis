@@ -2,23 +2,38 @@ r"""A minimal example of LFIRE (Likelihood-Free Inference By Ratio Estimation).
 
 """
 
+import argparse
 import hypothesis
-import numpy
+import matplotlib.pyplot as plt
+import numpy as np
 import torch
 
 from hypothesis.benchmark.normal import Simulator
 from hypothesis.benchmark.normal import allocate_prior
-from hypothesis.benchmark.normal import allocate_truth
 from hypothesis.inference.lfire import LFIRE
 
 
 
 def main(arguments):
-    raise NotImplementedError
+    simulator = Simulator()
+    prior = allocate_prior()
+    truth = torch.tensor(arguments.truth)
+    observation = simulator(truth)
+    lfire = LFIRE(
+        simulator=simulator,
+        prior=prior,
+        simulation_batch_size=arguments.simulations)
+    inputs = torch.linspace(prior.low, prior.high, arguments.posterior_resolution).view(-1, 1)
+    observations = observation.repeat(arguments.posterior_resolution).view(-1, 1)
+    log_ratios = lfire.log_ratios(inputs, observations)
 
 
 def parse_arguments():
     parser = argparse.ArgumentParser("LFIRE Posterior Inference: minimal example on a tractable problem.")
+    parser.add_argument("--posterior-resolution", type=int, default=100, help="Grid-resolution of the posterior (default: 100).")
+    parser.add_argument("--show", action="store_true", help="Show the obtained posterior (default: false).")
+    parser.add_argument("--simulations", type=int, default=100000, help="Number of simulations to draw at every evaluation of the model parameter (default: 100000).")
+    parser.add_argument("--truth", type=float, default=0.0, help="Default assume truth value (default: 0).")
     arguments, _ = parser.parse_known_args()
 
     return arguments
