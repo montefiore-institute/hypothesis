@@ -11,6 +11,7 @@ import torch
 from hypothesis.benchmark.normal import Simulator
 from hypothesis.benchmark.normal import allocate_prior
 from hypothesis.inference.lfire import LFIRE
+from hypothesis.visualization.util import make_square
 
 
 
@@ -26,6 +27,16 @@ def main(arguments):
     inputs = torch.linspace(prior.low, prior.high, arguments.posterior_resolution).view(-1, 1)
     observations = observation.repeat(arguments.posterior_resolution).view(-1, 1)
     log_ratios = lfire.log_ratios(inputs, observations)
+    # Check if the results have to be shown.
+    if arguments.show:
+        plt.axvline(truth.numpy(), lw=2, color="C0")
+        plt.minorticks_on()
+        plt.plot(inputs.numpy(), log_ratios.exp().numpy(), lw=2, color="black")
+        plt.title("LFIRE approximate posterior")
+        plt.xlabel(r"$\theta$")
+        plt.ylabel(r"$p(\theta\vert x)$")
+        make_square(plt.gca())
+        plt.show()
 
 
 def parse_arguments():
