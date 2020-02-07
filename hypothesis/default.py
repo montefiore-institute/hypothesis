@@ -10,15 +10,6 @@ import torch
 activation = torch.nn.ReLU
 r"""Default activation function in Hypothesis."""
 
-batchnorm = True
-r"""Default batch normalization flag in Hypothesis."""
-
-convolution_bias = False
-r"""Add biases in convolutions by default in Hypothesis."""
-
-channels = 3
-r"""Default number of data channels (e.g., channels in images)."""
-
 output_transform = "normalize"
 r"""Default output transformation for neural networks.
 
