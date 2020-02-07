@@ -2,7 +2,7 @@ r""""""
 
 # Multi Layered Perceptron
 from .multi_layered_perceptron import MultiLayeredPerceptron
-from .multi_layered_perceptron import MultilayeredPerceptron as MLP
+from .multi_layered_perceptron import MultiLayeredPerceptron as MLP
 # Neuromodulation
 from .neuromodulation import default_neuromodulation_controller
 from .neuromodulation import NeuromodulatedELU

@@ -5,7 +5,7 @@ import torch
 
 class BaseNeuromodulatedModule(torch.nn.Module):
 
-    def __init__(self, controller, activation=activation, **kwargs):
+    def __init__(self, controller, activation=hypothesis.default.activation, **kwargs):
         super(BaseNeuromodulatedModule, self).__init__()
         self.activation = activation(**kwargs)
         self.bias = None
