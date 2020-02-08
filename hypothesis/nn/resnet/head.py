@@ -8,6 +8,7 @@ from .default import channels as default_channels
 from .default import convolution_bias as default_convolution_bias
 from .default import depth as default_depth
 from .default import dilate as default_dilate
+from .default import groups as default_groups
 from .default import in_planes as default_in_planes
 from .default import width_per_group as default_width_per_group
 from hypothesis.nn.resnet.util import load_modules
