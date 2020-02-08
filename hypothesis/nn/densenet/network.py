@@ -39,7 +39,8 @@ class DenseNet(torch.nn.Module):
             channels=channels,
             convolution_bias=convolution_bias,
             depth=depth,
-            dropout=dropout)
+            dropout=dropout,
+            shape_xs=shape_xs)
         # Compute the embedding dimensionality of the head.
         embedding_dim = self.head.embedding_dimensionality()
         # Check if custom trunk settings have been defined.
