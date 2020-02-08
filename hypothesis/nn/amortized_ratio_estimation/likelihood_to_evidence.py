@@ -23,7 +23,7 @@ class LikelihoodToEvidenceCriterion(BaseCriterion):
 
 
 
-class LikelihoodToEvidenceAmortizedRatioEstimator(BaseAmortizedRatioEstimator):
+class BaseLikelihoodToEvidenceAmortizedRatioEstimator(BaseAmortizedRatioEstimator):
 
     def __init__(self):
         super(LikelihoodToEvidenceAmortizedRatioEstimator, self).__init__()

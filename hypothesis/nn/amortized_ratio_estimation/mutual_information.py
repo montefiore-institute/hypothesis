@@ -23,7 +23,7 @@ class MutualInformationCriterion(BaseCriterion):
 
 
 
-class LikelihoodToEvidenceAmortizedRatioEstimator(BaseAmortizedRatioEstimator):
+class BaseMutualInformationAmortizedRatioEstimator(BaseAmortizedRatioEstimator):
 
     def __init__(self):
         super(LikelihoodToEvidenceAmortizedRatioEstimator, self).__init__()
