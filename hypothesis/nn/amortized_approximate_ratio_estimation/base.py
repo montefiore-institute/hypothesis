@@ -64,10 +64,15 @@ class BaseCriterion(torch.nn.Module):
     def __init__(self,
         estimator,
         denominator,
-        criterion=torch.nn.BCELoss,
-        batch_size=hypothesis.default.batch_size):
+        batch_size=hypothesis.default.batch_size,
+        logits=False):
         super(BaseCriterion, self).__init__()
-        self.criterion = criterion()
+        if logits:
+            self.criterion = torch.nn.BCEWtihLogitsLoss()
+            self._forward = self._forward_with_logits
+        else:
+            self.criterion = torch.nn.BCELoss()
+            self._forward = self._forward_without_logits
         self.estimator = estimator
         self.independent_random_variables = self._derive_independent_random_variables(denominator)
         self.ones = torch.ones(batch_size, 1)
@@ -88,6 +93,28 @@ class BaseCriterion(torch.nn.Module):
 
         return groups
 
+    def _forward_without_logits(self, **kwargs):
+        y_dependent = self.estimator(**kwargs)
+        for group in self.independent_random_variables:
+            random_indices = torch.randperm(self.batch_size)
+            for variable in group:
+                kwargs[variable] = kwargs[variable][random_indices] # Make variable independent.
+        y_independent = self.estimator(**kwargs)
+        loss = self.criterion(y_dependent, self.ones) + self.criterion(y_independent, self.zeros)
+
+        return loss
+
+    def _forward_with_logits(self, **kwargs):
+        y_dependent = self.estimator.log_ratio(**kwargs)
+        for group in self.independent_random_variables:
+            random_indices = torch.randperm(self.batch_size)
+            for variable in group:
+                kwargs[variable] = kwargs[variable][random_indices] # Make variable independent.
+        y_independent = self.estimator.log_ratio(**kwargs)
+        loss = self.criterion(y_dependent, self.ones) + self.criterion(y_independent, self.zeros)
+
+        return loss
+
     def variables(self):
         return self.random_variables
 
@@ -100,12 +127,4 @@ class BaseCriterion(torch.nn.Module):
         self.zeros = self.zeros.to(device)
 
     def forward(self, **kwargs):
-        y_dependent = self.estimator(**kwargs)
-        for group in self.independent_random_variables:
-            random_indices = torch.randperm(self.batch_size)
-            for variable in group:
-                kwargs[variable] = kwargs[variable][random_indices] # Make variable independent.
-        y_independent = self.estimator(**kwargs)
-        loss = self.criterion(y_dependent, self.ones) + self.criterion(y_independent_a, self.zeros)
-
-        return loss
+        return self.forward(**kwargs)
