@@ -1,6 +1,7 @@
 import hypothesis
 import hypothesis.nn
 import hypothesis.nn.resnet
+import numpy as np
 import torch
 
 from .default import batchnorm as default_batchnorm
@@ -49,7 +50,6 @@ class ResNetHead(torch.nn.Module):
         self.groups = groups
         self.in_planes = in_planes
         self.shape_xs = shape_xs
-        self.shape_ys = shape_ys
         self.width_per_group = width_per_group
         # Network structure
         self.network_head = self._build_head()

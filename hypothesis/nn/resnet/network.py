@@ -30,7 +30,7 @@ class ResNet(torch.nn.Module):
         in_planes=default_in_planes,
         width_per_group=default_width_per_group,
         trunk_activation=None,
-        trunk_dropout=None,
+        trunk_dropout=hypothesis.default.dropout,
         trunk_layers=hypothesis.default.trunk,
         transform_output="normalize"):
         super(ResNet, self).__init__()
@@ -51,11 +51,9 @@ class ResNet(torch.nn.Module):
         # Check if custom trunk settings have been defined.
         if trunk_activation is None:
             trunk_activation = activation
-        if trunk_dropout is None:
-            trunk_dropout = dropout
         # Construct the trunk of the network.
         self.trunk = MLP(
-            shape_xs=(embedding_dim,),
+            shape_xs=(self.head.embedding_dimensionality(),),
             shape_ys=shape_ys,
             activation=trunk_activation,
             dropout=trunk_dropout,
