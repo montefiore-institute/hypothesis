@@ -26,13 +26,14 @@ class AmortizedApproximateRatioEstimatorEnsemble(BaseAmortizedApproximateRatioEs
         self.estimators = estimators
         self.reduce = self._allocate_reduce(reduce)
 
-    def log_ratio(self, **kwargs, reduce=True):
+    def log_ratio(self, **kwargs):
+        reduce = kwargs.get("reduce", True)
         log_ratios = []
         for estimator in self.estimators:
             log_ratios.append(estimator.log_ratio(**kwargs))
         log_ratios = torch.cat(log_ratios, dim=1)
         if reduce:
-            log_ratios = self.reduce(log_ratios)
+            log_ratios = self.reduce(log_ratios).view(-1, 1)
 
         return log_ratios
 
@@ -59,8 +60,10 @@ class AmortizedApproximateRatioEstimatorEnsemble(BaseAmortizedApproximateRatioEs
 
 class BaseCriterion(torch.nn.Module):
 
-    def __init__(self, estimator,
-        batch_size=hypothesis.default.batch_size)
+    def __init__(self,
+        estimator,
+        batch_size=hypothesis.default.batch_size):
+        super(BaseCriterion).__init__()
 
     def forward(self, **kwargs):
         raise NotImplementedError
