@@ -5,3 +5,6 @@ from .likelihood_to_evidence import BaseLikelihoodToEvidenceAmortizedRatioEstima
 from .likelihood_to_evidence import LikelihoodToEvidenceCriterion
 from .mutual_information import BaseMutualInformationAmortizedRatioEstimator
 from .mutual_information import MutualInformationCriterion
+# Multi Layered Perceptron
+# DenseNet
+# ResNet
