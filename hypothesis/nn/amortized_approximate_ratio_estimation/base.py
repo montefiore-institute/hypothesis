@@ -104,7 +104,7 @@ class BaseCriterion(torch.nn.Module):
         for group in self.independent_random_variables:
             random_indices = torch.randperm(self.batch_size)
             for variable in group:
-                kwargs[variable] = kwargs[variable][indices] # Make variable independent.
+                kwargs[variable] = kwargs[variable][random_indices] # Make variable independent.
         y_independent = self.estimator(**kwargs)
         loss = self.criterion(y_dependent, self.ones) + self.criterion(y_independent_a, self.zeros)
 
