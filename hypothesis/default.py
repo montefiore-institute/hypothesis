@@ -25,3 +25,9 @@ will reduce to torch.nn.Softmax.
 
 trunk = (512, 512, 512)
 r"""Default trunk of large convolution models such as ResNet or DenseNet."""
+
+dependent_delimiter = ','
+r"""Split character indicating the dependence between random variables."""
+
+independent_delimiter = '|'
+r"""Split character indicating the independene between random variables."""
