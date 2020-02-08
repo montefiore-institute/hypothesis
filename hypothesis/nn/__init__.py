@@ -13,3 +13,5 @@ from .densenet import DenseNet
 # ResNet
 from .resnet import ResNetHead
 from .resnet import ResNet
+# Amortized Approximate Ratio Estimation
+from .amortized_approximate_ratio_estimation import BaseAmortizedApproximateRatioEstimator
