@@ -82,10 +82,11 @@ class BaseCriterion(torch.nn.Module):
         return random_variables
 
     def _derive_independent_random_variables(self, denominator):
-        splitted = denominator.split(hypothesis.default.independent_delimiter)
-        independent_variables = [v for v in splitted if hypothesis.default.dependent_delimiter not in v]
+        groups = denominator.split(hypothesis.default.independent_delimiter)
+        for index in range(len(groups)):
+            groups[index] = groups[index].split(hypothesis.default.dependent_delimiter)
 
-        return independent_variables
+        return groups
 
     def variables(self):
         return self.random_variables
@@ -100,8 +101,10 @@ class BaseCriterion(torch.nn.Module):
 
     def forward(self, **kwargs):
         y_dependent = self.estimator(**kwargs)
-        for variable in self.independent_random_variables:
-            kwargs[variable] = kwargs[variable][torch.randperm(self.batch_size)] # Make variable independent.
+        for group in self.independent_random_variables:
+            random_indices = torch.randperm(self.batch_size)
+            for variable in group:
+                kwargs[variable] = kwargs[variable][indices] # Make variable independent.
         y_independent = self.estimator(**kwargs)
         loss = self.criterion(y_dependent, self.ones) + self.criterion(y_independent_a, self.zeros)
 
