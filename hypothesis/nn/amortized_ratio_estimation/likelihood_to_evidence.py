@@ -3,6 +3,7 @@ import hypothesis.nn
 import torch
 
 from .base import BaseCriterion
+from .base import BaseAmortizedRatioEstimator
 
 
 
@@ -19,3 +20,18 @@ class LikelihoodToEvidenceCriterion(BaseCriterion):
             denominator=LikelihoodToEvidenceCriterion.DENOMINATOR,
             estimator=estimator,
             logits=logits)
+
+
+
+class LikelihoodToEvidenceAmortizedRatioEstimator(BaseAmortizedRatioEstimator):
+
+    def __init__(self):
+        super(LikelihoodToEvidenceAmortizedRatioEstimator, self).__init__()
+
+    def forward(self, inputs, outputs):
+        log_ratios = self.log_ratio(inputs=inputs, outputs=outputs)
+
+        return log_ratios.sigmoid(), log_ratios
+
+    def log_ratio(self, inputs, outputs):
+        raise NotImplementedError
