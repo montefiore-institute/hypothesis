@@ -70,7 +70,7 @@ class ResNetHead(torch.nn.Module):
         if self.batchnorm:
             mappings.append(self.module_batchnorm(self.in_planes))
         # Activation
-        mappings.append(self.module_activation(inplace=True))
+        mappings.append(self.module_activation())
         # Max pooling
         mappings.append(self.module_maxpool(
             kernel_size=3,
@@ -196,7 +196,7 @@ class BasicBlock(torch.nn.Module):
         self.module_adaptive_avg_pool = modules[3]
         # Block properties.
         self.module_activation = activation
-        self.activation = activation(inplace=True)
+        self.activation = activation()
         self.bias = bias
         self.batchnorm = batchnorm
         self.dilation = dilation
@@ -224,7 +224,7 @@ class BasicBlock(torch.nn.Module):
         if self.batchnorm:
             mappings.append(self.module_batchnorm(self.out_planes))
             # Activation
-        mappings.append(self.module_activation(inplace=True))
+        mappings.append(self.module_activation())
         # Convolution
         mappings.append(self.module_convolution(
             self.out_planes,
@@ -273,7 +273,7 @@ class Bottleneck(torch.nn.Module):
         self.module_adaptive_avg_pool = modules[3]
         # Block properties.
         self.module_activation = activation
-        self.activation = activation(inplace=True)
+        self.activation = activation()
         self.bias = bias
         self.batchnorm = batchnorm
         self.dilation = dilation
@@ -302,7 +302,7 @@ class Bottleneck(torch.nn.Module):
         if self.batchnorm:
             mappings.append(self.module_batchnorm(self.width))
         # Activation
-        mappings.append(self.module_activation(inplace=True))
+        mappings.append(self.module_activation())
         # Convolution
         mappings.append(self.module_convolution(
             self.width,
@@ -317,7 +317,7 @@ class Bottleneck(torch.nn.Module):
         if self.batchnorm:
             mappings.append(self.module_batchnorm(self.width))
         # Activation
-        mappings.append(self.module_activation(inplace=True))
+        mappings.append(self.module_activation())
         # Convolution
         mappings.append(self.module_convolution(
             self.width,
