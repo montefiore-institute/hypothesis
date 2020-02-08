@@ -1,5 +1,6 @@
 import hypothesis
 import hypothesis.nn
+import re
 import torch
 
 
@@ -62,8 +63,46 @@ class BaseCriterion(torch.nn.Module):
 
     def __init__(self,
         estimator,
+        denominator,
+        criterion=torch.nn.BCELoss,
         batch_size=hypothesis.default.batch_size):
-        super(BaseCriterion).__init__()
+        super(BaseCriterion, self).__init__()
+        self.criterion = criterion()
+        self.estimator = estimator
+        self.independent_random_variables = self._derive_independent_random_variables(denominator)
+        self.ones = torch.ones(batch_size, 1)
+        self.random_variables = self._derive_random_variables(denominator)
+        self.zeros = torch.zeros(batch_size, 1)
+
+    def _derive_random_variables(self, denominator):
+        random_variables = denominator.replace(hypothesis.default.dependent_delimiter, " ") \
+            .replace(hypothesis.default.independent_delimiter, " ") \
+            .split(" ")
+
+        return random_variables
+
+    def _derive_independent_random_variables(self, denominator):
+        splitted = denominator.split(hypothesis.default.independent_delimiter)
+        independent_variables = [v for v in splitted if hypothesis.default.dependent_delimiter not in v]
+
+        return independent_variables
+
+    def variables(self):
+        return self.random_variables
+
+    def independent_variables(self):
+        return self.independent_random_variables
+
+    def to(self, device):
+        self.criterion = self.criterion.to(device)
+        self.ones = self.ones.to(device)
+        self.zeros = self.zeros.to(device)
 
     def forward(self, **kwargs):
-        raise NotImplementedError
+        y_dependent = self.estimator(**kwargs)
+        for variable in self.independent_random_variables:
+            kwargs[variable] = kwargs[variable][torch.randperm(self.batch_size)] # Make variable independent.
+        y_independent = self.estimator(**kwargs)
+        loss = self.criterion(y_dependent, self.ones) + self.criterion(y_independent_a, self.zeros)
+
+        return loss
