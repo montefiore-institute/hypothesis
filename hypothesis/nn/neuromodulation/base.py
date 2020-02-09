@@ -28,7 +28,7 @@ class BaseNeuromodulatedModule(torch.nn.Module):
     def __init__(self, controller, activation=hypothesis.default.activation, **kwargs):
         super(BaseNeuromodulatedModule, self).__init__()
         self.activation = activation(**kwargs)
-        self.bias = None
+        self.bias = torch.randn(1, 1)
         self.controller = controller
 
     def forward(self, x, context=None):

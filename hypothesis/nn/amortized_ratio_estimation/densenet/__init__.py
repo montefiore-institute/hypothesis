@@ -1,2 +1,1 @@
 from .likelihood_to_evidence import LikelihoodToEvidenceRatioEstimatorDenseNet
-from .likelihood_to_evidence import LikelihoodToEvidenceRatioEstimatorNeuromodulatedDenseNet

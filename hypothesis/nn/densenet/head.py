@@ -65,7 +65,7 @@ class DenseNetHead(torch.nn.Module):
         if self.batchnorm:
             mappings.append(self.module_batchnorm(self.in_planes))
         # Activation
-        mappings.append(self.module_activation(inplace=True))
+        mappings.append(self.module_activation())
         # Max pooling
         mappings.append(self.module_maxpool(
             kernel_size=3,
@@ -99,7 +99,7 @@ class DenseNetHead(torch.nn.Module):
         if self.batchnorm:
             mappings.append(self.module_batchnorm(num_features))
         # Activation
-        mappings.append(self.module_activation(inplace=True))
+        mappings.append(self.module_activation())
         # Adaptive average pooling
         pooling_shape = [1 for _ in range(self.dimensionality)]
         mappings.append(self.module_adaptive_average_pooling(pooling_shape))
@@ -113,7 +113,7 @@ class DenseNetHead(torch.nn.Module):
         if self.batchnorm:
             mappings.append(self.module_batchnorm(input_features))
         # Activation
-        mappings.append(self.module_activation(inplace=True))
+        mappings.append(self.module_activation())
         # Convolution
         mappings.append(self.module_convolution(
             input_features,
