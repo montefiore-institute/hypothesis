@@ -6,7 +6,7 @@ from hypothesis.nn import MLP
 
 
 
-def default_neuromodulation_controller(shape_context,
+def allocate_default_neuromodulation_controller(shape_context,
     activation=hypothesis.default.activation,
     dropout=hypothesis.default.dropout,
     layers=hypothesis.default.trunk):

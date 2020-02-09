@@ -23,10 +23,10 @@ class LikelihoodToEvidenceCriterion(BaseCriterion):
 
 
 
-class BaseLikelihoodToEvidenceRatioEstimator(BaseAmortizedRatioEstimator):
+class BaseLikelihoodToEvidenceRatioEstimator(BaseRatioEstimator):
 
     def __init__(self):
-        super(LikelihoodToEvidenceRatioEstimator, self).__init__()
+        super(BaseLikelihoodToEvidenceRatioEstimator, self).__init__()
 
     def forward(self, inputs, outputs):
         log_ratios = self.log_ratio(inputs=inputs, outputs=outputs)

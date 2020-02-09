@@ -3,7 +3,7 @@ import hypothesis.nn
 import torch
 
 from .base import BaseCriterion
-from .base import BaseAmortizedRatioEstimator
+from .base import BaseRatioEstimator
 
 
 
@@ -23,7 +23,7 @@ class MutualInformationCriterion(BaseCriterion):
 
 
 
-class BaseMutualInformationRatioEstimator(BaseAmortizedRatioEstimator):
+class BaseMutualInformationRatioEstimator(BaseRatioEstimator):
 
     def __init__(self):
         super(LikelihoodToEvidenceRatioEstimator, self).__init__()

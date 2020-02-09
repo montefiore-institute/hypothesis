@@ -1,5 +1,4 @@
 import hypothesis
-import hypothesis.nn
 import re
 import torch
 

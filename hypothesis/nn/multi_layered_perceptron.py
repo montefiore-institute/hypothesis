@@ -30,7 +30,7 @@ class MultiLayeredPerceptron(torch.nn.Module):
             mappings.append(self._make_layer(activation, dropout,
                 layers[index - 1], layers[index]))
         # Allocate tail
-        mappings.append(activation(inplace=True))
+        mappings.append(activation())
         mappings.append(torch.nn.Linear(layers[-1], self.ys_dimensionality))
         operation = allocate_output_transform(transform_output, self.ys_dimensionality)
         if operation is not None:
@@ -41,7 +41,7 @@ class MultiLayeredPerceptron(torch.nn.Module):
     def _make_layer(self, activation, dropout, num_a, num_b):
         mappings = []
 
-        mappings.append(activation(inplace=True))
+        mappings.append(activation())
         if dropout > 0:
             mappings.append(torch.nn.Dropout(p=dropout))
         mappings.append(torch.nn.Linear(num_a, num_b))

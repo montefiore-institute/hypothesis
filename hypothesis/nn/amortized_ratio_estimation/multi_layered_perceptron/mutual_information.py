@@ -8,7 +8,7 @@ from hypothesis.nn.util import compute_dimensionality
 
 
 
-class MutualInformationAmortizedRatioEstimatorMLP(BaseMutualInformationAmortizedRatioEstimator):
+class MutualInformationRatioEstimatorMLP(BaseMutualInformationRatioEstimator):
 
     def __init__(self,
         shape_inputs,

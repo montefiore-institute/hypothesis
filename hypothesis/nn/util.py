@@ -31,3 +31,12 @@ def compute_dimensionality(shape):
         dimensionality *= dim
 
     return dimensionality
+
+
+def list_modules_with_type(module, type):
+    selected_modules = []
+    for m in list(module.modules()):
+        if isinstance(m, type):
+            selected_modules.append(m)
+
+    return selected_modules
