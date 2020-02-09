@@ -5,10 +5,10 @@ import torch
 
 
 
-class BaseAmortizedRatioEstimator(torch.nn.Module):
+class BaseRatioEstimator(torch.nn.Module):
 
     def __init__(self):
-        super(BaseAmortizedRatioEstimator, self).__init__()
+        super(BaseRatioEstimator, self).__init__()
 
     def forward(self, **kwargs):
         log_ratios = self.log_ratio(**kwargs)
@@ -20,10 +20,10 @@ class BaseAmortizedRatioEstimator(torch.nn.Module):
 
 
 
-class AmortizedRatioEstimatorEnsemble(BaseAmortizedRatioEstimator):
+class RatioEstimatorEnsemble(BaseRatioEstimator):
 
     def __init__(self, estimators, reduce="mean"):
-        super(AmortizedRatioEstimatorEnsemble, self).__init__()
+        super(RatioEstimatorEnsemble, self).__init__()
         self.estimators = estimators
         self.reduce = self._allocate_reduce(reduce)
 

@@ -3,7 +3,7 @@ import hypothesis.nn
 import torch
 
 from .base import BaseCriterion
-from .base import BaseAmortizedRatioEstimator
+from .base import BaseRatioEstimator
 
 
 
@@ -23,10 +23,10 @@ class LikelihoodToEvidenceCriterion(BaseCriterion):
 
 
 
-class BaseLikelihoodToEvidenceAmortizedRatioEstimator(BaseAmortizedRatioEstimator):
+class BaseLikelihoodToEvidenceRatioEstimator(BaseAmortizedRatioEstimator):
 
     def __init__(self):
-        super(LikelihoodToEvidenceAmortizedRatioEstimator, self).__init__()
+        super(LikelihoodToEvidenceRatioEstimator, self).__init__()
 
     def forward(self, inputs, outputs):
         log_ratios = self.log_ratio(inputs=inputs, outputs=outputs)

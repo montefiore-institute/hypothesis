@@ -1,13 +1,14 @@
 import hypothesis
 import hypothesis.nn
+import torch
 
 from hypothesis.nn import MultiLayeredPerceptron
-from hypothesis.nn.amortized_ratio_estimation import BaseLikelihoodToEvidenceAmortizedRatioEstimator
+from hypothesis.nn.amortized_ratio_estimation import BaseLikelihoodToEvidenceRatioEstimator
 from hypothesis.nn.util import compute_dimensionality
 
 
 
-class LikelihoodToEvidenceAmortizedRatioEstimatorMLP(BaseLikelihoodToEvidenceAmortizedRatioEstimator):
+class LikelihoodToEvidenceRatioEstimatorMLP(BaseLikelihoodToEvidenceRatioEstimator):
 
     def __init__(self,
         shape_inputs,
@@ -15,7 +16,7 @@ class LikelihoodToEvidenceAmortizedRatioEstimatorMLP(BaseLikelihoodToEvidenceAmo
         activation=hypothesis.default.activation,
         dropout=hypothesis.default.dropout,
         layers=hypothesis.default.trunk):
-        super(LikelihoodToEvidenceAmortizedRatioEstimatorMLP, self).__init__()
+        super(LikelihoodToEvidenceRatioEstimatorMLP, self).__init__()
         dimensionality = compute_dimensionality(shape_inputs) + compute_dimensionality(shape_outputs)
         self.mlp = MultiLayeredPerceptron(
             shape_xs=(dimensionality,),

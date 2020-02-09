@@ -23,10 +23,10 @@ class MutualInformationCriterion(BaseCriterion):
 
 
 
-class BaseMutualInformationAmortizedRatioEstimator(BaseAmortizedRatioEstimator):
+class BaseMutualInformationRatioEstimator(BaseAmortizedRatioEstimator):
 
     def __init__(self):
-        super(LikelihoodToEvidenceAmortizedRatioEstimator, self).__init__()
+        super(LikelihoodToEvidenceRatioEstimator, self).__init__()
 
     def forward(self, x, y):
         log_ratios = self.log_ratio(x=x, y=y)
