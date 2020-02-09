@@ -1,5 +1,4 @@
 import hypothesis
-import re
 import torch
 
 

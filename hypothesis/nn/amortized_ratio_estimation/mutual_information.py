@@ -1,5 +1,4 @@
 import hypothesis
-import hypothesis.nn
 import torch
 
 from .base import BaseCriterion
@@ -15,7 +14,7 @@ class MutualInformationCriterion(BaseCriterion):
         estimator,
         batch_size=hypothesis.default.batch_size,
         logits=False):
-        super(LikelihoodToEvidenceCriterion, self).__init__(
+        super(MutualInformationCriterion, self).__init__(
             batch_size=batch_size,
             denominator=LikelihoodToEvidenceCriterion.DENOMINATOR,
             estimator=estimator,
@@ -26,7 +25,7 @@ class MutualInformationCriterion(BaseCriterion):
 class BaseMutualInformationRatioEstimator(BaseRatioEstimator):
 
     def __init__(self):
-        super(LikelihoodToEvidenceRatioEstimator, self).__init__()
+        super(BaseMutualInformationRatioEstimator, self).__init__()
 
     def forward(self, x, y):
         log_ratios = self.log_ratio(x=x, y=y)

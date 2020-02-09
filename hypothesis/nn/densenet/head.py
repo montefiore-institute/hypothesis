@@ -144,7 +144,7 @@ class DenseNetHead(torch.nn.Module):
         z = self.network_head(x)
         z = self.network_body(z)
 
-        return z
+        return z.view(-1, self.embedding_dim) # Flatten
 
     def _load_configuration(self, depth):
         modules = load_modules(self.dimensionality)

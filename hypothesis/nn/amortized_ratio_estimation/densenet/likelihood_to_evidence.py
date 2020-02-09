@@ -1,10 +1,11 @@
 import hypothesis
-import hypothesis.nn
 import hypothesis.nn.densenet
 import torch
 
+from hypothesis.nn.amortized_ratio_estimation import BaseLikelihoodToEvidenceRatioEstimator
 from hypothesis.nn import DenseNetHead
 from hypothesis.nn import MultiLayeredPerceptron
+from hypothesis.nn.util import compute_dimensionality
 
 
 
@@ -33,9 +34,7 @@ class LikelihoodToEvidenceRatioEstimatorDenseNet(BaseLikelihoodToEvidenceRatioEs
             channels=channels,
             convolution_bias=convolution_bias,
             depth=depth,
-            dropout_dropout)
-        # Compute the dimensionality of the inputs.
-        self.dimensionality = len(shape_xs)
+            dropout=dropout)
         # Construct the convolutional DenseNet head.
         self.head = DenseNetHead(
             activation=activation,
@@ -45,9 +44,14 @@ class LikelihoodToEvidenceRatioEstimatorDenseNet(BaseLikelihoodToEvidenceRatioEs
             convolution_bias=convolution_bias,
             depth=depth,
             dropout=dropout,
-            shape_xs=shape_xs)
+            shape_xs=shape_outputs)
         # Compute the embedding dimensionality of the head.
         embedding_dim = self.head.embedding_dimensionality()
+        # Check if custom trunk settings have been defined.
+        if trunk_activation is None:
+            trunk_activation = activation
+        if trunk_dropout is None:
+            trunk_dropout = dropout
         # Allocate the trunk.
         latent_dimensionality = compute_dimensionality(shape_inputs) + self.head.embedding_dimensionality()
         self.trunk = MultiLayeredPerceptron(

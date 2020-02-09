@@ -9,5 +9,7 @@ from .mutual_information import MutualInformationCriterion
 from .multi_layered_perceptron import LikelihoodToEvidenceRatioEstimatorMLP
 from .multi_layered_perceptron import LikelihoodToEvidenceRatioEstimatorNeuromodulatedMLP
 from .multi_layered_perceptron import MutualInformationRatioEstimatorMLP
+from .multi_layered_perceptron import MutualInformationRatioEstimatorNeuromodulatedMLP
 # DenseNet
+from .densenet import LikelihoodToEvidenceRatioEstimatorDenseNet
 # ResNet
