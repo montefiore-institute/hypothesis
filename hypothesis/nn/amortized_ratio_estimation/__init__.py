@@ -13,3 +13,4 @@ from .multi_layered_perceptron import MutualInformationRatioEstimatorNeuromodula
 # DenseNet
 from .densenet import LikelihoodToEvidenceRatioEstimatorDenseNet
 # ResNet
+from .resnet import LikelihoodToEvidenceRatioEstimatorResNet
