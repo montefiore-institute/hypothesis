@@ -1,9 +1,8 @@
 import hypothesis
-import hypothesis.nn
 import torch
 
 from hypothesis.nn import MultiLayeredPerceptron
-from hypothesis.nn.amortized_ratio_estimation import BaseLikelihoodToEvidenceRatioEstimator
+from hypothesis.nn.amortized_ratio_estimation import BaseMutualInformationRatioEstimator
 from hypothesis.nn.neuromodulation import BaseNeuromodulatedModule
 from hypothesis.nn.neuromodulation import allocate_neuromodulated_activation
 from hypothesis.nn.neuromodulation import list_neuromodulated_modules
