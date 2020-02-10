@@ -43,11 +43,11 @@ def batch_feeder(batch, criterion, accelerator):
 
 
 def allocate_dataset_train():
-    return allocate_dataset(1000)
+    return allocate_dataset(100000)
 
 
 def allocate_dataset_test():
-    return allocate_dataset(200)
+    return allocate_dataset(1000)
 
 
 @torch.no_grad()

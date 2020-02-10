@@ -32,7 +32,8 @@ class BaseTrainer(Procedure):
             batch_size=self.batch_size,
             drop_last=True,
             num_workers=self.dataloader_workers,
-            pin_memory=True)
+            pin_memory=True,
+            shuffle=True)
 
     def _register_events(self):
         raise NotImplementedError
