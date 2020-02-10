@@ -1,5 +1,6 @@
 r"""Summary objects at the end of training procedures."""
 
+import numpy as np
 import pickle
 
 
@@ -51,6 +52,9 @@ class TrainingSummary:
     def identifier_available(self):
         return self.identifier is not None
 
+    def num_epochs(self):
+        return self.epochs
+
     def best_epoch(self):
         return self.epoch_best
 
@@ -60,11 +64,21 @@ class TrainingSummary:
     def final_model(self):
         return self.model_final
 
-    def testing_loss():
-        return losses_test
+    def test_losses(self, log=False):
+        if log:
+            losses = np.log(self.losses_test)
+        else:
+            losses = self.losses_test
 
-    def training_loss():
-        return losses_train
+        return losses
+
+    def train_losses(self, log=False):
+        if log:
+            losses = np.log(self.losses_train)
+        else:
+            losses = self.losses_train
+
+        return losses
 
     def __str__(self):
         representation = ""
