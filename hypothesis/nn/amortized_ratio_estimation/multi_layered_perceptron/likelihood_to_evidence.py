@@ -64,4 +64,4 @@ class LikelihoodToEvidenceRatioEstimatorNeuromodulatedMLP(BaseLikelihoodToEviden
         for module in self.neuromodulated_modules:
             module.update(context=inputs)
 
-        return self.mlp(inputs)
+        return self.mlp(outputs)
