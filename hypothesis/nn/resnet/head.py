@@ -1,32 +1,38 @@
 import hypothesis
+import hypothesis.nn
+import hypothesis.nn.resnet
 import numpy as np
 import torch
 
-from hypothesis.nn.util import allocate_output_transform
+from .default import batchnorm as default_batchnorm
+from .default import channels as default_channels
+from .default import convolution_bias as default_convolution_bias
+from .default import depth as default_depth
+from .default import dilate as default_dilate
+from .default import groups as default_groups
+from .default import in_planes as default_in_planes
+from .default import width_per_group as default_width_per_group
+from hypothesis.nn.resnet.util import load_modules
 from hypothesis.nn.util import compute_dimensionality
 
 
 
-class ResNet(torch.nn.Module):
+
+class ResNetHead(torch.nn.Module):
 
     def __init__(self,
         shape_xs,
-        shape_ys=(1,),
-        depth=18, # Default ResNet depth
         activation=hypothesis.default.activation,
-        batchnorm=True,
-        channels=3,
-        convolution_bias=False,
-        dilate=False,
-        groups=1,
-        in_planes=64,
-        trunk=hypothesis.default.trunk,
-        trunk_activation=None,
-        trunk_dropout=hypothesis.default.dropout,
-        width_per_group=64,
-        ys_transform=hypothesis.default.output_transform):
-        torch.nn.Module.__init__(self)
-        # Infer dimensionality from the input shape.
+        batchnorm=default_batchnorm,
+        channels=default_channels,
+        convolution_bias=default_convolution_bias,
+        depth=default_depth,
+        dilate=default_dilate,
+        groups=default_groups,
+        in_planes=default_in_planes,
+        width_per_group=default_width_per_group):
+        super(ResNetHead, self).__init__()
+        # Infer the dimensionality from the input shape.
         self.dimensionality = len(shape_xs)
         # Dimensionality and architecture properties.
         self.block, self.blocks_per_layer, modules = self._load_configuration(depth)
@@ -44,15 +50,11 @@ class ResNet(torch.nn.Module):
         self.groups = groups
         self.in_planes = in_planes
         self.shape_xs = shape_xs
-        self.shape_ys = shape_ys
-        self.width_per_group = 64
-        # Network structures.
+        self.width_per_group = width_per_group
+        # Network structure
         self.network_head = self._build_head()
         self.network_body = self._build_body()
         self.embedding_dim = self._embedding_dimensionality()
-        if trunk_activation is None:
-            trunk_activation = activation
-        self.network_trunk = self._build_trunk(trunk, trunk_activation, float(trunk_dropout), ys_transform)
 
     def _build_head(self):
         mappings = []
@@ -68,7 +70,7 @@ class ResNet(torch.nn.Module):
         if self.batchnorm:
             mappings.append(self.module_batchnorm(self.in_planes))
         # Activation
-        mappings.append(self.module_activation(inplace=True))
+        mappings.append(self.module_activation())
         # Max pooling
         mappings.append(self.module_maxpool(
             kernel_size=3,
@@ -135,35 +137,14 @@ class ResNet(torch.nn.Module):
 
         return torch.nn.Sequential(*mappings)
 
-    def _build_trunk(self, trunk, trunk_activation, dropout, transform_output):
-        mappings = []
-
-        # Build trunk
-        mappings.append(torch.nn.Linear(self.embedding_dim, trunk[0]))
-        for index in range(1, len(trunk)):
-            mappings.append(trunk_activation(inplace=True))
-            if dropout > 0:
-                mappings.append(torch.nn.Dropout(p=dropout))
-            mappings.append(torch.nn.Linear(trunk[index - 1], trunk[index]))
-        # Compute output dimensionality
-        output_shape = compute_dimensionality(self.shape_ys)
-        # Add final fully connected mapping
-        mappings.append(torch.nn.Linear(trunk[-1], output_shape))
-        # Add output normalization
-        output_mapping = allocate_output_transform(transform_output, output_shape)
-        if output_mapping is not None:
-            mappings.append(output_mapping)
-
-        return torch.nn.Sequential(*mappings)
-
     def _load_configuration(self, depth):
         modules = load_modules(self.dimensionality)
         configurations = {
-            18: self._load_configuration_18,
-            34: self._load_configuration_34,
-            50: self._load_configuration_50,
-            101: self._load_configuration_101,
-            152: self._load_configuration_152}
+            18: load_configuration_18,
+            34: load_configuration_34,
+            50: load_configuration_50,
+            101: load_configuration_101,
+            152: load_configuration_152}
         # Check if the desired configuration exists.
         if depth not in configurations.keys():
             raise ValueError("The specified ResNet configuration (", depth, ") does not exist.")
@@ -181,33 +162,14 @@ class ResNet(torch.nn.Module):
 
         return dimensionality
 
-    def forward(self, xs):
-        zs = self.network_head(xs)
-        zs = self.network_body(zs)
-        zs = zs.view(-1, self.embedding_dim) # Flatten
-        ys = self.network_trunk(zs)
+    def embedding_dimensionality(self):
+        return self.embedding_dim
 
-        return ys
+    def forward(self, x):
+        z = self.network_head(x)
+        z = self.network_body(z)
 
-    @staticmethod
-    def _load_configuration_18():
-        return BasicBlock, [2, 2, 2, 2]
-
-    @staticmethod
-    def _load_configuration_34():
-        return BasicBlock, [3, 4, 6, 3]
-
-    @staticmethod
-    def _load_configuration_50():
-        return Bottleneck, [3, 4, 6, 3]
-
-    @staticmethod
-    def _load_configuration_101():
-        return Bottleneck, [3, 4, 23, 3]
-
-    @staticmethod
-    def _load_configuration_152():
-        return Bottleneck, [3, 8, 36, 3]
+        return z
 
 
 
@@ -234,7 +196,7 @@ class BasicBlock(torch.nn.Module):
         self.module_adaptive_avg_pool = modules[3]
         # Block properties.
         self.module_activation = activation
-        self.activation = activation(inplace=True)
+        self.activation = activation()
         self.bias = bias
         self.batchnorm = batchnorm
         self.dilation = dilation
@@ -262,7 +224,7 @@ class BasicBlock(torch.nn.Module):
         if self.batchnorm:
             mappings.append(self.module_batchnorm(self.out_planes))
             # Activation
-        mappings.append(self.module_activation(inplace=True))
+        mappings.append(self.module_activation())
         # Convolution
         mappings.append(self.module_convolution(
             self.out_planes,
@@ -311,7 +273,7 @@ class Bottleneck(torch.nn.Module):
         self.module_adaptive_avg_pool = modules[3]
         # Block properties.
         self.module_activation = activation
-        self.activation = activation(inplace=True)
+        self.activation = activation()
         self.bias = bias
         self.batchnorm = batchnorm
         self.dilation = dilation
@@ -340,7 +302,7 @@ class Bottleneck(torch.nn.Module):
         if self.batchnorm:
             mappings.append(self.module_batchnorm(self.width))
         # Activation
-        mappings.append(self.module_activation(inplace=True))
+        mappings.append(self.module_activation())
         # Convolution
         mappings.append(self.module_convolution(
             self.width,
@@ -355,7 +317,7 @@ class Bottleneck(torch.nn.Module):
         if self.batchnorm:
             mappings.append(self.module_batchnorm(self.width))
         # Activation
-        mappings.append(self.module_activation(inplace=True))
+        mappings.append(self.module_activation())
         # Convolution
         mappings.append(self.module_convolution(
             self.width,
@@ -379,37 +341,21 @@ class Bottleneck(torch.nn.Module):
 
 
 
-def load_modules(dimensionality):
-    configurations = {
-        1: load_modules_1_dimensional,
-        2: load_modules_2_dimensional,
-        3: load_modules_3_dimensional}
-
-    return configurations[dimensionality]()
+def load_configuration_18():
+    return BasicBlock, [2, 2, 2, 2]
 
 
-def load_modules_1_dimensional():
-    c = torch.nn.Conv1d
-    b = torch.nn.BatchNorm1d
-    m = torch.nn.MaxPool1d
-    a = torch.nn.AdaptiveAvgPool1d
-
-    return c, b, m, a
+def load_configuration_34():
+    return BasicBlock, [3, 4, 6, 3]
 
 
-def load_modules_2_dimensional():
-    c = torch.nn.Conv2d
-    b = torch.nn.BatchNorm2d
-    m = torch.nn.MaxPool2d
-    a = torch.nn.AdaptiveAvgPool2d
-
-    return c, b, m, a
+def load_configuration_50():
+    return Bottleneck, [3, 4, 6, 3]
 
 
-def load_modules_3_dimensional():
-    c = torch.nn.Conv3d
-    b = torch.nn.BatchNorm3d
-    m = torch.nn.MaxPool3d
-    a = torch.nn.AdaptiveAvgPool3d
+def load_configuration_101():
+    return Bottleneck, [3, 4, 23, 3]
 
-    return c, b, m, a
+
+def load_configuration_152():
+    return Bottleneck, [3, 8, 36, 3]

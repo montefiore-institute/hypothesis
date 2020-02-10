@@ -1,22 +1,23 @@
-r"""Multilayer Perceptron
+r"""Multilayered Perceptron
+
 """
 
 import hypothesis
 import torch
 
-from hypothesis.nn.util import compute_dimensionality
 from hypothesis.nn.util import allocate_output_transform
+from hypothesis.nn.util import compute_dimensionality
 
 
 
-class MultiLayerPerceptron(torch.nn.Module):
+class MultiLayeredPerceptron(torch.nn.Module):
 
     def __init__(self, shape_xs, shape_ys,
         activation=hypothesis.default.activation,
-        dropout=0.0,
-        layers=(128, 128),
+        dropout=hypothesis.default.dropout,
+        layers=hypothesis.default.trunk,
         transform_output="normalize"):
-        super(MultiLayerPerceptron, self).__init__()
+        super(MultiLayeredPerceptron, self).__init__()
         mappings = []
         dropout = float(dropout)
         # Dimensionality properties
@@ -29,7 +30,7 @@ class MultiLayerPerceptron(torch.nn.Module):
             mappings.append(self._make_layer(activation, dropout,
                 layers[index - 1], layers[index]))
         # Allocate tail
-        mappings.append(activation(inplace=True))
+        mappings.append(activation())
         mappings.append(torch.nn.Linear(layers[-1], self.ys_dimensionality))
         operation = allocate_output_transform(transform_output, self.ys_dimensionality)
         if operation is not None:
@@ -40,7 +41,7 @@ class MultiLayerPerceptron(torch.nn.Module):
     def _make_layer(self, activation, dropout, num_a, num_b):
         mappings = []
 
-        mappings.append(activation(inplace=True))
+        mappings.append(activation())
         if dropout > 0:
             mappings.append(torch.nn.Dropout(p=dropout))
         mappings.append(torch.nn.Linear(num_a, num_b))
