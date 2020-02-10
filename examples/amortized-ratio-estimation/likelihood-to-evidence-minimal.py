@@ -33,7 +33,7 @@ def main(arguments):
         batch_size=arguments.batch_size,
         optimizer=optimizer)
     # Execute the optimization process.
-    summary = trainer.optimize()
+    summary = trainer.fit()
     print(summary)
     # Plot the testing and training loss.
     figure, axes = plt.subplots(nrows=1, ncols=2, sharey=True)

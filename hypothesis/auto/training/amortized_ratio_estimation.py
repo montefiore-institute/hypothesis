@@ -117,7 +117,7 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
     def checkpoint(self):
         self._checkpoint_store()
 
-    def optimize(self):
+    def fit(self):
         # Training procedure
         for epoch in range(self.epochs_remaining):
             self.current_epoch = epoch

@@ -46,7 +46,7 @@ class BaseTrainer(Procedure):
     def checkpoint(self):
         raise NotImplementedError
 
-    def optimize(self):
+    def fit(self):
         raise NotImplementedError
 
     def test(self):
