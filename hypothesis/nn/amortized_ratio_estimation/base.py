@@ -82,6 +82,7 @@ class BaseCriterion(torch.nn.Module):
         random_variables = denominator.replace(hypothesis.default.dependent_delimiter, " ") \
             .replace(hypothesis.default.independent_delimiter, " ") \
             .split(" ")
+        random_variables.sort()
 
         return random_variables
 
