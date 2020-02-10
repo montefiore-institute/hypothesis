@@ -23,6 +23,7 @@ def main(arguments):
     optimizer = torch.optim.Adam(estimator.parameters())
     # Allocate the trainer, or optimization procedure.
     trainer = Trainer(
+        identifier="TRAINING JOB", # Not required
         estimator=estimator,
         dataset_train=allocate_dataset_train(),
         dataset_test=allocate_dataset_test(),
@@ -32,6 +33,7 @@ def main(arguments):
         optimizer=optimizer)
     # Execute the optimization process.
     summary = trainer.optimize()
+    print(summary)
 
 
 def batch_feeder(batch, criterion, accelerator):

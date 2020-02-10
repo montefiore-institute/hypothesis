@@ -11,9 +11,11 @@ class BaseTrainer(Procedure):
         batch_size=hypothesis.default.batch_size,
         checkpoint=None,
         epochs=hypothesis.default.epochs,
+        identifier=None,
         workers=hypothesis.default.dataloader_workers):
         super(BaseTrainer, self).__init__()
         # Training hyperparameters
+        self.identifier = identifier
         self.batch_size = batch_size
         self.checkpoint_path = checkpoint
         self.dataloader_workers = workers

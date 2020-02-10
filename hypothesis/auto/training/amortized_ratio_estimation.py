@@ -1,9 +1,11 @@
 import hypothesis
+import numpy as np
 import os
 import torch
 
 from .base import BaseTrainer
 from hypothesis.nn.amortized_ratio_estimation import LikelihoodToEvidenceCriterion
+from hypothesis.summary import TrainingSummary as Summary
 
 
 
@@ -21,8 +23,10 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
         dataset_test=None,
         epochs=hypothesis.default.epochs,
         lr_scheduler=None,
+        identifier=None,
         workers=hypothesis.default.dataloader_workers):
         super(BaseAmortizedRatioEstimatorTrainer, self).__init__(
+            identifier=identifier,
             batch_size=batch_size,
             checkpoint=checkpoint,
             epochs=epochs,
@@ -64,6 +68,7 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
             state["current_epoch"] = self.current_epoch
             state["estimator"] = self._cpu_estimator_state_dict()
             state["epochs_remaining"] = self.epochs_remaining
+            state["epochs"] = self.epochs
             state["losses_test"] = self.losses_test
             state["losses_train"] = self.losses_train
             if self.lr_scheduler is not None:
@@ -82,6 +87,7 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
             self.current_epoch = state["current_epoch"]
             self.estimator.load_state_dict(state["estimator"])
             self.epochs_remaining = state["epochs_remaining"]
+            self.epochs = state["epochs"]
             self.losses_test = state["losses_test"]
             self.losses_train = state["losses_train"]
             if self.lr_scheduler is not None:
@@ -92,7 +98,14 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
             self.best_model = state["best_model"]
 
     def _summarize(self):
-        raise NotImplementedError
+        return Summary(
+            identifier=self.identifier,
+            model_best=self.estimator.cpu().load_state_dict(self.best_model),
+            model_final=self.estimator.cpu(),
+            epoch_best=self.best_epoch,
+            epochs=self.epochs,
+            losses_train=np.array(self.losses_train).reshape(-1),
+            losses_test=np.array(self.losses_test).reshape(-1))
 
     def _cpu_estimator_state_dict(self):
         state_dict = self.estimator.state_dict()
@@ -112,6 +125,8 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
             # Check if a testing dataset is available.
             if self.dataset_test is not None:
                 self.test()
+            else:
+                self.best_model = self._cpu_estimator_state_dict()
             if self.lr_scheduler is not None:
                 self.lr_scheduler.step()
             self.checkpoint()
@@ -131,7 +146,8 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
                 batch=batch,
                 criterion=self.criterion)
             total_loss += loss.item()
-        total_loss /= len(self.dataset_test)
+        total_loss /= len(loader)
+        self.losses_test.append(total_loss)
         if total_loss < self.best_loss:
             state_dict = self._cpu_estimator_state_dict()
             self.best_loss = total_loss
@@ -165,6 +181,7 @@ class LikelihoodToEvidenceRatioEstimatorTrainer(BaseAmortizedRatioEstimatorTrain
         dataset_test=None,
         epochs=hypothesis.default.epochs,
         lr_scheduler=None,
+        identifier=None,
         workers=hypothesis.default.dataloader_workers):
         feeder = LikelihoodToEvidenceRatioEstimatorTrainer.feeder
         criterion = LikelihoodToEvidenceCriterion
@@ -179,6 +196,7 @@ class LikelihoodToEvidenceRatioEstimatorTrainer(BaseAmortizedRatioEstimatorTrain
             feeder=feeder,
             lr_scheduler=lr_scheduler,
             optimizer=optimizer,
+            identifier=identifier,
             workers=workers)
 
     @staticmethod
