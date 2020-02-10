@@ -127,6 +127,7 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
                 self.test()
             else:
                 self.best_model = self._cpu_estimator_state_dict()
+            # Check if a learning rate scheduler has been allocated.
             if self.lr_scheduler is not None:
                 self.lr_scheduler.step()
             self.checkpoint()
