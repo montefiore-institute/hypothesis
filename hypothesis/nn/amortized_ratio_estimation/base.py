@@ -127,4 +127,4 @@ class BaseCriterion(torch.nn.Module):
         return self
 
     def forward(self, **kwargs):
-        return self.forward(**kwargs)
+        return self._forward(**kwargs)
