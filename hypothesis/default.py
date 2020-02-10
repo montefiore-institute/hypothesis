@@ -16,6 +16,9 @@ r"""Default batch size."""
 dropout = 0.0
 r"""Default dropout setting."""
 
+epochs = 1
+r"""Default number of data epochs."""
+
 output_transform = "normalize"
 r"""Default output transformation for neural networks.
 
@@ -31,3 +34,6 @@ r"""Split character indicating the dependence between random variables."""
 
 independent_delimiter = '|'
 r"""Split character indicating the independene between random variables."""
+
+dataloader_workers = 4
+r"""Default number of dataloader workers."""

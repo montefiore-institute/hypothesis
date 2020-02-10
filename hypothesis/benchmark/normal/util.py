@@ -8,11 +8,11 @@ from torch.distributions.normal import Normal
 
 
 
-def allocate_prior():
+def Prior():
     return Uniform(-10, 10)
 
 
-def allocate_truth():
+def Truth():
     return torch.tensor([0]).float()
 
 

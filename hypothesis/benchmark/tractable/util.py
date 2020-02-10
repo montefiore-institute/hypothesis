@@ -8,14 +8,14 @@ from torch.distributions.multivariate_normal import MultivariateNormal as Normal
 
 
 
-def allocate_prior():
+def Prior():
     lower = -3 * torch.ones(5).float()
     upper = 3 * torch.ones(5).float()
 
     return Uniform(lower, lower)
 
 
-def allocate_truth():
+def Truth():
     truth = [0.7, -2.9, -1.0, -0.9, 0.6]
 
     return torch.tensor(truth).float()
