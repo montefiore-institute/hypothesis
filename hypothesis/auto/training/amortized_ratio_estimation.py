@@ -3,17 +3,18 @@ import os
 import torch
 
 from .base import BaseTrainer
+from hypothesis.nn.amortized_ratio_estimation import LikelihoodToEvidenceCriterion
 
 
 
 class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
 
     def __init__(self,
-        estimator,
         criterion,
-        dataset_train,
+        estimator,
         feeder,
         optimizer,
+        dataset_train,
         accelerator=hypothesis.accelerator,
         batch_size=hypothesis.default.batch_size,
         checkpoint=None,
@@ -50,8 +51,14 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
     def _register_events(self):
         pass
 
+    def _valid_checkpoint_path(self):
+        return self.checkpoint_path is not None and len(checkpoint_path) > 0
+
+    def _valid_checkpoint_path_and_exists(self):
+        return self._valid_checkpoint_path() and os.path.exists(self.checkpoint_path)
+
     def _checkpoint_store(self):
-        if self.checkpoint_path is not None and len(self.checkpoint_path) > 0:
+        if self._valid_checkpoint_path():
             state = {}
             state["accelerator"] = self.accelerator
             state["current_epoch"] = self.current_epoch
@@ -69,7 +76,7 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
 
     def _checkpoint_load(self):
         # Check if checkpoint path exists.
-        if self.checkpoint_path is not None and os.path.exists(self.checkpoint_path):
+        if self._valid_checkpoint_path_and_exists():
             state = torch.load(self.checkpoint_path)
             self.accelerator = state["accelerator"]
             self.current_epoch = state["current_epoch"]
@@ -98,6 +105,7 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
         self._checkpoint_store()
 
     def optimize(self):
+        # Training procedure
         for epoch in range(self.epochs_remaining):
             self.current_epoch = epoch
             self.train()
@@ -107,11 +115,14 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
             if self.lr_scheduler is not None:
                 self.lr_scheduler.step()
             self.checkpoint()
+        # Remove the checkpoint.
+        if self._valid_checkpoint_path_and_exists():
+            os.remove(self.checkpoint_path)
 
         return self._summarize()
 
     def test(self):
-        self.estimator.test()
+        self.estimator.eval()
         loader = self._allocate_data_loader(self.dataset_test)
         total_loss = 0.0
         for batch in loader:
@@ -120,8 +131,8 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
                 batch=batch,
                 criterion=self.criterion)
             total_loss += loss.item()
-        total_loss /= len(dataset_test)
-        if total_loss < self.loss_best:
+        total_loss /= len(self.dataset_test)
+        if total_loss < self.best_loss:
             state_dict = self._cpu_estimator_state_dict()
             self.best_loss = total_loss
             self.best_model = state_dict
@@ -139,3 +150,41 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
             loss.backward()
             self.optimizer.step()
             self.losses_train.append(loss.item())
+
+
+
+class LikelihoodToEvidenceRatioEstimatorTrainer(BaseAmortizedRatioEstimatorTrainer):
+
+    def __init__(self,
+        estimator,
+        optimizer,
+        dataset_train,
+        accelerator=hypothesis.accelerator,
+        batch_size=hypothesis.default.batch_size,
+        checkpoint=None,
+        dataset_test=None,
+        epochs=hypothesis.default.epochs,
+        lr_scheduler=None,
+        workers=hypothesis.default.dataloader_workers):
+        feeder = LikelihoodToEvidenceRatioEstimatorTrainer.feeder
+        criterion = LikelihoodToEvidenceCriterion
+        super(LikelihoodToEvidenceRatioEstimatorTrainer, self).__init__(
+            accelerator=accelerator,
+            batch_size=batch_size,
+            criterion=criterion,
+            dataset_test=dataset_test,
+            dataset_train=dataset_train,
+            epochs=epochs,
+            estimator=estimator,
+            feeder=feeder,
+            lr_scheduler=lr_scheduler,
+            optimizer=optimizer,
+            workers=workers)
+
+    @staticmethod
+    def feeder(batch, criterion, accelerator):
+        inputs, outputs = batch
+        inputs = inputs.to(accelerator, non_blocking=True)
+        outputs = outputs.to(accelerator, non_blocking=True)
+
+        return criterion(inputs=inputs, outputs=outputs)

@@ -3,10 +3,9 @@ import hypothesis
 import matplotlib.pyplot as plt
 import torch
 
-from hypothesis.auto.training import BaseAmortizedRatioEstimatorTrainer as Trainer
+from hypothesis.auto.training import LikelihoodToEvidenceRatioEstimatorTrainer as Trainer
 from hypothesis.benchmark.normal import Prior
 from hypothesis.benchmark.normal import Simulator
-from hypothesis.nn.amortized_ratio_estimation import LikelihoodToEvidenceCriterion as Criterion
 from hypothesis.nn.amortized_ratio_estimation import LikelihoodToEvidenceRatioEstimatorMLP as RatioEstimator
 from torch.utils.data import TensorDataset
 
@@ -25,13 +24,11 @@ def main(arguments):
     # Allocate the trainer, or optimization procedure.
     trainer = Trainer(
         estimator=estimator,
-        criterion=Criterion,
         dataset_train=allocate_dataset_train(),
         dataset_test=allocate_dataset_test(),
         epochs=arguments.epochs,
         checkpoint=arguments.checkpoint,
         batch_size=arguments.batch_size,
-        feeder=batch_feeder,
         optimizer=optimizer)
     # Execute the optimization process.
     summary = trainer.optimize()
@@ -46,11 +43,11 @@ def batch_feeder(batch, criterion, accelerator):
 
 
 def allocate_dataset_train():
-    return allocate_dataset(1000000)
+    return allocate_dataset(1000)
 
 
 def allocate_dataset_test():
-    return allocate_dataset(10000)
+    return allocate_dataset(200)
 
 
 @torch.no_grad()
