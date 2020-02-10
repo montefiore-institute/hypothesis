@@ -71,11 +71,12 @@ class BaseCriterion(torch.nn.Module):
         else:
             self.criterion = torch.nn.BCELoss()
             self._forward = self._forward_without_logits
+        self.batch_size = batch_size
         self.estimator = estimator
         self.independent_random_variables = self._derive_independent_random_variables(denominator)
-        self.ones = torch.ones(batch_size, 1)
+        self.ones = torch.ones(self.batch_size, 1)
         self.random_variables = self._derive_random_variables(denominator)
-        self.zeros = torch.zeros(batch_size, 1)
+        self.zeros = torch.zeros(self.batch_size, 1)
 
     def _derive_random_variables(self, denominator):
         random_variables = denominator.replace(hypothesis.default.dependent_delimiter, " ") \
