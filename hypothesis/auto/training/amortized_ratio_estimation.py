@@ -9,6 +9,7 @@ from .base import BaseTrainer
 class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
 
     def __init__(self,
+        estimator,
         criterion,
         dataset_train,
         feeder,
@@ -20,7 +21,7 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
         epochs=hypothesis.default.epochs,
         lr_scheduler=None,
         workers=hypothesis.default.dataloader_workers):
-        super(BaseTrainer, self).__init__(
+        super(BaseAmortizedRatioEstimatorTrainer, self).__init__(
             batch_size=batch_size,
             checkpoint=checkpoint,
             epochs=epochs,
@@ -30,10 +31,10 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
         self.dataset_test = dataset_test
         # Trainer state
         self.accelerator = accelerator
-        self.criterion = criterion
+        self.criterion = criterion(estimator, self.batch_size)
         self.current_epoch = 0
         self.epochs_remaining = self.epochs
-        self.estimator = criterion.estimator
+        self.estimator = estimator
         self.feeder = feeder
         self.losses_test = []
         self.losses_train = []
@@ -42,6 +43,9 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
         self.best_epoch = None
         self.best_loss = float("infinity")
         self.best_model = None
+        # Move estimator and criterion to the specified accelerator.
+        self.estimator = self.estimator.to(self.accelerator)
+        self.criterion = self.criterion.to(self.accelerator)
 
     def _register_events(self):
         pass
@@ -65,7 +69,7 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
 
     def _checkpoint_load(self):
         # Check if checkpoint path exists.
-        if os.path.exists(self.checkpoint_path):
+        if self.checkpoint_path is not None and os.path.exists(self.checkpoint_path):
             state = torch.load(self.checkpoint_path)
             self.accelerator = state["accelerator"]
             self.current_epoch = state["current_epoch"]
@@ -111,7 +115,10 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
         loader = self._allocate_data_loader(self.dataset_test)
         total_loss = 0.0
         for batch in loader:
-            loss = self.feeder(batch)
+            loss = self.feeder(
+                accelerator=self.accelerator,
+                batch=batch,
+                criterion=self.criterion)
             total_loss += loss.item()
         total_loss /= len(dataset_test)
         if total_loss < self.loss_best:
@@ -124,7 +131,10 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
         self.estimator.train()
         loader = self._allocate_data_loader(self.dataset_train)
         for batch in loader:
-            loss = self.feeder(batch)
+            loss = self.feeder(
+                accelerator=self.accelerator,
+                batch=batch,
+                criterion=self.criterion)
             self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()

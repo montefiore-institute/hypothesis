@@ -8,13 +8,13 @@ import torch.distributions.uniform
 from hypothesis.exception import IntractableException
 
 
-def allocate_prior():
+def Prior():
     lower = torch.tensor([0, 0, 0]).float()
     upper = torch.tensor([10, 10, 1/3]).float()
     return Uniform(lower, upper)
 
 
-def allocate_truth():
+def Truth():
     return torch.tensor([1, 5, .2]).float()
 
 

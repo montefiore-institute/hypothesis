@@ -1,6 +1,7 @@
 import hypothesis
 
 from hypothesis.engine import Procedure
+from torch.utils.data import DataLoader
 
 
 
@@ -27,7 +28,7 @@ class BaseTrainer(Procedure):
         raise NotImplementedError
 
     def _allocate_data_loader(self, dataset):
-        return Dataset(dataset,
+        return DataLoader(dataset,
             batch_size=self.batch_size,
             drop_last=True,
             num_workers=self.dataloader_workers,

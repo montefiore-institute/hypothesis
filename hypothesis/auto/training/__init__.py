@@ -1,1 +1,2 @@
 from .base import BaseTrainer
+from .amortized_ratio_estimation import BaseAmortizedRatioEstimatorTrainer
