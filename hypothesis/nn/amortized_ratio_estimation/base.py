@@ -124,5 +124,7 @@ class BaseCriterion(torch.nn.Module):
         self.ones = self.ones.to(device)
         self.zeros = self.zeros.to(device)
 
+        return self
+
     def forward(self, **kwargs):
         return self.forward(**kwargs)
