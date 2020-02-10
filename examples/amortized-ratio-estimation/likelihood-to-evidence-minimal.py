@@ -59,14 +59,6 @@ def main(arguments):
     plt.show()
 
 
-def batch_feeder(batch, criterion, accelerator):
-    inputs, outputs = batch
-    inputs = inputs.to(accelerator, non_blocking=True)
-    outputs = outputs.to(accelerator, non_blocking=True)
-
-    return criterion(inputs=inputs, outputs=outputs)
-
-
 def allocate_dataset_train():
     return allocate_dataset(100000)
 
