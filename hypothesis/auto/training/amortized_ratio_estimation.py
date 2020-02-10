@@ -56,7 +56,7 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
         pass
 
     def _valid_checkpoint_path(self):
-        return self.checkpoint_path is not None and len(checkpoint_path) > 0
+        return self.checkpoint_path is not None and len(self.checkpoint_path) > 0
 
     def _valid_checkpoint_path_and_exists(self):
         return self._valid_checkpoint_path() and os.path.exists(self.checkpoint_path)
@@ -80,22 +80,8 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
             torch.save(state, self.checkpoint_path)
 
     def _checkpoint_load(self):
-        # Check if checkpoint path exists.
         if self._valid_checkpoint_path_and_exists():
-            state = torch.load(self.checkpoint_path)
-            self.accelerator = state["accelerator"]
-            self.current_epoch = state["current_epoch"]
-            self.estimator.load_state_dict(state["estimator"])
-            self.epochs_remaining = state["epochs_remaining"]
-            self.epochs = state["epochs"]
-            self.losses_test = state["losses_test"]
-            self.losses_train = state["losses_train"]
-            if self.lr_scheduler is not None:
-                self.lr_scheduler.load_state_dict(state["lr_scheduler"])
-            self.optimizer.load_state_dict(state["optimizer"])
-            self.best_epoch = state["best_epoch"]
-            self.best_loss = state["best_loss"]
-            self.best_model = state["best_model"]
+            raise NotImplementedError
 
     def _summarize(self):
         return Summary(
@@ -119,7 +105,7 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
 
     def fit(self):
         # Training procedure
-        for epoch in range(self.epochs_remaining):
+        for epoch in range(self.epochs):
             self.current_epoch = epoch
             self.train()
             # Check if a testing dataset is available.
@@ -189,15 +175,16 @@ class LikelihoodToEvidenceRatioEstimatorTrainer(BaseAmortizedRatioEstimatorTrain
         super(LikelihoodToEvidenceRatioEstimatorTrainer, self).__init__(
             accelerator=accelerator,
             batch_size=batch_size,
+            checkpoint=checkpoint,
             criterion=criterion,
             dataset_test=dataset_test,
             dataset_train=dataset_train,
             epochs=epochs,
             estimator=estimator,
             feeder=feeder,
+            identifier=identifier,
             lr_scheduler=lr_scheduler,
             optimizer=optimizer,
-            identifier=identifier,
             workers=workers)
 
     @staticmethod
