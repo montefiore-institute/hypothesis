@@ -13,6 +13,7 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
         dataset_train,
         feeder,
         optimizer,
+        accelerator=hypothesis.accelerator,
         batch_size=hypothesis.default.batch_size,
         checkpoint=None,
         dataset_test=None,
@@ -28,6 +29,7 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
         self.dataset_train = dataset_train
         self.dataset_test = dataset_test
         # Trainer state
+        self.accelerator = accelerator
         self.criterion = criterion
         self.current_epoch = 0
         self.epochs_remaining = self.epochs
@@ -47,6 +49,7 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
     def _checkpoint_store(self):
         if self.checkpoint_path is not None and len(self.checkpoint_path) > 0:
             state = {}
+            state["accelerator"] = self.accelerator
             state["current_epoch"] = self.current_epoch
             state["estimator"] = self._cpu_estimator_state_dict()
             state["epochs_remaining"] = self.epochs_remaining
@@ -58,11 +61,13 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
             state["best_epoch"] = self.best_epoch
             state["best_loss"] = self.best_loss
             state["best_model"] = self.best_model
+            torch.save(state, self.checkpoint_path)
 
     def _checkpoint_load(self):
         # Check if checkpoint path exists.
         if os.path.exists(self.checkpoint_path):
             state = torch.load(self.checkpoint_path)
+            self.accelerator = state["accelerator"]
             self.current_epoch = state["current_epoch"]
             self.estimator.load_state_dict(state["estimator"])
             self.epochs_remaining = state["epochs_remaining"]
