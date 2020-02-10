@@ -17,12 +17,8 @@ class BaseTrainer(Procedure):
         self.checkpoint_path = checkpoint
         self.dataloader_workers = workers
         self.epochs = epochs
-        # Trainer state
-        self.current_epoch = 0
-        self.epochs_remaining = self.epochs
         # Load the previously saved state.
-        if self.checkpoint_path is not None:
-            self._checkpoint_load()
+        self._checkpoint_load()
 
     def _checkpoint_store(self):
         raise NotImplementedError
