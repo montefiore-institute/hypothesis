@@ -16,7 +16,7 @@ def main(arguments):
         mmap_mode = 'r'
     else:
         mmap_mode = None
-    data = np.load(arguments.in, mmap_mode=mmap_mode)
+    data = np.load(arguments.in_file, mmap_mode=mmap_mode)
     data = np.delete(data, arguments.indices, arguments.dimension)
     np.save(arguments.out_file, data)
 
