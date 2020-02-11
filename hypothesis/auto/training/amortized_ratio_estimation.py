@@ -106,7 +106,7 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
     def fit(self):
         # Training procedure
         for epoch in range(self.epochs):
-            self.current_epoch = epoch
+            self.current_epoch = epoch + 1
             self.train()
             # Check if a testing dataset is available.
             if self.dataset_test is not None:
