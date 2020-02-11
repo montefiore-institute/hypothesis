@@ -87,7 +87,7 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
         return Summary(
             identifier=self.identifier,
             model_best=self.estimator.cpu().load_state_dict(self.best_model),
-            model_final=self.estimator.cpu(),
+            model_final=self.estimator.cpu().state_dict(),
             epoch_best=self.best_epoch,
             epochs=self.epochs,
             losses_train=np.array(self.losses_train).reshape(-1),
