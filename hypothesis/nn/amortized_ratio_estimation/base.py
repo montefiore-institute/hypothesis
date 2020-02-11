@@ -96,7 +96,7 @@ class BaseCriterion(torch.nn.Module):
     def _regularizer(self, **kwargs):
         for variable in self.random_variables:
             kwargs[variable] = kwargs[variable][torch.randperm(self.batch_size)]
-        loss = self.estimator.log_ratio(**kwargs) ** 2 # log-ratio should be 0.
+        loss = self.estimator.log_ratio(**kwargs).pow(2).mean() # log-ratio should be 0.
 
         return loss
 
