@@ -93,6 +93,13 @@ class BaseCriterion(torch.nn.Module):
 
         return groups
 
+    def _regularizer(self, **kwargs):
+        for variable in self.random_variables:
+            kwargs[variable] = kwargs[variable][torch.randperm(self.batch_size)]
+        loss = self.estimator.log_ratio(**kwargs) ** 2 # log-ratio should be 0.
+
+        return loss
+
     def _forward_without_logits(self, **kwargs):
         y_dependent, _ = self.estimator(**kwargs)
         for group in self.independent_random_variables:
@@ -100,7 +107,7 @@ class BaseCriterion(torch.nn.Module):
             for variable in group:
                 kwargs[variable] = kwargs[variable][random_indices] # Make variable independent.
         y_independent, _ = self.estimator(**kwargs)
-        loss = self.criterion(y_dependent, self.ones) + self.criterion(y_independent, self.zeros)
+        loss = self.criterion(y_dependent, self.ones) + self.criterion(y_independent, self.zeros) + self._regularizer(**kwargs)
 
         return loss
 
@@ -111,7 +118,7 @@ class BaseCriterion(torch.nn.Module):
             for variable in group:
                 kwargs[variable] = kwargs[variable][random_indices] # Make variable independent.
         y_independent = self.estimator.log_ratio(**kwargs)
-        loss = self.criterion(y_dependent, self.ones) + self.criterion(y_independent, self.zeros)
+        loss = self.criterion(y_dependent, self.ones) + self.criterion(y_independent, self.zeros) + self._regularizer(**kwargs)
 
         return loss
 
