@@ -31,7 +31,7 @@ class LikelihoodToEvidenceSwappingCriterion(BaseCriterion):
         estimator,
         batch_size=hypothesis.default.batch_size,
         logits=False):
-        super(LikelihoodToEvidenceCriterion, self).__init__(
+        super(LikelihoodToEvidenceSwappingCriterion, self).__init__(
             batch_size=batch_size,
             denominator=LikelihoodToEvidenceCriterion.DENOMINATOR,
             estimator=estimator,
