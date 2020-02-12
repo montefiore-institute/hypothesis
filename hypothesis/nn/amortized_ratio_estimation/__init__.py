@@ -3,7 +3,6 @@ from .base import BaseRatioEstimator
 from .base import BaseCriterion
 from .likelihood_to_evidence import BaseLikelihoodToEvidenceRatioEstimator
 from .likelihood_to_evidence import LikelihoodToEvidenceCriterion
-from .likelihood_to_evidence import LikelihoodToEvidenceSwappingCriterion
 from .mutual_information import BaseMutualInformationRatioEstimator
 from .mutual_information import MutualInformationCriterion
 # Multi Layered Perceptron
