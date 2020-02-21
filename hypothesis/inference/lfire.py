@@ -91,7 +91,7 @@ class LFIRE(Procedure, torch.nn.Module):
             marginal_data = self.simulate_marginal_data()
         # Compute every log likelihood-to-evidence ratio.
         for theta, x in zip(inputs, outputs):
-            log_ratios.append(self.approximate_log_ratio(marginal_data, theta, x, reduce=reduce))
+            log_ratios.append(self.approximate_log_ratio(marginal_data, theta, x, reduce=reduce).view(-1))
         log_ratios = torch.cat(log_ratios, dim=0)
 
         return log_ratios
