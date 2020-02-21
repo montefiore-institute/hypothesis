@@ -24,8 +24,9 @@ class WeinbergSimulator(BaseSimulator):
     MZ = int(90)
     GFNom = float(1)
 
-    def __init__(self):
+    def __init__(self, default_beam_energy=45.0):
         super(WeinbergSimulator, self).__init__()
+        self.default_beam_energy = default_beam_energy
 
     def _a_fb(self, sqrtshalf, gf):
         sqrts = sqrtshalf * 2.
@@ -39,7 +40,7 @@ class WeinbergSimulator(BaseSimulator):
 
         return ((1 + costheta**2) + self._a_fb(sqrtshalf, gf) * costheta) / norm
 
-    def simulate(self, theta, psi=45.0):
+    def simulate(self, theta, psi):
         # theta = gf
         # psi = sqrtshalf
         sample = None
@@ -67,7 +68,7 @@ class WeinbergSimulator(BaseSimulator):
                     psi = experimental_configurations[index]
                     x = self.simulate(theta.item(), psi.item())
                 else:
-                    x = self.simulate(theta.item())
+                    x = self.simulate(theta.item(), self.default_beam_energy)
                 outputs.append(x)
             outputs = torch.cat(outputs, dim=0)
 
