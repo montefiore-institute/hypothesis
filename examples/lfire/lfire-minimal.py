@@ -8,8 +8,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
+from hypothesis.benchmark.normal import Prior
 from hypothesis.benchmark.normal import Simulator
-from hypothesis.benchmark.normal import allocate_prior
 from hypothesis.inference.lfire import LFIRE
 from hypothesis.visualization.util import make_square
 
@@ -18,7 +18,7 @@ from hypothesis.visualization.util import make_square
 @torch.no_grad()
 def main(arguments):
     simulator = Simulator()
-    prior = allocate_prior()
+    prior = Prior()
     truth = torch.tensor(arguments.truth)
     observation = simulator(truth)
     lfire = LFIRE(
