@@ -4,6 +4,8 @@ r"""Utilities for the Weinberg benchmark.
 
 import torch
 
+from hypothesis.exception import IntractableException
+
 
 
 def Prior():
@@ -18,6 +20,10 @@ def PriorExperiment():
 
 def Truth():
     return torch.tensor([1]).float()
+
+
+def log_likelihood(theta, x):
+    raise IntractableException
 
 
 
