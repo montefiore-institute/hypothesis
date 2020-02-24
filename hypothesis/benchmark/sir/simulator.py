@@ -38,7 +38,7 @@ class SIRSimulator(BaseSimulator):
             I = I + delta_I - delta_R
             R += delta_R
 
-        return [S, I, R]
+        return [int(S), int(I), int(R)]
 
     def forward(self, inputs, experimental_configurations=None):
         outputs = []
