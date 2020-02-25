@@ -10,7 +10,10 @@ from hypothesis.exception import IntractableException
 
 def Prior():
     r"""Prior over the infection and recovery rates."""
-    return Uniform(0, 0, 0.5, 0.5)
+    lower = torch.tensor([0, 0]).float()
+    upper = torch.tensor([0.5, 0.5]).float()
+
+    return Uniform(lower, upper)
 
 
 def PriorExperiment():
