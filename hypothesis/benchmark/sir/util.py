@@ -1,4 +1,4 @@
-r"""Utilities for the Weinberg benchmark.
+r"""Utilities for the SIR benchmark.
 
 """
 
