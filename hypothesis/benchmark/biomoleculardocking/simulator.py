@@ -3,6 +3,7 @@ import numpy as np
 import torch
 
 from hypothesis.simulation import Simulator as BaseSimulator
+from torch.distributions.bernoulli import Bernoulli
 
 
 
@@ -21,7 +22,17 @@ class BiomolecularDockingSimulator(BaseSimulator):
         ee50 = theta[1].item()
         slope = theta[2].item()
         top = theta[3].item()
-        raise NotImplementedError
+        n = len(psi)
+        x = torch.zeros(n)
+        for index in range(n):
+            rate = bottom + (
+                (top - bottom)
+                /
+                (1 + (-(psi[index] - ee50) * slope).exp()))
+            p = Bernoulli(rate)
+            x[index] = p.sample()
+
+        return x
 
     @torch.no_grad()
     def forward(self, inputs, experimental_configurations=None):
