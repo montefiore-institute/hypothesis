@@ -18,7 +18,7 @@ def Prior():
 
 def PriorExperiment():
     r"""Prior over the experimental design space (measurement time)."""
-    return Uniform(0, 3)
+    return Uniform(0.1, 3.0)
 
 
 def Truth():
