@@ -34,14 +34,7 @@ class Uniform(torch.distributions.uniform.Uniform):
 
     r"""Used to initialize the prior over the experimental design space."""
     def __init__(self, lower, upper):
-        super(Uniform, self).__init__(float(lower), float(upper))
-
-
-    r"""Used to initialize the prior over the model parameters."""
-    def __init__(self, beta_lower, gamma_lower, beta_upper, gamma_upper):
-        super(Uniform, self).__init__(torch.tensor([float(beta_lower), float(gamma_lower)]),
-                                      torch.tensor([float(beta_upper), float(gamma_upper)]))
-
+        super(Uniform, self).__init__(lower, upper)
 
     def log_prob(self, sample):
         return super(Uniform, self).log_prob(sample).mean()
