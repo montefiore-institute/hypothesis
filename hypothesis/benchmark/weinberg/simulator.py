@@ -57,19 +57,19 @@ class WeinbergSimulator(BaseSimulator):
 
         return torch.tensor(sample).view(1, 1)
 
+    @torch.no_grad()
     def forward(self, inputs, experimental_configurations=None):
         outputs = []
 
-        with torch.no_grad():
-            n = len(inputs)
-            for index in range(n):
-                theta = inputs[index]
-                if experimental_configurations is not None:
-                    psi = experimental_configurations[index]
-                    x = self.simulate(theta.item(), psi.item())
-                else:
-                    x = self.simulate(theta.item(), self.default_beam_energy)
-                outputs.append(x)
-            outputs = torch.cat(outputs, dim=0)
+        n = len(inputs)
+        for index in range(n):
+            theta = inputs[index]
+            if experimental_configurations is not None:
+                psi = experimental_configurations[index]
+                x = self.simulate(theta.item(), psi.item())
+            else:
+                x = self.simulate(theta.item(), self.default_beam_energy)
+            outputs.append(x)
+        outputs = torch.cat(outputs, dim=0)
 
         return outputs
