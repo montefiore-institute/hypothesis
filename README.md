@@ -59,11 +59,11 @@ TODO
 
 TODO
 
-### SIR (Sick-Infected-Recovered) model
+### SIR (Susceptible-Infected-Recovered) model
 
 TODO
 
-### Spatial SIR (Sick-Infected-Recovered) model
+### Spatial SIR (Susceptible-Infected-Recovered) model
 
 TODO
 
