@@ -36,22 +36,25 @@ class SpatialSIRSimulator(BaseSimulator):
             infected[index_height][index_width] = 1
         # Derrive the maximum number of simulation steps.
         simulation_steps = int(psi / self.simulation_step_size)
-        sick = infected - recovered # Zero
+        susceptible = (1 - recovered) * (1 - infected)
         for _ in range(simulation_steps):
-            # Terminate simulation if there are no sick grids left.
-            if sick.sum() == 0:
+            if infected.sum() == 0:
                 break
-            infected_next = signal.convolve2d(sick, kernel, mode="same")
-            potential = (infected_next) * (1 - infected) * (1 - recovered)
-            potential = (potential.astype(dtype=np.float32)) * beta / 8
-            next_infected = (potential > np.random.uniform(size=self.lattice_shape)).astype(np.int)
-            potential = sick * gamma
-            next_recovered = (np.random.uniform(size=self.lattice_shape) < potential).astype(np.int)
-            recovered += next_recovered
-            infected += next_infected
-            sick = infected - recovered
+            # Infection
+            potential = signal.convolve2d(infected, kernel, mode="same")
+            potential *= susceptible
+            potential = potential * beta / 8
+            next_infected = ((potential > np.random.uniform(size=self.lattice_shape)).astype(np.int) + infected) * (1 - recovered)
+            next_infected = (next_infected >= 1).astype(np.int)
+            # Recover
+            potential = infected * gamma
+            next_recovered = ((potential > np.random.uniform(size=self.lattice_shape)).astype(np.int) + recovered)
+            # Next parameters
+            recovered = next_recovered
+            infected = next_infected
+            susceptible = (1 - recovered) * (1 - infected)
         # Convert to tensors
-        sick = torch.from_numpy(sick).float().view(1, 1, self.lattice_shape[0], self.lattice_shape[1])
+        susceptible = torch.from_numpy(susceptible).float().view(1, 1, self.lattice_shape[0], self.lattice_shape[1])
         infected = torch.from_numpy(infected).float().view(1, 1, self.lattice_shape[0], self.lattice_shape[1])
         recovered = torch.from_numpy(recovered).float().view(1, 1, self.lattice_shape[0], self.lattice_shape[1])
         image = torch.cat([sick, infected, recovered], dim=1)
