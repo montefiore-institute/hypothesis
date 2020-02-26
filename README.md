@@ -45,6 +45,10 @@ TODO
 
 TODO
 
+### Metropolis-Hastings
+
+TODO
+
 ## Benchmark problems
 
 ### M/G/1
