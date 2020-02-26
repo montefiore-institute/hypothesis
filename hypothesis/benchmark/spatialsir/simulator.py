@@ -57,7 +57,7 @@ class SpatialSIRSimulator(BaseSimulator):
         susceptible = torch.from_numpy(susceptible).float().view(1, 1, self.lattice_shape[0], self.lattice_shape[1])
         infected = torch.from_numpy(infected).float().view(1, 1, self.lattice_shape[0], self.lattice_shape[1])
         recovered = torch.from_numpy(recovered).float().view(1, 1, self.lattice_shape[0], self.lattice_shape[1])
-        image = torch.cat([sick, infected, recovered], dim=1)
+        image = torch.cat([susceptible, infected, recovered], dim=1)
 
         return image
 
