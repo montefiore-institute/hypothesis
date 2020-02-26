@@ -3,22 +3,36 @@ import numpy as np
 import torch
 
 from hypothesis.simulation import Simulator as BaseSimulator
-from torch.distributions.beta import Beta
-from torch.distributions.beta import Normal
+from torch.distributions.bernoulli import Bernoulli
 
 
 
 class BiomolecularDockingSimulator(BaseSimulator):
 
-    def __init__(self):
+    MIN_PSI = -75.0
+    MAX_PSI = 0.0
+    EXPERIMENTAL_SPACE = 100
+
+    def __init__(self, default_experimental_design=torch.zeros(EXPERIMENTAL_SPACE)):
         super(BiomolecularDockingSimulator, self).__init__()
-        self.r_bottom = Beta(4, 96)
-        self.r_ee50 = Normal(-50, 15 ** 2)
-        self.r_slope = Normal(-0.15, 0.1 ** 2)
-        self.r_top = Beta(25, 75)
+        self.default_experimental_design = default_experimental_design
 
     def simulate(self, theta, psi):
-        raise NotImplementedError
+        bottom = theta[0].item()
+        ee50 = theta[1].item()
+        slope = theta[2].item()
+        top = theta[3].item()
+        n = len(psi)
+        x = torch.zeros(n)
+        for index in range(n):
+            rate = bottom + (
+                (top - bottom)
+                /
+                (1 + (-(psi[index] - ee50) * slope).exp()))
+            p = Bernoulli(rate)
+            x[index] = p.sample()
+
+        return x
 
     @torch.no_grad()
     def forward(self, inputs, experimental_configurations=None):
@@ -31,7 +45,7 @@ class BiomolecularDockingSimulator(BaseSimulator):
                 psi = experimental_configurations[index]
                 x = self.simulate(theta, psi)
             else:
-                x = self.simulate(theta, None)
+                x = self.simulate(theta, self.default_experimental_design)
             outputs.append(x.view(-1, 1))
         outputs = torch.cat(outputs, dim=0)
 
