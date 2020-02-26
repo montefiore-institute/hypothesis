@@ -37,6 +37,7 @@ _install_requires = [
     "glmnet",
     "numpy",
     "pandas",
+    "scipy",
     "sklearn",
     "torch"
 ]
