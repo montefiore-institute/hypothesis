@@ -66,6 +66,8 @@ outputs = simulator(inputs)
 
 ### Pharmacokinetic
 
+> :heavy_check_mark: Supports experimental design
+
 ```python
 from hypothesis.benchmark.tractable import Simulator
 from hypothesis.benchmark.tractable import Prior
@@ -86,6 +88,8 @@ outputs = simulator(inputs, experimental_designs)
 
 ### SIR (Susceptible-Infected-Recovered) model
 
+> :heavy_check_mark: Supports experimental design
+
 ```python
 from hypothesis.benchmark.sir import Simulator
 from hypothesis.benchmark.sir import Prior
@@ -105,6 +109,8 @@ outputs = simulator(inputs, experimental_designs)
 ```
 
 ### Spatial SIR (Susceptible-Infected-Recovered) model
+
+> :heavy_check_mark: Supports experimental design
 
 ```python
 from hypothesis.benchmark.spatialsir import Simulator
@@ -138,6 +144,8 @@ outputs = simulator(inputs)
 ```
 
 ### Weinberg
+
+> :heavy_check_mark: Supports experimental design
 
 ```python
 from hypothesis.benchmark.weinberg import Simulator
