@@ -112,6 +112,10 @@ outputs = simulator(inputs, experimental_designs)
 
 > :heavy_check_mark: Supports experimental design
 
+<p align="center">
+  <img src="https://github.com/montefiore-ai/hypothesis/blob/master/.github/images/benchmark-spatialsir.gif?raw=true" />
+</p>
+
 ```python
 from hypothesis.benchmark.spatialsir import Simulator
 from hypothesis.benchmark.spatialsir import Prior
