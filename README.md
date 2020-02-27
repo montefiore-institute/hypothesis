@@ -56,6 +56,12 @@ TODO
 ```python
 from hypothesis.benchmark.mg1 import Simulator
 from hypothesis.benchmark.mg1 import Prior
+
+simulator = Simulator()
+prior = Prior()
+
+inputs = prior.sample((10,)) # Draw 10 samples from the prior.
+outputs = simulator(inputs)
 ```
 
 ### Pharmacokinetic
@@ -63,6 +69,19 @@ from hypothesis.benchmark.mg1 import Prior
 ```python
 from hypothesis.benchmark.tractable import Simulator
 from hypothesis.benchmark.tractable import Prior
+
+simulator = Simulator()
+prior = Prior()
+
+inputs = prior.sample((10,)) # Draw 10 samples from the prior.
+outputs = simulator(inputs)
+
+from hypothesis.benchmark.spatialsir import PriorExperiment # Experimental design space
+
+prior_experiment = PriorExperiment()
+experimental_designs = prior_experiment.sample((10,))
+
+outputs = simulator(inputs, experimental_designs)
 ```
 
 ### SIR (Susceptible-Infected-Recovered) model
@@ -70,6 +89,19 @@ from hypothesis.benchmark.tractable import Prior
 ```python
 from hypothesis.benchmark.sir import Simulator
 from hypothesis.benchmark.sir import Prior
+
+simulator = Simulator()
+prior = Prior()
+
+inputs = prior.sample((10,)) # Draw 10 samples from the prior.
+outputs = simulator(inputs)
+
+from hypothesis.benchmark.spatialsir import PriorExperiment # Experimental design space
+
+prior_experiment = PriorExperiment()
+experimental_designs = prior_experiment.sample((10,))
+
+outputs = simulator(inputs, experimental_designs)
 ```
 
 ### Spatial SIR (Susceptible-Infected-Recovered) model
@@ -81,13 +113,13 @@ from hypothesis.benchmark.spatialsir import Prior
 simulator = Simulator()
 prior = Prior()
 
-inputs = prior.sample_n(10) # Draw 10 samples from the prior.
+inputs = prior.sample((10,)) # Draw 10 samples from the prior.
 outputs = simulator(inputs)
 
 from hypothesis.benchmark.spatialsir import PriorExperiment # Experimental design space
 
 prior_experiment = PriorExperiment()
-experimental_designs = prior_experiment.sample_n(10)
+experimental_designs = prior_experiment.sample((10,))
 
 outputs = simulator(inputs, experimental_designs)
 ```
@@ -97,6 +129,12 @@ outputs = simulator(inputs, experimental_designs)
 ```python
 from hypothesis.benchmark.tractable import Simulator
 from hypothesis.benchmark.tractable import Prior
+
+simulator = Simulator()
+prior = Prior()
+
+inputs = prior.sample((10,)) # Draw 10 samples from the prior.
+outputs = simulator(inputs)
 ```
 
 ### Weinberg
@@ -104,6 +142,19 @@ from hypothesis.benchmark.tractable import Prior
 ```python
 from hypothesis.benchmark.weinberg import Simulator
 from hypothesis.benchmark.weinberg import Prior
+
+simulator = Simulator()
+prior = Prior()
+
+inputs = prior.sample((10,)) # Draw 10 samples from the prior.
+outputs = simulator(inputs)
+
+from hypothesis.benchmark.weinberg import PriorExperiment # Experimental design space
+
+prior_experiment = PriorExperiment()
+experimental_designs = prior_experiment.sample((10,))
+
+outputs = simulator(inputs, experimental_designs)
 ```
 
 ## License
