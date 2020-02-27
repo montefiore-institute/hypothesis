@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://joerihermans.com/media/hypothesis.png" />
+    <img src="https://github.com/montefiore-ai/hypothesis/blob/master/.github/images/logo.png?raw=true" />
 </p>
 
 <p align="center">
