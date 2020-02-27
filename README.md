@@ -53,27 +53,58 @@ TODO
 
 ### M/G/1
 
-TODO
+```python
+from hypothesis.benchmark.mg1 import Simulator
+from hypothesis.benchmark.mg1 import Prior
+```
 
 ### Pharmacokinetic
 
-TODO
+```python
+from hypothesis.benchmark.tractable import Simulator
+from hypothesis.benchmark.tractable import Prior
+```
 
 ### SIR (Susceptible-Infected-Recovered) model
 
-TODO
+```python
+from hypothesis.benchmark.sir import Simulator
+from hypothesis.benchmark.sir import Prior
+```
 
 ### Spatial SIR (Susceptible-Infected-Recovered) model
 
-TODO
+```python
+from hypothesis.benchmark.spatialsir import Simulator
+from hypothesis.benchmark.spatialsir import Prior
+
+simulator = Simulator()
+prior = Prior()
+
+inputs = prior.sample_n(10) # Draw 10 samples from the prior.
+outputs = simulator(inputs)
+
+from hypothesis.benchmark.spatialsir import PriorExperiment # Experimental design space
+
+prior_experiment = PriorExperiment()
+experimental_designs = prior_experiment.sample_n(10)
+
+outputs = simulator(inputs, experimental_designs)
+```
 
 ### Tractable
 
-TODO
+```python
+from hypothesis.benchmark.tractable import Simulator
+from hypothesis.benchmark.tractable import Prior
+```
 
 ### Weinberg
 
-TODO
+```python
+from hypothesis.benchmark.weinberg import Simulator
+from hypothesis.benchmark.weinberg import Prior
+```
 
 ## License
 
