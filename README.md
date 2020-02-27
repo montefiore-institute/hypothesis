@@ -69,8 +69,8 @@ outputs = simulator(inputs)
 > :heavy_check_mark: Supports experimental design
 
 ```python
-from hypothesis.benchmark.tractable import Simulator
-from hypothesis.benchmark.tractable import Prior
+from hypothesis.benchmark.pharmacokinetic import Simulator
+from hypothesis.benchmark.pharmacokinetec import Prior
 
 simulator = Simulator()
 prior = Prior()
