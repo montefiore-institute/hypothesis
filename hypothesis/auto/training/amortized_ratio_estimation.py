@@ -223,7 +223,6 @@ def create_trainer(denominator, feeder):
             lr_scheduler=None,
             identifier=None,
             workers=hypothesis.default.dataloader_workers):
-            feeder = feeder
             criterion = Criterion
             super(Trainer, self).__init__(
                 accelerator=accelerator,
