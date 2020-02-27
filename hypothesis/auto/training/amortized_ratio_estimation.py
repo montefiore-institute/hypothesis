@@ -4,6 +4,7 @@ import os
 import torch
 
 from .base import BaseTrainer
+from hypothesis.nn.amortized_ratio_estimation import BaseCriterion
 from hypothesis.nn.amortized_ratio_estimation import LikelihoodToEvidenceCriterion
 from hypothesis.summary import TrainingSummary as Summary
 
@@ -194,3 +195,57 @@ class LikelihoodToEvidenceRatioEstimatorTrainer(BaseAmortizedRatioEstimatorTrain
         outputs = outputs.to(accelerator, non_blocking=True)
 
         return criterion(inputs=inputs, outputs=outputs)
+
+
+
+def create_trainer(denominator):
+    # Create the criterion with the specified denominator.
+    class Criterion(BaseCriterion):
+
+        def __init__(self, estimator, batch_size=hypothesis.default.batch_size, logits=False):
+            super(Criterion, self).__init__(
+                batch_size=batch_size,
+                denominator=denominator,
+                estimator=estimator,
+                logits=logits)
+    # Create the trainer object with the desired criterion.
+    class Trainer(BaseAmortizedRatioEstimatorTrainer):
+
+        def __init__(self,
+            estimator,
+            optimizer,
+            dataset_train,
+            accelerator=hypothesis.accelerator,
+            batch_size=hypothesis.default.batch_size,
+            checkpoint=None,
+            dataset_test=None,
+            epochs=hypothesis.default.epochs,
+            lr_scheduler=None,
+            identifier=None,
+            workers=hypothesis.default.dataloader_workers):
+            feeder = Trainer.feeder
+            criterion = Criterion
+            super(Trainer, self).__init__(
+                accelerator=accelerator,
+                batch_size=batch_size,
+                checkpoint=checkpoint,
+                criterion=criterion,
+                dataset_test=dataset_test,
+                dataset_train=dataset_train,
+                epochs=epochs,
+                estimator=estimator,
+                feeder=feeder,
+                identifier=identifier,
+                lr_scheduler=lr_scheduler,
+                optimizer=optimizer,
+                workers=workers)
+
+        @staticmethod
+        def feeder(batch, criterion, accelerator):
+            inputs, outputs = batch
+            inputs = inputs.to(accelerator, non_blocking=True)
+            outputs = outputs.to(accelerator, non_blocking=True)
+
+            return criterion(inputs=inputs, outputs=outputs)
+
+    return Trainer
