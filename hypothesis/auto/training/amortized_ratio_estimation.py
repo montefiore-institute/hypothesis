@@ -240,12 +240,4 @@ def create_trainer(denominator, feeder):
                 optimizer=optimizer,
                 workers=workers)
 
-        @staticmethod
-        def feeder(batch, criterion, accelerator):
-            inputs, outputs = batch
-            inputs = inputs.to(accelerator, non_blocking=True)
-            outputs = outputs.to(accelerator, non_blocking=True)
-
-            return criterion(inputs=inputs, outputs=outputs)
-
     return Criterion, Trainer
