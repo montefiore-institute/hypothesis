@@ -198,7 +198,7 @@ class LikelihoodToEvidenceRatioEstimatorTrainer(BaseAmortizedRatioEstimatorTrain
 
 
 
-def create_trainer(denominator):
+def create_trainer(denominator, feeder):
     # Create the criterion with the specified denominator.
     class Criterion(BaseCriterion):
 
@@ -223,7 +223,7 @@ def create_trainer(denominator):
             lr_scheduler=None,
             identifier=None,
             workers=hypothesis.default.dataloader_workers):
-            feeder = Trainer.feeder
+            feeder = feeder
             criterion = Criterion
             super(Trainer, self).__init__(
                 accelerator=accelerator,
@@ -248,4 +248,4 @@ def create_trainer(denominator):
 
             return criterion(inputs=inputs, outputs=outputs)
 
-    return Trainer
+    return Criterion, Trainer
