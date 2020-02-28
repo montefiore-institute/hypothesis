@@ -9,12 +9,11 @@ from torch.distributions.binomial import Binomial
 
 class SIRSimulator(BaseSimulator):
 
-    step_size = 0.01
-    N = 1000
-
-    def __init__(self, default_measurement_time=1.0):
+    def __init__(self, population_size=1000, default_measurement_time=1.0, step_size=0.01):
         super(SIRSimulator, self).__init__()
-        self.default_measurement_time = default_measurement_time
+        self.default_measurement_time = torch.tensor(default_measurement_time).float()
+        self.population_size = int(population_size)
+        self.step_size = float(step_size)
 
     def simulate(self, theta, psi):
         # theta = [beta, gamma]
@@ -22,12 +21,15 @@ class SIRSimulator(BaseSimulator):
         # sample = [S(tau), I(tau), R(tau)]
         beta = theta[0].item()
         gamma = theta[1].item()
-        S = self.N - 1
+        psi = psi.item()
+        S = self.population_size - 1
         I = 1
         R = 0
         n_steps = int(psi / self.step_size)
         for i in range(n_steps):
-            delta_I = int(Binomial(S, beta * I / self.N).sample())
+            if I == 0: # State will remain the same.
+                break
+            delta_I = int(Binomial(S, beta * I / self.population_size).sample())
             delta_R = int(Binomial(I, gamma).sample())
             S -= delta_I
             I = I + delta_I - delta_R
@@ -44,7 +46,7 @@ class SIRSimulator(BaseSimulator):
             theta = inputs[index]
             if experimental_configurations is not None:
                 psi = experimental_configurations[index]
-                x = self.simulate(theta, psi.item())
+                x = self.simulate(theta, psi)
             else:
                 x = self.simulate(theta, self.default_measurement_time)
             outputs.append(x.view(1, -1))
