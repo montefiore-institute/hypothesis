@@ -24,9 +24,10 @@ class WeinbergSimulator(BaseSimulator):
     MZ = int(90)
     GFNom = float(1)
 
-    def __init__(self, default_beam_energy=45.0):
+    def __init__(self, default_beam_energy=45.0, num_samples=1):
         super(WeinbergSimulator, self).__init__()
-        self.default_beam_energy = default_beam_energy
+        self.num_samples = int(num_samples)
+        self.default_beam_energy = float(default_beam_energy)
 
     def _a_fb(self, sqrtshalf, gf):
         sqrts = sqrtshalf * 2.
@@ -43,19 +44,23 @@ class WeinbergSimulator(BaseSimulator):
     def simulate(self, theta, psi):
         # theta = gf
         # psi = sqrtshalf
-        sample = None
+        samples = []
 
-        x = np.linspace(-1, 1, 10000)
-        maxval = np.max(self._diffxsec(x, psi, theta))
-        while sample is None:
-            xprop = np.random.uniform(-1, 1)
-            ycut = np.random.random()
-            yprop = self._diffxsec(xprop, psi, theta) / maxval
-            if yprop / maxval < ycut:
-                continue
-            sample = xprop
+        for _ in range(self.num_samples):
+            sample = None
+            x = np.linspace(-1, 1, 10000)
+            maxval = np.max(self._diffxsec(x, psi, theta))
+            while sample is None:
+                xprop = np.random.uniform(-1, 1)
+                ycut = np.random.random()
+                yprop = self._diffxsec(xprop, psi, theta) / maxval
+                if yprop / maxval < ycut:
+                    continue
+                sample = xprop
+            sample = torch.tensor(sample).view(1, 1)
+            samples.append(sample)
 
-        return torch.tensor(sample).view(1, 1)
+        return torch.cat(samples, dim=1)
 
     @torch.no_grad()
     def forward(self, inputs, experimental_configurations=None):
