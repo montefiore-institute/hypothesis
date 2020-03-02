@@ -64,13 +64,13 @@ inputs = prior.sample((10,)) # Draw 10 samples from the prior.
 outputs = simulator(inputs)
 ```
 
-### Pharmacokinetic
+### Biomolecular docking
 
 > :heavy_check_mark: Supports experimental design
 
 ```python
-from hypothesis.benchmark.pharmacokinetic import Simulator
-from hypothesis.benchmark.pharmacokinetec import Prior
+from hypothesis.benchmark.biomoleculardocking import Simulator
+from hypothesis.benchmark.biomoleculardocking import Prior
 
 simulator = Simulator()
 prior = Prior()
@@ -78,7 +78,7 @@ prior = Prior()
 inputs = prior.sample((10,)) # Draw 10 samples from the prior.
 outputs = simulator(inputs)
 
-from hypothesis.benchmark.spatialsir import PriorExperiment # Experimental design space
+from hypothesis.benchmark.biomoleculardocking import PriorExperiment # Experimental design space
 
 prior_experiment = PriorExperiment()
 experimental_designs = prior_experiment.sample((10,))
@@ -100,7 +100,7 @@ prior = Prior()
 inputs = prior.sample((10,)) # Draw 10 samples from the prior.
 outputs = simulator(inputs)
 
-from hypothesis.benchmark.spatialsir import PriorExperiment # Experimental design space
+from hypothesis.benchmark.sir import PriorExperiment # Experimental design space
 
 prior_experiment = PriorExperiment()
 experimental_designs = prior_experiment.sample((10,))
