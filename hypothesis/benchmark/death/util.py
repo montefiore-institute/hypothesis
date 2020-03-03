@@ -25,4 +25,4 @@ def Truth():
 
 
 def log_likelihood(theta, x):
-    raise NotImplemented
+    raise NotImplementedError
