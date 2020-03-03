@@ -86,6 +86,28 @@ experimental_designs = prior_experiment.sample((10,))
 outputs = simulator(inputs, experimental_designs)
 ```
 
+### Death model
+
+> :heavy_check_mark: Supports experimental design
+
+```python
+from hypothesis.benchmark.death import Simulator
+from hypothesis.benchmark.death import Prior
+
+simulator = Simulator()
+prior = Prior()
+
+inputs = prior.sample((10,)) # Draw 10 samples from the prior.
+outputs = simulator(inputs)
+
+from hypothesis.benchmark.death import PriorExperiment # Experimental design space
+
+prior_experiment = PriorExperiment()
+experimental_designs = prior_experiment.sample((10,))
+
+outputs = simulator(inputs, experimental_designs)
+```
+
 ### SIR (Susceptible-Infected-Recovered) model
 
 > :heavy_check_mark: Supports experimental design
