@@ -16,25 +16,28 @@ class DeathModelSimulator(BaseSimulator):
         self.step_size = float(step_size)
 
     def simulate(self, theta, psi):
+        print(theta)
         # theta = [beta, gamma]
         # psi = tau
         # sample = [S(tau), I(tau), R(tau)]
         infection_rate = theta.item()
         design = psi.item()
-        S = self.population_size
         I = 0
-        n_steps = int(psi / self.step_size)
-        t = 0
+        t = 0.0
+        n_steps = int(psi / self.step_size / 10)
+        deltas = []
         for _ in range(n_steps):
-            if S == 0: # State will remain the same.
-                break
+            S = self.population_size - I
             p_inf = 1 - np.exp(-infection_rate * t)
             delta_I = int(Binomial(S, p_inf).sample())
-            S -= delta_I
             I += delta_I
+            deltas.append(delta_I)
             t += self.step_size
 
-        return torch.tensor([S, I]).float()
+        plt.plot(deltas)
+        plt.show()
+
+        return torch.tensor(I).float()
 
     @torch.no_grad()
     def forward(self, inputs, experimental_configurations=None):
