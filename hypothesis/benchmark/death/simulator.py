@@ -28,6 +28,8 @@ class DeathModelSimulator(BaseSimulator):
         deltas = []
         for _ in range(n_steps):
             S = self.population_size - I
+            if S == 0:
+                break
             p_inf = 1 - np.exp(-infection_rate * t)
             delta_I = int(Binomial(S, p_inf).sample())
             I += delta_I
