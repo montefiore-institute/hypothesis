@@ -16,7 +16,6 @@ class DeathModelSimulator(BaseSimulator):
         self.step_size = float(step_size)
 
     def simulate(self, theta, psi):
-        print(theta)
         # theta = [beta, gamma]
         # psi = tau
         # sample = [S(tau), I(tau), R(tau)]
