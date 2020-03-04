@@ -34,9 +34,6 @@ class DeathModelSimulator(BaseSimulator):
             deltas.append(delta_I)
             t += self.step_size
 
-        plt.plot(deltas)
-        plt.show()
-
         return torch.tensor(I).float()
 
     @torch.no_grad()
