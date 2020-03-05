@@ -23,7 +23,7 @@ class DeathModelSimulator(BaseSimulator):
         design = psi.item()
         I = 0
         t = 0.0
-        n_steps = int(psi / self.step_size / 10)
+        n_steps = int(psi / self.step_size)
         deltas = []
         for _ in range(n_steps):
             S = self.population_size - I
