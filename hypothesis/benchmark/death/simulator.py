@@ -24,7 +24,6 @@ class DeathModelSimulator(BaseSimulator):
         I = 0
         t = 0.0
         n_steps = int(psi / self.step_size)
-        deltas = []
         for _ in range(n_steps):
             S = self.population_size - I
             if S == 0:
@@ -32,7 +31,6 @@ class DeathModelSimulator(BaseSimulator):
             p_inf = 1 - np.exp(-infection_rate * t)
             delta_I = int(Binomial(S, p_inf).sample())
             I += delta_I
-            deltas.append(delta_I)
             t += self.step_size
 
         return torch.tensor(I).float()
