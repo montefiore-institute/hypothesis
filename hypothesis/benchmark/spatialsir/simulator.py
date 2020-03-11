@@ -48,7 +48,8 @@ class SpatialSIRSimulator(BaseSimulator):
             next_infected = (next_infected >= 1).astype(np.int)
             # Recover
             potential = infected * gamma
-            next_recovered = ((potential > np.random.uniform(size=self.lattice_shape)).astype(np.int) + recovered)
+            next_recovered = (potential > np.random.uniform(size=self.lattice_shape)).astype(np.int) + recovered
+            next_recovered = (next_recovered >= 1).astype(np.int)
             # Next parameters
             recovered = next_recovered
             infected = next_infected
