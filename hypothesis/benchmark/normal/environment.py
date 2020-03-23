@@ -10,7 +10,7 @@ from hypothesis.simulation import Environment as BaseEnvironment
 
 class Environment(BaseEnvironment):
 
-    def __init__(self, entropy_estimator, max_experiments=10):
+    def __init__(self, entropy_estimator, max_experiments=10, truth=None):
         super(Environment, self).__init__()
         # Check if an entropy estimator has been specified.
         if entropy_estimator is None:
@@ -19,6 +19,7 @@ class Environment(BaseEnvironment):
         self.conducted_experiments = 0
         self.entropy_estimator = entropy_estimator
         self.max_experiments = 10
+        self.predefined_truth = truth
         self.prior = Prior()
         self.prior_experiment = PriorExperiment()
         self.simulator = Simulator()
@@ -64,4 +65,7 @@ class Environment(BaseEnvironment):
         self.conducted_experiments = 0
         self.observations = []
         self.rewards = []
-        self.truth = self.prior.sample().view(-1, 1)
+        if self.predefined_truth is None:
+            self.truth = self.prior.sample().view(-1, 1)
+        else:
+            self.truth = torch.tensor(self.predefined_truth).view(-1, 1)
