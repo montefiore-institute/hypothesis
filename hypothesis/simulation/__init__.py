@@ -6,3 +6,4 @@ model needs to be wrapped in a class which inherits from
 
 from .base import Simulator
 from .base import ParallelSimulator
+from .base import Environment
