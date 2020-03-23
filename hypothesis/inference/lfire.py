@@ -15,12 +15,14 @@ from hypothesis.engine import Procedure
 class LFIRE(Procedure, torch.nn.Module):
 
     def __init__(self, simulator, prior,
+            alpha=0.01,
             simulation_batch_size=10000,
             summary=None,
             parallelism=hypothesis.workers,
             approximations=1):
         Procedure.__init__(self)
         torch.nn.Module.__init__(self)
+        self.alpha = float(alpha)
         self.approximations = int(approximations)
         self.parallelism = int(parallelism)
         self.prior = prior
@@ -49,10 +51,8 @@ class LFIRE(Procedure, torch.nn.Module):
         log_ratios = []
         for _ in range(self.approximations):
             model = LogitNet(**{
-                "alpha": 1,
-                "n_splits": 10,
-                "n_jobs": self.parallelism,
-                "cut_point": 0})
+                "alpha": self.alpha,
+                "n_jobs": self.parallelism})
             model.fit(data, labels)
             log_ratio = model.intercept_ + np.sum(np.multiply(model.coef_, x))
             log_ratios.append(torch.tensor(log_ratio).view(1, 1))
