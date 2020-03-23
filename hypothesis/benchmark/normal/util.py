@@ -12,6 +12,10 @@ def Prior():
     return Uniform(-10, 10)
 
 
+def PriorExperiment():
+    return Uniform(-10, 10)
+
+
 def Truth():
     return torch.tensor([0]).float()
 

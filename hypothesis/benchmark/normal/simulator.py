@@ -16,5 +16,8 @@ class NormalSimulator(Simulator):
         super(NormalSimulator, self).__init__()
         self.uncertainty = float(uncertainty)
 
-    def forward(self, inputs):
-        return Normal(inputs, self.uncertainty).sample()
+    def forward(self, inputs, experimental_configurations=None):
+        if experimental_configurations is None:
+            experimental_configurations = self.uncertainty
+
+        return Normal(inputs, experimental_configurations).sample()

@@ -44,9 +44,6 @@ class Simulator(torch.nn.Module):
 
 class Environment:
 
-    def __init__(self):
-        self.reset() # Reset the environment on initialization
-
     def step(self, action):
         raise NotImplementedError
 
