@@ -9,11 +9,11 @@ from torch.distributions.normal import Normal
 
 
 def Prior():
-    return Uniform(-10, 10)
+    return Uniform(-5, 5)
 
 
 def PriorExperiment():
-    return Uniform(-10, 10)
+    return Uniform(-5, 5)
 
 
 def Truth():
