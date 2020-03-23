@@ -1,7 +1,7 @@
 import hypothesis
 import torch
 
-from .simulator import Simulator
+from .simulator import NormalSimulator as Simulator
 from .util import Prior
 from .util import PriorExperiment
 from hypothesis.simulation import Environment as BaseEnvironment
@@ -33,16 +33,16 @@ class Environment(BaseEnvironment):
     def _perform_experiment(self, experiment):
         inputs = self.truth
         designs = experiment.view(-1, 1)
-        observations = self.simulator(inputs, designs).view(-1, 1)
+        observations = self.simulator(inputs=inputs, experimental_configurations=designs).view(-1, 1)
 
         return observations
 
     def _reward(self):
         return self.entropy_estimator(self.actions, self.observations)
 
-    def _summary(self):
+    def summary(self):
         return {
-            "actions": self.actions,
+            "experiments": self.actions,
             "observations": self.observations,
             "rewards": self.rewards,
             "truth": self.truth.item()}
@@ -51,13 +51,13 @@ class Environment(BaseEnvironment):
         assert(self.conducted_experiments < self.max_experiments)
         observation = self._perform_experiment(action)
         self.conducted_experiments += 1
-        self.observations.append(observation)
-        self.actions.append(action)
+        self.observations.append(observation.item())
+        self.actions.append(action.item())
         reward = self._reward()
         self.rewards.append(reward)
         done = (self.conducted_experiments >= self.max_experiments)
 
-        return observation, reward, done, self._summary()
+        return observation, reward, done, self.summary()
 
     @torch.no_grad()
     def reset(self):
