@@ -13,7 +13,7 @@ class Environment(BenchmarkEnvironment):
     def __init__(self, entropy_estimator,
         max_experiments=10,
         truth=None):
-        super(BenchmarkEnvironment, self).__init__(
+        super(Environment, self).__init__(
             entropy_estimator=entropy_estimator,
             max_experiments=max_experiments,
             prior=Prior(),
