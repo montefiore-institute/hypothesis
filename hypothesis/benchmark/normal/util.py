@@ -16,6 +16,10 @@ def PriorExperiment():
     return Uniform(-5, 5)
 
 
+def Support():
+    return Uniform(-5, 5)
+
+
 def Truth():
     return torch.tensor([0]).float()
 
