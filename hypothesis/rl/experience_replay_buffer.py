@@ -8,7 +8,7 @@ from torch.utils.data import Dataset
 
 class ExperienceReplayBuffer(Dataset):
 
-    def __init__(self, num_stores=4):
+    def __init__(self, num_stores=5):
         # Check if a valid number of stores has been specified
         if num_stores <= 0:
             raise ValueError("A valid number of data storages (> 0) needs to be specified.")
