@@ -1,7 +1,7 @@
 import hypothesis
 import torch
 
-from hypothesis.simulation import Environment as BaseEnvironment
+from hypothesis.rl import Environment as BaseEnvironment
 
 
 

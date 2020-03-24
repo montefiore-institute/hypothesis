@@ -42,16 +42,6 @@ class Simulator(torch.nn.Module):
 
 
 
-class Environment:
-
-    def step(self, action):
-        raise NotImplementedError
-
-    def reset(self):
-        raise NotImplementedError
-
-
-
 class ParallelSimulator(Simulator):
 
     def __init__(self, simulator, workers=2):
