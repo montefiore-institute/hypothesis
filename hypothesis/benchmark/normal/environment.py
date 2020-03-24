@@ -8,7 +8,7 @@ from hypothesis.benchmark import BenchmarkEnvironment
 
 
 
-class Environment(BaseEnvironment):
+class Environment(BenchmarkEnvironment):
 
     def __init__(self, entropy_estimator,
         max_experiments=10,
