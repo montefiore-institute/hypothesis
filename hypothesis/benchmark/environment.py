@@ -55,10 +55,10 @@ class BenchmarkEnvironment(BaseEnvironment):
         assert(self.conducted_experiments < self.max_experiments)
         observation = self._perform_experiment(action)
         self.conducted_experiments += 1
-        self.observations.append(observation.detach())
-        self.actions.append(action.detach())
+        self.observations.append(observation.cpu().detach())
+        self.actions.append(action.cpu().detach())
         reward = self._reward()
-        self.rewards.append(reward.detach())
+        self.rewards.append(reward.cpu().detach())
         done = (self.conducted_experiments >= self.max_experiments)
 
         return observation, reward, done, self.summary()
