@@ -33,8 +33,8 @@ class BenchmarkEnvironment(BaseEnvironment):
 
     @torch.no_grad()
     def _perform_experiment(self, experiment):
-        inputs = self.truth.shape(1, -1)
-        designs = esperiment.view(1, -1)
+        inputs = self.truth.view(1, -1)
+        designs = experiment.view(1, -1)
         outputs = self.simulator(inputs=inputs, designs=designs)
 
         return outputs
@@ -53,10 +53,10 @@ class BenchmarkEnvironment(BaseEnvironment):
     def step(self, action):
         assert(self.conducted_experiments < self.max_experiments)
         observation = self._perform_experiment(action)
-        reward = self._reward()
         self.conducted_experiments += 1
         self.observations.append(observation.detach())
         self.actions.append(action.detach())
+        reward = self._reward()
         self.rewards.append(reward.detach())
         done = (self.conducted_experiments >= self.max_experiments)
 
@@ -66,6 +66,7 @@ class BenchmarkEnvironment(BaseEnvironment):
     def reset(self):
         self.actions = []
         self.conducted_experiments = 0
+        self.observations = []
         self.rewards = []
         if self.predefined_truth is None:
             self.truth = self.prior.sample().view(1, -1)
