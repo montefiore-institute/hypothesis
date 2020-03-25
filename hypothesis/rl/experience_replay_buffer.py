@@ -27,7 +27,7 @@ class ExperienceReplayBuffer(Dataset):
     @torch.no_grad()
     def put(self, transition):
         for index in range(self.num_storages):
-            self.storages[index].append(transition[index].squeeze())
+            self.storages[index].append(transition[index].squeeze().cpu())
 
     def size(self):
         return len(self.storages[0])
