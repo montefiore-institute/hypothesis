@@ -40,7 +40,8 @@ class BenchmarkEnvironment(BaseEnvironment):
         return outputs
 
     def _reward(self):
-        return self.entropy_estimator(self.actions, self.observations)
+        r"""We negate the entropy as the reward needs to be maximized."""
+        return -self.entropy_estimator(self.actions, self.observations)
 
     @torch.no_grad()
     def summary(self):
