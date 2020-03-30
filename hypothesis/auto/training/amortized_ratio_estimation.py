@@ -95,7 +95,7 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
             losses_test=np.array(self.losses_test).reshape(-1))
 
     def _cpu_estimator_state_dict(self):
-        state_dict = self.estimator.state_dict()
+        state_dict = self.estimator.cpu().state_dict() # Move model to CPU before copying state dict
         for k, v in state_dict.items():
             state_dict[k] = v.cpu()
 
