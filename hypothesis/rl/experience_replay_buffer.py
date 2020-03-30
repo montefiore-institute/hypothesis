@@ -34,7 +34,7 @@ class ExperienceReplayBuffer(Dataset):
 
     @torch.no_grad()
     def sample(self, batch_size=hypothesis.default.batch_size):
-        indices = np.random.randint(0, self.size())
+        indices = np.random.randint(0, self.size(), size=batch_size)
         tensors = [[] for _ in range(self.num_storages)]
         experiences = [self._retrieve(index) for index in indices]
         for experience in experiences:
