@@ -39,8 +39,8 @@ class RatioEstimatorEnsemble(BaseRatioEstimator):
     @staticmethod
     def _allocate_reduce(f):
         reductions = {
-            "mean": AmortizedApproximateRatioEstimatorEnsemble._reduce_mean,
-            "median": AmortizedApproximateRatioEstimatorEnsemble._reduce_median}
+            "mean": RatioEstimatorEnsemble._reduce_mean,
+            "median": RatioEstimatorEnsemble._reduce_median}
         reduce = None
         if hasattr(f, "__call__"):
             return f
