@@ -27,6 +27,9 @@ class RatioEstimatorEnsemble(BaseRatioEstimator):
         self.estimators = estimators
         self.reduce = self._allocate_reduce(reduce)
 
+    def reduce_as(self, reduce):
+        self.reduce = self._allocate_reduce(reduce)
+
     def log_ratio(self, **kwargs):
         # Check if the 'reduce' keyword is an argument.
         if RatioEstimatorEnsemble.KEYWORD_REDUCE in kwargs.keys():
