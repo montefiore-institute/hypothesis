@@ -20,13 +20,21 @@ class BaseRatioEstimator(torch.nn.Module):
 
 class RatioEstimatorEnsemble(BaseRatioEstimator):
 
+    KEYWORD_REDUCE = "reduce"
+
     def __init__(self, estimators, reduce="mean"):
         super(RatioEstimatorEnsemble, self).__init__()
         self.estimators = estimators
         self.reduce = self._allocate_reduce(reduce)
 
     def log_ratio(self, **kwargs):
-        reduce = kwargs.get("reduce", True)
+        # Check if the 'reduce' keyword is an argument.
+        if RatioEstimatorEnsemble.KEYWORD_REDUCE in kwargs.keys():
+            reduce = kwargs[RatioEstimatorEnsemble.KEYWORD_REDUCE]
+            del kwargs[RatioEstimatorEnsemble.KEYWORD_REDUCE]
+        else:
+            reduce = True # Default value
+        # Estimate the log ratios
         log_ratios = []
         for estimator in self.estimators:
             log_ratios.append(estimator.log_ratio(**kwargs))
