@@ -86,7 +86,7 @@ experimental_designs = prior_experiment.sample((10,))
 outputs = simulator(inputs, experimental_designs)
 ```
 
-### Death model
+### Stochastic Death model
 
 > :heavy_check_mark: Supports experimental design
 
@@ -108,7 +108,7 @@ experimental_designs = prior_experiment.sample((10,))
 outputs = simulator(inputs, experimental_designs)
 ```
 
-### SIR (Susceptible-Infected-Recovered) model
+### Stochastic SIR (Susceptible-Infected-Recovered) model
 
 > :heavy_check_mark: Supports experimental design
 
@@ -130,7 +130,7 @@ experimental_designs = prior_experiment.sample((10,))
 outputs = simulator(inputs, experimental_designs)
 ```
 
-### Spatial SIR (Susceptible-Infected-Recovered) model
+### Stochastic Spatial SIR (Susceptible-Infected-Recovered) model
 
 > :heavy_check_mark: Supports experimental design
 
