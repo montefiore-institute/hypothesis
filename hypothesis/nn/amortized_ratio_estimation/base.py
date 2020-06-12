@@ -32,7 +32,7 @@ class RatioEstimatorEnsemble(BaseRatioEstimator):
 
     def to(self, device):
         for index in range(len(self.estimators)):
-            self.estimators[i] = self.estimators[i].to(device)
+            self.estimators[index] = self.estimators[index].to(device)
 
         return self
 
