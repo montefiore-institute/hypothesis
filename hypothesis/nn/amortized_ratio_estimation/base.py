@@ -34,6 +34,8 @@ class RatioEstimatorEnsemble(BaseRatioEstimator):
         for estimator in self.estimators:
             estimator.to(device)
 
+        return self
+
     def log_ratio(self, **kwargs):
         # Check if the 'reduce' keyword is an argument.
         if RatioEstimatorEnsemble.KEYWORD_REDUCE in kwargs.keys():
