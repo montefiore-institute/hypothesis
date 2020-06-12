@@ -64,7 +64,9 @@ def disable_gpu():
 def enable_gpu():
     r"""Tries to enable GPU acceleration. If a GPU is present, a CUDA
     device will be set, else it will default to 'cpu'."""
-    return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    hypothesis.accelerator = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    return hypothesis.accelerator
 
 
 def gpu_available():
