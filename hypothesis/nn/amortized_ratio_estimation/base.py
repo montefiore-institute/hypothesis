@@ -31,8 +31,8 @@ class RatioEstimatorEnsemble(BaseRatioEstimator):
         self.reduce = self._allocate_reduce(reduce)
 
     def to(self, device):
-        for estimator in self.estimators:
-            estimator.to(device)
+        for index in range(self.estimators):
+            self.estimators[i] = estimator.to(device)
 
         return self
 
