@@ -6,6 +6,7 @@ import torch
 @torch.no_grad()
 def highest_density_level(pdf, alpha, epsilon=10e-10):
     pdf /= pdf.sum()
+    pdf = pdf.numpy()
     if pdf.ndim >= 2:
         mask = multivariate_density_level(pdf=pdf, alpha=alpha, epsilon=epsilon)
     else:
