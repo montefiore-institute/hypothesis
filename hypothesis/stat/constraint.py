@@ -20,7 +20,7 @@ def highest_density_level(pdf, alpha, epsilon=10e-10, mask=False):
     # Restore to original level
     optimal_level *= total_pdf
 
-    if mask
+    if mask:
         return optimal_level, torch.from_numpy(mask)
     else:
         return optimal_level
