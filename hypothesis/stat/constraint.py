@@ -4,7 +4,7 @@ import torch
 
 
 @torch.no_grad()
-def highest_density_level(pdf, alpha, epsilon=10e-7, mask=False):
+def highest_density_level(pdf, alpha, epsilon=10e-10, mask=False):
     # Prepare posterior
     pdf = pdf.cpu().clone().numpy() # Clone to fix strange behaviour in Jupyter.
     total_pdf = pdf.sum()
