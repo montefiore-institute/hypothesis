@@ -9,15 +9,15 @@ from scipy.integrate import nquad
 
 class DensityDiagnostic(BaseDiagnostic):
 
-    def __init__(self, space, pdf, epsilon=0.1):
+    def __init__(self, space, density, epsilon=0.1):
         super(DensityDiagnostic, self).__init__()
+        self.density = density
         self.epsilon = epsilon
-        self.pdf = pdf
-        self.result = None
+        self.last_result = None
         self.space = space
 
     def test(**kwargs):
-        self.result = integrate.nquad(self.pdf, self.space)
-        area, _ = self.result
+        self.last_result = integrate.nquad(self.pdf, self.space)
+        area, _ = self.last_result
 
         return abs(1 - area) <= self.epsilon
