@@ -21,7 +21,7 @@ class DensityDiagnostic(BaseDiagnostic):
         self.results = []
 
     def test(self, function):
-        area, _ = integrate.nquad(function, self.space)
+        area, _ = nquad(function, self.space)
         passed = abs(1 - area) <= self.epsilon
         self.areas.append(area)
         self.results.append(passed)
