@@ -74,8 +74,10 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
             state["epochs"] = self.epochs
             state["losses_test"] = self.losses_test
             state["losses_train"] = self.losses_train
-            if self.lr_scheduler is not None:
-                state["lr_scheduler"] = self.lr_scheduler.state_dict()
+            if self.lr_scheduler_update is not None:
+                state["lr_scheduler_update"] = self.lr_scheduler_update.state_dict()
+            if self.lr_scheduler_epoch is not None:
+                state["lr_scheduler_epoch"] = self.lr_scheduler_epoch.state_dict()
             state["optimizer"] = self.optimizer.state_dict()
             state["best_epoch"] = self.best_epoch
             state["best_loss"] = self.best_loss
