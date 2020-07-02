@@ -174,7 +174,8 @@ class LikelihoodToEvidenceRatioEstimatorTrainer(BaseAmortizedRatioEstimatorTrain
         checkpoint=None,
         dataset_test=None,
         epochs=hypothesis.default.epochs,
-        lr_scheduler=None,
+        lr_scheduler_epoch=None,
+        lr_scheduler_update=None,
         identifier=None,
         workers=hypothesis.default.dataloader_workers):
         feeder = LikelihoodToEvidenceRatioEstimatorTrainer.feeder
@@ -190,7 +191,8 @@ class LikelihoodToEvidenceRatioEstimatorTrainer(BaseAmortizedRatioEstimatorTrain
             estimator=estimator,
             feeder=feeder,
             identifier=identifier,
-            lr_scheduler=lr_scheduler,
+            lr_scheduler_epoch=lr_scheduler_epoch,
+            lr_scheduler_update=lr_scheduler_update,
             optimizer=optimizer,
             workers=workers)
 
