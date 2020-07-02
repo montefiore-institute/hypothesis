@@ -23,8 +23,8 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
         checkpoint=None,
         dataset_test=None,
         epochs=hypothesis.default.epochs,
-        lr_scheduler=None,
-        lr_scheduler_epoch=True,
+        lr_scheduler_epoch=None,
+        lr_scheduler_update=None,
         identifier=None,
         workers=hypothesis.default.dataloader_workers):
         super(BaseAmortizedRatioEstimatorTrainer, self).__init__(
@@ -45,8 +45,8 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
         self.feeder = feeder
         self.losses_test = []
         self.losses_train = []
-        self.lr_scheduler = lr_scheduler
         self.lr_scheduler_epoch = lr_scheduler_epoch
+        self.lr_scheduler_update = lr_scheduler_update
         self.optimizer = optimizer
         self.best_epoch = None
         self.best_loss = float("infinity")
@@ -117,8 +117,8 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
             else:
                 self.best_model = self._cpu_estimator_state_dict()
             # Check if a learning rate scheduler has been allocated.
-            if self.lr_scheduler_epoch and self.lr_scheduler is not None:
-                self.lr_scheduler.step()
+            if self.lr_scheduler_update is not None:
+                self.lr_scheduler_update.step()
             self.checkpoint()
         # Remove the checkpoint.
         if self._valid_checkpoint_path_and_exists():
@@ -155,8 +155,8 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
             self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()
-            if not self.lr_scheduler_epoch and self.lr_scheduler is not None:
-                self.lr_scheduler.step()
+            if self.lr_scheduler_epoch is not None:
+                self.lr_scheduler_epoch.step()
             self.losses_train.append(loss.item())
 
 
