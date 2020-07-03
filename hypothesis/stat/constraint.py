@@ -3,7 +3,7 @@ import torch
 
 
 @torch.no_grad()
-def highest_density_level(pdf, alpha, min_error=10e-4, mask=False, lr=0.0001, mu=0.1):
+def highest_density_level(pdf, alpha, min_error=10e-5, mask=False, lr=0.0001, mu=0.1):
     # Prepare posterior
     pdf = pdf.cpu().clone().numpy() # Clone to fix strange behaviour in Jupyter.
     total_pdf = pdf.sum()
@@ -23,7 +23,7 @@ def highest_density_level(pdf, alpha, min_error=10e-4, mask=False, lr=0.0001, mu
         momentum = grad + mu * momentum
         optimal_level = optimal_level - momentum
         if last_error == error:
-            raise ValueError("Increase resolution of the PDF, or decrease the minimum error by supplying `min_error`.")
+            break
         last_error = error
     optimal_level *= total_pdf
 
