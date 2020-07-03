@@ -14,6 +14,7 @@ def highest_density_level(pdf, alpha, min_error=10e-4, mask=False, lr=0.0001, mu
     optimal_level = float(0)
     error = float("infinity")
     momentum = 0.0
+    last_error = error
     while abs(error) >= min_error:
         m = (pdf >= optimal_level).astype(np.float32)
         area = np.sum(m * pdf)
@@ -21,6 +22,9 @@ def highest_density_level(pdf, alpha, min_error=10e-4, mask=False, lr=0.0001, mu
         grad = lr * error
         momentum = grad + mu * momentum
         optimal_level = optimal_level - momentum
+        if last_error == error:
+            raise ValueError("Increase resolution of the PDF, or decrease the minimum error by supplying `min_error`.")
+        last_error = error
     optimal_level *= total_pdf
 
     if mask:
