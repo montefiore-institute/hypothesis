@@ -5,7 +5,7 @@ import torch
 
 
 @torch.no_grad()
-def highest_density_level(pdf, alpha, mask=False):
+def highest_density_level(pdf, alpha, mask=False, min_epsilon=10e-17):
     # Prepare posterior
     pdf = pdf.cpu().clone().numpy() # Clone to fix strange behaviour in Jupyter.
     total_pdf = pdf.sum()
@@ -14,7 +14,7 @@ def highest_density_level(pdf, alpha, mask=False):
     n = len(pdf)
     optimal_level = float(0)
     epsilon = 10e-02
-    while epsilon >= 10e-15:
+    while epsilon >= min_epsilon:
         area = float(1)
         while area >= alpha:
             # Compute the integral
