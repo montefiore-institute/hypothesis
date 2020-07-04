@@ -52,7 +52,7 @@ class Procedure:
 
     def call_event(self, event, **kwargs):
         # Check if the specified event exists.
-        if not self._event_exists():
+        if not self._event_exists(event):
             raise NoSuchEventException
         handlers = self.hooks[event]
         for handler in handlers:
