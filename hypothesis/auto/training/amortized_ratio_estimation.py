@@ -56,7 +56,8 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
         self.criterion = self.criterion.to(self.accelerator)
 
     def _register_events(self):
-        pass
+        self.register_event("epoch_start")
+        self.register_event("epoch_complete")
 
     def _valid_checkpoint_path(self):
         return self.checkpoint_path is not None and len(self.checkpoint_path) > 0
@@ -112,6 +113,7 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
         # Training procedure
         for epoch in range(self.epochs):
             self.current_epoch = epoch + 1
+            self.call_event(self.events.epoch_start, self)
             self.train()
             # Check if a testing dataset is available.
             if self.dataset_test is not None:
@@ -122,6 +124,7 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
             if self.lr_scheduler_update is not None:
                 self.lr_scheduler_update.step()
             self.checkpoint()
+            self.call_event(self.events.epoch_complete, self)
         # Remove the checkpoint.
         if self._valid_checkpoint_path_and_exists():
             os.remove(self.checkpoint_path)
