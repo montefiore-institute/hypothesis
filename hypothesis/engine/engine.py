@@ -36,13 +36,13 @@ class Procedure:
 
     def add_event_handler(self, event, f):
         # Check if the specified event exists.
-        if not self._event_exists():
+        if not self._event_exists(event):
             raise NoSuchEventException
         self.hooks[event].append(f)
 
     def clear_event_handler(self, event):
         # Check if the specified event exists.
-        if not self._event_exists():
+        if not self._event_exists(event):
             raise NoSuchEventException()
         self.hooks[event] = []
 
