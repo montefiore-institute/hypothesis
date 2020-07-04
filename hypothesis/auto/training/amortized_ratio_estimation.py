@@ -123,6 +123,7 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
             # Check if a learning rate scheduler has been allocated.
             if self.lr_scheduler_update is not None:
                 self.lr_scheduler_update.step()
+            self.remaining_epochs -= 1
             self.checkpoint()
             self.call_event(self.events.epoch_complete, self)
         # Remove the checkpoint.

@@ -3,12 +3,16 @@ from hypothesis.exception import NoEventRegistrationException
 
 
 
+class Events: pass
+
+
+
 class Procedure:
     r""""""
 
     def __init__(self):
         self.hooks = {}
-        self.events = object()
+        self.events = Events()
         self.num_events = 0
         self._register_events()
 
