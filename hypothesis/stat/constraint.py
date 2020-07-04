@@ -14,7 +14,7 @@ def highest_density_level(pdf, alpha, mask=False):
     n = len(pdf)
     optimal_level = float(0)
     epsilon = 10e-02
-    while epsilon >= 10e-20:
+    while epsilon >= 10e-15:
         area = float(1)
         while area >= alpha:
             # Compute the integral
