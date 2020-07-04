@@ -56,8 +56,10 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
         self.criterion = self.criterion.to(self.accelerator)
 
     def _register_events(self):
-        self.register_event("epoch_start")
+        self.register_event("batch_complete")
+        self.register_event("batch_start")
         self.register_event("epoch_complete")
+        self.register_event("epoch_start")
 
     def _valid_checkpoint_path(self):
         return self.checkpoint_path is not None and len(self.checkpoint_path) > 0
@@ -153,7 +155,8 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
     def train(self):
         self.estimator.train()
         loader = self._allocate_data_loader(self.dataset_train)
-        for batch in loader:
+        for index, batch in enumerate(loader):
+            self.call_event(self.events.batch_start)
             loss = self.feeder(
                 accelerator=self.accelerator,
                 batch=batch,
@@ -163,7 +166,9 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
             self.optimizer.step()
             if self.lr_scheduler_epoch is not None:
                 self.lr_scheduler_epoch.step()
-            self.losses_train.append(loss.item())
+            loss = loss.item()
+            self.losses_train.append(loss)
+            self.call_event(self.events.batch_complete, index=index, loss=loss)
 
 
 
