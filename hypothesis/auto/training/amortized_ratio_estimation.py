@@ -123,8 +123,8 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
             else:
                 self.best_model = self._cpu_estimator_state_dict()
             # Check if a learning rate scheduler has been allocated.
-            if self.lr_scheduler_update is not None:
-                self.lr_scheduler_update.step()
+            if self.lr_scheduler_epoch is not None:
+                self.lr_scheduler_epoch.step()
             self.epochs_remaining -= 1
             self.checkpoint()
             self.call_event(self.events.epoch_complete)
@@ -164,8 +164,8 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
             self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()
-            if self.lr_scheduler_epoch is not None:
-                self.lr_scheduler_epoch.step()
+            if self.lr_scheduler_update is not None:
+                self.lr_scheduler_update.step()
             loss = loss.item()
             self.losses_train.append(loss)
             self.call_event(self.events.batch_complete, index=index, loss=loss)
