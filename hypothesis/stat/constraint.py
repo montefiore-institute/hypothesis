@@ -5,9 +5,11 @@ import torch
 
 
 @torch.no_grad()
-def highest_density_level(pdf, alpha, mask=False, min_epsilon=10e-17):
+def highest_density_region(pdf, alpha, mask=False, min_epsilon=10e-17):
     # Prepare posterior
-    pdf = pdf.cpu().clone().numpy() # Clone to fix strange behaviour in Jupyter.
+    # Detect numpy type
+    if type(pdf).__module__ != np.__name__
+        pdf = pdf.cpu().clone().numpy() # Clone to fix strange behaviour in Jupyter.
     total_pdf = pdf.sum()
     pdf /= total_pdf
     # Compute highest density level and the corresponding mask
