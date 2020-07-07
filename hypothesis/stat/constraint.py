@@ -9,7 +9,9 @@ def highest_density_region(pdf, alpha, min_epsilon=10e-17):
     # Prepare posterior
     # Detect numpy type
     if type(pdf).__module__ != np.__name__:
-        pdf = pdf.cpu().clone().numpy() # Clone to fix strange behaviour in Jupyter.
+        pdf = pdf.cpu().clone().numpy()
+    else:
+        pdf = np.array(pdf)
     total_pdf = pdf.sum()
     pdf /= total_pdf
     # Compute highest density level and the corresponding mask
@@ -35,7 +37,9 @@ def highest_density_level(pdf, alpha, min_epsilon=10e-17, region=False):
     # Prepare posterior
     # Detect numpy type
     if type(pdf).__module__ != np.__name__:
-        pdf = pdf.cpu().clone().numpy() # Clone to fix strange behaviour in Jupyter.
+        pdf = pdf.cpu().clone().numpy()
+    else:
+        pdf = np.array(pdf)
     total_pdf = pdf.sum()
     pdf /= total_pdf
     # Compute highest density level and the corresponding mask
