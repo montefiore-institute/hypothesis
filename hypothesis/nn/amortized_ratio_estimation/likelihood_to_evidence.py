@@ -32,7 +32,6 @@ class ConservativeLikelihoodToEvidenceCriterion(LikelihoodToEvidenceCriterion):
         logits=False):
         super(ConservativeLikelihoodToEvidenceCriterion, self).__init__(
             batch_size=batch_size,
-            denominator=LikelihoodToEvidenceCriterion.DENOMINATOR,
             estimator=estimator,
             logits=logits)
         self.alpha = alpha
