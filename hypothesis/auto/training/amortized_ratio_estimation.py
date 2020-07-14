@@ -178,10 +178,10 @@ class LikelihoodToEvidenceRatioEstimatorTrainer(BaseAmortizedRatioEstimatorTrain
     def __init__(self,
         estimator,
         optimizer,
-        criterion,
         dataset_train,
         accelerator=hypothesis.accelerator,
         batch_size=hypothesis.default.batch_size,
+        criterion=None,
         checkpoint=None,
         dataset_test=None,
         epochs=hypothesis.default.epochs,
@@ -189,6 +189,10 @@ class LikelihoodToEvidenceRatioEstimatorTrainer(BaseAmortizedRatioEstimatorTrain
         lr_scheduler_epoch=None,
         lr_scheduler_update=None,
         workers=hypothesis.default.dataloader_workers):
+        if criterion is None:
+            criterion = LikelihoodToEvidenceCriterion(
+                batch_size=batch_size,
+                estimator=estimator)
         feeder = LikelihoodToEvidenceRatioEstimatorTrainer.feeder,
         super(LikelihoodToEvidenceRatioEstimatorTrainer, self).__init__(
             accelerator=accelerator,
