@@ -23,6 +23,41 @@ class LikelihoodToEvidenceCriterion(BaseCriterion):
 
 
 
+class ConservativeLikelihoodToEvidenceCriterion(LikelihoodToEvidenceCriterion):
+
+    def __init__(self,
+        estimator,
+        alpha=0.01,
+        batch_size=hypothesis.default.batch_size,
+        logits=False):
+        self.alpha = alpha
+
+    def _forward_without_logits(self, **kwargs):
+        y_dependent, log_ratios_dependent = self.estimator(**kwargs)
+        for group in self.independent_random_variables:
+            random_indices = torch.randperm(self.batch_size)
+            for variable in group:
+                kwargs[variable] = kwargs[variable][random_indices] # Make variable independent.
+        y_independent, _ = self.estimator(**kwargs)
+        loss = self.criterion(y_dependent, self.ones) + self.criterion(y_independent, self.zeros)
+        regularizer = self.alpha * log_ratios_dependent.exp().mean()
+
+        return loss - regularizer
+
+    def _forward_with_logits(self, **kwargs):
+        y_dependent = self.estimator.log_ratio(**kwargs)
+        for group in self.independent_random_variables:
+            random_indices = torch.randperm(self.batch_size)
+            for variable in group:
+                kwargs[variable] = kwargs[variable][random_indices] # Make variable independent.
+        y_independent = self.estimator.log_ratio(**kwargs)
+        loss = self.criterion(y_dependent, self.ones) + self.criterion(y_independent, self.zeros)
+        regularizer = self.alpha * y_dependent.exp().mean()
+
+        return loss - regularizer
+
+
+
 class BaseLikelihoodToEvidenceRatioEstimator(BaseRatioEstimator):
 
     def __init__(self):

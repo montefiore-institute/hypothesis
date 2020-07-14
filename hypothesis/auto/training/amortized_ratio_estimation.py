@@ -5,6 +5,7 @@ import torch
 
 from .base import BaseTrainer
 from hypothesis.nn.amortized_ratio_estimation import BaseCriterion
+from hypothesis.nn.amortized_ratio_estimation import ConservativeLikelihoodToEvidenceCriterion
 from hypothesis.nn.amortized_ratio_estimation import LikelihoodToEvidenceCriterion
 from hypothesis.summary import TrainingSummary as Summary
 
@@ -23,9 +24,9 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
         checkpoint=None,
         dataset_test=None,
         epochs=hypothesis.default.epochs,
+        identifier=None,
         lr_scheduler_epoch=None,
         lr_scheduler_update=None,
-        identifier=None,
         workers=hypothesis.default.dataloader_workers):
         super(BaseAmortizedRatioEstimatorTrainer, self).__init__(
             identifier=identifier,
@@ -187,8 +188,8 @@ class LikelihoodToEvidenceRatioEstimatorTrainer(BaseAmortizedRatioEstimatorTrain
         lr_scheduler_update=None,
         identifier=None,
         workers=hypothesis.default.dataloader_workers):
-        feeder = LikelihoodToEvidenceRatioEstimatorTrainer.feeder
-        criterion = LikelihoodToEvidenceCriterion
+        feeder=LikelihoodToEvidenceRatioEstimatorTrainer.feeder
+        criterion=LikelihoodToEvidenceCriterion
         super(LikelihoodToEvidenceRatioEstimatorTrainer, self).__init__(
             accelerator=accelerator,
             batch_size=batch_size,
