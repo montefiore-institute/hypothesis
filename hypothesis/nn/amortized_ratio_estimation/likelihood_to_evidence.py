@@ -30,6 +30,11 @@ class ConservativeLikelihoodToEvidenceCriterion(LikelihoodToEvidenceCriterion):
         alpha=0.01,
         batch_size=hypothesis.default.batch_size,
         logits=False):
+        super(ConservativeLikelihoodToEvidenceCriterion, self).__init__(
+            batch_size=batch_size,
+            denominator=LikelihoodToEvidenceCriterion.DENOMINATOR,
+            estimator=estimator,
+            logits=logits)
         self.alpha = alpha
 
     def _forward_without_logits(self, **kwargs):
