@@ -185,11 +185,11 @@ class LikelihoodToEvidenceRatioEstimatorTrainer(BaseAmortizedRatioEstimatorTrain
         criterion=LikelihoodToEvidenceCriterion,
         dataset_test=None,
         epochs=hypothesis.default.epochs,
-        feeder=LikelihoodToEvidenceRatioEstimatorTrainer.feeder,
         identifier=None,
         lr_scheduler_epoch=None,
         lr_scheduler_update=None,
         workers=hypothesis.default.dataloader_workers):
+        feeder = LikelihoodToEvidenceRatioEstimatorTrainer.feeder,
         super(LikelihoodToEvidenceRatioEstimatorTrainer, self).__init__(
             accelerator=accelerator,
             batch_size=batch_size,
