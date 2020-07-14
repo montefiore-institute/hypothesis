@@ -39,7 +39,7 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
         self.dataset_test = dataset_test
         # Trainer state
         self.accelerator = accelerator
-        self.criterion = criterion(estimator, self.batch_size)
+        self.criterion = criterion
         self.current_epoch = 0
         self.epochs_remaining = self.epochs
         self.estimator = estimator
@@ -178,11 +178,11 @@ class LikelihoodToEvidenceRatioEstimatorTrainer(BaseAmortizedRatioEstimatorTrain
     def __init__(self,
         estimator,
         optimizer,
+        criterion,
         dataset_train,
         accelerator=hypothesis.accelerator,
         batch_size=hypothesis.default.batch_size,
         checkpoint=None,
-        criterion=LikelihoodToEvidenceCriterion,
         dataset_test=None,
         epochs=hypothesis.default.epochs,
         identifier=None,
