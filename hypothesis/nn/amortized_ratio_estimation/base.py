@@ -83,7 +83,7 @@ class BaseCriterion(torch.nn.Module):
         logits=False):
         super(BaseCriterion, self).__init__()
         if logits:
-            self.criterion = torch.nn.BCEWtihLogitsLoss()
+            self.criterion = torch.nn.BCEWithLogitsLoss()
             self._forward = self._forward_with_logits
         else:
             self.criterion = torch.nn.BCELoss()
