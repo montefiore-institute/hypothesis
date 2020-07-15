@@ -27,7 +27,7 @@ class ConservativeLikelihoodToEvidenceCriterion(LikelihoodToEvidenceCriterion):
 
     def __init__(self,
         estimator,
-        alpha=0.001,
+        alpha=1.0,
         batch_size=hypothesis.default.batch_size,
         logits=False):
         super(ConservativeLikelihoodToEvidenceCriterion, self).__init__(
@@ -43,10 +43,9 @@ class ConservativeLikelihoodToEvidenceCriterion(LikelihoodToEvidenceCriterion):
             for variable in group:
                 kwargs[variable] = kwargs[variable][random_indices] # Make variable independent.
         y_independent, _ = self.estimator(**kwargs)
-        loss = self.criterion(y_dependent, self.ones) + self.criterion(y_independent, self.zeros)
-        regularizer = self.alpha * log_ratios_dependent.mean()
+        loss = (alpha * self.criterion(y_dependent, self.ones) + (1 - alpha) * self.criterion(y_independent, self.ones)) + self.criterion(y_independent, self.zeros)
 
-        return loss - regularizer
+        return loss
 
     def _forward_with_logits(self, **kwargs):
         y_dependent = self.estimator.log_ratio(**kwargs)
@@ -55,10 +54,9 @@ class ConservativeLikelihoodToEvidenceCriterion(LikelihoodToEvidenceCriterion):
             for variable in group:
                 kwargs[variable] = kwargs[variable][random_indices] # Make variable independent.
         y_independent = self.estimator.log_ratio(**kwargs)
-        loss = self.criterion(y_dependent, self.ones) + self.criterion(y_independent, self.zeros)
-        regularizer = self.alpha * y_dependent.mean()
+       loss = (alpha * self.criterion(y_dependent, self.ones) + (1 - alpha) * self.criterion(y_independent, self.ones)) + self.criterion(y_independent, self.zeros)
 
-        return loss - regularizer
+        return loss
 
 
 
