@@ -54,7 +54,7 @@ class ConservativeLikelihoodToEvidenceCriterion(LikelihoodToEvidenceCriterion):
             for variable in group:
                 kwargs[variable] = kwargs[variable][random_indices] # Make variable independent.
         y_independent = self.estimator.log_ratio(**kwargs)
-       loss = (alpha * self.criterion(y_dependent, self.ones) + (1 - alpha) * self.criterion(y_independent, self.ones)) + self.criterion(y_independent, self.zeros)
+        loss = (alpha * self.criterion(y_dependent, self.ones) + (1 - alpha) * self.criterion(y_independent, self.ones)) + self.criterion(y_independent, self.zeros)
 
         return loss
 
