@@ -44,7 +44,7 @@ class ConservativeLikelihoodToEvidenceCriterion(LikelihoodToEvidenceCriterion):
                 kwargs[variable] = kwargs[variable][random_indices] # Make variable independent.
         y_independent, _ = self.estimator(**kwargs)
         loss = self.criterion(y_dependent, self.ones) + self.criterion(y_independent, self.zeros)
-        regularizer = self.alpha * log_ratios_dependent.exp().mean()
+        regularizer = self.alpha * log_ratios_dependent.mean()
 
         return loss - regularizer
 
@@ -56,7 +56,7 @@ class ConservativeLikelihoodToEvidenceCriterion(LikelihoodToEvidenceCriterion):
                 kwargs[variable] = kwargs[variable][random_indices] # Make variable independent.
         y_independent = self.estimator.log_ratio(**kwargs)
         loss = self.criterion(y_dependent, self.ones) + self.criterion(y_independent, self.zeros)
-        regularizer = self.alpha * y_dependent.exp().mean()
+        regularizer = self.alpha * y_dependent.mean()
 
         return loss - regularizer
 
