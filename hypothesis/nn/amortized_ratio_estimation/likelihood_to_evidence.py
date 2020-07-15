@@ -37,6 +37,7 @@ class ConservativeLikelihoodToEvidenceCriterion(LikelihoodToEvidenceCriterion):
         self.alpha = alpha
 
     def _forward_without_logits(self, **kwargs):
+        alpha = self.alpha
         y_dependent, log_ratios_dependent = self.estimator(**kwargs)
         for group in self.independent_random_variables:
             random_indices = torch.randperm(self.batch_size)
@@ -48,6 +49,7 @@ class ConservativeLikelihoodToEvidenceCriterion(LikelihoodToEvidenceCriterion):
         return loss
 
     def _forward_with_logits(self, **kwargs):
+        alpha = self.alpha
         y_dependent = self.estimator.log_ratio(**kwargs)
         for group in self.independent_random_variables:
             random_indices = torch.randperm(self.batch_size)
