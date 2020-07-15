@@ -193,7 +193,7 @@ class LikelihoodToEvidenceRatioEstimatorTrainer(BaseAmortizedRatioEstimatorTrain
             criterion = LikelihoodToEvidenceCriterion(
                 batch_size=batch_size,
                 estimator=estimator)
-        feeder = LikelihoodToEvidenceRatioEstimatorTrainer.feeder,
+        feeder = LikelihoodToEvidenceRatioEstimatorTrainer.feeder
         super(LikelihoodToEvidenceRatioEstimatorTrainer, self).__init__(
             accelerator=accelerator,
             batch_size=batch_size,
