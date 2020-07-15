@@ -27,7 +27,7 @@ class ConservativeLikelihoodToEvidenceCriterion(LikelihoodToEvidenceCriterion):
 
     def __init__(self,
         estimator,
-        alpha=1.0,
+        alpha=0.99,
         batch_size=hypothesis.default.batch_size,
         logits=False):
         super(ConservativeLikelihoodToEvidenceCriterion, self).__init__(
