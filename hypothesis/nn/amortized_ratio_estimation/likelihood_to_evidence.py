@@ -27,36 +27,36 @@ class ConservativeLikelihoodToEvidenceCriterion(LikelihoodToEvidenceCriterion):
 
     def __init__(self,
         estimator,
-        alpha=0.99,
+        beta=0.001,
         batch_size=hypothesis.default.batch_size,
         logits=False):
         super(ConservativeLikelihoodToEvidenceCriterion, self).__init__(
             batch_size=batch_size,
             estimator=estimator,
             logits=logits)
-        self.alpha = alpha
+        self.beta = beta
 
     def _forward_without_logits(self, **kwargs):
-        alpha = self.alpha
+        beta = self.beta
         y_dependent, log_ratios_dependent = self.estimator(**kwargs)
         for group in self.independent_random_variables:
             random_indices = torch.randperm(self.batch_size)
             for variable in group:
                 kwargs[variable] = kwargs[variable][random_indices] # Make variable independent.
         y_independent, _ = self.estimator(**kwargs)
-        loss = (alpha * self.criterion(y_dependent, self.ones) + (1 - alpha) * self.criterion(y_independent, self.ones)) + self.criterion(y_independent, self.zeros)
+        loss = ((1 - beta) * self.criterion(y_dependent, self.ones) + beta * self.criterion(y_independent, self.ones)) + self.criterion(y_independent, self.zeros)
 
         return loss
 
     def _forward_with_logits(self, **kwargs):
-        alpha = self.alpha
+        beta = self.beta
         y_dependent = self.estimator.log_ratio(**kwargs)
         for group in self.independent_random_variables:
             random_indices = torch.randperm(self.batch_size)
             for variable in group:
                 kwargs[variable] = kwargs[variable][random_indices] # Make variable independent.
         y_independent = self.estimator.log_ratio(**kwargs)
-        loss = (alpha * self.criterion(y_dependent, self.ones) + (1 - alpha) * self.criterion(y_independent, self.ones)) + self.criterion(y_independent, self.zeros)
+        loss = ((1 - beta) * self.criterion(y_dependent, self.ones) + beta * self.criterion(y_independent, self.ones)) + self.criterion(y_independent, self.zeros)
 
         return loss
 
