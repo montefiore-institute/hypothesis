@@ -103,7 +103,12 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
             losses_test=np.array(self.losses_test).reshape(-1))
 
     def _cpu_estimator_state_dict(self):
-        state_dict = self.estimator.state_dict()
+        # Check if we're training a Data Parallel model.
+        if isinstance(self.estimator, torch.nn.DataParallel):
+            estimator = self.estimator.module
+        else:
+            estimator = self.estimator
+        state_dict = estimator.state_dict()
         for k, v in state_dict.items():
             state_dict[k] = v.cpu()
 
