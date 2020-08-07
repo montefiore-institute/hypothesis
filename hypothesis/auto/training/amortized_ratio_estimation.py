@@ -68,6 +68,7 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
     def _valid_checkpoint_path_and_exists(self):
         return self._valid_checkpoint_path() and os.path.exists(self.checkpoint_path)
 
+    @torch.no_grad()
     def _checkpoint_store(self):
         if self._valid_checkpoint_path():
             state = {}
@@ -92,6 +93,7 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
         if self._valid_checkpoint_path_and_exists():
             raise NotImplementedError
 
+    @torch.no_grad()
     def _summarize(self):
         return Summary(
             identifier=self.identifier,
@@ -102,6 +104,7 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
             losses_train=np.array(self.losses_train).reshape(-1),
             losses_test=np.array(self.losses_test).reshape(-1))
 
+    @torch.no_grad()
     def _cpu_estimator_state_dict(self):
         # Check if we're training a Data Parallel model.
         self.estimator = self.estimator.cpu()
@@ -113,6 +116,7 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
 
         return state_dict
 
+    @torch.no_grad()
     def checkpoint(self):
         self._checkpoint_store()
 
@@ -139,6 +143,7 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
 
         return self._summarize()
 
+    @torch.no_grad()
     def test(self):
         self.estimator.eval()
         loader = self._allocate_data_loader(self.dataset_test)
