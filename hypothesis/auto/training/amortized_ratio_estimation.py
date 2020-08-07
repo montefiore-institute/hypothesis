@@ -108,11 +108,8 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
             estimator = self.estimator.module
         else:
             estimator = self.estimator
-        state_dict = estimator.state_dict()
-        for k, v in state_dict.items():
-            state_dict[k] = v.cpu()
 
-        return state_dict
+        return estimator.cpu().state_dict()
 
     def checkpoint(self):
         self._checkpoint_store()
