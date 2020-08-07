@@ -16,10 +16,10 @@ def highest_density_region(pdf, alpha, min_epsilon=10e-17):
     pdf /= total_pdf
     # Compute highest density level and the corresponding mask
     n = len(pdf)
-    optimal_level = pdf.max()
+    optimal_level = pdf.max().item()
     epsilon = 10e-02
     while epsilon >= min_epsilon:
-        area = float(1)
+        area = float(0)
         while area <= alpha:
             # Compute the integral
             m = (pdf >= optimal_level).astype(np.float32)
@@ -44,10 +44,11 @@ def highest_density_level(pdf, alpha, min_epsilon=10e-17, region=False):
     pdf /= total_pdf
     # Compute highest density level and the corresponding mask
     n = len(pdf)
-    optimal_level = pdf.max()
+    optimal_level = pdf.max().item()
     epsilon = 10e-02
+    print(optimal_level)
     while epsilon >= min_epsilon:
-        area = float(1)
+        area = float(0)
         while area <= alpha:
             # Compute the integral
             m = (pdf >= optimal_level).astype(np.float32)
