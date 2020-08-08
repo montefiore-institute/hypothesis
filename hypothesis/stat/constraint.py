@@ -46,7 +46,6 @@ def highest_density_level(pdf, alpha, min_epsilon=10e-17, region=False):
     n = len(pdf)
     optimal_level = pdf.max().item()
     epsilon = 10e-02
-    print(optimal_level)
     while epsilon >= min_epsilon:
         area = float(0)
         while area <= alpha:
