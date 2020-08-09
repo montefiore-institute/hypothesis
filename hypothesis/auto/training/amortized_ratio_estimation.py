@@ -93,7 +93,6 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
         if self._valid_checkpoint_path_and_exists():
             raise NotImplementedError
 
-    @torch.no_grad()
     def _summarize(self):
         return Summary(
             identifier=self.identifier,

@@ -32,12 +32,10 @@ class TrainingSummary:
             "best_epoch": self.epoch_best,
             "training_losses": self.losses_train,
             "testing_losses": self.losses_test}
-        with open(path, "wb") as handle:
-            pickle.dump(summary, handle)
+        torch.save(summary, path)
 
     def load(self, path):
-        with open(path, "rb") as handle:
-            summary = pickle.load(handle)
+        summary = torch.load(path)
         self.identifier = summary["identifier"]
         self.model_best = summary["best_model"]
         self.model_final = summary["final_model"]
