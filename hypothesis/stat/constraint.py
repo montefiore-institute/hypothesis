@@ -69,9 +69,16 @@ def highest_density_level(pdf, alpha, min_epsilon=10e-17, region=False):
 def confidence_level(log_ratios, dof=None, level=0.95):
     if dof is None:
         dof = log_ratios.dim() - 1
-    max_ratio = log_ratios[log_ratios.argmax()]
-    test_statistic = -2 * (log_ratios - max_ratio)
-    test_statistic -= test_statistic.min()
+    test_statistic = profile_likelihood(log_ratios)
     level = chi2.isf(1 - level, df=dof)
 
     return test_statistic, level
+
+
+@torch.no_grad()
+def profile_likelihood(log_ratios):
+    max_ratio = log_ratios[log_ratios.argmax()]
+    test_statistic = -2 * (log_ratios - max_ratio)
+    test_statistic -= test_statistic.min()
+
+    return test_statistic
