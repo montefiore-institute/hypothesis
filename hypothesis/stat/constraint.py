@@ -7,36 +7,17 @@ from scipy.stats import chi2
 
 
 @torch.no_grad()
-def highest_density_region(pdf, alpha, min_epsilon=10e-17):
-    # Prepare posterior
-    # Detect numpy type
-    if type(pdf).__module__ != np.__name__:
-        pdf = pdf.cpu().clone().numpy()
-    else:
-        pdf = np.array(pdf)
-    total_pdf = pdf.sum()
-    pdf /= total_pdf
-    # Compute highest density level and the corresponding mask
-    n = len(pdf)
-    optimal_level = pdf.max().item()
-    epsilon = 10e-02
-    while epsilon >= min_epsilon:
-        area = float(0)
-        while area <= alpha:
-            # Compute the integral
-            m = (pdf >= optimal_level).astype(np.float32)
-            area = np.sum(m * pdf)
-            # Compute the error and apply gradient descent
-            optimal_level -= epsilon
-        optimal_level += 2 * epsilon
-        epsilon /= 10
+def highest_density_region(pdf, alpha, bias=0.0, min_epsilon=10e-17):
+    _, mask = highest_density_level(pdf, alpha, bias=bias, min_epsilon=min_epsilon, region=True)
 
-    return torch.from_numpy(m)
+    return mask
 
 
 @torch.no_grad()
-def highest_density_level(pdf, alpha, min_epsilon=10e-17, region=False):
-    # Prepare posterior
+def highest_density_level(pdf, alpha, bias=0.0, min_epsilon=10e-17, region=False):
+    # Check if a proper bias has been specified.
+    if bias >= alpha:
+        raise ValueError("The bias cannot be larger or equal to the specified alpha level.")
     # Detect numpy type
     if type(pdf).__module__ != np.__name__:
         pdf = pdf.cpu().clone().numpy()
@@ -50,7 +31,7 @@ def highest_density_level(pdf, alpha, min_epsilon=10e-17, region=False):
     epsilon = 10e-02
     while epsilon >= min_epsilon:
         area = float(0)
-        while area <= alpha:
+        while area <= (alpha - bias):
             # Compute the integral
             m = (pdf >= optimal_level).astype(np.float32)
             area = np.sum(m * pdf)
