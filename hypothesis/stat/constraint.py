@@ -31,7 +31,7 @@ def highest_density_level(pdf, alpha, bias=0.0, min_epsilon=10e-17, region=False
     epsilon = 10e-02
     while epsilon >= min_epsilon:
         area = float(0)
-        while area <= (alpha - bias):
+        while area <= (alpha + bias):
             # Compute the integral
             m = (pdf >= optimal_level).astype(np.float32)
             area = np.sum(m * pdf)
