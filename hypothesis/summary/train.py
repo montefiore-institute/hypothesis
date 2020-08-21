@@ -2,6 +2,7 @@ r"""Summary objects at the end of training procedures."""
 
 import numpy as np
 import pickle
+import torch
 
 
 
