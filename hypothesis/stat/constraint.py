@@ -57,7 +57,7 @@ def confidence_level(log_ratios, dof=None, level=0.95):
 
 
 @torch.no_grad()
-def profile_likelihood(log_ratios):
+def likelihood_ratio_test_statistic(log_ratios):
     max_ratio = log_ratios[log_ratios.argmax()]
     test_statistic = -2 * (log_ratios - max_ratio)
     test_statistic -= test_statistic.min()
