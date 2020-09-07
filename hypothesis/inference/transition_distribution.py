@@ -54,7 +54,8 @@ class Normal(SymmetricalTransition):
     def sample(self, means, samples=1):
         with torch.no_grad():
             means = means.view(-1, 1)
-            normal_samples = torch.randn(means.size(0), samples).to(hypothesis.accelerator)
+            normal_samples = torch.randn(means.size(0), samples)
+            normal_samples = normal_samples.to(hypothesis.accelerator)
             samples = (normal_samples * self.sigma) + means
 
         return samples

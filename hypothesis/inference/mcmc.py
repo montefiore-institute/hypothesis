@@ -82,7 +82,7 @@ class MarkovChainMonteCarlo(Procedure):
         self.reset()
         input = input.view(1, -1)
         for sample_index in range(num_samples):
-            theta, acceptance_probability, acceptance = self._step(input, observations)
+            input, acceptance_probability, acceptance = self._step(input, observations)
             input = input.view(1, -1)
             samples.append(input)
             acceptance_probabilities.append(acceptance_probability)
