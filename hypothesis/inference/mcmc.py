@@ -22,27 +22,27 @@ class ParallelSampler:
 
     def _prepare_arguments(self, observations, thetas, num_samples):
         arguments = []
-        for theta in thetas:
-            t = (self.sampler, observations, theta, num_samples)
-            arguments.append(t)
+        for input in inputs:
+            arguments.append(self.sampler, observations, input, num_samples)
 
         return arguments
 
-    def _prepare_thetas(self):
-        thetas = []
+    def _prepare_inputs(self):
+        inputs = []
         prior = self.sampler.prior
         for _ in range(self.chains):
-            thetas.append(prior.sample())
+            inputs.append(prior.sample())
 
-        return thetas
+        return inputs
 
+    @torch.no_grad()
     def sample(self, observations, num_samples, thetas=None):
         assert(thetas is None or len(thetas) is self.chains)
         self.sampler.reset()
         if thetas is None:
-            thetas = self._prepare_thetas()
+            inputs = self._prepare_inputs()
         pool = Pool(processes=self.workers)
-        arguments = self._prepare_arguments(observations, thetas, num_samples)
+        arguments = self._prepare_arguments(observations, inputs, num_samples)
         chains = pool.map(self.sample_chain, arguments)
         del pool
 
@@ -50,8 +50,8 @@ class ParallelSampler:
 
     @staticmethod
     def sample_chain(arguments):
-        sampler, observations, theta, num_samples = arguments
-        chain = sampler.sample(observations, theta, num_samples)
+        sampler, observations, input, num_samples = arguments
+        chain = sampler.sample(observations, input, num_samples)
 
         return chain
 
@@ -73,17 +73,18 @@ class MarkovChainMonteCarlo(Procedure):
     def reset(self):
         pass
 
-    def sample(self, observations, theta, num_samples):
+    @torch.no_grad()
+    def sample(self, observations, input, num_samples):
         r""""""
         acceptance_probabilities = []
         acceptances = []
         samples = []
         self.reset()
-        theta = theta.view(1, -1)
+        input = input.view(1, -1)
         for sample_index in range(num_samples):
-            theta, acceptance_probability, acceptance = self._step(theta, observations)
-            theta = theta.view(1, -1)
-            samples.append(theta)
+            theta, acceptance_probability, acceptance = self._step(input, observations)
+            input = input.view(1, -1)
+            samples.append(input)
             acceptance_probabilities.append(acceptance_probability)
             acceptances.append(acceptance)
         samples = torch.cat(samples, dim=0)
@@ -102,15 +103,15 @@ class MetropolisHastings(MarkovChainMonteCarlo):
         self.log_likelihood = log_likelihood
         self.transition = transition
 
-    def _step(self, theta, observations):
+    def _step(self, input, observations):
         accepted = False
 
-        theta_next = self.transition.sample(theta)
-        lnl_theta_next = self.log_likelihood(theta_next, observations)
-        numerator = self.prior.log_prob(theta_next) + lnl_theta_next
+        input_next = self.transition.sample(input)
+        lnl_input_next = self.log_likelihood(input_next, observations)
+        numerator = self.prior.log_prob(input_next) + lnl_input_next
         if self.denominator is None:
-            lnl_theta = self.log_likelihood(theta, observations)
-            self.denominator = self.prior.log_prob(theta) + lnl_theta
+            lnl_input = self.log_likelihood(input, observations)
+            self.denominator = self.prior.log_prob(input) + lnl_input
         acceptance_ratio = (numerator - self.denominator)
         if not self.transition.is_symmetrical():
             raise NotImplementedError
@@ -118,10 +119,10 @@ class MetropolisHastings(MarkovChainMonteCarlo):
         u = np.random.uniform()
         if u <= acceptance_probability:
             accepted = True
-            theta = theta_next
+            input = input_next
             self.denominator = numerator
 
-        return theta, acceptance_probability, accepted
+        return input, acceptance_probability, accepted
 
     def reset(self):
         self.denominator = None
@@ -141,23 +142,24 @@ class AALRMetropolisHastings(MarkovChainMonteCarlo):
         self.ratio_estimator = ratio_estimator
         self.transition = transition
 
-    def _compute_ratio(self, theta, observations):
-        num_observations = observations.shape[0]
-        thetas = theta.repeat(num_observations, 1)
-        _, log_ratios = self.ratio_estimator(thetas, observations)
+    def _compute_ratio(self, input, outputs):
+        num_observations = outputs.shape[0]
+        inputs = input.repeat(num_observations, 1)
+        inputs = inputs.to(hypothesis.accelerator)
+        _, log_ratios = self.ratio_estimator(inputs=inputs, outputs=outputs)
 
         return log_ratios.sum().cpu()
 
-    def _step(self, theta, observations):
+    def _step(self, input, observations):
         accepted = False
 
         with torch.no_grad():
-            theta_next = self.transition.sample(theta)
-            lnl_theta_next = self._compute_ratio(theta_next, observations)
-            numerator = self.prior.log_prob(theta_next) + lnl_theta_next
+            input_next = self.transition.sample(input)
+            lnl_input_next = self._compute_ratio(input_next, observations)
+            numerator = self.prior.log_prob(input_next) + lnl_input_next
             if self.denominator is None:
-                lnl_theta = self._compute_ratio(theta, observations)
-                self.denominator = self.prior.log_prob(theta) + lnl_theta
+                lnl_input = self._compute_ratio(input, observations)
+                self.denominator = self.prior.log_prob(input) + lnl_input
             acceptance_ratio = (numerator - self.denominator)
             if not self.transition.is_symmetrical():
                 raise NotImplementedError
@@ -165,16 +167,18 @@ class AALRMetropolisHastings(MarkovChainMonteCarlo):
             u = np.random.uniform()
             if u <= acceptance_probability:
                 accepted = True
-                theta = theta_next
+                input = input_next
                 self.denominator = numerator
 
-        return theta, acceptance_probability, accepted
+        return input, acceptance_probability, accepted
 
     def reset(self):
         self.denominator = None
 
-    def sample(self, observations, theta, num_samples):
+    @torch.no_grad()
+    def sample(self, outputs, input, num_samples):
         assert(not self.ratio_estimator.training)
-        chain = super(AALRMetropolisHastings, self).sample(observations, theta, num_samples)
+        outputs = outputs.to(hypothesis.accelerator)
+        chain = super(AALRMetropolisHastings, self).sample(outputs, input, num_samples)
 
         return chain

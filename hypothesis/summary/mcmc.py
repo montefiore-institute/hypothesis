@@ -12,7 +12,7 @@ class Chain:
     def __init__(self, samples, acceptance_probabilities, acceptances):
         self.acceptance_probabilities = acceptance_probabilities
         self.acceptances = acceptances
-        self.samples = samples
+        self.samples = samples.cpu()
         self.shape = samples.shape
 
     def mean(self, parameter_index=None):
