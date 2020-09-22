@@ -3,13 +3,16 @@ import hypothesis.nn
 import torch
 
 from .base import BaseCriterion
+from .base import BaseConservativeCriterion
 from .base import BaseRatioEstimator
 
 
 
-class LikelihoodToEvidenceCriterion(BaseCriterion):
+DENOMINATOR = "inputs|outputs"
 
-    DENOMINATOR = "inputs|outputs"
+
+
+class LikelihoodToEvidenceCriterion(BaseCriterion):
 
     def __init__(self,
         estimator,
@@ -17,13 +20,13 @@ class LikelihoodToEvidenceCriterion(BaseCriterion):
         logits=False):
         super(LikelihoodToEvidenceCriterion, self).__init__(
             batch_size=batch_size,
-            denominator=LikelihoodToEvidenceCriterion.DENOMINATOR,
+            denominator=DENOMINATOR,
             estimator=estimator,
             logits=logits)
 
 
 
-class ConservativeLikelihoodToEvidenceCriterion(LikelihoodToEvidenceCriterion):
+class ConservativeLikelihoodToEvidenceCriterion(BaseConservativeCriterion):
 
     def __init__(self,
         estimator,
@@ -32,33 +35,9 @@ class ConservativeLikelihoodToEvidenceCriterion(LikelihoodToEvidenceCriterion):
         logits=False):
         super(ConservativeLikelihoodToEvidenceCriterion, self).__init__(
             batch_size=batch_size,
+            denominator=DENOMINATOR,
             estimator=estimator,
             logits=logits)
-        self.beta = beta
-
-    def _forward_without_logits(self, **kwargs):
-        beta = self.beta
-        y_dependent, log_ratios_dependent = self.estimator(**kwargs)
-        for group in self.independent_random_variables:
-            random_indices = torch.randperm(self.batch_size)
-            for variable in group:
-                kwargs[variable] = kwargs[variable][random_indices] # Make variable independent.
-        y_independent, _ = self.estimator(**kwargs)
-        loss = ((1 - beta) * self.criterion(y_dependent, self.ones) + beta * self.criterion(y_independent, self.ones)) + self.criterion(y_independent, self.zeros)
-
-        return loss
-
-    def _forward_with_logits(self, **kwargs):
-        beta = self.beta
-        y_dependent = self.estimator.log_ratio(**kwargs)
-        for group in self.independent_random_variables:
-            random_indices = torch.randperm(self.batch_size)
-            for variable in group:
-                kwargs[variable] = kwargs[variable][random_indices] # Make variable independent.
-        y_independent = self.estimator.log_ratio(**kwargs)
-        loss = ((1 - beta) * self.criterion(y_dependent, self.ones) + beta * self.criterion(y_independent, self.ones)) + self.criterion(y_independent, self.zeros)
-
-        return loss
 
 
 

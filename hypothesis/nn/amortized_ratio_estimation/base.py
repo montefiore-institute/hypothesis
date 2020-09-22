@@ -147,3 +147,39 @@ class BaseCriterion(torch.nn.Module):
 
     def forward(self, **kwargs):
         return self._forward(**kwargs)
+
+
+
+class BaseConservativeCriterion(torch.nn.Module):
+
+    def __init__(self,
+        estimator,
+        denominator,
+        batch_size=hypothesis.default.batch_size,
+        beta=0.001,
+        logits=False):
+        super(BaseConservativeCriterion, self).__init__()
+        self.beta = beta
+
+    def _forward_without_logits(self, **kwargs):
+        y_dependent, _ = self.estimator(**kwargs)
+        for group in self.independent_random_variables:
+            random_indices = torch.randperm(self.batch_size)
+            for variable in group:
+                kwargs[variable] = kwargs[variable][random_indices] # Make variable independent.
+        y_independent, _ = self.estimator(**kwargs)
+        loss = ((1 - beta) * self.criterion(y_dependent, self.ones) + beta * self.criterion(y_independent, self.ones)) + self.criterion(y_independent, self.zeros)
+
+        return loss
+
+    def _forward_with_logits(self, **kwargs):
+        y_dependent = self.estimator.log_ratio(**kwargs)
+        for group in self.independent_random_variables:
+            random_indices = torch.randperm(self.batch_size)
+            for variable in group:
+                kwargs[variable] = kwargs[variable][random_indices] # Make variable independent.
+        y_independent = self.estimator.log_ratio(**kwargs)
+        loss = ((1 - beta) * self.criterion(y_dependent, self.ones) + beta * self.criterion(y_independent, self.ones)) + self.criterion(y_independent, self.zeros)
+
+
+        return loss

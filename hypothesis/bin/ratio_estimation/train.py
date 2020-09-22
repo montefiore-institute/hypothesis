@@ -7,9 +7,9 @@ import numpy as np
 import os
 import torch
 
-# from hypothesis.nn.amortized_ratio_estimation import BaseConservativeCriterion
 from hypothesis.auto.training import LikelihoodToEvidenceRatioEstimatorTrainer as Trainer
 from hypothesis.auto.training import create_trainer
+from hypothesis.nn.amortized_ratio_estimation import BaseConservativeCriterion
 from hypothesis.nn.amortized_ratio_estimation import BaseCriterion
 from torch.optim.lr_scheduler import StepLR
 from torch.utils.data import TensorDataset
@@ -32,12 +32,12 @@ def main(arguments):
         weight_decay=arguments.weight_decay)
     # Prepare the training criterion
     if arguments.conservativeness > 0.0:
-        pass
-        # criterion = ConservativeLikelihoodToEvidenceCriterion(
-        #     batch_size=arguments.batch_size,
-        #     beta=arguments.conservativeness,
-        #     estimator=estimator,
-        #     logits=arguments.logits)
+        criterion = BaseConservativeCriterion(
+            batch_size=arguments.batch_size,
+            beta=arguments.conservativeness,
+            denominator=arguments.denominator,
+            estimator=estimator,
+            logits=arguments.logits)
     else:
         criterion = BaseCriterion(
             batch_size=arguments.batch_size,

@@ -1,6 +1,7 @@
 from .base import RatioEstimatorEnsemble
 from .base import BaseRatioEstimator
 from .base import BaseCriterion
+from .base import BaseConservativeCriterion
 from .likelihood_to_evidence import BaseLikelihoodToEvidenceRatioEstimator
 from .likelihood_to_evidence import ConservativeLikelihoodToEvidenceCriterion
 from .likelihood_to_evidence import LikelihoodToEvidenceCriterion
