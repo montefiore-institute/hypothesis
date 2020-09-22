@@ -62,9 +62,15 @@ def main(arguments):
         lr_scheduler=lr_scheduler,
         optimizer=optimizer,
         workers=arguments.workers)
+    # Callbacks
+    test_loss = np.log(4.0)
+    def report_test_loss(caller):
+        trainer = caller
+        test_loss = trainer.losses_test[-1]
+        print("Epoch", current_epoch, ":", test_loss)
     # Register the callbacks
     if arguments.show:
-        pass # TODO Implement
+        trainer.add_event_handler(trainer.events.epoch_complete, report_test_loss)
     # Run the optimization procedure
     summary = trainer.fit()
     if arguments.show:
