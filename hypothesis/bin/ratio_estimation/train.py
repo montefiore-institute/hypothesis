@@ -66,6 +66,7 @@ def main(arguments):
     test_loss = np.log(4.0)
     def report_test_loss(caller):
         trainer = caller
+        current_epoch = trainer.current_epoch
         test_loss = trainer.losses_test[-1]
         print("Epoch", current_epoch, ":", test_loss)
     # Register the callbacks
