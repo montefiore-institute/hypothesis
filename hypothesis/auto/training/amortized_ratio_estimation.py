@@ -1,6 +1,7 @@
 import hypothesis
 import numpy as np
 import os
+import re
 import torch
 
 from .base import BaseTrainer
@@ -268,7 +269,7 @@ def create_trainer(denominator):
                 estimator=estimator,
                 feeder=feeder,
                 identifier=identifier,
-                lr_scheduler=lr_scheduler,
+                lr_scheduler_epoch=lr_scheduler,
                 optimizer=optimizer,
                 workers=workers)
 
