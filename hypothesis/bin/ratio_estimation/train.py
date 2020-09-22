@@ -60,7 +60,7 @@ def main(arguments):
         workers=arguments.workers)
     # Register the callbacks
     if arguments.show:
-        # TODO Implement
+        pass # TODO Implement
     # Run the optimization procedure
     summary = trainer.fit()
     if arguments.show:
