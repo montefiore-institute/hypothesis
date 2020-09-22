@@ -50,7 +50,7 @@ def main(arguments):
     else:
         lr_scheduler = None
     # Allocate the trainer
-    Trainer = allocate_trainer(arguments)
+    Trainer = create_trainer(criterion, arguments.denominator)
     trainer = Trainer(
         accelerator=hypothesis.accelerator,
         batch_size=arguments.batch_size,
@@ -84,11 +84,6 @@ def main(arguments):
     torch.save(best_model_weights, arguments.out + "/best-model.th")
     torch.save(final_model_weights, arguments.out + "/model.th")
     summary.save(arguments.out + "/result.summary")
-
-
-@torch.no_grad()
-def allocate_trainer(arguments):
-    return create_trainer(arguments.denominator)
 
 
 @torch.no_grad()

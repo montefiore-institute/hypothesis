@@ -229,8 +229,10 @@ class LikelihoodToEvidenceRatioEstimatorTrainer(BaseAmortizedRatioEstimatorTrain
 
 
 
-def create_trainer(denominator):
+def create_trainer(criterion, denominator):
     variables = re.split(",|\|", denominator)
+
+    assert(set(variables) == set(criterion.variables()))
 
     # Allocate the batch-feeder based on the specified random variables.
     def feeder(batch, criterion, accelerator):
