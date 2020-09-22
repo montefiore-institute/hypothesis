@@ -46,6 +46,7 @@ def set_workers(n):
 
 
 accelerator = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+a = accelerator # Short name
 """torch.device: PyTorch device describing the accelerator backend.
 
 The variable will be initialized when ``hypothesis`` is loaded for the first
