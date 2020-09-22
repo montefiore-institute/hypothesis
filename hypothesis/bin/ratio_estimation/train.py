@@ -8,6 +8,7 @@ import os
 import torch
 
 from hypothesis.auto.training import LikelihoodToEvidenceRatioEstimatorTrainer as Trainer
+from hypothesis.auto.training import create_trainer
 from hypothesis.nn.amortized_ratio_estimation import ConservativeLikelihoodToEvidenceCriterion
 from hypothesis.nn.amortized_ratio_estimation import LikelihoodToEvidenceCriterion
 from torch.optim.lr_scheduler import StepLR
@@ -47,6 +48,7 @@ def main(arguments):
     else:
         lr_scheduler = None
     # Allocate the trainer
+    Trainer = allocate_trainer(arguments)
     trainer = Trainer(
         accelerator=hypothesis.accelerator,
         batch_size=arguments.batch_size,
@@ -80,6 +82,11 @@ def main(arguments):
     torch.save(best_model_weights, arguments.out + "/best-model.th")
     torch.save(final_model_weights, arguments.out + "/model.th")
     summary.save(arguments.out + "/result.summary")
+
+
+@torch.no_grad()
+def allocate_trainer(arguments):
+    return create_trainer(arguments.denominator)
 
 
 @torch.no_grad()
@@ -123,6 +130,7 @@ def parse_arguments():
     parser.add_argument("--disable-gpu", action="store_true", help="Disable the usage of the GPU, not recommended. (default: false).")
     parser.add_argument("--out", type=str, default=None, help="Output directory (default: none).")
     parser.add_argument("--show", action="store_true", help="Show the progress and the final result (default: false).")
+    parser.add_argument("--denominator", type=str, default="inputs|outputs", help="Random variables in the denominator and their (in)dependence relation (default: 'inputs|outputs').")
     # Optimization settings
     parser.add_argument("--amsgrad", action="store_true", help="Use AMSGRAD version of Adam (default: false).")
     parser.add_argument("--batch-size", type=int, default=64, help="Batch size (default: 64).")

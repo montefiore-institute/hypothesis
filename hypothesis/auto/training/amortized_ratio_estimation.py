@@ -228,16 +228,19 @@ class LikelihoodToEvidenceRatioEstimatorTrainer(BaseAmortizedRatioEstimatorTrain
 
 
 
-def create_trainer(denominator, feeder):
-    # Create the criterion with the specified denominator.
-    class Criterion(BaseCriterion):
+def create_trainer(denominator):
+    variables = re.split(",|\|", denominator)
+    variables.sort()
+    n_random_variables = len(variables)
 
-        def __init__(self, estimator, batch_size=hypothesis.default.batch_size, logits=False):
-            super(Criterion, self).__init__(
-                batch_size=batch_size,
-                denominator=denominator,
-                estimator=estimator,
-                logits=logits)
+    # Allocate the batch-feeder based on the specified random variables.
+    def feeder(batch, criterion, accelerator):
+        dictionary = {}
+        for index, key in enumerate(variables):
+            dictionary[key] = batch[index].to(accelerator, non_blocking=True)
+
+        return criterion(**dictionary)
+
     # Create the trainer object with the desired criterion.
     class Trainer(BaseAmortizedRatioEstimatorTrainer):
 
@@ -245,6 +248,7 @@ def create_trainer(denominator, feeder):
             estimator,
             optimizer,
             dataset_train,
+            criterion,
             accelerator=hypothesis.accelerator,
             batch_size=hypothesis.default.batch_size,
             checkpoint=None,
@@ -253,7 +257,6 @@ def create_trainer(denominator, feeder):
             lr_scheduler=None,
             identifier=None,
             workers=hypothesis.default.dataloader_workers):
-            criterion = Criterion
             super(Trainer, self).__init__(
                 accelerator=accelerator,
                 batch_size=batch_size,
@@ -269,4 +272,4 @@ def create_trainer(denominator, feeder):
                 optimizer=optimizer,
                 workers=workers)
 
-    return Criterion, Trainer
+    return Trainer
