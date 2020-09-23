@@ -72,7 +72,7 @@ def enable_gpu():
 
 def gpu_available():
     r"""Checks if GPU acceleration is available."""
-    return hypothesis.accelerator is not "cpu"
+    return hypothesis.accelerator != "cpu"
 
 
 ################################################################################
