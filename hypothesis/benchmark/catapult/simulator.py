@@ -121,7 +121,7 @@ class CatapultSimulator(BaseSimulator):
                 psi = experimental_configurations[index]
             else:
                 psi = self.prior_experiment.sample()
-            outputs.append(self._simulate(theta, psi))
+            outputs.append(self._simulate(theta, psi).view(1, -1))
 
         return torch.cat(outputs, dim=0).float()
 
