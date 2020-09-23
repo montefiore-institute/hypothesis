@@ -111,17 +111,15 @@ class CatapultSimulator(BaseSimulator):
                 return positions[-1][0]
 
     @torch.no_grad()
-    def forward(self, inputs, experimental_configurations=None):
+    def forward(self, inputs, experimental_configurations):
         outputs = []
 
         n = len(inputs)
         for index in range(n):
-            theta = inputs[index]
-            if experimental_configurations is not None:
-                psi = experimental_configurations[index]
-            else:
-                psi = self.prior_experiment.sample()
-            outputs.append(self._simulate(theta, psi).view(1, -1))
+            theta = inputs[index].view(-1)
+            psi = experimental_configurations[index].view(-1)
+            output = self.simulate(theta, psi).reshape(1, -1)
+            outputs.append(torch.from_numpy(output))
 
         return torch.cat(outputs, dim=0).float()
 
