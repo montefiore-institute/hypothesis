@@ -63,12 +63,13 @@ def main(arguments):
         optimizer=optimizer,
         workers=arguments.workers)
     # Callbacks
-    test_loss = np.log(4.0)
+    progress_bar = tqdm(total=arguments.epochs)
     def report_test_loss(caller):
         trainer = caller
         current_epoch = trainer.current_epoch
         test_loss = trainer.losses_test[-1]
-        print("Epoch", current_epoch, ":", test_loss)
+        progress_bar.set_description("Test loss %s" % test_loss)
+        progress_bar.update(1)
     # Register the callbacks
     if arguments.show:
         trainer.add_event_handler(trainer.events.epoch_complete, report_test_loss)
