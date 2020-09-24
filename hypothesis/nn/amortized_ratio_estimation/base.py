@@ -150,7 +150,7 @@ class BaseCriterion(torch.nn.Module):
 
 
 
-class BaseConservativeCriterion(torch.nn.Module):
+class BaseConservativeCriterion(BaseCriterion):
 
     def __init__(self,
         estimator,
@@ -158,7 +158,11 @@ class BaseConservativeCriterion(torch.nn.Module):
         batch_size=hypothesis.default.batch_size,
         beta=0.001,
         logits=False):
-        super(BaseConservativeCriterion, self).__init__()
+        super(BaseConservativeCriterion, self).__init__(
+            estimator=estimator,
+            denominator=denominator,
+            batch_size=batch_size,
+            logits=logits)
         self.beta = beta
 
     def _forward_without_logits(self, **kwargs):
