@@ -75,6 +75,8 @@ def main(arguments):
         trainer.add_event_handler(trainer.events.epoch_complete, report_test_loss)
     # Run the optimization procedure
     summary = trainer.fit()
+    # Cleanup the progress bar
+    progress_bar.close()
     if arguments.show:
         print(summary)
     if arguments.out is None:
