@@ -62,22 +62,22 @@ def main(arguments):
         lr_scheduler=lr_scheduler,
         optimizer=optimizer,
         workers=arguments.workers)
-    # Callbacks
-    progress_bar = tqdm(total=arguments.epochs)
-    def report_test_loss(caller):
-        trainer = caller
-        current_epoch = trainer.current_epoch
-        test_loss = trainer.losses_test[-1]
-        progress_bar.set_description("Test loss %s" % test_loss)
-        progress_bar.update(1)
     # Register the callbacks
     if arguments.show:
+        # Callbacks
+        progress_bar = tqdm(total=arguments.epochs)
+        def report_test_loss(caller):
+            trainer = caller
+            current_epoch = trainer.current_epoch
+            test_loss = trainer.losses_test[-1]
+            progress_bar.set_description("Test loss %s" % test_loss)
+            progress_bar.update(1)
         trainer.add_event_handler(trainer.events.epoch_complete, report_test_loss)
     # Run the optimization procedure
     summary = trainer.fit()
-    # Cleanup the progress bar
-    progress_bar.close()
     if arguments.show:
+        # Cleanup the progress bar
+        progress_bar.close()
         print(summary)
     if arguments.out is None:
         return # No output directory has been specified, exit.
