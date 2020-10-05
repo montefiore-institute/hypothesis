@@ -32,10 +32,9 @@ def procedure_torch(arguments):
 
 def select_extension_procedure(arguments):
     extension = arguments.extension
-    extensions = {
-        ".npy": procedure_numpy,
-        ".np": procedure_numpy,
-        ".th": procedure_torch}
+    mappings = {
+        "numpy": procedure_numpy,
+        "torch": procedure_torch}
     # Check if an extensions has been manually defined
     if extension in mappings.keys():
         procedure = mappings[extension]
