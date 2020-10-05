@@ -1,3 +1,4 @@
+from .base import build_ratio_estimator
 from .likelihood_to_evidence import LikelihoodToEvidenceRatioEstimatorMLP
 from .likelihood_to_evidence import LikelihoodToEvidenceRatioEstimatorNeuromodulatedMLP
 from .mutual_information import MutualInformationRatioEstimatorMLP
