@@ -35,7 +35,7 @@ class ResNetHead(torch.nn.Module):
         # Infer the dimensionality from the input shape.
         self.dimensionality = len(shape_xs)
         # Dimensionality and architecture properties.
-        self.block, self.blocks_per_layer, modules = self._load_configuration(depth)
+        self.block, self.blocks_per_layer, modules = self._load_configuration(int(depth))
         self.module_convolution = modules[0]
         self.module_batchnorm = modules[1]
         self.module_maxpool = modules[2]
