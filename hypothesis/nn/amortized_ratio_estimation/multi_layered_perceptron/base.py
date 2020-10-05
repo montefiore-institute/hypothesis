@@ -8,6 +8,12 @@ from hypothesis.nn.util import compute_dimensionality
 
 
 def build_ratio_estimator(random_variables):
+    # Flatten the shapes of the random variables
+    for k in random_variables.keys():
+        shape = random_variables[k]
+        flattened_shape = (compute_dimensionality(shape),)
+        random_variables[k] = flattened_shape
+
     class RatioEstimator(BaseRatioEstimator):
 
         def __init__(self,
@@ -25,7 +31,7 @@ def build_ratio_estimator(random_variables):
                 transform_output=None)
 
         def log_ratio(self, **kwargs):
-            tensors = [kwargs[k] for k in random_variables]
+            tensors = [kwargs[k].view(-1, random_variables[k][0]) for k in random_variables]
             z = torch.cat(tensors, dim=1)
             log_ratios = self.mlp(z)
 

@@ -20,7 +20,12 @@ from hypothesis.nn.util import compute_dimensionality
 def build_ratio_estimator(random_variables, **kwargs):
     depth = kwargs.get("depth", default_depth)
     convolve_variable = kwargs.get("convolve", "outputs")
-    trunk_random_variables = set(random_variables.keys()) - set([convolve_variable])
+    trunk_variables = set(random_variables.keys()) - set([convolve_variable])
+    trunk_random_variables = {}
+    for k in trunk_variables:
+        trunk_random_variables[k] = (-1, compute_dimensionality(random_variables[k]))
+    if convolve_variable not in random_variables.keys():
+        raise ValueError("No convolution random variable specified (default: outputs)!")
 
     class RatioEstimator(BaseRatioEstimator):
 
@@ -33,10 +38,10 @@ def build_ratio_estimator(random_variables, **kwargs):
             dilate=default_dilate,
             groups=default_groups,
             in_planes=default_in_planes,
-            width_per_group=default_width_per_group,
             trunk_activation=None,
             trunk_dropout=hypothesis.default.dropout,
-            trunk_layers=hypothesis.default.trunk):
+            trunk_layers=hypothesis.default.trunk,
+            width_per_group=default_width_per_group):
             super(RatioEstimator, self).__init__()
             # Construct the convolutional ResNet head.
             self.head = ResNetHead(
@@ -66,7 +71,7 @@ def build_ratio_estimator(random_variables, **kwargs):
 
         def log_ratio(self, **kwargs):
             z_head = self.head(kwargs[convolve_variable])
-            tensors = [kwargs[k] for k in trunk_random_variables]
+            tensors = [kwargs[k].view(v) for k, v in trunk_random_variables.items()]
             tensors.append(z_head)
             features = torch.cat(tensors, dim=1)
             log_ratios = self.trunk(features)

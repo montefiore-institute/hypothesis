@@ -50,6 +50,7 @@ class ResNetHead(torch.nn.Module):
         self.groups = groups
         self.in_planes = in_planes
         self.shape_xs = shape_xs
+        self.shape_in = tuple([-1, channels]) + shape_xs
         self.width_per_group = width_per_group
         # Network structure
         self.network_head = self._build_head()
@@ -166,10 +167,11 @@ class ResNetHead(torch.nn.Module):
         return self.embedding_dim
 
     def forward(self, x):
+        x = x.view(self.shape_in)
         z = self.network_head(x)
         z = self.network_body(z)
 
-        return z
+        return z.squeeze()
 
 
 
