@@ -129,7 +129,7 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
             self.call_event(self.events.epoch_start)
             self.train()
             # Check if a testing dataset is available.
-            if self.dataset_test is not None:
+            if self.dataset_test is not None and len(self.dataset_test) > 0:
                 self.test()
             else:
                 self.best_model = self._cpu_estimator_state_dict()
