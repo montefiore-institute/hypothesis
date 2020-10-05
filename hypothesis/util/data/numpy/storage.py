@@ -38,7 +38,7 @@ class InMemoryStorage(BaseStorage):
         return len(self.data)
 
     def __getitem__(self, index):
-        return self.data[index]
+        return torch.from_numpy(self.data[index])
 
 
 class PersistentStorage(BaseStorage):
@@ -74,7 +74,7 @@ class PersistentStorage(BaseStorage):
         self.fd = None
 
     def __getitem__(self, index):
-        data = self._retrieve(index)
+        return self._retrieve(index)
         item = torch.from_numpy(data)
 
         return item
