@@ -19,7 +19,8 @@ def main(arguments):
 
 
 def procedure_numpy(arguments):
-    numpy_merge(input_files=arguments.files,
+    files = fetch_input_files(arguments)
+    numpy_merge(input_files=files,
         output_file=arguments.out,
         tempfile=arguments.tempfile,
         in_memory=arguments.in_memory,
@@ -28,6 +29,24 @@ def procedure_numpy(arguments):
 
 def procedure_torch(arguments):
     raise NotImplementedError
+
+
+def fetch_input_files(arguments, delimiter=','):
+    # Check if the user specified a list of input files
+    if delimiter in arguments.files:
+        files = arguments.files.split(delimiter)
+    # Check if the specified file exists
+    elif os.path.exists(arguments.files):
+        files = [arguments.files]
+    # The specified argument is a query
+    else:
+        query = arguments.files
+        files = glob.glob(query)
+    # Check if the list of files needs to be sorted.
+    if arguments.sort:
+        files.sort()
+
+    return files
 
 
 def select_extension_procedure(arguments):
