@@ -60,9 +60,6 @@ def select_extension_procedure(arguments):
     else:
         procecure = None
 
-    if procedure is None:
-        raise ValueError("No file-type selected. Please specify `--extension` (supported: numpy or torch).")
-
     return procedure
 
 
@@ -82,14 +79,6 @@ def parse_arguments():
     # Check if files to merge have been specified.
     if arguments.files is None:
         raise ValueError("No input files have been specified.")
-    # Check if a list of files has been specified.
-    if ',' in arguments.files:
-        arguments.files = arguments.files.split(',')
-    else:
-        arguments.files = glob.glob(arguments.files)
-    # Check if the files have to be sorted.
-    if arguments.sort:
-        arguments.files.sort()
     # Check if an output path has been specified.
     if arguments.out is None:
         raise ValueError("No output path has been specified.")
