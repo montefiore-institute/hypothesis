@@ -179,7 +179,7 @@ class BaseConservativeCriterion(BaseCriterion):
 
     def _forward_with_logits(self, **kwargs):
         beta = self.beta
-        _, y_dependent = self.estimator.log_ratio(**kwargs)
+        _, y_dependent = self.estimator(**kwargs)
         for group in self.independent_random_variables:
             random_indices = torch.randperm(self.batch_size)
             for variable in group:
