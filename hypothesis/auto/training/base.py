@@ -12,14 +12,16 @@ class BaseTrainer(Procedure):
         checkpoint=None,
         epochs=hypothesis.default.epochs,
         identifier=None,
+        shuffle=True,
         workers=hypothesis.default.dataloader_workers):
         super(BaseTrainer, self).__init__()
         # Training hyperparameters
-        self.identifier = identifier
         self.batch_size = batch_size
         self.checkpoint_path = checkpoint
         self.dataloader_workers = workers
         self.epochs = epochs
+        self.identifier = identifier
+        self.shuffle = shuffle
         # Load the previously saved state.
         self._checkpoint_load()
 
@@ -35,7 +37,7 @@ class BaseTrainer(Procedure):
             drop_last=True,
             num_workers=self.dataloader_workers,
             pin_memory=True,
-            shuffle=True)
+            shuffle=self.shuffle)
 
     def _register_events(self):
         raise NotImplementedError

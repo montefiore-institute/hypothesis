@@ -28,12 +28,14 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
         identifier=None,
         lr_scheduler_epoch=None,
         lr_scheduler_update=None,
+        shuffle=True,
         workers=hypothesis.default.dataloader_workers):
         super(BaseAmortizedRatioEstimatorTrainer, self).__init__(
-            identifier=identifier,
             batch_size=batch_size,
             checkpoint=checkpoint,
             epochs=epochs,
+            identifier=identifier,
+            shuffle=shuffle,
             workers=workers)
         # Datasets
         self.dataset_train = dataset_train
