@@ -20,8 +20,10 @@ def build_resnet_ratio_estimator(architecture, variables, **kwargs):
     return build_ratio_estimator(variables, **kwargs)
 
 
-def build_resnet_with_depth_ratio_estimator(variables, **kwargs):
-    raise NotImplementedError
+def build_resnet_with_depth_ratio_estimator(architecture, variables, **kwargs):
+    _, depth = architecture.split('-')
+    kwargs["depth"] = depth
+    return build_resnet_ratio_estimator(architecture, variables, **kwargs)
 
 
 def build_densenet_ratio_estimator(architecture, variables, **kwargs):
@@ -29,7 +31,7 @@ def build_densenet_ratio_estimator(architecture, variables, **kwargs):
     return build_ratio_estimator(variables, **kwargs)
 
 
-def build_densenet_with_depth_ratio_estimator(variables, **kwargs):
+def build_densenet_with_depth_ratio_estimator(architecture, variables, **kwargs):
     raise NotImplementedError
 
 
