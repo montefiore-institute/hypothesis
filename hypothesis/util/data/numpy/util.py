@@ -35,7 +35,7 @@ def merge_in_memory(input_files, output_file, shape, dtype=None, axis=0):
 def merge_on_disk(input_files, output_files, shape, dtype=None, axis=0, tempfile=None):
     # Check if a random temporary file needs to be allocated.
     if tempfile is None:
-        _, tempfile = temp.pkstemp()
+        _, tempfile = temp.mkstemp(dir='.')
     datamap = np.memmap(tempfile, dtype=dtype, mode="w+", shape=shape)
     insert_data(input_files, datamap, axis=axis)
     np.save(output_file, datamap)
