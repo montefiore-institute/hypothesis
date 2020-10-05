@@ -59,6 +59,7 @@ def main(arguments):
         epochs=arguments.epochs,
         estimator=estimator,
         lr_scheduler=lr_scheduler,
+        shuffle=(not arguments.dont_shuffle),
         optimizer=optimizer,
         workers=arguments.workers)
     # Register the callbacks
@@ -137,6 +138,7 @@ def parse_arguments():
     parser.add_argument("--disable-gpu", action="store_true", help="Disable the usage of the GPU, not recommended. (default: false).")
     parser.add_argument("--out", type=str, default=None, help="Output directory (default: none).")
     parser.add_argument("--show", action="store_true", help="Show the progress and the final result (default: false).")
+    parser.add_argument("--dont-shuffle", action="store_true", help="Disables shuffling of the batch loader (default: false).")
     parser.add_argument("--denominator", type=str, default="inputs|outputs", help="Random variables in the denominator and their (in)dependence relation (default: 'inputs|outputs').")
     # Optimization settings
     parser.add_argument("--amsgrad", action="store_true", help="Use AMSGRAD version of Adam (default: false).")
