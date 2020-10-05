@@ -32,13 +32,18 @@ def procedure_torch(arguments):
 
 def select_extension_procedure(arguments):
     extension = arguments.extension
-    mappings = {
-        "numpy": procedure_numpy,
-        "torch": procedure_torch}
+    extensions = {
+        ".npy": procedure_numpy,
+        ".np": procedure_numpy,
+        ".th": procedure_torch}
+    # Check if an extensions has been manually defined
     if extension in mappings.keys():
         procedure = mappings[extension]
     else:
-        procedure = None
+        procecure = None
+
+    if procedure is None:
+        raise ValueError("No file-type selected. Please specify `--extension` (supported: numpy or torch).")
 
     return procedure
 
