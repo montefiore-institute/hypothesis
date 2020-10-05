@@ -23,7 +23,6 @@ def main(arguments):
     dataset_train = allocate_dataset_train(arguments)
     # Allocate the ratio estimator
     estimator = allocate_estimator(arguments)
-    estimator = estimator.to(hypothesis.accelerator)
     # Allocate the optimizer
     optimizer = torch.optim.AdamW(
         estimator.parameters(),
@@ -114,6 +113,7 @@ def allocate_dataset_test(arguments):
 @torch.no_grad()
 def allocate_estimator(arguments):
     estimator = load_class(arguments.estimator)()
+    estimator = estimator.to(hypothesis.accelerator)
     # Check if we are able to allocate a data parallel model.
     if torch.cuda.device_count() > 1 and arguments.data_parallel:
         estimator = torch.nn.DataParallel(estimator)
