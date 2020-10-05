@@ -15,7 +15,6 @@ def build_ratio_estimator(random_variables):
             dropout=hypothesis.default.dropout,
             layers=hypothesis.default.trunk):
             super(RatioEstimator, self).__init__()
-            self.random_variables = random_variables.keys()
             shape_xs = (sum([compute_dimensionality(shape) for shape in random_variables.values()]),)
             self.mlp = MLP(
                 activation=activation,
@@ -25,16 +24,11 @@ def build_ratio_estimator(random_variables):
                 shape_ys=(1,),
                 transform_output=None)
 
-        def forward(self, **kwargs):
-            log_ratios = self.log_ratio(**kwargs)
-
-            return log_ratios.sigmoid(), log_ratios
-
         def log_ratio(self, **kwargs):
-            random_variables = [kwargs[k] for k in self.random_variables]
-            z = torch.cat(random_variables, dim=1)
-            log_ratio = self.mlp(z)
+            tensors = [kwargs[k] for k in random_variables]
+            z = torch.cat(tensors, dim=1)
+            log_ratios = self.mlp(z)
 
-            return log_ratio
+            return log_ratios
 
     return RatioEstimator

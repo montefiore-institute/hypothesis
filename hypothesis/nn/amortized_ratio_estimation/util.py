@@ -16,12 +16,21 @@ def build_mlp_ratio_estimator(architecture, variables, **kwargs):
 
 
 def build_resnet_ratio_estimator(architecture, variables, **kwargs):
+    from hypothesis.nn.amortized_ratio_estimation.resnet import  build_ratio_estimator
+    return build_ratio_estimator(variables, **kwargs)
+
+
+def build_resnet_with_depth_ratio_estimator(variables, **kwargs):
     raise NotImplementedError
 
 
 def build_densenet_ratio_estimator(architecture, variables, **kwargs):
-    raise NotImplementedError
+    from hypothesis.nn.amortized_ratio_estimation.densenet import build_ratio_estimator
+    return build_ratio_estimator(variables, **kwargs)
 
+
+def build_densenet_with_depth_ratio_estimator(variables, **kwargs):
+    raise NotImplementedError
 
 
 architectures = {
@@ -29,5 +38,14 @@ architectures = {
     "mlp": build_mlp_ratio_estimator,
     # ResNet
     "resnet": build_resnet_ratio_estimator,
+    "resnet-18": build_resnet_with_depth_ratio_estimator,
+    "resnet-34": build_resnet_with_depth_ratio_estimator,
+    "resnet-50": build_resnet_with_depth_ratio_estimator,
+    "resnet-101": build_resnet_with_depth_ratio_estimator,
+    "resnet-152": build_resnet_with_depth_ratio_estimator,
     # DenseNet
-    "densenet": build_densenet_ratio_estimator}
+    "densenet": build_densenet_ratio_estimator,
+    "densenet-121": build_densenet_with_depth_ratio_estimator,
+    "densenet-161": build_densenet_with_depth_ratio_estimator,
+    "densenet-169": build_densenet_with_depth_ratio_estimator,
+    "densenet-201": build_densenet_with_depth_ratio_estimator}
