@@ -261,6 +261,7 @@ def create_trainer(criterion, denominator):
             epochs=hypothesis.default.epochs,
             lr_scheduler=None,
             identifier=None,
+            shuffle=True,
             workers=hypothesis.default.dataloader_workers):
             super(Trainer, self).__init__(
                 accelerator=accelerator,
@@ -275,6 +276,7 @@ def create_trainer(criterion, denominator):
                 identifier=identifier,
                 lr_scheduler_epoch=lr_scheduler,
                 optimizer=optimizer,
+                shuffle=shuffle,
                 workers=workers)
 
     return Trainer
