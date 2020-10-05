@@ -230,7 +230,9 @@ class LikelihoodToEvidenceRatioEstimatorTrainer(BaseAmortizedRatioEstimatorTrain
 
 
 def create_trainer(criterion, denominator):
+    r"""Variables of the dataset must by sorted by variable name."""
     variables = re.split(",|\|", denominator)
+    variables.sort()
 
     assert(set(variables) == set(criterion.variables()))
 
