@@ -28,18 +28,18 @@ def PriorExperiment(simple=False):
 
 def SimplePriorExperiment():
     r"""Coefficient of drag of the projectile and the launch angle."""
-    lower = torch.tensor([0.0, 0.0, 0.0])
+    lower = torch.tensor([0.0, 0.0])
     lower = lower.to(hypothesis.accelerator)
-    upper = torch.tensor([2.0, np.pi / 2, 1.0])
+    upper = torch.tensor([2.0, np.pi / 2])
     upper = upper.to(hypothesis.accelerator)
 
     return Uniform(lower, upper)
 
 
 def ComplexPriorExperiment():
-    lower = torch.tensor([0.1, 1.0, 0.0, 0.0, 100.0, 0.0])
+    lower = torch.tensor([0.1, 1.0, 0.0, 0.0, 100.0])
     lower = lower.to(hypothesis.accelerator)
-    upper = torch.tensor([2.5, 100.0, 2.0, np.pi / 2, 10000.0, 1.0])
+    upper = torch.tensor([2.5, 100.0, 2.0, np.pi / 2, 10000.0])
     upper = upper.to(hypothesis.accelerator)
 
     return Uniform(lower, upper)

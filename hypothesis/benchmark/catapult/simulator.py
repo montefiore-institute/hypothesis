@@ -12,11 +12,12 @@ class CatapultSimulator(BaseSimulator):
     LAUNCH_ANGLE_LIMIT_HIGH = 1.5707963267948965
     LAUNCH_ANGLE_LIMIT_LOW = 0.0
 
-    def __init__(self, limit=100.0, step_size=0.01):
+    def __init__(self, limit=100.0, step_size=0.01, record_wind=False):
         super(CatapultSimulator, self).__init__()
         self.dt = step_size
         # self.prior_experiment = PriorExperiment()
         self.limit = limit # Observational limit in meters
+        self.record_wind = record_wind
         self.planet_mass = 5.972 * 10**24 # Kilogram
         self.planet_radius = 6371000 # Meters
         self.air_density = 1.2
@@ -49,12 +50,6 @@ class CatapultSimulator(BaseSimulator):
 
     def _get_wind(self):
         return np.random.normal() * 5 # Meters per second
-
-    def _get_output(self, psi, v_wind, distance):
-        if psi[5] >= 0.5: # Check if the wind needs to be recorded
-            return np.array([v_wind, distance])
-        else:
-            return np.array([0, distance])
 
     def simulate(self, theta, psi, trajectory=False):
         # Setup the initial conditions and simulator state
@@ -109,8 +104,11 @@ class CatapultSimulator(BaseSimulator):
         positions = np.vstack(positions)
         if trajectory:
             return positions
-
-        return self._get_output(psi, v_nominal_wind, positions[-1][0])
+        else:
+            if self.record_wind:
+                return np.array([v_nominal_wind, positions[-1][0]])
+            else:
+                return positions[-1][0]
 
     @torch.no_grad()
     def forward(self, inputs, experimental_configurations):
@@ -129,9 +127,10 @@ class CatapultSimulator(BaseSimulator):
 
 class SimpleCatapultSimulator(CatapultSimulator):
 
-    def __init__(self, step_size=0.01):
+    def __init__(self, step_size=0.01, record_wind=False):
         super(SimpleCatapultSimulator, self).__init__(
-            step_size=step_size)
+            step_size=step_size,
+            record_wind=record_wind)
 
     def _get_projectile(self, psi):
         area = 0.1 # Meters
@@ -158,12 +157,6 @@ class SimpleCatapultSimulator(CatapultSimulator):
             launch_force = 10
 
         return launch_force
-
-    def _get_output(self, psi, v_wind, distance):
-        if psi[2] >= 0.5: # Check if the wind needs to be recorded
-            return np.array([v_wind, distance])
-        else:
-            return np.array([0, distance])
 
 
 
