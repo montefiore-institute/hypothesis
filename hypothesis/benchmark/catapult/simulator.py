@@ -54,7 +54,7 @@ class CatapultSimulator(BaseSimulator):
         if psi[5] >= 0.5: # Check if the wind needs to be recorded
             return np.array([v_wind, distance])
         else:
-            return np.array([0, distance)
+            return np.array([0, distance])
 
     def simulate(self, theta, psi, trajectory=False):
         # Setup the initial conditions and simulator state
