@@ -163,7 +163,7 @@ class SimpleCatapultSimulator(CatapultSimulator):
         if psi[2] >= 0.5: # Check if the wind needs to be recorded
             return np.array([v_wind, distance])
         else:
-            return np.array([0, distance)
+            return np.array([0, distance])
 
 
 
