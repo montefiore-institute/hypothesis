@@ -11,7 +11,7 @@ from torch.utils.data import Dataset as BaseDataset
 class Dataset(BaseDataset):
     r""""""
 
-    def __init__(self, *paths, in_memory=False):
+    def __init__(self, *paths, in_memory=True):
         super(Dataset, self).__init__()
         if in_memory:
             storage_type = InMemoryStorage
