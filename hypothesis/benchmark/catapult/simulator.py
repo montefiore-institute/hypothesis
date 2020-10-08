@@ -125,41 +125,6 @@ class CatapultSimulator(BaseSimulator):
 
 
 
-class SimpleCatapultSimulator(CatapultSimulator):
-
-    def __init__(self, step_size=0.01, record_wind=False):
-        super(SimpleCatapultSimulator, self).__init__(
-            step_size=step_size,
-            record_wind=record_wind)
-
-    def _get_projectile(self, psi):
-        area = 0.1 # Meters
-        mass = 1.0 # Kilogram
-        drag_coefficient = psi[0].item()
-
-        return Projectile(area=area, mass=mass, drag_coefficient=drag_coefficient)
-
-    def _get_launch_angle(self, psi):
-        nominal_launch_angle = psi[1].item()
-        launch_angle = nominal_launch_angle + np.random.normal() * 0.1
-        # Check if the launch angle is valid (in radians).
-        if launch_angle < self.LAUNCH_ANGLE_LIMIT_LOW:
-            launch_angle = self.LAUNCH_ANGLE_LIMIT_LOW
-        elif launch_angle > self.LAUNCH_ANGLE_LIMIT_HIGH:
-            launch_angle = self.LAUNCH_ANGLE_LIMIT_HIGH
-
-        return launch_angle
-
-    def _get_launch_force(self, psi):
-        launch_force = 250.0 # Newton
-        launch_force = launch_force + (np.random.normal() * 5) # Newton
-        if launch_force < 10:
-            launch_force = 10
-
-        return launch_force
-
-
-
 class Projectile:
     r"""A spherical projectile."""
 
