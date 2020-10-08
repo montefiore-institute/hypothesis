@@ -25,12 +25,11 @@ class CatapultSimulator(BaseSimulator):
     def _get_projectile(self, psi):
         area = psi[0].item()
         mass = psi[1].item()
-        drag_coefficient = psi[2].item()
 
         return Projectile(area=area, mass=mass, drag_coefficient=drag_coefficient)
 
     def _get_launch_angle(self, psi):
-        nominal_launch_angle = psi[3].item()
+        nominal_launch_angle = psi[2].item()
         launch_angle = nominal_launch_angle + np.random.normal() * 0.1
         # Check if the launch angle is valid (in radians).
         if launch_angle < self.LAUNCH_ANGLE_LIMIT_LOW:
@@ -41,7 +40,7 @@ class CatapultSimulator(BaseSimulator):
         return launch_angle
 
     def _get_launch_force(self, psi):
-        launch_force = psi[4].item()
+        launch_force = psi[3].item()
         launch_force = launch_force + (np.random.normal() * 5) # Newton
         if launch_force < 10:
             launch_force = 10
@@ -128,7 +127,7 @@ class CatapultSimulator(BaseSimulator):
 class Projectile:
     r"""A spherical projectile."""
 
-    def __init__(self, area=0.1, mass=1.0, drag_coefficient=0.0):
+    def __init__(self, area=0.1, mass=1.0, drag_coefficient=0.05):
         self.position = np.zeros(2) # x -> distance, y -> height
         self.velocity = np.zeros(2)
         self.mass = mass # Kilogram

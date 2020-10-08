@@ -20,9 +20,9 @@ def Prior():
 
 
 def PriorExperiment():
-    lower = torch.tensor([0.1, 1.0, 0.0, 0.0, 10.0])
+    lower = torch.tensor([0.1, 0.1, 0.0, 10.0])
     lower = lower.to(hypothesis.accelerator)
-    upper = torch.tensor([2.5, 100.0, 2.0, np.pi / 2, 1000.0])
+    upper = torch.tensor([1.0, 10.0, np.pi / 2, 1000.0])
     upper = upper.to(hypothesis.accelerator)
 
     return Uniform(lower, upper)
