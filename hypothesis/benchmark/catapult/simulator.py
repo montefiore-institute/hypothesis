@@ -26,7 +26,7 @@ class CatapultSimulator(BaseSimulator):
         area = psi[0].item()
         mass = psi[1].item()
 
-        return Projectile(area=area, mass=mass, drag_coefficient=drag_coefficient)
+        return Projectile(area=area, mass=mass)
 
     def _get_launch_angle(self, psi):
         nominal_launch_angle = psi[2].item()
