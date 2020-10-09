@@ -7,7 +7,7 @@ from .util import PriorExperiment
 
 
 
-class CatapultSimulator:
+class CatapultSimulator(BaseSimulator):
 
     LAUNCH_ANGLE_LIMIT_HIGH = 1.5707963267948965
     LAUNCH_ANGLE_LIMIT_LOW = 0.0
