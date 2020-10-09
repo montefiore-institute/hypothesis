@@ -7,7 +7,7 @@ from .util import PriorExperiment
 
 
 
-class CatapultSimulator(BaseSimulator):
+class CatapultSimulator:
 
     LAUNCH_ANGLE_LIMIT_HIGH = 1.5707963267948965
     LAUNCH_ANGLE_LIMIT_LOW = 0.0
@@ -41,7 +41,7 @@ class CatapultSimulator(BaseSimulator):
 
     def _get_launch_force(self, psi):
         launch_force = psi[3].item()
-        launch_force = launch_force + (np.random.normal() * 5) # Newton
+        #launch_force = launch_force + (np.random.normal() * 5) # Newton
         if launch_force < 10:
             launch_force = 10
 
@@ -76,8 +76,11 @@ class CatapultSimulator(BaseSimulator):
             positions.append(np.copy(projectile.position).reshape(1, 2))
 
         # Integrate until the projectile hits the ground.
+        print(v_nominal_wind)
         while not projectile.stopped() and np.abs(projectile.position[0]) <= self.limit:
             v_wind = v_nominal_wind + 0.01 * np.random.normal()
+            dv_x = projectile.velocity[0]
+            dv_y = projectile.velocity[1]
 
             # Force of the wind component.
             force_wind = np.zeros(2)
@@ -85,11 +88,11 @@ class CatapultSimulator(BaseSimulator):
 
             # Force of the drag
             force_drag = np.zeros(2)
-            force_drag[0] = -np.sign(projectile.velocity[0]) * 0.5 * projectile.drag_coefficient * self.air_density * projectile.area * (projectile.velocity[0] ** 2)
-            force_drag[1] = -np.sign(projectile.velocity[1]) * 0.5 * projectile.drag_coefficient * self.air_density * projectile.area * (projectile.velocity[1] ** 2)
+            force_drag[0] = np.sign(dv_x) * 0.5 * projectile.drag_coefficient * self.air_density * projectile.area * (dv_x ** 2)
+            force_drag[1] = np.sign(dv_y) * 0.5 * projectile.drag_coefficient * self.air_density * projectile.area * (dv_y ** 2)
 
             # Compute net drag
-            force = force_gravitational + force_wind + force_drag
+            force = force_gravitational + force_wind - force_drag
             projectile.apply(force, self.dt)
 
             # Check if projectile is within limits
