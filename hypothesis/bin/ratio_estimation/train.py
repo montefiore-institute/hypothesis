@@ -11,6 +11,7 @@ from hypothesis.auto.training import LikelihoodToEvidenceRatioEstimatorTrainer a
 from hypothesis.auto.training import create_trainer
 from hypothesis.nn.amortized_ratio_estimation import BaseConservativeCriterion
 from hypothesis.nn.amortized_ratio_estimation import BaseCriterion
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.optim.lr_scheduler import StepLR
 from torch.utils.data import TensorDataset
 from tqdm import tqdm
@@ -44,8 +45,11 @@ def main(arguments):
             estimator=estimator,
             logits=arguments.logits)
     # Allocate the learning rate scheduler, if requested.
-    if arguments.lrsched:
-        lr_scheduler = StepLR(optimizer, step_size=arguments.lrsched_every, gamma=arguments.lrsched_gamma)
+    if arguments.lrsched is not None:
+        if arguments.lrsched_every is None or arguments.lrsched_gamma is None:
+            lr_scheduler = ReduceLROnPlateau(optimizer)
+        else:
+            lr_scheduler = StepLR(optimizer, step_size=arguments.lrsched_every, gamma=arguments.lrsched_gamma)
     else:
         lr_scheduler = None
     # Allocate the trainer
@@ -148,8 +152,8 @@ def parse_arguments():
     parser.add_argument("--logits", action="store_false", help="Use the logit-trick for the minimization criterion (default: true).")
     parser.add_argument("--lr", type=float, default=0.001, help="Learning rate (default: 0.001).")
     parser.add_argument("--lrsched", action="store_true", help="Enable learning rate scheduling (default: false).")
-    parser.add_argument("--lrsched-every", type=int, default=10, help="Schedule the learning rate every n epochs (default: 10).")
-    parser.add_argument("--lrsched-gamma", type=float, default=0.5, help="Learning rate scheduling stepsize (default: 0.5).")
+    parser.add_argument("--lrsched-every", type=int, default=None, help="Schedule the learning rate every n epochs (default: none).")
+    parser.add_argument("--lrsched-gamma", type=float, default=None, help="Learning rate scheduling stepsize (default: none).")
     parser.add_argument("--weight-decay", type=float, default=0.0, help="Weight decay (default: 0.0).")
     parser.add_argument("--workers", type=int, default=2, help="Number of concurrent data loaders (default: 2).")
     # Data settings
