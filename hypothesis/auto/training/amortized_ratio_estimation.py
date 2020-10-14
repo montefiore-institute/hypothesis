@@ -130,12 +130,12 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
             self.train()
             # Check if a testing dataset is available.
             if self.dataset_test is not None and len(self.dataset_test) > 0:
-                self.test()
+                loss = self.test()
             else:
                 self.best_model = self._cpu_estimator_state_dict()
             # Check if a learning rate scheduler has been allocated.
             if self.lr_scheduler_epoch is not None:
-                self.lr_scheduler_epoch.step()
+                self.lr_scheduler_epoch.step(loss)
             self.epochs_remaining -= 1
             self.checkpoint()
             self.call_event(self.events.epoch_complete)
@@ -163,6 +163,8 @@ class BaseAmortizedRatioEstimatorTrainer(BaseTrainer):
             self.best_loss = total_loss
             self.best_model = state_dict
             self.best_epoch = self.current_epoch
+
+        return total_loss
 
     def train(self):
         self.estimator.train()

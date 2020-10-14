@@ -45,9 +45,9 @@ def main(arguments):
             estimator=estimator,
             logits=arguments.logits)
     # Allocate the learning rate scheduler, if requested.
-    if arguments.lrsched is not None:
+    if arguments.lrsched:
         if arguments.lrsched_every is None or arguments.lrsched_gamma is None:
-            lr_scheduler = ReduceLROnPlateau(optimizer)
+            lr_scheduler = ReduceLROnPlateau(optimizer, verbose=True)
         else:
             lr_scheduler = StepLR(optimizer, step_size=arguments.lrsched_every, gamma=arguments.lrsched_gamma)
     else:
