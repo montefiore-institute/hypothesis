@@ -70,7 +70,7 @@ def build_ratio_estimator(random_variables, **kwargs):
                 transform_output=None)
 
         def log_ratio(self, **kwargs):
-            z_head = self.head(kwargs[convolve_variable])
+            z_head = self.head(kwargs[convolve_variable]).view(-1, self.head.embedding_dimensionality)
             tensors = [kwargs[k].view(v) for k, v in trunk_random_variables.items()]
             tensors.append(z_head)
             features = torch.cat(tensors, dim=1)
