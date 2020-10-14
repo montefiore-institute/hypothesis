@@ -1,6 +1,6 @@
 import torch
 
-from torch.multiprocessing import Pool
+from multiprocessing import Pool
 
 
 
