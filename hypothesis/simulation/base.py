@@ -72,6 +72,7 @@ class ParallelSimulator(Simulator):
         arguments = self._prepare_arguments(**kwargs)
         outputs = pool.map(self._simulate, arguments)
         pool.close()
+        pool.join()
         del pool
 
         return torch.cat(outputs, dim=0)
