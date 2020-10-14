@@ -46,38 +46,38 @@ class ParallelSimulator(Simulator):
 
     def __init__(self, simulator, workers=2):
         super(ParallelSimulator, self).__init__()
-        self.pool = Pool(processes=workers)
         self.simulator = simulator
         self.workers = workers
 
-    def _prepare_arguments(self, inputs):
+    @torch.no_grad()
+    def _prepare_arguments(self, **kwargs):
         arguments = []
 
-        chunks = inputs.shape[0] // self.workers
-        if chunks == 0:
-            chunks = 1
-        chunks = inputs.split(chunks, dim=0)
-        for chunk in chunks:
-            a = (self.simulator, chunk)
-            arguments.append(a)
+        # Determine the number of chunks
+        rows = kwargs[list(kwargs.keys())[0]].shape[0]
+        chunk_size = rows // self.workers
+        if chunk_size == 0:
+            chunk_size = 1
+        for base in range(0, rows, chunk_size):
+            argument = {}
+            for k, v in kwargs.items():
+                argument[k] = v[base:base + chunk_size]
+            arguments.append((self.simulator, argument))
 
         return arguments
 
-    def forward(self, inputs):
-        arguments = self._prepare_arguments(inputs)
-        outputs = self.pool.map(self._simulate, arguments)
-        outputs = torch.cat(outputs, dim=0)
+    @torch.no_grad()
+    def forward(self, **kwargs):
+        pool = Pool(processes=self.workers)
+        arguments = self._prepare_arguments(**kwargs)
+        outputs = pool.map(self._simulate, arguments)
+        pool.close()
+        del pool
 
-        return outputs
-
-    def terminate(self):
-        self.pool.close()
-        del self.pool
-        self.pool = None
-        self.simulator.terminate()
+        return torch.cat(outputs, dim=0)
 
     @staticmethod
     def _simulate(arguments):
-        simulator, inputs = arguments
+        simulator, kwargs = arguments
 
-        return simulator(inputs)
+        return simulator(**kwargs)
