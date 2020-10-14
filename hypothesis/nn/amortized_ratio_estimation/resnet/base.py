@@ -59,8 +59,8 @@ def build_ratio_estimator(random_variables, **kwargs):
             if trunk_activation is None:
                 trunk_activation = activation
             # Construct the trunk of the network.
-            dimensionality = self.head.embedding_dimensionality()
-            dimensionality += sum([compute_dimensionality(random_variables[k]) for k in trunk_random_variables])
+            self.embedding_dimensionality = self.head.embedding_dimensionality()
+            dimensionality = self.embedding_dimensionality + sum([compute_dimensionality(random_variables[k]) for k in trunk_random_variables])
             self.trunk = MLP(
                 shape_xs=(dimensionality,),
                 shape_ys=(1,),
@@ -70,7 +70,7 @@ def build_ratio_estimator(random_variables, **kwargs):
                 transform_output=None)
 
         def log_ratio(self, **kwargs):
-            z_head = self.head(kwargs[convolve_variable]).view(-1, self.head.embedding_dimensionality)
+            z_head = self.head(kwargs[convolve_variable]).view(-1, self.embedding_dimensionality)
             tensors = [kwargs[k].view(v) for k, v in trunk_random_variables.items()]
             tensors.append(z_head)
             features = torch.cat(tensors, dim=1)
