@@ -76,7 +76,6 @@ class CatapultSimulator(BaseSimulator):
             positions.append(np.copy(projectile.position).reshape(1, 2))
 
         # Integrate until the projectile hits the ground.
-        print(v_nominal_wind)
         while not projectile.stopped() and np.abs(projectile.position[0]) <= self.limit:
             v_wind = v_nominal_wind + 0.01 * np.random.normal()
             dv_x = projectile.velocity[0]
