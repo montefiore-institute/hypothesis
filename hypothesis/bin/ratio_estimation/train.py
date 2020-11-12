@@ -1,4 +1,4 @@
-"""General training script for conditional likelihood-to-evidence ratio estimators."""
+"""General training script fo Amortised Approximate Ratio Estimation (AARE)."""
 
 import argparse
 import hypothesis
@@ -136,7 +136,7 @@ def load_class(full_classname):
 
 
 def parse_arguments():
-    parser = argparse.ArgumentParser("Conditional likelihood-to-evidence ratio estimator training")
+    parser = argparse.ArgumentParser("Amortised Approximate Ratio Estimator training")
     # General settings
     parser.add_argument("--data-parallel", action="store_true", help="Enable data-parallel training if multiple GPU's are available (default: false).")
     parser.add_argument("--disable-gpu", action="store_true", help="Disable the usage of the GPU, not recommended. (default: false).")
