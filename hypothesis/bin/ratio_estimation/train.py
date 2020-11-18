@@ -24,6 +24,10 @@ def main(arguments):
     dataset_train = allocate_dataset_train(arguments)
     # Allocate the ratio estimator
     estimator = allocate_estimator(arguments)
+    # Check if the gradients have to be clipped.
+    if arguments.clip_grad != 0.0:
+        for p in estimator.parameters():
+            p.register_hook(lambda grad: torch.clamp(grad, -arguments.clip_grad, arguments.clip_grad))
     # Allocate the optimizer
     optimizer = torch.optim.AdamW(
         estimator.parameters(),
@@ -148,6 +152,7 @@ def parse_arguments():
     parser.add_argument("--amsgrad", action="store_true", help="Use AMSGRAD version of Adam (default: false).")
     parser.add_argument("--batch-size", type=int, default=64, help="Batch size (default: 64).")
     parser.add_argument("--conservativeness", type=float, default=0.0, help="Conservative term (default: 0.0).")
+    parser.add_argument("--clip-grad", type=float, default=0.0, help="Value to clip the gradients with (default: 0.0 or no clipping).")
     parser.add_argument("--epochs", type=int, default=1, help="Number of epochs (default: 1).")
     parser.add_argument("--logits", action="store_false", help="Use the logit-trick for the minimization criterion (default: true).")
     parser.add_argument("--lr", type=float, default=0.001, help="Learning rate (default: 0.001).")
