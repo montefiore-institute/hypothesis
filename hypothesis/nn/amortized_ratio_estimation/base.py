@@ -198,7 +198,7 @@ class BaseExperimentalCriterion(BaseCriterion):
         denominator,
         batch_size=hypothesis.default.batch_size,
         logits=False):
-        super(BaseConservativeCriterion, self).__init__(
+        super(BaseExperimentalCriterion, self).__init__(
             estimator=estimator,
             denominator=denominator,
             batch_size=batch_size,
