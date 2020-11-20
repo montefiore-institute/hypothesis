@@ -11,6 +11,7 @@ from hypothesis.auto.training import LikelihoodToEvidenceRatioEstimatorTrainer a
 from hypothesis.auto.training import create_trainer
 from hypothesis.nn.amortized_ratio_estimation import BaseConservativeCriterion
 from hypothesis.nn.amortized_ratio_estimation import BaseCriterion
+from hypothesis.nn.amortized_ratio_estimation import BaseExperimentalCriterion
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.optim.lr_scheduler import StepLR
 from torch.utils.data import TensorDataset
@@ -44,6 +45,13 @@ def main(arguments):
             logits=arguments.logits)
     else:
         criterion = BaseCriterion(
+            batch_size=arguments.batch_size,
+            denominator=arguments.denominator,
+            estimator=estimator,
+            logits=arguments.logits)
+    # Check if the experimental settings have to be activated
+    if arguments.experimental:
+        criterion = BaseExperimentalCriterion(
             batch_size=arguments.batch_size,
             denominator=arguments.denominator,
             estimator=estimator,
@@ -154,7 +162,7 @@ def parse_arguments():
     parser.add_argument("--conservativeness", type=float, default=0.0, help="Conservative term (default: 0.0).")
     parser.add_argument("--clip-grad", type=float, default=0.0, help="Value to clip the gradients with (default: 0.0 or no clipping).")
     parser.add_argument("--epochs", type=int, default=1, help="Number of epochs (default: 1).")
-    parser.add_argument("--logits", action="store_false", help="Use the logit-trick for the minimization criterion (default: true).")
+    parser.add_argument("--logits", action="store_true", help="Use the logit-trick for the minimization criterion (default: false).")
     parser.add_argument("--lr", type=float, default=0.001, help="Learning rate (default: 0.001).")
     parser.add_argument("--lrsched", action="store_true", help="Enable learning rate scheduling (default: false).")
     parser.add_argument("--lrsched-every", type=int, default=None, help="Schedule the learning rate every n epochs (default: none).")
@@ -166,6 +174,8 @@ def parse_arguments():
     parser.add_argument("--data-train", type=str, default=None, help="Full classname of the training dataset (default: none).")
     # Ratio estimator settings
     parser.add_argument("--estimator", type=str, default=None, help="Full classname of the ratio estimator (default: none).")
+    # Experimental settings
+    parser.add_argument("--experimental", action="store_true", help="Enable experimental settings (default: false).")
     arguments, _ = parser.parse_known_args()
 
     return arguments
