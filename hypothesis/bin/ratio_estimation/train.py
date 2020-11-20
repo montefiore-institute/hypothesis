@@ -11,7 +11,6 @@ from hypothesis.auto.training import LikelihoodToEvidenceRatioEstimatorTrainer a
 from hypothesis.auto.training import create_trainer
 from hypothesis.nn.amortized_ratio_estimation import BaseConservativeCriterion
 from hypothesis.nn.amortized_ratio_estimation import BaseCriterion
-from hypothesis.nn.amortized_ratio_estimation import BaseExperimentalCriterion
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.optim.lr_scheduler import StepLR
 from torch.utils.data import TensorDataset
@@ -45,14 +44,6 @@ def main(arguments):
             logits=arguments.logits)
     else:
         criterion = BaseCriterion(
-            batch_size=arguments.batch_size,
-            denominator=arguments.denominator,
-            estimator=estimator,
-            logits=arguments.logits)
-    # Check if the experimental settings have to be activated
-    if arguments.experimental:
-        print("Selecting the experimental criterion!")
-        criterion = BaseExperimentalCriterion(
             batch_size=arguments.batch_size,
             denominator=arguments.denominator,
             estimator=estimator,
@@ -175,8 +166,6 @@ def parse_arguments():
     parser.add_argument("--data-train", type=str, default=None, help="Full classname of the training dataset (default: none).")
     # Ratio estimator settings
     parser.add_argument("--estimator", type=str, default=None, help="Full classname of the ratio estimator (default: none).")
-    # Experimental settings
-    parser.add_argument("--experimental", action="store_true", help="Enable experimental settings (default: false).")
     arguments, _ = parser.parse_known_args()
 
     return arguments
