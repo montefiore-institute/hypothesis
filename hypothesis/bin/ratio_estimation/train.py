@@ -51,6 +51,7 @@ def main(arguments):
             logits=arguments.logits)
     # Check if the experimental settings have to be activated
     if arguments.experimental:
+        print("Selecting the experimental criterion!")
         criterion = BaseExperimentalCriterion(
             batch_size=arguments.batch_size,
             denominator=arguments.denominator,
