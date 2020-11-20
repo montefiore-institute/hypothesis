@@ -204,17 +204,18 @@ class BaseExperimentalCriterion(BaseCriterion):
             denominator=denominator,
             batch_size=batch_size,
             logits=logits)
+        self.beta = 0.99
         self.base = np.log(4)
 
     def _forward_without_logits(self, **kwargs):
-        y_dependent, log_mi = self.estimator(**kwargs)
+        y_dependent, log_ratios = self.estimator(**kwargs)
         for group in self.independent_random_variables:
             random_indices = torch.randperm(self.batch_size)
             for variable in group:
                 kwargs[variable] = kwargs[variable][random_indices] # Make variable independent.
         y_independent, _ = self.estimator(**kwargs)
         loss = self.criterion(y_dependent, self.ones) + self.criterion(y_independent, self.zeros)
-        # TODO Add MI regularizer
+        loss = loss + self.beta * ((self.base - loss.detach()).abs() / 2 - log_ratios.mean()) ** 2
 
         return loss
 
@@ -226,6 +227,6 @@ class BaseExperimentalCriterion(BaseCriterion):
                 kwargs[variable] = kwargs[variable][random_indices] # Make variable independent.
         _, y_independent = self.estimator(**kwargs)
         loss = self.criterion(y_dependent, self.ones) + self.criterion(y_independent, self.zeros)
-        # TODO Add MI regularizer
+        loss = loss + self.beta * ((self.base - loss.detach()).abs() / 2 - log_ratios.mean()) ** 2
 
         return loss
