@@ -1,4 +1,5 @@
 import hypothesis
+import numpy as np
 import torch
 
 
@@ -203,6 +204,7 @@ class BaseExperimentalCriterion(BaseCriterion):
             denominator=denominator,
             batch_size=batch_size,
             logits=logits)
+        self.base = np.log(4)
 
     def _forward_without_logits(self, **kwargs):
         y_dependent, log_mi = self.estimator(**kwargs)
@@ -212,7 +214,7 @@ class BaseExperimentalCriterion(BaseCriterion):
                 kwargs[variable] = kwargs[variable][random_indices] # Make variable independent.
         y_independent, _ = self.estimator(**kwargs)
         loss = self.criterion(y_dependent, self.ones) + self.criterion(y_independent, self.zeros)
-        loss = ((np.log(4) - loss) - log_mi.mean())
+        loss = ((self.base - loss) - log_mi.mean())
 
         return loss
 
@@ -224,6 +226,6 @@ class BaseExperimentalCriterion(BaseCriterion):
                 kwargs[variable] = kwargs[variable][random_indices] # Make variable independent.
         _, y_independent = self.estimator(**kwargs)
         loss = self.criterion(y_dependent, self.ones) + self.criterion(y_independent, self.zeros)
-        loss = ((np.log(4) - loss) - y_dependent.mean())
+        loss = ((self.base - loss) - y_dependent.mean())
 
         return loss
