@@ -212,7 +212,7 @@ class BaseExperimentalCriterion(BaseCriterion):
                 kwargs[variable] = kwargs[variable][random_indices] # Make variable independent.
         y_independent, _ = self.estimator(**kwargs)
         loss = self.criterion(y_dependent, self.ones) + self.criterion(y_independent, self.zeros)
-        loss = ((torch.log(4) - loss) - log_mi.mean())
+        loss = ((np.log(4) - loss) - log_mi.mean())
 
         return loss
 
@@ -224,6 +224,6 @@ class BaseExperimentalCriterion(BaseCriterion):
                 kwargs[variable] = kwargs[variable][random_indices] # Make variable independent.
         _, y_independent = self.estimator(**kwargs)
         loss = self.criterion(y_dependent, self.ones) + self.criterion(y_independent, self.zeros)
-        loss = ((torch.log(4) - loss) - y_dependent.mean())
+        loss = ((np.log(4) - loss) - y_dependent.mean())
 
         return loss
