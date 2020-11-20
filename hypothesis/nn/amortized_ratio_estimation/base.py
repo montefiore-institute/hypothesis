@@ -198,13 +198,14 @@ class BaseExperimentalCriterion(BaseCriterion):
         estimator,
         denominator,
         batch_size=hypothesis.default.batch_size,
+        beta = 1.0
         logits=False):
         super(BaseExperimentalCriterion, self).__init__(
             estimator=estimator,
             denominator=denominator,
             batch_size=batch_size,
             logits=logits)
-        self.beta = 0.99
+        self.beta = beta
         self.base = np.log(4)
 
     def _forward_without_logits(self, **kwargs):
