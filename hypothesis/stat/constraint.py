@@ -50,7 +50,7 @@ def highest_density_level(pdf, alpha, bias=0.0, min_epsilon=10e-17, region=False
 def confidence_level(log_ratios, dof=None, level=0.95):
     if dof is None:
         dof = log_ratios.dim() - 1
-    test_statistic = profile_likelihood(log_ratios)
+    test_statistic = likelihood_ratio_test_statistic(log_ratios)
     level = chi2.isf(1 - level, df=dof)
 
     return test_statistic, level
