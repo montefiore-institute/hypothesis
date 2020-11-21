@@ -198,7 +198,7 @@ class BaseExperimentalCriterion(BaseCriterion):
         estimator,
         denominator,
         batch_size=hypothesis.default.batch_size,
-        beta = 1.0
+        beta=1.0,
         logits=False):
         super(BaseExperimentalCriterion, self).__init__(
             estimator=estimator,
