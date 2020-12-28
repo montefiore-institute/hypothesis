@@ -56,7 +56,7 @@ class WeinbergSimulator(BaseSimulator):
                 yprop = self._diffxsec(xprop, psi, theta) / maxval
                 if yprop / maxval < ycut:
                     continue
-                sample = xprop
+                sample = yprop
             sample = torch.tensor(sample).view(1, 1)
             samples.append(sample)
 
