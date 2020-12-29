@@ -1,7 +1,0 @@
-Installation
-^^^^^^^^^^^^
-
-Test
-====
-
-t
