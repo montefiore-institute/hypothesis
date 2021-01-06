@@ -31,7 +31,7 @@ def test_allocation():
     model = h.nn.MLP(shape_xs, shape_ys, layers=layers)
     xs = torch.randn(10, 10)
     ys_hat = model(xs)
-    assert(ys_hat.shape[1] == 5)
+    assert ys_hat.shape[1] == 5
 
 
 @torch.no_grad()
@@ -42,3 +42,8 @@ def test_normalized_output():
     # Sigmoidal normalization
     shape_ys = (1,)
     model = h.nn.MLP(shape_xs, shape_ys, layers=layers)
+    assert isinstance(model._mapping[-1], torch.nn.Sigmoid)
+    # Softmax normalization
+    shape_ys = (2,)
+    model = h.nn.MLP(shape_xs, shape_ys, layers=layers)
+    assert isinstance(model._mapping[-1], torch.nn.Softmax)
