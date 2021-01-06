@@ -31,7 +31,7 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
     ],
-    description="A Python toolkit for simulation-based inference and the mechanisation of science.",
+    description="A Python toolkit for simulation-based inference and the mechanization of science.",
     entry_points={
         'console_scripts': [
             'hypothesis=hypothesis.cli:main',

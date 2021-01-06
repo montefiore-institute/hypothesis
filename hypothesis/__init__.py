@@ -1,8 +1,8 @@
 r"""Hypothesis is a python module for statistical inference and the
 mechanisation of science.
 
-The package contains (approximate) inference algorithms to solve inverse statistical
-problems. Utilities are provided for data loading, efficient
+The package contains (approximate) inference algorithms to solve inverse
+statistical problems. Utilities are provided for data loading, efficient
 simulation, visualization, fire-and-forget inference, and validation.
 """
 
@@ -14,9 +14,9 @@ __email__ = [
     "joeri@peinser.com"]
 
 
-################################################################################
+###############################################################################
 # Global variables
-################################################################################
+###############################################################################
 
 import multiprocessing
 import torch
