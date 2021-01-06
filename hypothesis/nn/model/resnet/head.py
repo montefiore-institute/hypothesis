@@ -18,8 +18,6 @@ from hypothesis.nn.model.resnet.util import load_modules
 from hypothesis.nn.util import dimensionality
 
 
-
-
 class ResNetHead(torch.nn.Module):
 
     def __init__(self,
@@ -52,7 +50,6 @@ class ResNetHead(torch.nn.Module):
         self._groups = groups
         self._in_planes = in_planes
         self._shape_xs = shape_xs
-        self._shape_in = tuple([-1, channels]) + shape_xs
         self._width_per_group = width_per_group
         # Network structure
         self._network_head = self._build_head()
@@ -70,7 +67,7 @@ class ResNetHead(torch.nn.Module):
             padding=3,
             bias=self._convolution_bias))
         # Batch normalization
-        if self.batchnorm:
+        if self._batchnorm:
             mappings.append(self._module_batchnorm(self._in_planes))
         # Activation
         mappings.append(self._module_activation())
@@ -169,12 +166,10 @@ class ResNetHead(torch.nn.Module):
         return self._embedding_dim
 
     def forward(self, x):
-        x = x.view(self._shape_in)
         z = self._network_head(x)
         z = self._network_body(z)
 
         return z.squeeze()
-
 
 
 class BasicBlock(torch.nn.Module):
