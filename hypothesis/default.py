@@ -1,4 +1,5 @@
-r"""Hypothesis defaults.
+r"""Default settings in Hypothesis.
+
 """
 
 import torch

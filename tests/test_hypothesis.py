@@ -5,8 +5,6 @@
 import pytest
 
 
-from hypothesis import hypothesis
-
 
 @pytest.fixture
 def response():
