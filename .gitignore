@@ -8,3 +8,4 @@ docs/build/
 target/
 .python-version
 .DS_Store
+*.egg-info
