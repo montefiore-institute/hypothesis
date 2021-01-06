@@ -1,1 +1,1 @@
-"""Unit test package for hypothesis."""
+"""Unit test package for :mod:`hypothesis`."""
