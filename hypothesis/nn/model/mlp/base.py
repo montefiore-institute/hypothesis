@@ -62,7 +62,6 @@ class MLP(torch.nn.Module):
         return torch.nn.Sequential(*mappings)
 
     def forward(self, xs):
-        xs = xs.view(-1, self._dimensionality_xs)
         y = self._mapping(xs)
 
         return y
