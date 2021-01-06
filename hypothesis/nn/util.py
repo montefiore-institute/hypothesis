@@ -2,22 +2,25 @@ r"""Utilies for :mod:`hypothesis.nn`.
 
 """
 
-from hypothesis.util import is_iterable
+import torch
 
+from hypothesis.util import is_iterable
 
 
 def allocate_output_transform(transformation, shape):
     r"""Allocates the specified output transformation for the given output shape.
 
-    :param transformation: ``"normalize"`` or an allocator defining the transformation.
+    :param transformation: ``"normalize"`` or an allocator defining the
+                           transformation.
     :param shape: Output shape of the transformation.
+    :type shape: iterable of ints
     """
     if is_iterable(shape):
-        dimensionality = dimensionality(shape)
+        dim = dimensionality(shape)
     else:
-        dimensionality = shape
-    if transformation is "normalize":
-        if dimensionality > 1:
+        dim = shape
+    if transformation == "normalize":
+        if dim > 1:
             mapping = torch.nn.Softmax(dim=0)
         else:
             mapping = torch.nn.Sigmoid()
