@@ -45,3 +45,15 @@ def test_normalized_output():
     shape_ys = (2,)
     model = h.nn.ResNet(shape_xs, shape_ys)
     assert isinstance(model._trunk._mapping[-1], torch.nn.Softmax)
+
+
+@torch.no_grad()
+def test_resnet_depth():
+    # Define some basic attributes of an MLP.
+    shape_xs = (50, 50,)
+    shape_ys = (1,)
+    depths = [18, 34, 50, 101, 152]
+    for depth in depths:
+        model = h.nn.ResNet(shape_xs, shape_ys, depth=depth)
+        xs = torch.randn(1, 3, 50, 50)
+        ys_hat = model(xs)

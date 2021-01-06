@@ -321,13 +321,13 @@ class Bottleneck(torch.nn.Module):
         # Convolution
         mappings.append(self._module_convolution(
             self._width,
-            self._out_planes * self._EXPANSION,
+            self._out_planes * self.EXPANSION,
             bias=self._bias,
             kernel_size=1,
             stride=1))
         # Batch normalization
         if self._batchnorm:
-            mappings.append(self._module_batchnorm(self._out_planes * self._EXPANSION))
+            mappings.append(self._module_batchnorm(self._out_planes * self.EXPANSION))
 
         return torch.nn.Sequential(*mappings)
 
