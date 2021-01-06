@@ -1,1 +1,10 @@
+*$py.class
+*.py[cod]
+.ipynb_checkpoints
+__pycache__/
 docs/_build
+docs/_build/
+docs/build/
+target/
+.python-version
+.DS_Store
