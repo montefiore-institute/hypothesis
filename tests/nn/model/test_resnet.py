@@ -11,7 +11,7 @@ import torch
 
 @torch.no_grad()
 def test_imports():
-    # Define some basic attributes of an MLP.
+    # Define some basic attributes.
     channels = 1
     shape_xs = (50, 50,)
     shape_ys = (10,)
@@ -23,7 +23,7 @@ def test_imports():
 
 @torch.no_grad()
 def test_allocation():
-    # Define some basic attributes of an MLP.
+    # Define some basic attributes.
     shape_xs = (50, 50,)
     shape_ys = (5,)
     # Attempt the allocation
@@ -35,7 +35,7 @@ def test_allocation():
 
 @torch.no_grad()
 def test_normalized_output():
-    # Define some basic attributes of an MLP.
+    # Define some basic attributes.
     shape_xs = (50, 50,)
     # Sigmoidal normalization
     shape_ys = (1,)
@@ -49,7 +49,7 @@ def test_normalized_output():
 
 @torch.no_grad()
 def test_resnet_depth():
-    # Define some basic attributes of an MLP.
+    # Define some basic attributes.
     shape_xs = (50, 50,)
     shape_ys = (1,)
     depths = [18, 34, 50, 101, 152]
