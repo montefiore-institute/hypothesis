@@ -153,12 +153,13 @@ class ResNetHead(torch.nn.Module):
 
         return block, blocks_per_layer, modules
 
+    @torch.no_grad()
     def _embedding_dimensionality(self):
         shape = (1, self._channels) + self._shape_xs
-        with torch.no_grad():
-            x = torch.randn(shape)
-            latents = self._network_body(self._network_head(x)).view(-1)
-            dimensionality = len(latents)
+
+        x = torch.randn(shape)
+        latents = self._network_body(self._network_head(x)).view(-1)
+        dimensionality = len(latents)
 
         return dimensionality
 
