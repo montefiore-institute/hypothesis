@@ -9,6 +9,7 @@ Subpackages
 
    hypothesis.bin
    hypothesis.nn
+   hypothesis.simulation
 
 Submodules
 ----------
