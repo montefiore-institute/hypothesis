@@ -8,7 +8,7 @@ import torch
 @torch.no_grad()
 def Prior():
     r"""Returns a prior over the Fermi constant."""
-    return torch.distributions.uniform.Unifom(0.25, 2.0)
+    return torch.distributions.uniform.Uniform(0.25, 2.0)
 
 
 @torch.no_grad()

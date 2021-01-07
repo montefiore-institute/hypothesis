@@ -24,7 +24,7 @@ class Simulator(BaseSimulator):
     GFNom = float(1)
 
     def __init__(self, default_beam_energy=40.0, num_samples=1):
-        super(WeinbergSimulator, self).__init__()
+        super(Simulator, self).__init__()
         self._num_samples = int(num_samples)
         self._default_beam_energy = float(default_beam_energy)
 
@@ -46,7 +46,7 @@ class Simulator(BaseSimulator):
         # psi = sqrtshalf
         samples = []
 
-        for _ in range(self.num_samples):
+        for _ in range(self._num_samples):
             sample = None
             x = np.linspace(-1, 1, 10000)
             maxval = np.max(self._diffxsec(x, psi, theta))
@@ -67,15 +67,16 @@ class Simulator(BaseSimulator):
         outputs = []
 
         inputs = inputs.view(-1, 1)
-        experimental_configurations = experimental_configurations.view(-1, 1)
         n = len(inputs)
+        if experimental_configurations is not None:
+            experimental_configurations = experimental_configurations.view(-1, 1)
+        else:
+            experimental_configurations = n * [self._default_beam_energy]
+            experimental_configurations = torch.tensor(experimental_configurations)
         for index in range(n):
             theta = inputs[index]
-            if experimental_configurations is not None:
-                psi = experimental_configurations[index]
-                x = self.simulate(theta.item(), psi.item())
-            else:
-                x = self.simulate(theta.item(), self.default_beam_energy)
+            psi = experimental_configurations[index]
+            x = self.simulate(theta.item(), psi.item())
             outputs.append(x)
         outputs = torch.cat(outputs, dim=0)
 
