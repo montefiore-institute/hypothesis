@@ -1,4 +1,4 @@
-r"""Definition of the ResNet header.
+r"""Definition of the ResNet head.
 
 """
 
