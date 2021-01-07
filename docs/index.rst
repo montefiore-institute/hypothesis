@@ -17,23 +17,39 @@
      :target: https://pyup.io/repos/github/JoeriHermans/hypothesis/
      :alt: Updates
 
-A Python toolkit for simulation-based inference and the mechanisation of science.
+A Python toolkit for simulation-based inference and the mechanization of science.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Documentation
 
-   readme
-   modules
-   authors
+   hypothesis
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Benchmark problems
+
+   benchmarks
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Reproducable workflows
+
+   workflow_introduction
 
 .. toctree::
    :maxdepth: 2
    :caption: How to
 
    contribute
+   getstarted
    install
-   getstart
+
+.. toctree::
+   :maxdepth: 0
+   :caption: About
+
+   authors
 
 Indices and tables
 ==================
