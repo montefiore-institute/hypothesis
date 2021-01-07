@@ -7,9 +7,11 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
+   hypothesis.benchmark
    hypothesis.bin
    hypothesis.nn
    hypothesis.simulation
+   hypothesis.workflow
 
 Submodules
 ----------
