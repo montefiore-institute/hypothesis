@@ -1,8 +1,8 @@
 .. highlight:: shell
 
-============
-Contributing
-============
+==========
+Contribute
+==========
 
 Contributions are welcome, and they are greatly appreciated! Every little bit
 helps, and credit will always be given.
@@ -104,6 +104,23 @@ Before you submit a pull request, check that it meets these guidelines:
    feature to the list in README.rst.
 3. The pull request should work for Python 3.5, 3.6, 3.7 and 3.8, and for PyPy.
    Make sure that the tests pass for all supported Python versions.
+
+String Convention
+-----------------
+
+The following conventions are taken for defing string literals. For strings
+longer than 1 character, you should use double quotes (").
+
+.. code-block:: python
+
+    this_is_a_long_string = "this is a long string"
+
+
+String literals containing a single character should be defined using single quotes (').
+
+.. code-block:: python
+
+    this_is_a_character = 'c'
 
 Tips
 ----

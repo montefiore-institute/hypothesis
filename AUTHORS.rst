@@ -7,7 +7,7 @@ Development Lead
 
 * Joeri Hermans <joeri@peinser.com>
 
-Caontributors
--------------
+Contributors
+------------
 
 * Volodimir Begy <volodimir.begy@cern.ch>

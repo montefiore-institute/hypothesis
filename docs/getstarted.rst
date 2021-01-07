@@ -1,6 +1,6 @@
-=====
-Usage
-=====
+===========
+Get started
+===========
 
 To use Hypothesis in a project::
 
