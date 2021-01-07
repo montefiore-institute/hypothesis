@@ -11,7 +11,7 @@ from torch.distributions.multivariate_normal import MultivariateNormal as Normal
 class Simulator(BaseSimulator):
 
     def __init__(self):
-        super(TractableSimulator, self).__init__()
+        super(Simulator, self).__init__()
 
     @torch.no_grad()
     def _generate(self, input):
