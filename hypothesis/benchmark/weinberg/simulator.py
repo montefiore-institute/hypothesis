@@ -16,7 +16,7 @@ class Simulator(BaseSimulator):
 
     Adapted from https://github.com/cranmer/active_sciencing/blob/master/demo_weinberg.ipynb
 
-    Original implementation by Lucas Heinrich and Kyle Cranmer
+    Original implementation by Lucas Heinrich and Kyle Cranmer.
 
     .. code-block:: python
 
@@ -104,7 +104,7 @@ class Simulator(BaseSimulator):
         for index in range(n):
             theta = inputs[index]
             psi = experimental_configurations[index]
-            x = self.simulate(theta.item(), psi.item())
+            x = self._simulate(theta.item(), psi.item())
             outputs.append(x)
         outputs = torch.cat(outputs, dim=0)
 

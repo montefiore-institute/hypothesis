@@ -8,7 +8,7 @@ is just above and below 45 GeV).
 
 Adapted from https://github.com/cranmer/active_sciencing/blob/master/demo_weinberg.ipynb
 
-Original implementation by Lucas Heinrich and Kyle Cranmer
+Original implementation by Lucas Heinrich and Kyle Cranmer.
 """
 
 from .simulator import Simulator

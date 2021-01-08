@@ -42,7 +42,7 @@ def test_low_beam_energy():
         inputs = prior.sample((n,))
         simulator = Simulator()
         outputs = simulator(inputs, configurations)
-        assert outputs.mean() < 0
+        assert outputs.mean() < 0  # The mean should definitly be smaller than 0
 
 
 @torch.no_grad()
@@ -55,7 +55,7 @@ def test_insensitive_beam_energy():
         inputs = prior.sample((n,))
         simulator = Simulator()
         outputs = simulator(inputs, configurations)
-        assert outputs.mean().abs() < 0.01
+        assert outputs.mean().abs() < 0.05  # The mean should approximately be 0.
 
 
 @torch.no_grad()
@@ -68,4 +68,4 @@ def test_high_beam_energy():
         inputs = prior.sample((n,))
         simulator = Simulator()
         outputs = simulator(inputs, configurations)
-        assert outputs.mean() > 0
+        assert outputs.mean() > 0  # The mean should definitly be larger than 0
