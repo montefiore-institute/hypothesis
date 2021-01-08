@@ -1,5 +1,10 @@
-hypothesis.benchmark.tractable package
+hypothesis.benchmark.tractable 
 ======================================
+
+.. automodule:: hypothesis.benchmark.tractable
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Submodules
 ----------
@@ -16,14 +21,6 @@ hypothesis.benchmark.tractable.util module
 ------------------------------------------
 
 .. automodule:: hypothesis.benchmark.tractable.util
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: hypothesis.benchmark.tractable
    :members:
    :undoc-members:
    :show-inheritance:

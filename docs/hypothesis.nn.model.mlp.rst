@@ -1,10 +1,18 @@
-hypothesis.nn.model.mlp package
+hypothesis.nn.model.mlp 
 ===============================
 
-Module contents
----------------
-
 .. automodule:: hypothesis.nn.model.mlp
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+hypothesis.nn.model.mlp.base module
+-----------------------------------
+
+.. automodule:: hypothesis.nn.model.mlp.base
    :members:
    :undoc-members:
    :show-inheritance:

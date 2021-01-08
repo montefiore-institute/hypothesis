@@ -1,6 +1,4 @@
-r"""Simulation model associated with the tractable benchmark.
-
-"""
+r"""Hallo wereld?"""
 
 import torch
 
@@ -11,6 +9,9 @@ from torch.distributions.multivariate_normal import MultivariateNormal as Normal
 class Simulator(BaseSimulator):
 
     def __init__(self):
+        r"""Simulation model associated with the tractable benchmark.
+
+        """
         super(Simulator, self).__init__()
 
     @torch.no_grad()

@@ -5,11 +5,11 @@ r"""Default settings in Hypothesis.
 import torch
 
 
-activation = torch.nn.ReLU
+activation = torch.nn.LeakyReLU
 r"""Default activation function in Hypothesis."""
 
 
-batch_size = 128
+batch_size = 4096
 r"""Default batch size."""
 
 

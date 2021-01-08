@@ -1,8 +1,5 @@
-hypothesis.workflow package
+hypothesis.workflow 
 ===========================
-
-Module contents
----------------
 
 .. automodule:: hypothesis.workflow
    :members:

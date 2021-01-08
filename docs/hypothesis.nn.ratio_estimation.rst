@@ -1,8 +1,5 @@
-hypothesis.nn.ratio\_estimation package
+hypothesis.nn.ratio\_estimation 
 =======================================
-
-Module contents
----------------
 
 .. automodule:: hypothesis.nn.ratio_estimation
    :members:

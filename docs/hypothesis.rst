@@ -1,14 +1,20 @@
-hypothesis package
+hypothesis 
 ==================
+
+.. automodule:: hypothesis
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 5
 
    hypothesis.benchmark
    hypothesis.bin
+   hypothesis.engine
    hypothesis.nn
    hypothesis.simulation
    hypothesis.workflow
@@ -36,14 +42,6 @@ hypothesis.util module
 ----------------------
 
 .. automodule:: hypothesis.util
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: hypothesis
    :members:
    :undoc-members:
    :show-inheritance:

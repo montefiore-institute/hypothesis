@@ -28,6 +28,12 @@ import hypothesis.default
 import hypothesis.nn
 
 ###############################################################################
+# Hypothesis' engine
+###############################################################################
+
+import hypothesis.engine
+
+###############################################################################
 # Global variables
 ###############################################################################
 
@@ -35,16 +41,14 @@ import multiprocessing
 import torch
 
 cpu_count = multiprocessing.cpu_count()
-"""int: Number of available processor cores.
+"""Number of available logical processor cores.
 
-Variable will be initialized when ``hypothesis`` is loaded for the first time.
+The variable will be initialized when :mod:`hypothesis` is loaded for the first time.
 """
+
 
 workers = cpu_count
-"""int: Number of default workers.
-
-Default number of workers in Hypothesis.
-"""
+"""Default number of parallel workers in :mod:`hypothesis`."""
 
 
 def set_workers(n):
@@ -54,7 +58,7 @@ def set_workers(n):
 
 
 accelerator = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-"""torch.device: PyTorch device describing the accelerator backend.
+"""PyTorch device describing the accelerator backend.
 
 The variable will be initialized when ``hypothesis`` is loaded for the first
 time. It will check for the availibility of a CUDA device. If a CUDA enabled

@@ -122,6 +122,12 @@ String literals containing a single character should be defined using single quo
 
     this_is_a_character = 'c'
 
+Naming Convention
+-----------------
+
+All names should be singular, including package and module names. The only exception to this rule
+regards variables or classnames representing multiple entities.
+
 Tips
 ----
 

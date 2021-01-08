@@ -20,7 +20,7 @@
 A Python toolkit for simulation-based inference and the mechanization of science.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 6
    :caption: Documentation
 
    hypothesis

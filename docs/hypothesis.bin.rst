@@ -1,8 +1,5 @@
-hypothesis.bin package
+hypothesis.bin 
 ======================
-
-Module contents
----------------
 
 .. automodule:: hypothesis.bin
    :members:
