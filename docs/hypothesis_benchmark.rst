@@ -1,0 +1,1 @@
+.. include:: hypothesis.benchmark.rst

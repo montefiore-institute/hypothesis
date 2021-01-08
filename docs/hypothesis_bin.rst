@@ -1,0 +1,1 @@
+.. include:: hypothesis.bin.rst

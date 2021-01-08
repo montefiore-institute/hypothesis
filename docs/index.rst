@@ -20,10 +20,16 @@
 A Python toolkit for simulation-based inference and the mechanization of science.
 
 .. toctree::
-   :maxdepth: 6
+   :maxdepth: 2
    :caption: Documentation
 
    hypothesis
+   hypothesis_benchmark
+   hypothesis_bin
+   hypothesis_engine
+   hypothesis_nn
+   hypothesis_simulation
+   hypothesis_workflow
 
 .. toctree::
    :maxdepth: 2
