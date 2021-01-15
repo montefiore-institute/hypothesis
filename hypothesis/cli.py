@@ -31,11 +31,11 @@ def main():
 
 
 def execute_merge(arguments):
-    pass
+    import hypothesis.bin.io.merge
 
 
 def execute_prune(arguments):
-    pass
+    import hypothesis.bin.io.prune
 
 
 def execute_version(arguments):
