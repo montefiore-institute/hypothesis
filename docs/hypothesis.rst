@@ -16,6 +16,7 @@ Subpackages
    hypothesis.bin
    hypothesis.engine
    hypothesis.nn
+   hypothesis.plot
    hypothesis.simulation
    hypothesis.workflow
 
