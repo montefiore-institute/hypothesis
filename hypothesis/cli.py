@@ -23,7 +23,8 @@ def main():
 
 
 def execute_config():
-    raise Exception("TODO")
+    import hypothesis.bin.config.cli
+    hypothesis.bin.config.cli.main()
 
 
 def execute_merge():
@@ -41,7 +42,8 @@ def execute_version():
 
 
 def execute_workflow():
-    raise Exception("TODO")
+    import hypothesis.bin.workflow.cli
+    hypothesis.bin.workflow.cli.main()
 
 
 def show_help_and_exit():
