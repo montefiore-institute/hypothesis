@@ -14,6 +14,8 @@ def main():
     num_arguments = len(sys.argv)
     if "--list" in sys.argv:
         list_all_keys()
+    if "--clear" in sys.argv:
+        clear_storage()
     elif num_arguments == 3:
         load_key(sys.argv[2])
     elif num_arguments == 4:
@@ -42,6 +44,14 @@ def list_all_keys():
         print(k)
 
 
+def clear_storage():
+    global storage_path
+    try:
+        os.remove(storage_path)
+    except:
+        pass
+
+
 def load_key(key):
     with open(storage_path, "rb") as handle:
         storage = pickle.load(handle)
@@ -61,7 +71,8 @@ def show_help_and_exit():
     help = r"""hypothesis config [key] [value]
 
 Usage:
-  --list
+  --clear    Clears all stored key-value pairs.
+  --list     Lists all stored keys.
     """
     print(help)
     sys.exit(0)
