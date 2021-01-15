@@ -6,7 +6,7 @@ import sys
 
 
 def main():
-    modules = ["config", "execute", "merge", "prune", "version"]
+    modules = ["config", "merge", "prune", "version", "workflow"]
     # Check if a command line option has been specified.
     if len(sys.argv) == 1 or not any(m in sys.argv for m in modules):
         show_help_and_exit()
@@ -14,19 +14,15 @@ def main():
     # Define the mapping between the command and executable functions.
     mapping = {
         "config": execute_config,
-        "execute": execute_execute,
         "merge": execute_merge,
         "prune": execute_prune,
-        "version": execute_version}
+        "version": execute_version,
+        "workflow": execute_workflow}
     # Execute the command, if it exists.
     mapping[sys.argv[1]]()
 
 
 def execute_config():
-    raise Exception("TODO")
-
-
-def execute_execute():
     raise Exception("TODO")
 
 
@@ -42,6 +38,10 @@ def execute_prune():
 
 def execute_version():
     print(h.__version__)
+
+
+def execute_workflow():
+    raise Exception("TODO")
 
 
 def show_help_and_exit():
