@@ -29,7 +29,6 @@ def initialize():
     global storage_path
     if not os.path.exists(root):
         os.makedirs(root)
-    # Check if the data storage exists.
     if not os.path.exists(storage_path):
         with open(storage_path, "wb") as handle:
             pickle.dump({}, handle, protocol=pickle.HIGHEST_PROTOCOL)

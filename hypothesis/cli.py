@@ -6,7 +6,7 @@ import sys
 
 
 def main():
-    modules = ["config", "merge", "prune", "version", "workflow"]
+    modules = ["config", "merge", "prune", "version"]
     # Check if a command line option has been specified.
     if len(sys.argv) == 1 or not any(m in sys.argv for m in modules):
         show_help_and_exit()
@@ -16,8 +16,7 @@ def main():
         "config": execute_config,
         "merge": execute_merge,
         "prune": execute_prune,
-        "version": execute_version,
-        "workflow": execute_workflow}
+        "version": execute_version}
     # Execute the command, if it exists.
     mapping[sys.argv[1]]()
 
@@ -39,11 +38,6 @@ def execute_prune():
 
 def execute_version():
     print(h.__version__)
-
-
-def execute_workflow():
-    import hypothesis.bin.workflow.cli
-    hypothesis.bin.workflow.cli.main()
 
 
 def show_help_and_exit():
