@@ -33,6 +33,7 @@ def test_simulator():
     assert len(outputs.shape) == 4
     assert outputs.shape[0] == n
 
+
 @torch.no_grad()
 def test_consistency():
     prior = Prior()
