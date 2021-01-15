@@ -32,3 +32,13 @@ def test_simulator():
     outputs = simulator.forward(inputs)
     assert len(outputs.shape) == 4
     assert outputs.shape[0] == n
+
+@torch.no_grad()
+def test_consistency():
+    prior = Prior()
+    simulator = Simulator()
+    n = 1000
+    for _ in range(n):
+        sample = prior.sample()
+        outputs = simulator(sample)
+        assert (outputs[0, 0, :, :] | outputs[0, 1, :, :] | outputs[0, 2, :, :]).sum() == 100 ** 2
