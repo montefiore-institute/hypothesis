@@ -1,10 +1,6 @@
 import hypothesis as h
 
 
-from .graph import Graph
-from .graph import Node
-
-
 def parameterized(dec):
     def layer(*args, **kwargs):
         def repl(f):
@@ -63,6 +59,15 @@ def disable(f):
     node.disabled = True
     if node == h.workflow.context.root:
         raise Exception("The entry point cannot be disabled.")
+
+    return f
+
+
+@parameterized
+def tasks(f, num_tasks):
+    assert num_tasks >= 1
+    node = get_and_add_node(f)
+    node.tasks = num_tasks
 
     return f
 
@@ -144,7 +149,7 @@ class Graph:
         new_dependencies = []
         delete_nodes = []
         for c in root.dependencies:
-            if c.postconditions_satisfied():
+            if len(c.postconditions) > 0 and c.postconditions_satisfied():
                 delete_nodes.append(c)
                 new_dependencies.extend(c.dependencies)
             else:
@@ -175,7 +180,17 @@ class Node:
         self._dependencies = []
         self._disabled = False
         self._postconditions = []
+        self._tasks = 1
         self.f = f
+
+    @property
+    def tasks(self):
+        return self._tasks
+
+    @tasks.setter
+    def tasks(self, value):
+        assert value >= 1
+        self._tasks = value
 
     @property
     def postconditions(self):
@@ -185,7 +200,7 @@ class Node:
         self._postconditions.append(condition)
 
     def postconditions_satisfied(self):
-        return len(self.postconditions) > 0 and all(c() for c in self.postconditions)
+        return all(c() for c in self.postconditions)
 
     @property
     def name(self):
