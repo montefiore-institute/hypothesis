@@ -54,6 +54,7 @@ class Simulator(BaseSimulator):
     def forward(self, inputs):
         samples = []
 
+        inputs = inputs.view(-1, 3)
         for input in inputs:
             x_out = self._generate(input)
             samples.append(x_out.view(1, -1))
