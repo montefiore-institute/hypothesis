@@ -9,7 +9,6 @@ import shutil
 import torch
 
 
-
 def main():
     arguments = parse_arguments()
     # Check if the file needs to be processed in memory.

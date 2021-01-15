@@ -11,7 +11,6 @@ import torch
 from hypothesis.util.data.numpy import merge as numpy_merge
 
 
-
 def main():
     arguments = parse_arguments()
     procedure = select_extension_procedure(arguments)
