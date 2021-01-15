@@ -6,16 +6,10 @@ import sys
 
 
 def main():
-    # Define the command line arguments.
-    parser = argparse.ArgumentParser()
-    parser.add_argument("merge", action="store_true", help="Utility to merge data files.")
-    parser.add_argument("prune", action="store_true", help="Utility to prune data files.")
-    parser.add_argument("version", action="store_true", help="Shows the version and commit of the hypothesis binary.")
-    arguments, _ = parser.parse_known_args()
-
+    modules = ["merge", "prune", "version"]
     # Check if a command line option has been specified.
-    if len(sys.argv) == 1:
-        show_help_and_exit(parser)
+    if len(sys.argv) == 1 or not any(m in sys.argv for m in modules):
+        show_help_and_exit()
 
     # Define the mapping between the command and executable functions.
     mapping = {
@@ -23,37 +17,33 @@ def main():
         "prune": execute_prune,
         "version": execute_version}
     # Execute the command, if it exists.
-    command = sys.argv[1]
-    if command not in mapping.keys():
-        show_help_and_exit(parser)
-    else:
-        mapping[command](arguments)
+    mapping[sys.argv[1]]()
 
 
-def execute_merge(arguments):
+def execute_merge():
     import hypothesis.bin.io.merge
+    hypothesis.bin.io.merge.main()
 
 
-def execute_prune(arguments):
+def execute_prune():
     import hypothesis.bin.io.prune
+    hypothesis.bin.io.prune.main()
 
 
-def execute_version(arguments):
+def execute_version():
     print(h.__version__)
 
 
-def show_help_and_exit(parser):
-    parser.print_help()
+def show_help_and_exit():
+    help = r"""hypothesis """ + h.__version__ + """
+
+Modules:
+  merge      Utility program to merge data files.
+  prune      Utility program to prune data files.
+  version    Displays the current version of the hypothesis CLI.
+"""
+    print(help)
     sys.exit(0)
-
-
-def parse_arguments():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("merge", action="store_true", help="Test")
-    parser.add_argument("version", action="store_true", help="Shows the version and commit of the hypothesis binary.")
-    arguments, _ = parser.parse_known_args()
-
-    return arguments
 
 
 if __name__ == "__main__":

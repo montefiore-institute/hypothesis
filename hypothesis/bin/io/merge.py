@@ -12,7 +12,8 @@ from hypothesis.util.data.numpy import merge as numpy_merge
 
 
 
-def main(arguments):
+def main():
+    arguments = parse_arguments()
     procedure = select_extension_procedure(arguments)
     procedure(arguments)
 
@@ -86,5 +87,4 @@ def parse_arguments():
 
 
 if __name__ == "__main__":
-    arguments = parse_arguments()
-    main(arguments)
+    main()

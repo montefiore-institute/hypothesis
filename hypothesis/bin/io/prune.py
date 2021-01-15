@@ -10,7 +10,8 @@ import torch
 
 
 
-def main(arguments):
+def main():
+    arguments = parse_arguments()
     # Check if the file needs to be processed in memory.
     if arguments.in_memory:
         mmap_mode = 'r'
@@ -44,5 +45,4 @@ def parse_arguments():
 
 
 if __name__ == "__main__":
-    arguments = parse_arguments()
-    main(arguments)
+    main()
