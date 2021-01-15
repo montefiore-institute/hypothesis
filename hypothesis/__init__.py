@@ -29,6 +29,12 @@ import hypothesis.default
 import hypothesis.nn
 
 ###############################################################################
+# Hypothesis' default benchmarks
+###############################################################################
+
+import hypothesis.benchmark
+
+###############################################################################
 # Hypothesis' engine
 ###############################################################################
 
@@ -54,7 +60,7 @@ workers = cpu_count
 
 def set_workers(n):
     r"""Sets the number of default parallel hypothesis workers."""
-    assert(n >= 1)
+    assert n >= 1
     hypothesis.workers = n
 
 
