@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""Tests Spatial SIR benchmark :mod:`hypothesis.benchmark.spatialsir`.
+"""Tests the Spatial SIR benchmark :mod:`hypothesis.benchmark.spatialsir`.
 
 """
 
@@ -19,10 +19,8 @@ def test_simulator():
     simulator = Simulator()
     # Test a single sample
     inputs = prior.sample()
-    print(inputs)
     simulator(inputs)
     outputs = simulator.forward(inputs)
-    print(outputs.shape)
     assert len(outputs.shape) == 4
     assert outputs.shape[0] == 1
     # Test multiple samples

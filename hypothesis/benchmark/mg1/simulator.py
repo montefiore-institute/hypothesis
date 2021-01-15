@@ -21,8 +21,8 @@ class Simulator(BaseSimulator):
 
     def __init__(self, percentiles=5, steps=50):
         super(Simulator, self).__init__()
-        self.percentiles = int(percentiles)
-        self.steps = int(steps)
+        self.num_percentiles = int(percentiles)
+        self.num_steps = int(steps)
 
     @torch.no_grad()
     def _generate(self, input):
