@@ -7,7 +7,7 @@ import torch
 
 @torch.no_grad()
 def Prior():
-    r"""Returns a uniform prior between `(0, 0, 0)` and
+    r"""Returns a uniform prior between ``(0, 0, 0)`` and
     `(10, 10, 1/3)`. """
     lower = torch.tensor([0.0, 0.0, 0.0])
     upper = torch.tensor([10.0, 10.0, 1 / 3])
