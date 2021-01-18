@@ -96,7 +96,7 @@ class Graph:
 
     @property
     def nodes(self):
-        return self._nodes
+        return self._nodes.values()
 
     def add_node(self, node):
         self._nodes[node.f] = node
@@ -121,16 +121,27 @@ class Graph:
         if self._root is not None:
             self._nodes.remove(self._root)
         self._root = node
-        self.add_node(node)
+
+    def compile(self):
+        self._initialize_parent(self.root)
+
+    @staticmethod
+    def _initialize_parent(parent):
+        for dependency in parent.dependencies:
+            dependency.parent = parent
+            Graph._initialize_parent(dependency)
 
     def prune(self):
+        self.compile()
         self._prune_disabled_children(self.root)
-        previous_num_nodes = 0
-        num_nodes = len(self.nodes)
-        while num_nodes != previous_num_nodes:
-            self._prune_postcondition_children(self.root)
-            previous_num_nodes = num_nodes
-            num_nodes = len(self.nodes)
+        for leaf in self.leafs:
+            self._prune_postcondition_parents(leaf)
+        to_delete = []
+        for node in self.nodes:
+            if node.parent is None:
+                to_delete.append(node)
+        for node in to_delete:
+            self.delete_node(node)
 
     def _prune_disabled_children(self, root):
         # Remove children which are disabled.
@@ -145,20 +156,25 @@ class Graph:
         for c in root.dependencies:
             self._prune_disabled_children(c)
 
-    def _prune_postcondition_children(self, root):
-        new_dependencies = []
-        delete_nodes = []
-        for c in root.dependencies:
-            if len(c.postconditions) > 0 and c.postconditions_satisfied():
-                delete_nodes.append(c)
-                new_dependencies.extend(c.dependencies)
-            else:
-                new_dependencies.append(c)
-        for n in delete_nodes:
-            self.delete_node(n)
-        root.dependencies = new_dependencies
-        for c in root.dependencies:
-            self._prune_postcondition_children(c)
+    def _clear_parent_until_root(self, node):
+        if node != self.root and node != None:
+            node.parent = None
+            self._clear_parent_until_root(node.parent)
+
+    def _prune_postcondition_parents(self, leaf):
+        if len(leaf.postconditions) > 0 and leaf.postconditions_satisfied():
+            self._clear_parent_until_root(leaf)
+            leaf.parent = self.root
+            self.root.add_dependency(leaf)
+
+    @property
+    def leafs(self):
+        leafs = []
+        for node in self.nodes:
+            if len(node.dependencies) == 0:
+                leafs.append(node)
+
+        return leafs
 
     def debug(self):
         self.prune()
@@ -176,12 +192,21 @@ class Graph:
 class Node:
 
     def __init__(self, f):
+        self._parent = None
         self._attributes = {}
         self._dependencies = []
         self._disabled = False
         self._postconditions = []
         self._tasks = 1
         self.f = f
+
+    @property
+    def parent(self):
+        return self._parent
+
+    @parent.setter
+    def parent(self, parent):
+        self._parent = parent
 
     @property
     def tasks(self):
