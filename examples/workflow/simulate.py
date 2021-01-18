@@ -2,6 +2,13 @@ r"""Simulation pipeline example.
 
 A demo workflow to created batched simulations for a train
 and test dataset. Followed up by a merge operation.
+
+As you'll notice, executing this workflow for the 2nd time
+is significantly shorter! This is because Hypothesis determines
+what part of the computational graph need to be computed to
+ensure that the specified constraints are met.
+
+No more recomputation and rescheduling on HPC systems!
 """
 
 import argparse
