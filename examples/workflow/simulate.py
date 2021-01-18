@@ -89,4 +89,4 @@ if arguments.local:
     from hypothesis.workflow.local import execute
 else:
     from hypothesis.workflow.slurm import execute
-execute(directory="simulate-job")
+execute(directory=".")
