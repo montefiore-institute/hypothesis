@@ -1,3 +1,6 @@
+from queue import Queue
+
+
 class WorkflowGraph:
 
     def __init__(self):
@@ -44,6 +47,19 @@ class WorkflowGraph:
 
         return leafs
 
+    def bfs(self):
+        queue = Queue()
+        queue.put(self.root)
+        yield from self._bfs(queue)
+
+    def _bfs(self, queue):
+        if not queue.empty():
+            node = queue.get()
+            yield node
+            for c in node.children:
+                queue.put(c)
+            yield from self._bfs(queue)
+
     def prune(self):
         for leaf in self.leafs:
             self._prune_node(leaf)
@@ -65,7 +81,8 @@ class WorkflowGraph:
         return list(set(branches))
 
     def _prune_node(self, node):
-        if len(node.postconditions) > 0 and node.postconditions_satisfied():
+        pc = len(node.postconditions) > 0 and node.postconditions_satisfied()
+        if pc or node.disabled:
             branches = self._branches(node)
             if len(branches) == 0:
                 return
