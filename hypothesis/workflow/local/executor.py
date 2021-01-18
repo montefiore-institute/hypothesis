@@ -1,3 +1,6 @@
+import gc
+
+
 def execute(context):
     # Prune the computational graph
     context.prune()
@@ -17,5 +20,7 @@ def execute(context):
         if num_tasks > 1:
             for task_index in range(num_tasks):
                 subroutine.f(task_index)
+                gc.collect()
         else:
             subroutine.f()
+            gc.collect()
