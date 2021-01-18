@@ -50,6 +50,7 @@ def simulate_train(task_index):
     if not os.path.exists(output_file):
         simulated_data = np.random.random((arguments.batch_size, 5))
         np.save(output_file, simulated_data)
+    assert os.path.exists(output_file)
 
 
 @w.dependency(simulate_train)
@@ -58,6 +59,7 @@ def merge_train():
     print("Merging training data")
     w.shell("hypothesis merge --extension numpy --dimension 0 --in-memory --files 'data/train/block-*.npy' --sort --out data/train/simulations.npy")
     w.shell("rm -rf data/train/block-*.npy")
+    assert os.path.exists("data/train/simulations.npy")
 
 
 @w.dependency(main)
@@ -69,6 +71,7 @@ def simulate_test(task_index):
     if not os.path.exists(output_file):
         simulated_data = np.random.random((arguments.batch_size, 5))
         np.save(output_file, simulated_data)
+    assert os.path.exists(output_file)
 
 
 @w.dependency(simulate_test)
@@ -77,6 +80,7 @@ def merge_test():
     print("Merging testing data")
     w.shell("hypothesis merge --extension numpy --dimension 0 --in-memory --files 'data/test/block-*.npy' --sort --out data/test/simulations.npy")
     w.shell("rm -rf data/test/block-*.npy")
+    assert os.path.exists("data/test/simulations.npy")
 
 
 if arguments.local:
