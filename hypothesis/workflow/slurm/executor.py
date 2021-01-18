@@ -113,7 +113,7 @@ def generate_task_file(node, directory):
         if key[:2] != "--":  # Skip non SBATCH arguments
             continue
         value = node[key]
-        line = "$SBATCH " + key
+        line = "#SBATCH " + key
         if len(value) > 0:
             line += "=" + value
         lines.append(line)
