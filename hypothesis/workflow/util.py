@@ -1,5 +1,6 @@
 import os
 import hypothesis as h
+import hypothesis.workflow as w
 
 from .graph import *
 
@@ -32,3 +33,7 @@ def parameterized(dec):
 
 def shell(command):
     os.system(command)
+
+
+def clear():
+    w.context = None
