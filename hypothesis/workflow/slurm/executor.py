@@ -115,7 +115,7 @@ def generate_task_file(node, directory):
         value = node[key]
         line = "$SBATCH " + key
         if len(value) > 0:
-            key += "=" + value
+            line += "=" + value
         lines.append(line)
     # Check if the tasks is an array tasks.
     if node.tasks > 1:
