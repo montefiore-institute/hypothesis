@@ -136,7 +136,7 @@ def generate_task_file(node, directory):
     except:
         pass
     # Execute the function
-    line = "ipython processor.py " + node.name + ".code"
+    line = "python -u processor.py " + node.name + ".code"
     if multiarray:
         line += " $SLURM_ARRAY_TASK_ID"
     lines.append(line)

@@ -9,7 +9,6 @@ with open('README.rst') as readme_file:
 
 requirements = [
     'dill',
-    'ipython',
     'scipy']
 
 setup_requirements = [
