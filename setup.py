@@ -8,7 +8,8 @@ with open('README.rst') as readme_file:
     readme = readme_file.read()
 
 requirements = [
-    'scipy']
+    'dill',
+    'scipy' ]
 
 setup_requirements = [
     'pytest-runner']

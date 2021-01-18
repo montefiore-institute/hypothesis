@@ -13,8 +13,7 @@ def execute(context, base=None, cleanup=False, directory=None, environment=None)
     # Create the generation directory
     if directory is None:
         directory = tempfile.mkdtemp()
-    else:
-        os.makedirs(directory)
+    os.makedirs(directory)
     print(directory)
     tasks_directory = directory + "/tasks"
     os.makedirs(tasks_directory)
