@@ -6,6 +6,7 @@ import tempfile
 
 
 def execute(context, base=None, cleanup=False, directory=None, environment=None):
+    dill.settings['recurse'] = True # Handle dependencies
     # Add default Slurm attributes to the nodes
     add_default_attributes(context, base=base)
     # Set the default anaconda environment
@@ -61,7 +62,7 @@ def save_processor(directory):
 import dill as pickle
 import sys
 
-
+dill.settings['recurse'] = True
 with open(sys.argv[1], "rb") as f:
     function = pickle.load(f)
 if len(sys.argv) > 2:
