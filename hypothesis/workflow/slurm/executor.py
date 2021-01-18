@@ -87,7 +87,7 @@ def generate_executables(context, directory):
 
 
 def task_filename(node):
-    return node.name + ".bash"
+    return node.name
 
 
 def add_default_environment(context, environment=None):
