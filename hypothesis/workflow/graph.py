@@ -93,7 +93,7 @@ class WorkflowGraph:
     def _debug_node(self, node):
         children = node.children
         for c in children:
-            print(node,"depends on", c)
+            print(c, "depends on", node)
         for c in children:
             self._debug_node(c)
 

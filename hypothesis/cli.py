@@ -16,6 +16,8 @@ def main():
         "merge": execute_merge,
         "prune": execute_prune,
         "version": execute_version}
+    del sys.argv[:2]
+    sys.argc -= 2
     # Execute the command, if it exists.
     mapping[sys.argv[1]]()
 
