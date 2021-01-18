@@ -13,6 +13,8 @@ TODO
 TODO
 
 ## Example: simulation pipeline
+> See `simulate.py`
+
 A demo workflow to created batched simulations for a train
 and test dataset. Followed up by a merge operation.
 
