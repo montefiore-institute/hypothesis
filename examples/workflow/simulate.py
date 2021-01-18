@@ -17,6 +17,8 @@ import hypothesis.workflow as w
 import numpy as np
 import os
 
+from hypothesis.workflow import shell
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--batch-size", type=int, default=10000, help="Simulation batch-size (default: 10000).")
@@ -57,8 +59,8 @@ def simulate_train(task_index):
 @w.postcondition(w.exists("data/train/simulations.npy"))
 def merge_train():
     print("Merging training data")
-    w.shell("hypothesis merge --extension numpy --dimension 0 --in-memory --files 'data/train/block-*.npy' --sort --out data/train/simulations.npy")
-    w.shell("rm -rf data/train/block-*.npy")
+    shell("hypothesis merge --extension numpy --dimension 0 --in-memory --files 'data/train/block-*.npy' --sort --out data/train/simulations.npy")
+    shell("rm -rf data/train/block-*.npy")
     assert os.path.exists("data/train/simulations.npy")
 
 
@@ -78,8 +80,8 @@ def simulate_test(task_index):
 @w.postcondition(w.exists("data/test/simulations.npy"))
 def merge_test():
     print("Merging testing data")
-    w.shell("hypothesis merge --extension numpy --dimension 0 --in-memory --files 'data/test/block-*.npy' --sort --out data/test/simulations.npy")
-    w.shell("rm -rf data/test/block-*.npy")
+    shell("hypothesis merge --extension numpy --dimension 0 --in-memory --files 'data/test/block-*.npy' --sort --out data/test/simulations.npy")
+    shell("rm -rf data/test/block-*.npy")
     assert os.path.exists("data/test/simulations.npy")
 
 
