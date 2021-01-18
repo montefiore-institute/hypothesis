@@ -126,6 +126,7 @@ def generate_task_file(node, directory):
     # Check if a custom Anaconda environment has been specified.
     try:
         environment = node["conda"]
+        lines.append("eval \"$(conda shell.bash hook)\"")
         lines.append("conda activate " + environment)
     except:
         pass
