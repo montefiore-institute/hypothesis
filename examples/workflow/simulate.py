@@ -73,7 +73,7 @@ def simulate_test(task_index):
 
 @w.dependency(simulate_test)
 @w.postcondition(w.exists("data/test/simulations.npy"))
-def merge_train():
+def merge_test():
     print("Merging testing data")
     w.shell("hypothesis merge --extension numpy --dimension 0 --in-memory --files 'data/test/block-*.npy' --sort --out data/test/simulations.npy")
     w.shell("rm -rf data/test/block-*.npy")
