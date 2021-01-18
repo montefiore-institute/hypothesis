@@ -16,7 +16,8 @@ def execute(context, base=None, cleanup=False, directory=None, environment=None)
     if not os.path.exists(directory):
         os.makedirs(directory)
     tasks_directory = directory + "/tasks"
-    os.makedirs(tasks_directory)
+    if not os.path.exists(tasks_directory):
+        os.makedirs(tasks_directory)
     # Save the task processor
     save_processor(directory)
     # Generate the executables for the processor
