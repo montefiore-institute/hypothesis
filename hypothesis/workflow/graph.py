@@ -173,7 +173,7 @@ class WorkflowNode:
     def disabled(self, state):
         self._disabled = state
 
-    def __setitem(self, key, value):
+    def __setitem__(self, key, value):
         self._attributes[key] = value
 
     def __getitem__(self, key):
@@ -216,6 +216,10 @@ class WorkflowNode:
             node.remove_parent(self)
         except:
             pass
+
+    @property
+    def dependencies(self):
+        return self.parents
 
     @property
     def children(self):

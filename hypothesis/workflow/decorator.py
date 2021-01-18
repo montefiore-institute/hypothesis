@@ -29,6 +29,14 @@ def dependency(f, dependency):
 
 
 @parameterized
+def conda(f, environment):
+    node = add_and_get_node(f)
+    node["conda"] = str(environment)
+
+    return f
+
+
+@parameterized
 def postcondition(f, condition):
     node = add_and_get_node(f)
     node.add_postcondition(condition)
