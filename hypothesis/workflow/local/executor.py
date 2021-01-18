@@ -1,8 +1,12 @@
 import gc
+import hypothesis.workflow as w
 import logging
 
 
-def execute(context):
+def execute(context=None):
+    # Check if custom context has been specified
+    if context is None:
+        context = w.context
     # Prune the computational graph
     context.prune()
     # Determine the order of execution
@@ -11,12 +15,11 @@ def execute(context):
     current_priority = 0
     for priority, node in enumerate(bfs_order):
         execution_order[node] = priority
-    program = [None] * len(context.nodes)
-    for k in execution_order:
-        program[execution_order[k]] = k
+    # Sort subroutines by priority
+    program = list(dict(sorted(execution_order.items(), key=lambda item: item[1])).keys())
     # Execute the computational graph
-    for instruction in range(len(program)):
-        subroutine = program[instruction]
+    for instruction_index in range(len(program)):
+        subroutine = program[instruction_index]
         num_tasks = subroutine.tasks
         if num_tasks > 1:
             for task_index in range(num_tasks):

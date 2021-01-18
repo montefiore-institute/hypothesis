@@ -1,12 +1,16 @@
-import logging
 import dill as pickle
+import hypothesis.workflow as w
+import logging
 import os
 import shutil
 import tempfile
 
 
-def execute(context, base=None, cleanup=False, directory=None, environment=None):
-    pickle.settings['recurse'] = True # Handle dependencies
+def execute(context=None, base=None, cleanup=False, directory=None, environment=None):
+    # Check if a custom context has been specified
+    if context is None:
+        context = w.context
+    pickle.settings['recurse'] = True  # Handle dependencies
     # Add default Slurm attributes to the nodes
     add_default_attributes(context, base=base)
     # Set the default anaconda environment
