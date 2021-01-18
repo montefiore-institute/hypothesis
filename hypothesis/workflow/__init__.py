@@ -1,5 +1,4 @@
 context = None
+executor = None
 
-from .executor import *
-from .backend import *
-from .util import *
+from .decorator import *

@@ -1,4 +1,18 @@
 import os
+import hypothesis as h
+
+from .graph import *
+
+
+def add_and_get_node(f):
+    if h.workflow.context is None:
+        h.workflow.context = WorkflowGraph()
+    node = h.workflow.context.find_node(f)
+    if node is None:
+        node = WorkflowNode(f)
+        h.workflow.context.add_node(node)
+
+    return node
 
 
 def exists(f):
@@ -6,3 +20,11 @@ def exists(f):
         return os.path.exists(f)
 
     return wrapper
+
+
+def parameterized(dec):
+    def layer(*args, **kwargs):
+        def repl(f):
+            return dec(f, *args, **kwargs)
+        return repl
+    return layer
