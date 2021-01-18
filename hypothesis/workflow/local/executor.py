@@ -12,4 +12,10 @@ def execute(context):
         program[execution_order[k]] = k
     # Execute the computational graph
     for instruction in range(len(program)):
-        program[instruction].f()
+        subroutine = program[instruction]
+        num_tasks = subroutine.tasks
+        if num_tasks > 1:
+            for task_index in range(num_tasks):
+                subroutine.f(task_index)
+        else:
+            subroutine.f()
