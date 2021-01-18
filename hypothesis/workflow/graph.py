@@ -141,6 +141,10 @@ class WorkflowNode:
         self._tasks = value
 
     @property
+    def attributes(self):
+        return self._attributes
+
+    @property
     def postconditions(self):
         return self._postconditions
 
