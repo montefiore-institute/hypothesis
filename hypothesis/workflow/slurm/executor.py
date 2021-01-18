@@ -1,4 +1,5 @@
 import logging
+import dill as pickle
 import os
 import shutil
 import tempfile
@@ -17,6 +18,10 @@ def execute(context, base=None, cleanup=False, directory=None, environment=None)
     print(directory)
     tasks_directory = directory + "/tasks"
     os.makedirs(tasks_directory)
+    # Save the task processor
+    save_processor(directory)
+    # Generate the executables for the processor
+    generate_executables(context, directory)
     # Generate the task files
     for node in context.nodes:
         generate_task_file(node, tasks_directory)
@@ -48,6 +53,31 @@ def execute(context, base=None, cleanup=False, directory=None, environment=None)
     # Cleanup the generated filed
     if cleanup:
         shutil.rmtree(directory)
+
+
+def save_processor(directory):
+    processor = """
+import dill as pickle
+import sys
+
+
+with open(sys.argv[1], "rb") as f:
+    function = pickle.load(f)
+if len(sys.argv) > 2:
+    task_index = int(sys.argv[2])
+    function(task_index)
+else:
+    function()
+"""
+    with open(directory + "/processor.py", "w") as f:
+        f.write(processor)
+
+
+def generate_executables(context, directory):
+    for node in context.nodes:
+        code = pickle.dumps(node.f)
+        with open(directory + "/" + node.name + ".code", "wb") as f:
+            f.write(code)
 
 
 def task_filename(node):
@@ -84,7 +114,10 @@ def generate_task_file(node, directory):
         lines.append(line)
     # Check if the tasks is an array tasks.
     if node.tasks > 1:
+        multiarray = True
         lines.append("#SBATCH --array 0-" + str(node.tasks - 1))
+    else:
+        multiarray = False
     # Check if a custom Anaconda environment has been specified.
     try:
         environment = node["conda"]
@@ -92,9 +125,10 @@ def generate_task_file(node, directory):
     except:
         pass
     # Execute the function
-    # TODO Implement
-    # Verify whether the postconditions are satisified.
-    # TODO Implement
+    line = "ipython processor.py " + node.name + ".code"
+    if multiarray:
+        line += " $SLURM_ARRAY_TASK_ID"
+    lines.append(line)
     # Write the task file.
     with open(directory + "/" + task_filename(node), "w") as f:
         for line in lines:
