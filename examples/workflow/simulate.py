@@ -87,6 +87,7 @@ def merge_test():
 
 if arguments.local:
     from hypothesis.workflow.local import execute
+    execute()
 else:
     from hypothesis.workflow.slurm import execute
-execute(directory=".")
+    execute(directory=".")

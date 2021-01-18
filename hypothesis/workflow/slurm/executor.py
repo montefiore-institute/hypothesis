@@ -6,10 +6,12 @@ import shutil
 import tempfile
 
 
-def execute(context=None, base=None, cleanup=False, directory=None, environment=None):
+def execute(context=None, base=None, cleanup=False, directory='.', environment=None):
     # Check if a custom context has been specified
     if context is None:
         context = w.context
+    # Prune the computational graph
+    context.prune()
     pickle.settings['recurse'] = True  # Handle dependencies
     # Add default Slurm attributes to the nodes
     add_default_attributes(context, base=base)
