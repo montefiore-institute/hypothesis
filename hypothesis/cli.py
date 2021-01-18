@@ -17,7 +17,7 @@ def main():
         "prune": execute_prune,
         "version": execute_version}
     module = sys.argv[1]
-    del sys.argv[:2]
+    del sys.argv[:1]
     # Execute the command, if it exists.
     mapping[module]()
 

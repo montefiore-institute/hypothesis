@@ -6,6 +6,7 @@ import argparse
 import glob
 import numpy as np
 import os
+import sys
 import torch
 
 from hypothesis.util.data.numpy import merge as numpy_merge
@@ -49,6 +50,7 @@ def fetch_input_files(arguments, delimiter=','):
 
 
 def select_extension_procedure(arguments):
+    procedure = None
     extension = arguments.extension
     mappings = {
         "numpy": procedure_numpy,
@@ -56,8 +58,6 @@ def select_extension_procedure(arguments):
     # Check if an extensions has been manually defined
     if extension in mappings.keys():
         procedure = mappings[extension]
-    else:
-        procecure = None
 
     return procedure
 

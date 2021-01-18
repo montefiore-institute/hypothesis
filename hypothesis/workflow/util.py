@@ -28,3 +28,7 @@ def parameterized(dec):
             return dec(f, *args, **kwargs)
         return repl
     return layer
+
+
+def shell(command):
+    os.system(command)
