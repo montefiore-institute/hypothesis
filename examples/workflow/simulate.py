@@ -90,4 +90,4 @@ if arguments.local:
     execute()
 else:
     from hypothesis.workflow.slurm import execute
-    execute(directory=".")
+    execute()  # This will generate the Slurm pipeline in the CWD.
