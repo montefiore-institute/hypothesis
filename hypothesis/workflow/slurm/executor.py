@@ -57,7 +57,7 @@ def execute(context=None, base=None, directory='.', environment=None, store=None
             line += flag + " "
         line += "tasks/" + task_filename(task) + ")"
         lines.append(line)
-        job_id_line += '$' + variable + "\n"
+        job_id_line += '$' + variable + "\\n"
     # Create a file containing all Slurm identifiers
     job_id_line += "\" > slurm_jobs"
     lines.append(job_id_line)
