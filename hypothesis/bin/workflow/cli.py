@@ -138,7 +138,7 @@ def parse_arguments():
     # Slurm backend configuration
     parser.add_argument("--description", type=str, default=None, help="Provide a description to the workflow (default: none).")
     parser.add_argument("--directory", type=str, default=".", help="Directory to generate the Slurm submission scripts (default: '.').")
-    parser.add_argument("--environment", type=str, default="base", help="Anaconda environment to execute the Slurm tasks with (default: base).")
+    parser.add_argument("--environment", type=str, default=None, help="Anaconda environment to execute the Slurm tasks with (default: none).")
     parser.add_argument("--name", type=str, default=None, help="Determines the name of the workflow (default: random).")
     parser.add_argument("--no-cleanup", action="store_true", help="Disables the cleanup subroutine of the Slurm submission scripts.")
     # Logging options
