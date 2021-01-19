@@ -3,6 +3,7 @@ r"""A utility program to handle Hypothesis workflows.
 """
 
 import argparse
+import glob
 import hypothesis as h
 import hypothesis.workflow as w
 import hypothesis.workflow.local
@@ -12,26 +13,25 @@ import os
 import sys
 import tempfile
 
+from stat import S_ISREG, ST_CTIME, ST_MODE
+
 
 def main():
     prepare_directory()
-    executor = load_default_executor()
     arguments = parse_arguments()
-    if arguments.slurm:
-        executor = "slurm"
-    if arguments.local:
-        executor = "local"
-    executors = {
-        "slurm": execute_slurm,
-        "local": execute_local}
+    # Module mapping
+    mapping = {
+        "cancel": cancel_workflow,
+        "clean": clean_workflows,
+        "execute": execute_workflow,
+        "status": workflow_status,
+        "list": list_store}
     # Check what module needs to be executed
-    ## Execution
-    if arguments.execute is not None:
-        script = arguments.execute[1]
-        exec(open(script).read(), globals())
-        executors[executor](arguments)
-    elif arguments.list is not None:
-        list_store(arguments)
+    if len(arguments.args) > 0:
+        command = arguments.args[0]
+        if command in mapping:
+            f = mapping[command]
+            f(arguments)
 
 
 def store_directory():
@@ -39,10 +39,56 @@ def store_directory():
 
 
 def list_store(arguments):
+    store = store_directory()
     paths = os.listdir(store_directory())
+    entries = []
     for p in paths:
-        if os.path.isdir(p):
+        if os.path.isdir(store + '/' + p):
             print(p)
+
+
+def cancel_workflow(arguments):
+    assert_slurm_detected()
+    query = store_directory() + '/' + arguments.args[1] + '*' + "/slurm_jobs"
+    paths = glob.glob(query)
+    if len(paths) == 0:
+        logging.critical("The specified workflow could not be found. Try `list`.")
+        sys.exit(0)
+    workflow_path = paths[0]
+    workflow_directory = os.path.dirname(os.path.realpath(workflow_path))
+    f = open(workflow_path, 'r')
+    lines = f.readlines()
+    f.close()
+    logging.info("Cancelling Slurm jobs related to workflow.")
+    for identifier in lines:
+        if h.util.is_integer(identifier):
+            os.system("scancel " + identifier)
+            logging.info("Cancelled Slurm job " + identifier + ".")
+    shutil.rmtree(workflow_directory)
+
+
+def clean_workflows(arguments):
+    raise NotImplementedError
+
+
+def workflow_status(arguments):
+    assert_slurm_detected()
+    raise NotImplementedError
+
+
+def execute_workflow(arguments):
+    assert_slurm_detected()
+    executor = load_default_executor()
+    if arguments.slurm:
+        executor = "slurm"
+    if arguments.local:
+        executor = "local"
+    executors = {
+        "slurm": execute_slurm,
+        "local": execute_local}
+    script = arguments.args[1]
+    exec(open(script).read(), globals())
+    executors[executor](arguments)
 
 
 def prepare_directory():
@@ -51,9 +97,23 @@ def prepare_directory():
         os.makedirs(path)
 
 
+def assert_slurm_detected():
+    if not hypothesis.workflow.slurm.slurm_detected():
+        logging.critical("Slurm is not configured on this system!")
+        sys.exit(0)
+
+
 def execute_slurm(arguments):
     logging.info("Using the Slurm workflow backend.")
-    store = tempfile.mkdtemp(dir=store_directory())
+    if arguments.name is None:
+        store = tempfile.mkdtemp(dir=store_directory())
+    else:
+        path = store_directory() + '/' + arguments.name
+        if os.path.exists(path):
+            logging.error("The workflow name with `" + arguments.name + "` already exists.")
+            sys.exit(0)
+        else:
+            os.makedirs(path)
     hypothesis.workflow.slurm.execute(
         directory=arguments.directory,
         environment=arguments.environment,
@@ -76,8 +136,10 @@ def load_default_executor():
 def parse_arguments():
     parser = argparse.ArgumentParser()
     # Slurm backend configuration
+    parser.add_argument("--description", type=str, default=None, help="Provide a description to the workflow (default: none).")
     parser.add_argument("--directory", type=str, default=".", help="Directory to generate the Slurm submission scripts (default: '.').")
     parser.add_argument("--environment", type=str, default="base", help="Anaconda environment to execute the Slurm tasks with (default: base).")
+    parser.add_argument("--name", type=str, default=None, help="Determines the name of the workflow (default: random).")
     parser.add_argument("--no-cleanup", action="store_true", help="Disables the cleanup subroutine of the Slurm submission scripts.")
     # Logging options
     parser.add_argument("--level", default="info", type=str, help="Minimum logging level (default: warning) (options: debug, info, warning, error, critical).")
@@ -85,14 +147,9 @@ def parse_arguments():
     parser.add_argument("--slurm", action="store_true", help="Force the usage the Slurm executor backend.")
     parser.add_argument("--local", action="store_true", help="Force the usage the local executor backend.")
     # Workflow modules
-    parser.add_argument("cancel", nargs='?', help="Cancel the specified workflow (only for the Slurm backend).")
-    parser.add_argument("clean", nargs='?', help="Clean up old workflows from the store (only for the Slurm backend).")
-    parser.add_argument("delete", nargs='?', help="Delete and cancel old or existing workflows (only for the Slurm backend).")
-    parser.add_argument("execute", nargs='?', help="Executes the specified workflow.")
-    parser.add_argument("list", nargs='?', help="Lists all workflows in the store (only for the Slurm backend).")
-    parser.add_argument("status", nargs='?', help="Utility to monitor the status of workflows (only for the Slurm backend).")
+    parser.add_argument("args", nargs='*', help="Slurm backend utilities, currently supporting: cancel, clean, execute, list.")
     # Parse the arguments
-    arguments = parser.parse_intermixed_args()
+    arguments, _ = parser.parse_known_args()
     arguments.level = arguments.level.lower()
     logging_level_mapping = {
         "debug": logging.DEBUG,

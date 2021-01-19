@@ -1,14 +1,25 @@
-r"""General ``hypothesis`` utilities.
-
-"""
+r"""General utilities for :mod:`hypothesis`."""
 
 
+def is_iterable(item):
+    r"""Checks whether the specified item is iterable.
 
-def is_iterable(instance):
+    :param item: Any possible Python instance.
+    :rtype: bool
+    """
+    return hasattr(item, "__getitem__")
+
+
+def is_integer(item):
+    r"""Checks whether the specified item is an integer.
+
+    :param item: Any possible Python instance.
+    :rtype: bool
+    """
     try:
-        iter(instance)
-        iterable = True
-    except TypeError:
-        iterable = False
+        integer = int(item)
+        is_integer = True
+    except:
+        is_integer = False
 
-    return iterable
+    return is_integer
