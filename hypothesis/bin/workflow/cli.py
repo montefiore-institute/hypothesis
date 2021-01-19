@@ -11,9 +11,8 @@ import hypothesis.workflow.slurm
 import logging
 import os
 import sys
+import imp
 import tempfile
-
-from stat import S_ISREG, ST_CTIME, ST_MODE
 
 
 def main():
@@ -85,8 +84,7 @@ def execute_workflow(arguments):
     executors = {
         "slurm": execute_slurm,
         "local": execute_local}
-    script = arguments.args[1]
-    exec(open(script).read(), globals(), locals())
+    imp.load_source('__main__', arguments.args[1])
     executors[executor](arguments)
 
 

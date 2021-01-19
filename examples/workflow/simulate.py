@@ -15,6 +15,7 @@ import argparse
 import glob
 import hypothesis as h
 import hypothesis.workflow as w
+import logging
 import numpy as np
 import os
 
