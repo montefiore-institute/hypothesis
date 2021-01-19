@@ -112,7 +112,7 @@ def add_default_attributes(context, directory=None):
         node["--parsable"] = ""   # Enables convenient reading of task ID.
         node["--requeue"] = ""    # Automatically requeue when something fails.
         if directory is not None:
-            logging_directory = directory + "/logging/" + node.name
+            logging_directory = "logging/" + node.name
             if node.tasks > 1:
                 fmt = logging_directory + "-%A_%a.log"
             else:
