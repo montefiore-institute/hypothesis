@@ -3,6 +3,7 @@ r"""A utility program to handle Hypothesis workflows.
 """
 
 import argparse
+import coloredlogs
 import glob
 import hypothesis as h
 import hypothesis.workflow as w
@@ -107,7 +108,7 @@ def execute_slurm(arguments):
     logging.info("Using the Slurm workflow backend.")
     if arguments.name is None:
         store = tempfile.mkdtemp(dir=store_directory())
-        logging.info("Executing job " + store)
+        logging.info("Executing job " + os.path.basename(store))
     else:
         store = store_directory() + '/' + arguments.name
         if os.path.exists(store):
@@ -143,7 +144,9 @@ def parse_arguments():
     parser.add_argument("--name", type=str, default=None, help="Determines the name of the workflow (default: random).")
     parser.add_argument("--cleanup", action="store_true", help="Enables the cleanup subroutine of the Slurm submission scripts.")
     # Logging options
+    parser.add_argument("--format", type=str, default="%(message)s", help="Format of the logger.")
     parser.add_argument("--level", default="info", type=str, help="Minimum logging level (default: warning) (options: debug, info, warning, error, critical).")
+    parser.add_argument("-v", action="store_true", help="Enable verbosity in the details of the log messages (default: false).")
     # Executor backend
     parser.add_argument("--slurm", action="store_true", help="Force the usage the Slurm executor backend.")
     parser.add_argument("--local", action="store_true", help="Force the usage the local executor backend.")
@@ -161,6 +164,9 @@ def parse_arguments():
     if arguments.level in logging_level_mapping.keys():
         level = logging_level_mapping[arguments.level]
         logging.getLogger().setLevel(level)
+    if arguments.v:
+        arguments.format = "%(asctime)-15s " + arguments.format
+    coloredlogs.install(fmt=arguments.format)
 
     return arguments
 
