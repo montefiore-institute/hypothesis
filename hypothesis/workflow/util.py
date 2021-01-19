@@ -32,7 +32,7 @@ def parameterized(dec):
 
 
 def shell(command):
-    os.system(command)
+    return os.system(command)
 
 
 def clear():
