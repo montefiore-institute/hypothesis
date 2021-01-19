@@ -28,8 +28,8 @@ Short overview
 
 * TODO
 
-Benchmarks
-----------
+Benchmarks problems
+-------------------
 
 * TODO
 
