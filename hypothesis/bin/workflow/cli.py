@@ -100,20 +100,25 @@ def prepare_directory():
 def assert_slurm_detected():
     if not hypothesis.workflow.slurm.slurm_detected():
         logging.critical("Slurm is not configured on this system!")
-        sys.exit(0)
+        sys.exit(1)
 
 
 def execute_slurm(arguments):
     assert_slurm_detected()
-    logging.info("Using the Slurm workflow backend.")
+    if not arguments.parsable:
+        logging.info("Using Slurm backend.")
     if arguments.name is None:
         store = tempfile.mkdtemp(dir=store_directory())
-        logging.info("Executing job " + os.path.basename(store))
+        name = os.path.basename(store)
+        if arguments.parsable:
+            logging.info(name)
+        else:
+            logging.info("Executing workflow " + name)
     else:
         store = store_directory() + '/' + arguments.name
         if os.path.exists(store):
             logging.critical("The workflow name with `" + arguments.name + "` already exists.")
-            sys.exit(0)
+            sys.exit(1)
         else:
             os.makedirs(store)
     if arguments.directory is None:
@@ -127,7 +132,8 @@ def execute_slurm(arguments):
 
 
 def execute_local(arguments):
-    logging.info("Using the local workflow backend.")
+    if not arguments.parsable:
+        logging.info("Using local backend.")
     hypothesis.workflow.local.execute()
 
 
@@ -148,6 +154,7 @@ def parse_arguments():
     parser.add_argument("--name", type=str, default=None, help="Determines the name of the workflow (default: random).")
     parser.add_argument("--partition", type=str, default=None, help="Slurm partition to deploy the job to (default: none).")
     # Logging options
+    parser.add_argument("--parsable", action="store_true", help="Outputs to stdout should be easily parsable (default: false).")
     parser.add_argument("--format", type=str, default="%(message)s", help="Format of the logger.")
     parser.add_argument("--level", default="info", type=str, help="Minimum logging level (default: warning) (options: debug, info, warning, error, critical).")
     parser.add_argument("-v", action="store_true", help="Enable verbosity in the details of the log messages (default: false).")
