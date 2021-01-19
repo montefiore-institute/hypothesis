@@ -62,7 +62,7 @@ def simulate_train(task_index):
 
 @w.dependency(simulate_train)
 @w.postcondition(w.exists("data/train/simulations.npy"))
-@w.slurm.cpu_and_memory(2, "1g")  # Total job CPU and total job memory
+@w.slurm.cpu_and_memory(2, "1g")  # Total job CPU cores and total job memory
 def merge_train():
     logging.info("Merging training data")
     shell("hypothesis merge --extension numpy --dimension 0 --in-memory --files 'data/train/block-*.npy' --sort --out data/train/simulations.npy")

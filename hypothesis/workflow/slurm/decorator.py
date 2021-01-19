@@ -5,7 +5,7 @@ import hypothesis.workflow as w
 def gpu(f, num_gpus):
     if num_gpus >= 1:
         node = w.add_and_get_node(f)
-        node["--gres=gpu:"] = str(num_gpus)
+        node["--gres"] = "gpu:" + str(num_gpus)
 
     return f
 
@@ -34,19 +34,11 @@ def timelimit(f, time):
 
 
 @w.parameterized
-def cpu_and_memory(f, cores, memory):
+def cpu_and_memory(f, c, m):
     r"""Specify the minmum number of requires CPU cores and
     the TOTAL memory requirement of the job."""
-    cpu(f, cores)
-    # Check if custom memory has been specified.
-    suffix = memory[-1]
-    if suffix.isdigit():
-        suffix = ""
-        memory = int(memory)
-    else:
-        memory = int(memory[:-1])
-    request = str(memory // cores) + suffix
-    memory_per_cpu(f, request)
+    cpu(f, c)
+    memory(f, m)
 
     return f
 
@@ -60,5 +52,18 @@ def memory_per_cpu(f, memory):
     """
     node = w.add_and_get_node(f)
     node["--mem-per-cpu"] = str(memory).upper()
+
+    return f
+
+
+@w.parameterized
+def memory(f, memory):
+    r"""Specifiy the total RAM required by the job.
+
+    Default units are megabytes. Different units can be
+    specified using the suffix [K|M|G|T].
+    """
+    node = w.add_and_get_node(f)
+    node["--mem"] = str(memory).upper()
 
     return f
