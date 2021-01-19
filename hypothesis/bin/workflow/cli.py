@@ -26,7 +26,7 @@ def main():
     ## Execution
     if len(arguments.execute) > 0:
         script = arguments.execute[1]
-        exec(open(script).read())
+        exec(open(script).read(), globals())
         executors[executor](arguments)
 
 
@@ -51,7 +51,7 @@ def parse_arguments():
     # Slurm backend configuration
     parser.add_argument("--directory", type=str, default=None, help="Directory to generate the Slurm submission scripts.")
     # Logging options
-    parser.add_argument("--level", default="warning", type=str, help="Minimum logging level (default: warning) (options: debug, info, warning, error, critical).")
+    parser.add_argument("--level", default="info", type=str, help="Minimum logging level (default: warning) (options: debug, info, warning, error, critical).")
     # Executor backend
     parser.add_argument("--slurm", action="store_true", help="Force the usage the Slurm executor backend.")
     parser.add_argument("--local", action="store_true", help="Force the usage the local executor backend.")

@@ -13,6 +13,7 @@ No more recomputation and rescheduling on HPC systems!
 
 import argparse
 import glob
+import hypothesis as h
 import hypothesis.workflow as w
 import numpy as np
 import os
@@ -24,7 +25,6 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--batch-size", type=int, default=10000, help="Simulation batch-size (default: 10000).")
 parser.add_argument("--train", type=int, default=1000000, help="Total number of simulations for training (default: 1000000).")
 parser.add_argument("--test", type=int, default=100000, help="Total number of simulations for testing (default: 100000).")
-parser.add_argument("--local", action="store_true", help="Execute the workflow locally (default: false).")
 arguments, _ = parser.parse_known_args()
 
 num_train_blocks = arguments.train // arguments.batch_size
@@ -33,7 +33,7 @@ num_test_blocks = arguments.test // arguments.batch_size
 
 @w.root
 def main():
-    print("Executing root node.")
+    logging.info("Executing root node.")
     # Create the necessary directories
     train_dir = "data/train"
     test_dir = "data/test"
@@ -46,7 +46,7 @@ def main():
 @w.dependency(main)
 @w.tasks(num_train_blocks)
 def simulate_train(task_index):
-    print("Simulating training block", task_index)
+    logging.info("Simulating training block " + str(task_index))
     suffix = str(task_index).zfill(5)
     output_file = "data/train/block-" + suffix + ".npy"
     if not os.path.exists(output_file):
@@ -58,7 +58,7 @@ def simulate_train(task_index):
 @w.dependency(simulate_train)
 @w.postcondition(w.exists("data/train/simulations.npy"))
 def merge_train():
-    print("Merging training data")
+    logging.info("Merging training data")
     shell("hypothesis merge --extension numpy --dimension 0 --in-memory --files 'data/train/block-*.npy' --sort --out data/train/simulations.npy")
     shell("rm -rf data/train/block-*.npy")
     assert os.path.exists("data/train/simulations.npy")
@@ -67,7 +67,7 @@ def merge_train():
 @w.dependency(main)
 @w.tasks(num_train_blocks)
 def simulate_test(task_index):
-    print("Simulating testing block", task_index)
+    logging.info("Simulating testing block " + str(task_index))
     suffix = str(task_index).zfill(5)
     output_file = "data/test/block-" + suffix + ".npy"
     if not os.path.exists(output_file):
@@ -79,15 +79,7 @@ def simulate_test(task_index):
 @w.dependency(simulate_test)
 @w.postcondition(w.exists("data/test/simulations.npy"))
 def merge_test():
-    print("Merging testing data")
+    logging.info("Merging testing data")
     shell("hypothesis merge --extension numpy --dimension 0 --in-memory --files 'data/test/block-*.npy' --sort --out data/test/simulations.npy")
     shell("rm -rf data/test/block-*.npy")
     assert os.path.exists("data/test/simulations.npy")
-
-
-if arguments.local:
-    from hypothesis.workflow.local import execute
-    execute()
-else:
-    from hypothesis.workflow.slurm import execute
-    execute()  # This will generate the Slurm pipeline in the CWD.
