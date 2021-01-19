@@ -112,7 +112,7 @@ def execute_slurm(arguments):
     else:
         store = store_directory() + '/' + arguments.name
         if os.path.exists(store):
-            logging.error("The workflow name with `" + arguments.name + "` already exists.")
+            logging.critical("The workflow name with `" + arguments.name + "` already exists.")
             sys.exit(0)
         else:
             os.makedirs(store)
