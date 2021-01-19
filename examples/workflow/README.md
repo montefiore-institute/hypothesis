@@ -1,12 +1,6 @@
 # Workflows
 
-TODO
-
 ## Usage
-
-### Execute the workflow directly
-
-TODO
 
 ### Using the `hypothesis` CLI tool
 > Relevant to the workflow in `simulate.py`
