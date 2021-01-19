@@ -119,6 +119,7 @@ def execute_slurm(arguments):
     hypothesis.workflow.slurm.execute(
         directory=arguments.directory,
         environment=arguments.environment,
+        partition=arguments.partition,
         store=store,
         cleanup=arguments.cleanup)
 
@@ -138,11 +139,12 @@ def load_default_executor():
 def parse_arguments():
     parser = argparse.ArgumentParser()
     # Slurm backend configuration
+    parser.add_argument("--cleanup", action="store_true", help="Enables the cleanup subroutine of the Slurm submission scripts.")
     parser.add_argument("--description", type=str, default=None, help="Provide a description to the workflow (default: none).")
     parser.add_argument("--directory", type=str, default=".", help="Directory to generate the Slurm submission scripts (default: '.').")
     parser.add_argument("--environment", type=str, default=None, help="Anaconda environment to execute the Slurm tasks with (default: none).")
     parser.add_argument("--name", type=str, default=None, help="Determines the name of the workflow (default: random).")
-    parser.add_argument("--cleanup", action="store_true", help="Enables the cleanup subroutine of the Slurm submission scripts.")
+    parser.add_argument("--partition", type=str, default=None, help="Slurm partition to deploy the job to (default: none).")
     # Logging options
     parser.add_argument("--format", type=str, default="%(message)s", help="Format of the logger.")
     parser.add_argument("--level", default="info", type=str, help="Minimum logging level (default: warning) (options: debug, info, warning, error, critical).")

@@ -6,7 +6,13 @@ import shutil
 import tempfile
 
 
-def execute(context=None, base=None, directory='.', environment=None, store=None, cleanup=False):
+def execute(context=None,
+            base=None,
+            directory='.',
+            environment=None,
+            partition=None,
+            store=None,
+            cleanup=False):
     # Check if a custom context has been specified
     if context is None:
         context = w.context
@@ -15,6 +21,8 @@ def execute(context=None, base=None, directory='.', environment=None, store=None
     pickle.settings['recurse'] = True  # Handle dependencies
     # Add default Slurm attributes to the nodes
     add_default_attributes(context, base=base)
+    # Set the compute partition of the tasks.
+    add_partition(context, partition=partition)
     # Set the default anaconda environment
     add_default_environment(context, environment=environment)
     # Create the generation directory
@@ -90,6 +98,12 @@ def add_default_environment(context, environment=None):
     if environment is not None:
         for node in context.nodes:
             node["conda"] = environment
+
+
+def add_partition(context, partition=None):
+    if partition is not None:
+        for node in context.nodes:
+            node["--partition"] = partition
 
 
 def add_default_attributes(context, base=None):
