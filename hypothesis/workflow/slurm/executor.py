@@ -61,7 +61,7 @@ def execute(context=None,
                 dependency_index = task_indices[dependency]
                 flag += ":$t" + str(dependency_index)
             line += flag + " "
-        line += "tasks/" + task_filename(task) + ")"
+        line += directory + "/tasks/" + task_filename(task) + ")"
         lines.append(line)
         job_id_line += '$' + variable + "\n"
     # Create a file containing all Slurm identifiers
