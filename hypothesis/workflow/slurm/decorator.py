@@ -32,6 +32,6 @@ def memory(f, memory):
     specified using the suffix [K|M|G|T].
     """
     node = w.add_and_get_node(f)
-    node["--mem"] = str(memory)
+    node["--mem"] = str(memory).upper()
 
     return f
