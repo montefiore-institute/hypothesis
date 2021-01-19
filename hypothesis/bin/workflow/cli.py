@@ -119,7 +119,7 @@ def execute_slurm(arguments):
     if arguments.directory is None:
         directory = os.path.basename(store)
     hypothesis.workflow.slurm.execute(
-        directory=arguments.directory,
+        directory=directory,
         environment=arguments.environment,
         partition=arguments.partition,
         store=store,
