@@ -9,11 +9,37 @@ TODO
 TODO
 
 ### Using the `hypothesis` CLI tool
+> Relevant to the workflow in `simulate.py`
 
-TODO
+```console
+you@local:~ $ hypothesis workflow execute simulate.py
+Using the local workflow backend.
+Executing root node.
+Simulating training block 0
+Simulating training block 1
+Simulating training block 2
+Simulating training block 3
+Simulating training block 4
+Simulating training block 5
+Simulating training block 6
+Simulating training block 7
+...
+```
+
+Executing this a 2nd time only executes the main subroutine, as the software detects
+which conditions in the computational graph have been satisfied already.
+
+> **Recommendation** Put an `alias` in your `.bashrc` file to ease the usage.
+
+```console
+alias h='hypothesis'
+alias w='hypothesis workflow'
+```
+
+> **Note**: The following assumes a Slurm enabled HPC cluster
 
 ## Example: simulation pipeline
-> See `simulate.py`
+> Relevant to the workflow in `simulate.py`
 
 A demo workflow to created batched simulations for a train
 and test dataset. Followed up by a merge operation.

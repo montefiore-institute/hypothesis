@@ -25,8 +25,6 @@ def execute(context=None, base=None, directory='.', environment=None, store=None
     tasks_directory = directory + "/tasks"
     if not os.path.exists(tasks_directory):
         os.makedirs(tasks_directory)
-    # Save the task processor
-    save_processor(directory)
     # Generate the executables for the processor
     generate_executables(context, directory)
     # Generate the task files
@@ -75,24 +73,6 @@ def execute(context=None, base=None, directory='.', environment=None, store=None
     if cleanup:
         os.remove(pipeline_path)
         shutil.rmtree(tasks_directory)
-
-
-def save_processor(directory):
-    processor = """
-import dill as pickle
-import sys
-
-pickle.settings['recurse'] = True
-with open(sys.argv[1], "rb") as f:
-    function = pickle.load(f)
-if len(sys.argv) > 2:
-    task_index = int(sys.argv[2])
-    function(task_index)
-else:
-    function()
-"""
-    with open(directory + "/processor.py", "w") as f:
-        f.write(processor)
 
 
 def generate_executables(context, directory):
@@ -152,7 +132,7 @@ def generate_task_file(node, directory):
     except:
         pass
     # Execute the function
-    line = "python -u processor.py " + node.name + ".code"
+    line = "python -u -m hypothesis.bin.workflow.processor " + node.name + ".code"
     if multiarray:
         line += " $SLURM_ARRAY_TASK_ID"
     lines.append(line)
