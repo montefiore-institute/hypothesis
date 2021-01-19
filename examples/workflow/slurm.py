@@ -18,7 +18,6 @@ import argparse
 import glob
 import hypothesis as h
 import hypothesis.workflow as w
-import hypothesis.workflow.slurm # Import Slurm decorators
 import logging
 import numpy as np
 import os
