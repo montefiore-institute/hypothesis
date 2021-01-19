@@ -1,4 +1,4 @@
-import dill as pickle
+import cloudpickle as pickle
 import hypothesis.workflow as w
 import logging
 import os
@@ -79,7 +79,7 @@ def execute(context=None, base=None, directory='.', environment=None, store=None
 
 def save_processor(directory):
     processor = """
-import dill as pickle
+import cloudpickle as pickle
 import sys
 
 pickle.settings['recurse'] = True
