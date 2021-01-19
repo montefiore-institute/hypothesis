@@ -8,10 +8,11 @@ import hypothesis as h
 import hypothesis.workflow as w
 import hypothesis.workflow.local
 import hypothesis.workflow.slurm
+import imp
 import logging
 import os
+import shutil
 import sys
-import imp
 import tempfile
 
 
