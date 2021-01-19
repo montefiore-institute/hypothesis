@@ -10,6 +10,14 @@ def gpu(f, num_gpus):
     return f
 
 @w.parameterized
+def cpu(f, num_cpus):
+    if num_cpus > 1:
+        node = w.add_and_get_node(f)
+        node["--cpus-per-task"] = str(num_cpus)
+
+    return f
+
+@w.parameterized
 def name(f, name):
     node = w.add_and_get_node(f)
     node.name = name
@@ -24,14 +32,33 @@ def timelimit(f, time):
 
     return f
 
+
 @w.parameterized
-def memory(f, memory):
-    r"""Specify the real memory required per node.
+def cpu_and_memory(f, cores, memory):
+    r"""Specify the minmum number of requires CPU cores and
+    the TOTAL memory requirement of the job."""
+    cpu(f, cores)
+    # Check if custom memory has been specified.
+    suffix = memory[-1]
+    if not suffix.isdigit():
+        suffix = ""
+        memory = int(memory)
+    else:
+        memory = int(memory[:-1])
+    request = str(memory // cores) + suffix
+    memory_per_cpu(f, request)
+
+    return f
+
+
+@w.parameterized
+def memory_per_cpu(f, memory):
+    r"""Specify the minimum memory requirement per cpu core.
 
     Default units are megabytes. Different units can be
     specified using the suffix [K|M|G|T].
     """
     node = w.add_and_get_node(f)
-    node["--mem"] = str(memory).upper()
+    node["--mem-per-cpu"] = str(memory).upper()
 
     return f

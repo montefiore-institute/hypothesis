@@ -62,7 +62,7 @@ def simulate_train(task_index):
 
 @w.dependency(simulate_train)
 @w.postcondition(w.exists("data/train/simulations.npy"))
-@w.slurm.memory("1g")  # This task requires 1GB of RAM
+@w.slurm.cpu_and_memory(2, "1g")  # Total job CPU and total job memory
 def merge_train():
     logging.info("Merging training data")
     shell("hypothesis merge --extension numpy --dimension 0 --in-memory --files 'data/train/block-*.npy' --sort --out data/train/simulations.npy")
@@ -85,6 +85,7 @@ def simulate_test(task_index):
 @w.dependency(simulate_test)
 @w.postcondition(w.exists("data/test/simulations.npy"))
 @w.slurm.gpu(1)   # This task requires a special GPU
+@w.slurm.memory_per_cpu("1g")  # 1 gigabyte of memory per allocated CPU core
 def merge_test():
     logging.info("Merging testing data")
     shell("hypothesis merge --extension numpy --dimension 0 --in-memory --files 'data/test/block-*.npy' --sort --out data/test/simulations.npy")
