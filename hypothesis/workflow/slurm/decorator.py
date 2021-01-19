@@ -33,3 +33,5 @@ def memory(f, memory):
     """
     node = w.add_and_get_node(f)
     node["--mem"] = str(memory)
+
+    return f
