@@ -63,7 +63,7 @@ def delete_workflow(arguments):
     for identifier in lines:
         identifier = identifier[:-1]
         if h.util.is_integer(identifier):
-            os.system("scancel " + identifier[])
+            os.system("scancel " + identifier)
             logging.info("Cancelled Slurm job " + identifier + ".")
     shutil.rmtree(workflow_directory)
 
