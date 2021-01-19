@@ -87,7 +87,7 @@ def execute_workflow(arguments):
         "slurm": execute_slurm,
         "local": execute_local}
     script = arguments.args[1]
-    exec(open(script).read(), globals())
+    exec(open(script).read(), globals(), globals())
     executors[executor](arguments)
 
 
