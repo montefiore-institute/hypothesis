@@ -6,7 +6,7 @@ import shutil
 import tempfile
 
 
-def execute(context=None, base=None, cleanup=False, directory='.', environment=None):
+def execute(context=None, base=None, directory='.', environment=None, store=None, cleanup=False):
     # Check if a custom context has been specified
     if context is None:
         context = w.context
@@ -42,9 +42,12 @@ def execute(context=None, base=None, cleanup=False, directory='.', environment=N
     # Retrieve the tasks in BFS order
     tasks = list(context.bfs())
     task_indices = {}
+    # Generate the main tasks and their dependencies
+    job_id_line = "echo \""
     for task_index, task in enumerate(tasks):
         task_indices[task] = task_index
-        line = "t" + str(task_index) + "=$(sbatch "
+        variable = "t" + str(task_index)
+        line = variable + "=$(sbatch "
         # Check if the task has dependencies
         if len(task.dependencies) > 0:
             flag = "--dependency=afterok"
@@ -54,13 +57,24 @@ def execute(context=None, base=None, cleanup=False, directory='.', environment=N
             line += flag + " "
         line += "tasks/" + task_filename(task) + ")"
         lines.append(line)
+        job_id_line += '$' + variable + "\n"
+    # Create a file containing all Slurm identifiers
+    job_id_line += " > slurm_jobs"
+    lines.append(job_id_line)
     # Write the pipeline file
-    with open(directory + "/pipeline.bash", "w") as f:
+    pipeline_path = directory + "/pipeline.bash"
+    with open(pipeline_path, "w") as f:
         for line in lines:
             f.write(line + "\n")
-    # Cleanup the generated filed
+    # Execute the bash script
+    os.system("bash " + pipeline_path)
+    if store is not None:
+        shutil.copyfile(directory + "/slurm_jobs", store)
+    shutil.rmtree(directory + "/slurm_jobs")
+    # Cleanup the generated Slurm files.
     if cleanup:
-        shutil.rmtree(directory)
+        shutil.rmtree(pipeline_path)
+        shutil.rmtree(tasks_directory)
 
 
 def save_processor(directory):

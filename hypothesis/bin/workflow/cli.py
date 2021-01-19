@@ -13,6 +13,7 @@ import sys
 
 
 def main():
+    prepare_directory()
     executor = load_default_executor()
     arguments = parse_arguments()
     if arguments.slurm:
@@ -30,13 +31,27 @@ def main():
         executors[executor](arguments)
 
 
+def store_directory():
+    return os.path.expanduser("~") + "/.hypothesis/workflow"
+
+
+def prepare_directory():
+    path = store_directory()
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+
 def execute_slurm(arguments):
     logging.info("Using the Slurm workflow backend.")
 
 
 def execute_local(arguments):
     logging.info("Using the local workflow backend.")
-    hypothesis.workflow.local.execute()
+    hypothesis.workflow.local.execute(
+        directory=arguments.directory,
+        environment=arguments.environment,
+        store=store_directory(),
+        cleanup=not arguments.no_cleanup)
 
 
 def load_default_executor():
@@ -49,7 +64,9 @@ def load_default_executor():
 def parse_arguments():
     parser = argparse.ArgumentParser()
     # Slurm backend configuration
-    parser.add_argument("--directory", type=str, default=None, help="Directory to generate the Slurm submission scripts.")
+    parser.add_argument("--directory", type=str, default=".", help="Directory to generate the Slurm submission scripts (default: '.').")
+    parser.add_argument("--environment", type=str, default="base", help="Anaconda environment to execute the Slurm tasks with (default: base).")
+    parser.add_argument("--no-cleanup", action="store_true", help="Disables the cleanup subroutine of the Slurm submission scripts.")
     # Logging options
     parser.add_argument("--level", default="info", type=str, help="Minimum logging level (default: warning) (options: debug, info, warning, error, critical).")
     # Executor backend
@@ -57,6 +74,8 @@ def parse_arguments():
     parser.add_argument("--local", action="store_true", help="Force the usage the local executor backend.")
     # Workflow modules
     parser.add_argument("execute", nargs='+', help="Executes the specified workflow.")
+    parser.add_argument("status", nargs='+', help="Utility to monitor the status of workflows (only for the Slurm backend).")
+    parser.add_argument("cancel", nargs='+', help="Cancel the specified workflow (only for the Slurm backend).")
     # Parse the arguments
     arguments = parser.parse_args()
     arguments.level = arguments.level.lower()
