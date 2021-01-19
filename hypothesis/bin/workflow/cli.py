@@ -86,8 +86,6 @@ def execute_workflow(arguments):
     executors = {
         "slurm": execute_slurm,
         "local": execute_local}
-    script = arguments.args[1]
-    exec(open(script).read(), globals(), globals())
     executors[executor](arguments)
 
 
@@ -114,6 +112,8 @@ def execute_slurm(arguments):
             sys.exit(0)
         else:
             os.makedirs(store)
+    script = arguments.args[1]
+    exec(open(script).read(), globals(), globals())
     hypothesis.workflow.slurm.execute(
         directory=arguments.directory,
         environment=arguments.environment,
@@ -123,6 +123,8 @@ def execute_slurm(arguments):
 
 def execute_local(arguments):
     logging.info("Using the local workflow backend.")
+    script = arguments.args[1]
+    exec(open(script).read(), globals(), globals())
     hypothesis.workflow.local.execute()
 
 
