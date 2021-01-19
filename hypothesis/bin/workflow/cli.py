@@ -22,8 +22,10 @@ def main():
     executors = {
         "slurm": execute_slurm,
         "local": execute_local}
-    if len(arguments.args) > 0:
-        script = arguments.args[0]
+    # Check what module needs to be executed
+    ## Execution
+    if len(arguments.execute) > 0:
+        script = arguments.execute[1]
         exec(open(script).read())
         executors[executor](arguments)
 
@@ -34,6 +36,7 @@ def execute_slurm(arguments):
 
 def execute_local(arguments):
     logging.info("Using the local workflow backend.")
+    hypothesis.workflow.local.execute()
 
 
 def load_default_executor():
@@ -52,8 +55,8 @@ def parse_arguments():
     # Executor backend
     parser.add_argument("--slurm", action="store_true", help="Force the usage the Slurm executor backend.")
     parser.add_argument("--local", action="store_true", help="Force the usage the local executor backend.")
-    # Remaining position arguments
-    parser.add_argument("args", nargs=argparse.REMAINDER)
+    # Workflow modules
+    parser.add_argument("execute", nargs='+', help="Executes the specified workflow.")
     # Parse the arguments
     arguments = parser.parse_args()
     arguments.level = arguments.level.lower()
