@@ -40,7 +40,7 @@ def cpu_and_memory(f, cores, memory):
     cpu(f, cores)
     # Check if custom memory has been specified.
     suffix = memory[-1]
-    if not suffix.isdigit():
+    if suffix.isdigit():
         suffix = ""
         memory = int(memory)
     else:
