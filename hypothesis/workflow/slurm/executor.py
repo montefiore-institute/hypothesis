@@ -1,4 +1,4 @@
-import cloudpickle as pickle
+import dill as pickle
 import hypothesis.workflow as w
 import logging
 import os
@@ -12,7 +12,7 @@ def execute(context=None, base=None, directory='.', environment=None, store=None
         context = w.context
     # Prune the computational graph
     context.prune()
-    # pickle.settings['recurse'] = True  # Handle dependencies
+    pickle.settings['recurse'] = True  # Handle dependencies
     # Add default Slurm attributes to the nodes
     add_default_attributes(context, base=base)
     # Set the default anaconda environment
@@ -79,10 +79,10 @@ def execute(context=None, base=None, directory='.', environment=None, store=None
 
 def save_processor(directory):
     processor = """
-import cloudpickle as pickle
+import dill as pickle
 import sys
 
-# pickle.settings['recurse'] = True
+pickle.settings['recurse'] = True
 with open(sys.argv[1], "rb") as f:
     function = pickle.load(f)
 if len(sys.argv) > 2:

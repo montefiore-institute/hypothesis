@@ -86,7 +86,7 @@ def execute_workflow(arguments):
         "slurm": execute_slurm,
         "local": execute_local}
     script = arguments.args[1]
-    exec(open(script).read(), globals(), globals())
+    exec(open(script).read(), globals(), locals())
     executors[executor](arguments)
 
 
@@ -103,6 +103,7 @@ def assert_slurm_detected():
 
 
 def execute_slurm(arguments):
+    assert_slurm_detected()
     logging.info("Using the Slurm workflow backend.")
     if arguments.name is None:
         store = tempfile.mkdtemp(dir=store_directory())
