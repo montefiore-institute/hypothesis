@@ -38,6 +38,26 @@ alias w='hypothesis workflow'
 
 > **Note**: The following assumes a Slurm enabled HPC cluster
 
+```console
+you@local:~ $ hypothesis workflow execute simulate.py
+```
+
+Custom options are available to set the directory to generate the scripts `--directory`,
+the Slurm partition `--partition`, to cleanup the generated files `--cleanup`, or
+a custom Anaconda environment `--environment`.
+
+For instance, executing
+```console
+you@local:~ $ hypothesis workflow execute simulate.py --partition debug --directory job --environment hypothesis
+Using Slurm backend.
+Executing workflow tmpoyfosiru
+```
+will generate all files in the `job` directory, and allocate a workflow with the name `tmpoyfosiru`.
+Custom names can be provided by specifying `--name`. Afterwards, jobs can be canceled or deleted (their respective Slurm jobs as well)
+by executing `hypothesis workflow delete tmpoy`. It should be noted that the workflow name can be a substring.
+Adding the `--parsable` option to the CLI arguments, ensures that the output is easily processable for
+the usage in shell scripts.
+
 ## Example: simulation pipeline
 > Relevant to the workflow in `simulate.py`
 
