@@ -7,7 +7,6 @@ import tempfile
 
 
 def execute(context=None,
-            base=None,
             directory='.',
             environment=None,
             partition=None,
@@ -20,7 +19,7 @@ def execute(context=None,
     context.prune()
     pickle.settings['recurse'] = True  # Handle dependencies
     # Add default Slurm attributes to the nodes
-    add_default_attributes(context, base=base, directory=directory)
+    add_default_attributes(context, directory=directory)
     # Set the compute partition of the tasks.
     add_partition(context, partition=partition)
     # Set the default anaconda environment
@@ -107,7 +106,7 @@ def add_partition(context, partition=None):
             node["--partition"] = partition
 
 
-def add_default_attributes(context, base=None, directory=None):
+def add_default_attributes(context, directory=None):
     for node in context.nodes:
         node["--export"] = "ALL"  # Exports all environment variables,
         node["--parsable"] = ""   # Enables convenient reading of task ID.
@@ -118,9 +117,8 @@ def add_default_attributes(context, base=None, directory=None):
                 fmt = logging_directory + "-%A_%a.log"
             else:
                 fmt = logging_directory + "-%j.log"
-            node["--output"] =
-        if base is not None:
-            node["--chdir"] = base
+            node["--output"] = fmt
+            node["--chdir"] = directory
 
 
 def generate_task_file(node, directory):
