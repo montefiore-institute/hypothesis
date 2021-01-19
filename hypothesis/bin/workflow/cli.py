@@ -108,12 +108,12 @@ def execute_slurm(arguments):
     if arguments.name is None:
         store = tempfile.mkdtemp(dir=store_directory())
     else:
-        path = store_directory() + '/' + arguments.name
-        if os.path.exists(path):
+        store = store_directory() + '/' + arguments.name
+        if os.path.exists(store):
             logging.error("The workflow name with `" + arguments.name + "` already exists.")
             sys.exit(0)
         else:
-            os.makedirs(path)
+            os.makedirs(store)
     hypothesis.workflow.slurm.execute(
         directory=arguments.directory,
         environment=arguments.environment,
