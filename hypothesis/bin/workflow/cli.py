@@ -107,6 +107,7 @@ def execute_slurm(arguments):
     logging.info("Using the Slurm workflow backend.")
     if arguments.name is None:
         store = tempfile.mkdtemp(dir=store_directory())
+        logging.info("Executing job " + store)
     else:
         store = store_directory() + '/' + arguments.name
         if os.path.exists(store):
