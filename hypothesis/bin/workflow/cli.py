@@ -116,6 +116,8 @@ def execute_slurm(arguments):
             sys.exit(0)
         else:
             os.makedirs(store)
+    if arguments.directory is None:
+        directory = os.path.basename(store)
     hypothesis.workflow.slurm.execute(
         directory=arguments.directory,
         environment=arguments.environment,
@@ -141,7 +143,7 @@ def parse_arguments():
     # Slurm backend configuration
     parser.add_argument("--cleanup", action="store_true", help="Enables the cleanup subroutine of the Slurm submission scripts.")
     parser.add_argument("--description", type=str, default=None, help="Provide a description to the workflow (default: none).")
-    parser.add_argument("--directory", type=str, default=".", help="Directory to generate the Slurm submission scripts (default: '.').")
+    parser.add_argument("--directory", type=str, default=None, help="Directory to generate the Slurm submission scripts (default: none).")
     parser.add_argument("--environment", type=str, default=None, help="Anaconda environment to execute the Slurm tasks with (default: none).")
     parser.add_argument("--name", type=str, default=None, help="Determines the name of the workflow (default: random).")
     parser.add_argument("--partition", type=str, default=None, help="Slurm partition to deploy the job to (default: none).")
