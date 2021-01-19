@@ -123,6 +123,8 @@ def execute_slurm(arguments):
             os.makedirs(store)
     if arguments.directory is None:
         directory = os.path.basename(store)
+    else:
+        directory = arguments.directory
     hypothesis.workflow.slurm.execute(
         directory=directory,
         environment=arguments.environment,
