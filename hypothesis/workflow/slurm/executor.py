@@ -59,7 +59,7 @@ def execute(context=None, base=None, directory='.', environment=None, store=None
         lines.append(line)
         job_id_line += '$' + variable + "\n"
     # Create a file containing all Slurm identifiers
-    job_id_line += " > slurm_jobs"
+    job_id_line += "\" > slurm_jobs"
     lines.append(job_id_line)
     # Write the pipeline file
     pipeline_path = directory + "/pipeline.bash"

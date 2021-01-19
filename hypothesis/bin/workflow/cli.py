@@ -21,7 +21,7 @@ def main():
     arguments = parse_arguments()
     # Module mapping
     mapping = {
-        "cancel": cancel_workflow,
+        "delete": delete_workflow,
         "clean": clean_workflows,
         "execute": execute_workflow,
         "status": workflow_status,
@@ -47,7 +47,7 @@ def list_store(arguments):
             print(p)
 
 
-def cancel_workflow(arguments):
+def delete_workflow(arguments):
     assert_slurm_detected()
     query = store_directory() + '/' + arguments.args[1] + '*' + "/slurm_jobs"
     paths = glob.glob(query)
@@ -147,7 +147,7 @@ def parse_arguments():
     parser.add_argument("--slurm", action="store_true", help="Force the usage the Slurm executor backend.")
     parser.add_argument("--local", action="store_true", help="Force the usage the local executor backend.")
     # Workflow modules
-    parser.add_argument("args", nargs='*', help="Slurm backend utilities, currently supporting: cancel, clean, execute, list.")
+    parser.add_argument("args", nargs='*', help="Slurm backend utilities, currently supporting: delete, clean, execute, list.")
     # Parse the arguments
     arguments, _ = parser.parse_known_args()
     arguments.level = arguments.level.lower()
