@@ -73,7 +73,7 @@ def execute(context=None, base=None, directory='.', environment=None, store=None
     os.remove(directory + "/slurm_jobs")
     # Cleanup the generated Slurm files.
     if cleanup:
-        shutil.rmtree(pipeline_path)
+        os.remove(pipeline_path)
         shutil.rmtree(tasks_directory)
 
 
