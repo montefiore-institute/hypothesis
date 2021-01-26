@@ -1,4 +1,5 @@
 import hypothesis as h
+import numpy as np
 import torch
 
 from hypothesis.nn import MLP
@@ -19,12 +20,20 @@ from hypothesis.nn.util import dimensionality
 def build_ratio_estimator(random_variables, convolve="outputs", depth=18, **kwargs):
     if not isinstance(convolve, list):
         convolve = list([convolve])
+    if not isinstance(depth, list):
+        depths = list([depth] * len(convolve))
+    else:
+        depths = depth
+    depths = np.array(depths)
+    assert len(depths) == len(convolve)
     convolve_variables = set(convolve)
     trunk_variables = set(random_variables.keys()) - convolve_variables
     trunk_variables = list(trunk_variables)
     trunk_variables.sort()
-    convolve_variables = list(convolve_variables)
-    convolve_variables.sort()
+    convolve_variables = np.array(list(convolve_variables))
+    indices = convolve_variables.argsort()
+    convolve_variables = convolve_variables[indices]
+    depths = depths[indices]
     if len(convolve_variables) == 0:
         raise ValueError("No random variables to convolve have been specified (default: 'outputs').")
 
@@ -34,7 +43,6 @@ def build_ratio_estimator(random_variables, convolve="outputs", depth=18, **kwar
             activation=h.default.activation,
             batchnorm=default_batchnorm,
             convolution_bias=default_convolution_bias,
-            depth=depth,
             dilate=default_dilate,
             groups=default_groups,
             in_planes=default_in_planes,
@@ -45,17 +53,17 @@ def build_ratio_estimator(random_variables, convolve="outputs", depth=18, **kwar
             super(RatioEstimator, self).__init__(random_variables)
             # Construct the convolutional ResNet heads.
             self._heads = []
-            for convolve_variable in convolve_variables:
+            for index, convolve_variable in enumerate(convolve_variables):
                 # Fetch the random variable shape
                 channels = random_variables[convolve_variable][0]
                 shape = random_variables[convolve_variable][1:]
                 # Create the ResNet head
                 head = ResNetHead(
-                    activation=h.default.activation,
+                    activation=activation,
                     batchnorm=batchnorm,
                     channels=channels,
                     convolution_bias=convolution_bias,
-                    depth=depth,
+                    depth=depths[index],
                     dilate=dilate,
                     groups=groups,
                     in_planes=in_planes,

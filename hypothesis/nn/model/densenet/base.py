@@ -27,7 +27,7 @@ class DenseNet(torch.nn.Module):
                  depth=default_depth,
                  dropout=h.default.dropout,
                  trunk_activation=None,
-                 trunk_dropout=None,
+                 trunk_dropout=h.default.dropout,
                  trunk_layers=h.default.trunk,
                  transform_output="normalize"):
         super(DenseNet, self).__init__()
