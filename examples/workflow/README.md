@@ -99,7 +99,28 @@ you@local:~ $ squeue | grep you
 
 As you'll notice, executing this workflow for the 2nd time
 is significantly shorter! This is because Hypothesis determines
-what part of the computational graph need to be computed to
+what part of the computational graph needs to be computed to
 ensure that the specified constraints are met.
 
 No more recomputation and rescheduling on HPC systems!
+
+In addition it becomes significantly easier to manage workflows on your HPC cluster,
+as we keep track of the associated job identifiers. For example, executing the
+following on a Slurm cluster:
+
+```console
+you@local:~ $ hypothesis workflow --name test execute simulate.py
+```
+
+Which will execute the workflow on the Slurm backend under the name `test`.
+Active, and previous workflows can be retrieved using:
+
+```console
+you@local:~ $ hypothesis workflow list
+```
+
+A workflow, and it's associated cluster jobs can easiliy be deleted (and cancelled) by executing
+
+```console
+you@local:~ $ hypothesis workflow delete test
+```
