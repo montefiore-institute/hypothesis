@@ -105,32 +105,38 @@ def assert_slurm_detected():
 
 def execute_slurm(arguments):
     assert_slurm_detected()
-    if not arguments.parsable:
-        logging.info("Using Slurm backend.")
-    if arguments.name is None:
-        store = tempfile.mkdtemp(dir=store_directory())
-        name = os.path.basename(store)
-        if arguments.parsable:
-            logging.info(name)
+    context = w.context
+    context.prune()
+    if context.root is not None:
+        if not arguments.parsable:
+            logging.info("Using Slurm backend.")
+        if arguments.name is None:
+            store = tempfile.mkdtemp(dir=store_directory())
+            name = os.path.basename(store)
+            if arguments.parsable:
+                logging.info(name)
+            else:
+                logging.info("Executing workflow " + name)
         else:
-            logging.info("Executing workflow " + name)
-    else:
-        store = store_directory() + '/' + arguments.name
-        if os.path.exists(store):
-            logging.critical("The workflow name with `" + arguments.name + "` already exists.")
-            sys.exit(1)
+            store = store_directory() + '/' + arguments.name
+            if os.path.exists(store):
+                logging.critical("The workflow name with `" + arguments.name + "` already exists.")
+                sys.exit(1)
+            else:
+                os.makedirs(store)
+        if arguments.directory is None:
+            directory = os.path.basename(store)
         else:
-            os.makedirs(store)
-    if arguments.directory is None:
-        directory = os.path.basename(store)
+            directory = arguments.directory
+        hypothesis.workflow.slurm.execute(
+            directory=directory,
+            environment=arguments.environment,
+            partition=arguments.partition,
+            store=store,
+            cleanup=arguments.cleanup)
     else:
-        directory = arguments.directory
-    hypothesis.workflow.slurm.execute(
-        directory=directory,
-        environment=arguments.environment,
-        partition=arguments.partition,
-        store=store,
-        cleanup=arguments.cleanup)
+        logging.critical("Postconditions of computational graph are met. Nothing to do.")
+
 
 
 def execute_local(arguments):
