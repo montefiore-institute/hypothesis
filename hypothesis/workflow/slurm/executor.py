@@ -139,8 +139,8 @@ def generate_task_file(node, directory):
     lines.append("# github.com/montefiore-ai/hypothesis")
     lines.append("#")
     # Check if a custom name has been specified.
-    if "--name" not in node.attributes:
-        node.attributes["--name"] = str(node)
+    if "--job-name" not in node.attributes:
+        node.attributes["--job-name"] = str(node)
     # Add the node attributes
     for key in node.attributes:
         if key[:2] != "--":  # Skip non SBATCH arguments
