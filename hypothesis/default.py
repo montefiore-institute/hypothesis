@@ -29,7 +29,7 @@ Otherwise, this will reduce to torch.nn.Softmax.
 """
 
 
-trunk = (512, 512, 512)
+trunk = (256, 256, 256)
 r"""Default trunk of large convolution models such as ResNet or DenseNet."""
 
 
