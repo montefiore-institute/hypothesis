@@ -50,7 +50,7 @@ def list_store(arguments):
 
 def delete_workflow(arguments):
     assert_slurm_detected()
-    query = store_directory() + '/' + arguments.args[1] + '*' + "/slurm_jobs"
+    query = store_directory() + "/*" + arguments.args[1] + '*' + "/slurm_jobs"
     paths = glob.glob(query)
     if len(paths) == 0:
         logging.critical("The specified workflow could not be found. Try `list`.")
