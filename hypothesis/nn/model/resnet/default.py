@@ -4,7 +4,7 @@ depth = 18
 r"""Default ResNet architecture (depth)."""
 
 
-batchnorm = True
+batchnorm = False
 r"""Default batch normalization flag in Hypothesis."""
 
 

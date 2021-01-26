@@ -7,7 +7,7 @@ depth = 121
 r"""Default DenseNet architecture (depth)."""
 
 
-batchnorm = True
+batchnorm = False
 r"""Default batch normalization flag in Hypothesis."""
 
 
