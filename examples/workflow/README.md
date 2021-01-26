@@ -58,7 +58,10 @@ the usage in shell scripts.
 A demo workflow to created batched simulations for a train
 and test dataset. Followed up by a merge operation.
 
-This workflow is not executed through the `hypothesis` CLI tool.
+This workflow is not executed through the `hypothesis` CLI tool, i.e., using the local backend.
+As indicated below, it is possible to immediately call `python simulate.py --local` to
+execute the workflow on your local machine, or on Slurm using `python simulate.py --slurm`.
+As indicated in `simulate.py`, this requires some code however.
 
 ```console
 you@local:~ $ python simulate.py -h
@@ -71,6 +74,7 @@ optional arguments:
   --train TRAIN         Total number of simulations for training (default: 1000000).
   --test TEST           Total number of simulations for testing (default: 100000).
   --local               Execute the workflow locally (default: false).
+  --slurm               Execute the workflow on Slurm (default: false).
 ```
 
 By default, the workflow will generate the necessary code to run the workflow

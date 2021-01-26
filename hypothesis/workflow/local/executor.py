@@ -1,6 +1,7 @@
 import gc
 import hypothesis.workflow as w
 import logging
+import sys
 
 
 def execute(context=None):
@@ -9,6 +10,9 @@ def execute(context=None):
         context = w.context
     # Prune the computational graph
     context.prune()
+    # Check if a root node is present.
+    if context.root is None:
+        sys.exit(0)
     # Determine the order of execution
     execution_order = {}
     bfs_order = list(context.bfs())

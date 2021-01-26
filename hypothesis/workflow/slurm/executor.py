@@ -17,6 +17,9 @@ def execute(context=None,
         context = w.context
     # Prune the computational graph
     context.prune()
+    # Check if a root node is present
+    if context.root is None:
+        sys.exit(0)  # Nothing to do
     pickle.settings['recurse'] = True  # Handle dependencies
     # Add default Slurm attributes to the nodes
     add_default_attributes(context, directory=directory)

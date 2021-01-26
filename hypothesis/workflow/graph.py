@@ -61,13 +61,19 @@ class WorkflowGraph:
             yield from self._bfs(queue)
 
     def prune(self):
-        for leaf in self.leafs:
-            self._prune_node(leaf)
-        all_nodes = set(self.nodes)
-        in_graph = self._in_subgraph(self.root)
-        to_delete = all_nodes.difference(in_graph)
-        for node in to_delete:
-            del self._nodes[node.f]
+        # Check if the postconditions of the root node have been satisfied.
+        if len(self._root.postconditions) > 0 and self._root.postconditions_satisfied():
+            self._root = None
+            self._nodes = {}
+        else:
+            # Prune the computational graph
+            for leaf in self.leafs:
+                self._prune_node(leaf)
+            all_nodes = set(self.nodes)
+            in_graph = self._in_subgraph(self.root)
+            to_delete = all_nodes.difference(in_graph)
+            for node in to_delete:
+                del self._nodes[node.f]
 
     def _branches(self, node):
         branches = []
