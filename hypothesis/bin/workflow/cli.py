@@ -25,6 +25,7 @@ def main():
         "delete": delete_workflow,
         "clean": clean_workflows,
         "execute": execute_workflow,
+        "goto": goto_workflow,
         "status": workflow_status,
         "list": list_store}
     # Check what module needs to be executed
@@ -91,6 +92,19 @@ def execute_workflow(arguments):
     executors[executor](arguments)
 
 
+def goto_workflow(arguments):
+    workflow_name = arguments.args[1]
+    query = store_directory() + "/" + workflow_name
+    if not os.path.exists(query):
+        logging.critical("The specified workflow could not be found. Try `list`.")
+        sys.exit(0)
+    if "SHELL" in os.environ:
+        os.chdir(query)
+        os.system(os.environ["SHELL"])
+    else:
+        logging.critical("Changing directories not supported on this system.")
+
+
 def prepare_directory():
     path = store_directory()
     if not os.path.exists(path):
@@ -119,14 +133,14 @@ def execute_slurm(arguments):
                 logging.info("Executing workflow " + name)
         else:
             name = arguments.name
-            store = store_directory() + '/' + arguments.name
+            store = store_directory() + '/' + name
             if os.path.exists(store):
-                logging.critical("The workflow name with `" + arguments.name + "` already exists.")
+                logging.critical("The workflow name with `" + name + "` already exists.")
                 sys.exit(1)
             else:
                 os.makedirs(store)
         if arguments.directory is None:
-            directory = store + '/' + name
+            directory = store
         else:
             directory = arguments.directory
         hypothesis.workflow.slurm.execute(
@@ -157,14 +171,14 @@ def parse_arguments():
     # Slurm backend configuration
     parser.add_argument("--cleanup", action="store_true", help="Enables the cleanup subroutine of the Slurm submission scripts.")
     parser.add_argument("--description", type=str, default=None, help="Provide a description to the workflow (default: none).")
-    parser.add_argument("--directory", type=str, default='.', help="Directory to generate the Slurm submission scripts (default: none).")
+    parser.add_argument("--directory", type=str, default=None, help="Directory to generate the Slurm submission scripts (default: Hypothesis store).")
     parser.add_argument("--environment", type=str, default=None, help="Anaconda environment to execute the Slurm tasks with (default: none).")
     parser.add_argument("--name", type=str, default=None, help="Determines the name of the workflow (default: random).")
     parser.add_argument("--partition", type=str, default=None, help="Slurm partition to deploy the job to (default: none).")
     # Logging options
     parser.add_argument("--parsable", action="store_true", help="Outputs to stdout should be easily parsable (default: false).")
     parser.add_argument("--format", type=str, default="%(message)s", help="Format of the logger.")
-    parser.add_argument("--level", default="info", type=str, help="Minimum logging level (default: warning) (options: debug, info, warning, error, critical).")
+    parser.add_argument("--level", default="info", type=str, help="Minimum logging level (default: warning) (options: debug, goto, info, warning, error, critical).")
     parser.add_argument("-v", action="store_true", help="Enable verbosity in the details of the log messages (default: false).")
     # Executor backend
     parser.add_argument("--slurm", action="store_true", help="Force the usage the Slurm executor backend.")
