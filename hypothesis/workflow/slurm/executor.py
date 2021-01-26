@@ -91,12 +91,16 @@ def execute(context=None,
 def generate_executables(context, directory):
     for node in context.nodes:
         code = pickle.dumps(node.f)
-        with open(directory + "/" + node.name + ".code", "wb") as f:
+        with open(directory + "/" + executable_name(node), "wb") as f:
             f.write(code)
 
 
 def task_filename(node):
-    return node.name
+    return str(id(node)) + ".sbatch"
+
+
+def executable_name(node):
+    return str(id(node)) + ".code"
 
 
 def add_default_environment(context, environment=None):
@@ -157,7 +161,7 @@ def generate_task_file(node, directory):
     except:
         pass
     # Execute the function
-    line = "python -u -m hypothesis.bin.workflow.processor " + node.name + ".code"
+    line = "python -u -m hypothesis.bin.workflow.processor " + executable_name(node)
     if multiarray:
         line += " $SLURM_ARRAY_TASK_ID"
     lines.append(line)
