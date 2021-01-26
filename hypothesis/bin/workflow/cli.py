@@ -118,6 +118,7 @@ def execute_slurm(arguments):
             else:
                 logging.info("Executing workflow " + name)
         else:
+            name = arguments.name
             store = store_directory() + '/' + arguments.name
             if os.path.exists(store):
                 logging.critical("The workflow name with `" + arguments.name + "` already exists.")
@@ -125,7 +126,7 @@ def execute_slurm(arguments):
             else:
                 os.makedirs(store)
         if arguments.directory is None:
-            directory = store
+            directory = store + '/' + name
         else:
             directory = arguments.directory
         hypothesis.workflow.slurm.execute(
