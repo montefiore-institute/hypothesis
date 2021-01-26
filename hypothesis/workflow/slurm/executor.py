@@ -20,6 +20,7 @@ def execute(context=None,
     context.prune()
     # Check if a root node is present
     if context.root is None:
+        logging.critical("Postconditions of computational graph are met. Nothing to do.")
         sys.exit(0)  # Nothing to do
     pickle.settings['recurse'] = True  # Handle dependencies
     # Add default Slurm attributes to the nodes

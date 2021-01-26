@@ -12,6 +12,7 @@ def execute(context=None):
     context.prune()
     # Check if a root node is present.
     if context.root is None:
+        logging.critical("Postconditions of computational graph are met. Nothing to do.")
         sys.exit(0)
     # Determine the order of execution
     execution_order = {}
