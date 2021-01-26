@@ -119,6 +119,9 @@ Active, and previous workflows can be retrieved using:
 you@local:~ $ hypothesis workflow list
 ```
 
+The generated code and Slurm associated files can easily be viewed by executing
+`hypothesis workflow goto <workflow name>`.
+
 A workflow, and it's associated cluster jobs can easiliy be deleted (and cancelled) by executing
 
 ```console
