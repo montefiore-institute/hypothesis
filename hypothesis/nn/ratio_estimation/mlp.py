@@ -7,15 +7,15 @@ from hypothesis.nn.util import dimensionality
 
 
 def build_ratio_estimator(random_variables, **kwargs):
-    activation = kwargs.get(h.default._key_activation, h.default.activation)
-    dropout = kwargs.get(h.default._key_dropout, h.default.dropout)
-    trunk = kwargs.get(h.default._key_trunk, h.default.trunk)
     shape_xs = (sum([dimensionality(random_variables[k]) for k in random_variables.keys()]),)
     rv_identifiers = list(random_variables.keys())
 
     class RatioEstimator(BaseRatioEstimator):
 
-        def __init__(self):
+        def __init__(self,
+            activation=h.default.activation,
+            dropout=h.default.dropout,
+            trunk=h.default.trunk):
             super(RatioEstimator, self).__init__(random_variables)
             self._mlp = MLP(
                 shape_xs=shape_xs,
@@ -30,4 +30,4 @@ def build_ratio_estimator(random_variables, **kwargs):
 
             return self._mlp(z)
 
-    return RatioEstimator()
+    return RatioEstimator

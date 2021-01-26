@@ -22,7 +22,7 @@ def test_criterion_logits():
         "outputs": (10,)}
 
     # Allocate the MLP ratio estimator and the criterion
-    r = build_ratio_estimator(random_variables)
+    r = build_ratio_estimator(random_variables)()
     criterion = h.nn.ratio_estimation.BaseCriterion(
         batch_size=batch_size,
         denominator="inputs|outputs",
@@ -53,7 +53,7 @@ def test_criterion_no_logits():
         "outputs": (10,)}
 
     # Allocate the MLP ratio estimator and the criterion
-    r = build_ratio_estimator(random_variables)
+    r = build_ratio_estimator(random_variables)()
     criterion = h.nn.ratio_estimation.BaseCriterion(
         batch_size=batch_size,
         denominator="inputs|outputs",
