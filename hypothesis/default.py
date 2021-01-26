@@ -5,18 +5,22 @@ r"""Default settings in Hypothesis.
 import torch
 
 
+_key_activation = "activation"
 activation = torch.nn.LeakyReLU
 r"""Default activation function in Hypothesis."""
 
 
+_key_batch_size = "batch_size"
 batch_size = 4096
 r"""Default batch size."""
 
 
+_key_dropout = "dropout"
 dropout = 0.0
 r"""Default dropout setting."""
 
 
+_key_epochs = "epochs"
 epochs = 1
 r"""Default number of data epochs."""
 
@@ -29,8 +33,9 @@ Otherwise, this will reduce to torch.nn.Softmax.
 """
 
 
+_key_trunk = "trunk"
 trunk = (256, 256, 256)
-r"""Default trunk of large convolution models such as ResNet or DenseNet."""
+r"""Default trunk of an MLP."""
 
 
 dependent_delimiter = ','

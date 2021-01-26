@@ -51,7 +51,7 @@ lint: ## check style with flake8
 	flake8 --per-file-ignores="__init__.py:F401" hypothesis tests
 
 test: ## run tests quickly with the default Python
-	pytest
+	pytest -s
 
 test-all: ## run tests on every Python version with tox
 	tox

@@ -5,8 +5,13 @@ import torch
 
 class BaseRatioEstimator(torch.nn.Module):
 
-    def __init__(self):
+    def __init__(self, random_variables):
         super(BaseRatioEstimator, self).__init__()
+        self._random_variables = random_variables  # A dictionary with the name and shape of the random variable.
+
+    @property
+    def random_variables(self):
+        return self._random_variables
 
     def forward(self, **kwargs):
         log_ratios = self.log_ratio(**kwargs)
@@ -39,7 +44,7 @@ class RatioEstimatorEnsemble(BaseRatioEstimator):
 
     def log_ratio(self, **kwargs):
         log_ratios = []
-        for r in self.estimators:
+        for r in self._estimators:
             log_ratios.append(r.log_ratio(**kwargs))
         log_ratios = torch.cat(log_ratios, dim=1)
         if self._reduce is not None:
@@ -87,20 +92,11 @@ class BaseCriterion(torch.nn.Module):
         self._estimator = estimator
         self._independent_random_variables = self._derive_independent_random_variables(denominator)
         self._ones = torch.ones(self._batch_size, 1)
-        self._random_variables = self._derive_random_variables(denominator)
         self._zeros = torch.zeros(self._batch_size, 1)
 
     @property
     def batch_size(self):
         return self._batch_size
-
-    @property
-    def variables(self):
-        return self._random_variables
-
-    @property
-    def independent_variables(self):
-        return self._independent_random_variables
 
     def to(self, device):
         self._criterion = self._criterion.to(device)
@@ -113,13 +109,13 @@ class BaseCriterion(torch.nn.Module):
         return self._forward(**kwargs)
 
     def _forward_without_logits(self, **kwargs):
-        y_dependent, _ = self.estimator(**kwargs)
+        y_dependent, _ = self._estimator(**kwargs)
         for group in self._independent_random_variables:
             random_indices = torch.randperm(self._batch_size)
             for variable in group:
                 kwargs[variable] = kwargs[variable][random_indices]  # Make variable independent.
         y_independent, _ = self._estimator(**kwargs)
-        loss = self._criterion(y_dependent, self._ones) + self.criterion(y_independent, self._zeros)
+        loss = self._criterion(y_dependent, self._ones) + self._criterion(y_independent, self._zeros)
 
         return loss
 
@@ -130,7 +126,7 @@ class BaseCriterion(torch.nn.Module):
             for variable in group:
                 kwargs[variable] = kwargs[variable][random_indices]  # Make variable independent.
         y_independent = self._estimator.log_ratio(**kwargs)
-        loss = self.criterion(y_dependent, self.ones) + self.criterion(y_independent, self.zeros)
+        loss = self._criterion(y_dependent, self._ones) + self._criterion(y_independent, self._zeros)
 
         return loss
 
@@ -144,8 +140,8 @@ class BaseCriterion(torch.nn.Module):
         return random_variables
 
     @staticmethod
-    def _derive_independent_random_variables(self, denominator):
-        groups = denominator.split(hypothesis.default.independent_delimiter)
+    def _derive_independent_random_variables(denominator):
+        groups = denominator.split(h.default.independent_delimiter)
         for index in range(len(groups)):
             groups[index] = groups[index].split(h.default.dependent_delimiter)
 
