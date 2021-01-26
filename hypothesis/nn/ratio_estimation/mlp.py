@@ -9,6 +9,7 @@ from hypothesis.nn.util import dimensionality
 def build_ratio_estimator(random_variables, **kwargs):
     shape_xs = (sum([dimensionality(random_variables[k]) for k in random_variables.keys()]),)
     rv_identifiers = list(random_variables.keys())
+    rv_identifiers.sort()
 
     class RatioEstimator(BaseRatioEstimator):
 

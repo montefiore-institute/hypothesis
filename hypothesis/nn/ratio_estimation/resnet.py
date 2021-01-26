@@ -1,5 +1,7 @@
 import hypothesis as h
+import torch
 
+from hypothesis.nn import MLP
 from hypothesis.nn import ResNet
 from hypothesis.nn.model.resnet import ResNetHead
 from hypothesis.nn.model.resnet.default import batchnorm as default_batchnorm
@@ -15,8 +17,14 @@ from hypothesis.nn.util import dimensionality
 
 
 def build_ratio_estimator(random_variables, convolve="outputs", depth=18, **kwargs):
-    convolve_variables = set(list(convolve))
+    if not isinstance(convolve, list):
+        convolve = list([convolve])
+    convolve_variables = set(convolve)
     trunk_variables = set(random_variables.keys()) - convolve_variables
+    trunk_variables = list(trunk_variables)
+    trunk_variables.sort()
+    convolve_variables = list(convolve_variables)
+    convolve_variables.sort()
     if len(convolve_variables) == 0:
         raise ValueError("No random variables to convolve have been specified (default: 'outputs').")
 
@@ -25,7 +33,6 @@ def build_ratio_estimator(random_variables, convolve="outputs", depth=18, **kwar
         def __init__(self,
             activation=h.default.activation,
             batchnorm=default_batchnorm,
-            channels=default_channels,
             convolution_bias=default_convolution_bias,
             depth=depth,
             dilate=default_dilate,
@@ -35,10 +42,13 @@ def build_ratio_estimator(random_variables, convolve="outputs", depth=18, **kwar
             trunk_dropout=h.default.dropout,
             trunk_layers=h.default.trunk,
             width_per_group=default_width_per_group):
-            super(RatioEstimator, self).__init__()
+            super(RatioEstimator, self).__init__(random_variables)
             # Construct the convolutional ResNet heads.
             self._heads = []
             for convolve_variable in convolve_variables:
+                # Fetch the random variable shape
+                channels = random_variables[convolve_variable][0]
+                shape = random_variables[convolve_variable][1:]
                 # Create the ResNet head
                 head = ResNetHead(
                     activation=h.default.activation,
@@ -49,17 +59,22 @@ def build_ratio_estimator(random_variables, convolve="outputs", depth=18, **kwar
                     dilate=dilate,
                     groups=groups,
                     in_planes=in_planes,
-                    shape_xs=random_variables[convolve_variable],
+                    shape_xs=shape,
                     width_per_group=width_per_group)
                 self._heads.append(head)
             # Check if custom trunk settings have been defined.
             if trunk_activation is None:
                 trunk_activation = activation
+            # Compute the embedding dimensionalities of every head.
+            self._embedding_dimensionalities = []
+            for head in self._heads:
+                dim = head.embedding_dimensionality()
+                self._embedding_dimensionalities.append(dim)
             # Construct the trunk of the network.
-            self.embedding_dimensionality = sum([h.embedding_dimensionality() for h in self._heads])
-            dimensionality = self.embedding_dimensionality + sum([dimensionality(random_variables[k]) for k in trunk_random_variables])
-            self.trunk = MLP(
-                shape_xs=(dimensionality,),
+            self._embedding_dimensionality = sum(self._embedding_dimensionalities)
+            total_dimensionality = self._embedding_dimensionality + sum([dimensionality(random_variables[k]) for k in trunk_variables])
+            self._trunk = MLP(
+                shape_xs=(total_dimensionality,),
                 shape_ys=(1,),
                 activation=trunk_activation,
                 dropout=trunk_dropout,
@@ -67,13 +82,19 @@ def build_ratio_estimator(random_variables, convolve="outputs", depth=18, **kwar
                 transform_output=None)
 
         def log_ratio(self, **kwargs):
-            # TODO Implement
-            z_head = self.head(kwargs[convolve_variable]).view(-1, self.embedding_dimensionality)
-            tensors = [kwargs[k].view(v) for k, v in trunk_random_variables.items()]
-            tensors.append(z_head)
-            features = torch.cat(tensors, dim=1)
-            log_ratios = self.trunk(features)
+            # Compute the embedding of all heads.
+            z = []
+            for index, head in enumerate(self._heads):
+                random_variable = convolve_variables[index]
+                head_latent = head(kwargs[random_variable]).view(-1, self._embedding_dimensionalities[index])
+                z.append(head_latent)
+            # Join the remaining random variables
+            for random_variable in trunk_variables:
+                shape = random_variables[random_variable]
+                z.append(kwargs[random_variable].view(-1, *shape))
+            # Concatonate the tensors
+            z = torch.cat(z, dim=1)
 
-            return log_ratios
+            return self._trunk(z)
 
     return RatioEstimator
