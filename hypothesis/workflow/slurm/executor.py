@@ -79,7 +79,7 @@ def execute(context=None,
             f.write(line + "\n")
     # Execute the bash script
     os.system("bash " + pipeline_path)
-    if store is not None:
+    if store is not None and store != directory:
         shutil.copyfile(directory + "/slurm_jobs", store + "/slurm_jobs")
     os.remove(directory + "/slurm_jobs")
     # Cleanup the generated Slurm files.
