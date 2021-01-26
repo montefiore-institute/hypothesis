@@ -48,7 +48,8 @@ def test_multi_head_densenet():
         "outputs1", "outputs2", "outputs3"]
     r = build_ratio_estimator(
         random_variables,
-        convolve=convolve_variables)()
+        convolve=convolve_variables,
+        denominator="inputs,outputs1,outputs2|outputs3")()
     assert r is not None
 
     batch_size = 10
@@ -90,7 +91,8 @@ def test_multi_head_multi_depth_densenet():
     r = build_ratio_estimator(
         random_variables,
         depth=[121, 161, 169],
-        convolve=convolve_variables)()
+        convolve=convolve_variables,
+        denominator="inputs,outputs1|outputs2,outputs3")()
     assert r is not None
 
     batch_size = 10

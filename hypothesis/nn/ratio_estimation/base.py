@@ -1,13 +1,21 @@
 import hypothesis as h
 import numpy as np
+import re
 import torch
 
 
 class BaseRatioEstimator(torch.nn.Module):
 
-    def __init__(self, random_variables):
+    def __init__(self, denominator, random_variables):
         super(BaseRatioEstimator, self).__init__()
+        denominator_rv = set(denominator.replace(',', ' ').replace('|', ' ').split(' '))
+        assert denominator_rv == set(random_variables.keys())
+        self._denominator = denominator  # Denominator of the ratio
         self._random_variables = random_variables  # A dictionary with the name and shape of the random variable.
+
+    @property
+    def denominator(self):
+        return self._denominator
 
     @property
     def random_variables(self):
@@ -78,7 +86,6 @@ class BaseCriterion(torch.nn.Module):
 
     def __init__(self,
         estimator,
-        denominator,
         batch_size=h.default.batch_size,
         logits=False):
         super(BaseCriterion, self).__init__()
@@ -90,6 +97,7 @@ class BaseCriterion(torch.nn.Module):
             self._forward = self._forward_without_logits
         self._batch_size = batch_size
         self._estimator = estimator
+        denominator = self._estimator.denominator
         self._independent_random_variables = self._derive_independent_random_variables(denominator)
         self._ones = torch.ones(self._batch_size, 1)
         self._zeros = torch.zeros(self._batch_size, 1)

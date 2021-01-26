@@ -15,7 +15,7 @@ from hypothesis.nn.util import dimensionality
 
 
 
-def build_ratio_estimator(random_variables, convolve="outputs", depth=121, **kwargs):
+def build_ratio_estimator(random_variables, denominator="inputs|outputs", convolve="outputs", depth=121, **kwargs):
     if not isinstance(convolve, list):
         convolve = list([convolve])
     if not isinstance(depth, list):
@@ -48,7 +48,7 @@ def build_ratio_estimator(random_variables, convolve="outputs", depth=121, **kwa
                  trunk_activation=None,
                  trunk_dropout=h.default.dropout,
                  trunk_layers=h.default.trunk):
-            super(RatioEstimator, self).__init__(random_variables)
+            super(RatioEstimator, self).__init__(denominator, random_variables)
             # Construct the convolutional ResNet heads.
             self._heads = []
             for index, convolve_variable in enumerate(convolve_variables):
