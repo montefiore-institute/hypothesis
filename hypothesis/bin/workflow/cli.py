@@ -138,7 +138,6 @@ def execute_slurm(arguments):
         logging.critical("Postconditions of computational graph are met. Nothing to do.")
 
 
-
 def execute_local(arguments):
     if not arguments.parsable:
         logging.info("Using local backend.")
