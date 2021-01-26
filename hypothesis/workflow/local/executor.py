@@ -19,9 +19,12 @@ def execute(context=None):
     bfs_order = list(context.bfs())
     current_priority = 0
     for priority, node in enumerate(bfs_order):
-        execution_order[node] = priority
+        execution_order[id(node.f)] = node, priority
     # Sort subroutines by priority
-    program = list(dict(sorted(execution_order.items(), key=lambda item: item[1])).keys())
+    program = []
+    for instruction_with_priority in sorted(execution_order.items(), key=lambda item: item[1][1]):
+        subroutine = instruction_with_priority[1][0]
+        program.append(subroutine)  # Fetch the instruction
     # Execute the computational graph
     for instruction_index in range(len(program)):
         subroutine = program[instruction_index]
@@ -29,7 +32,6 @@ def execute(context=None):
         if num_tasks > 1:
             for task_index in range(num_tasks):
                 subroutine.f(task_index)
-                gc.collect()
         else:
             subroutine.f()
-            gc.collect()
+        gc.collect()

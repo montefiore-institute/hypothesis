@@ -124,3 +124,10 @@ A workflow, and it's associated cluster jobs can easiliy be deleted (and cancell
 ```console
 you@local:~ $ hypothesis workflow delete test
 ```
+
+## Example: programatically generate tasks
+> Relevant to the workflow defined in `generate.py`
+
+In some cases you might like to generate a number of tasks or jobs based on a
+specified paramater to do, for instance, a parameter scan. We highlighted some
+strategies in `generate.py`.

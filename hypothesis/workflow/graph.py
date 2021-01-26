@@ -9,14 +9,14 @@ class WorkflowGraph:
         self._nodes = {}
 
     def add_node(self, node):
-        self._nodes[node.f] = node
+        self._nodes[id(node.f)] = node
 
     def delete_node(self, node):
-        del self._nodes[node.f]
+        del self._nodes[id(node.f)]
 
     def find_node(self, f):
         try:
-            node = self._nodes[f]
+            node = self._nodes[id(f)]
         except:
             node = None
 
@@ -73,7 +73,7 @@ class WorkflowGraph:
             in_graph = self._in_subgraph(self.root)
             to_delete = all_nodes.difference(in_graph)
             for node in to_delete:
-                del self._nodes[node.f]
+                del self._nodes[id(node.f)]
 
     def _branches(self, node):
         branches = []
