@@ -11,28 +11,37 @@ import hypothesis as h
 import hypothesis.workflow as w
 import numpy as np
 import os
+import torch
 
 from hypothesis.train import RatioEstimatorTrainer as Trainer
 from hypothesis.util.data import NamedDataset
+from tqdm import tqdm
+
+
+# Globals
+p_top = None
+p_bottom = None
 
 
 def main(arguments):
     # Allocate the datasets
     dataset_test = load_dataset_test(arguments)
     dataset_train = load_dataset_train(arguments)
-    dataset_validation = load_dataset_validationc(arguments)
+    dataset_validate = load_dataset_validate(arguments)
     # Allocate the ratio estimator
     estimator = load_ratio_estimator(arguments)
     # Allocate the optimizer
     optimizer = load_optimizer(arguments, estimator)
     # Allocate the trainer instance
     trainer = Trainer(
+        estimator=estimator,
+        optimizer=optimizer,
         accelerator=h.accelerator,
         batch_size=arguments.batch_size,
         conservativeness=arguments.conservativeness,
         dataset_test=dataset_test,
         dataset_train=dataset_train,
-        dataset_validation=dataset_validation,
+        dataset_validate=dataset_validate,
         epochs=arguments.epochs,
         logits=arguments.logits,
         pin_memory=arguments.pin_memory,
@@ -45,7 +54,7 @@ def main(arguments):
     # TODO Save results.
 
 
-def allocate_dataset_test(arguments):
+def load_dataset_test(arguments):
     if arguments.data_test is not None:
         dataset = load_class(arguments.data_test)()
         assert isinstance(dataset, NamedDataset)
@@ -55,7 +64,7 @@ def allocate_dataset_test(arguments):
     return dataset
 
 
-def allocate_dataset_train(arguments):
+def load_dataset_train(arguments):
     if arguments.data_train is not None:
         dataset = load_class(arguments.data_train)()
         assert isinstance(dataset, NamedDataset)
@@ -65,7 +74,7 @@ def allocate_dataset_train(arguments):
     return dataset
 
 
-def allocate_dataset_validate(arguments):
+def load_dataset_validate(arguments):
     if arguments.data_validate is not None:
         dataset = load_class(arguments.data_validate)()
         assert isinstance(dataset, NamedDataset)
@@ -102,8 +111,67 @@ def add_hooks(arguments, trainer):
     add_hooks_lr_scheduling(arguments, trainer)
 
 
+@torch.no_grad()
 def add_hooks_display(arguments, trainer):
-    pass
+    global p_top
+    global p_bottom
+    r"""Epochs represent the top line, batches the bottom."""
+    # Check if the progress needs to be shown to stdout.
+    if not arguments.show:
+        return
+    # Define the progress bars.
+    top_prefix = "Epochs"
+    bottom_prefix = "Training"
+    p_top = tqdm(total=arguments.epochs, desc=top_prefix)
+    p_bottom = tqdm()
+    # Define the hooks.
+    def start_training(trainer, **kwargs):
+        global bottom_prefix
+        global p_bottom
+        bottom_prefix = "Training"
+        p_bottom.set_description(bottom_prefix)
+        p_bottom.total = None
+        p_bottom.reset()
+        p_bottom.refresh()
+    def start_testing(trainer, **kwargs):
+        global bottom_prefix
+        global p_bottom
+        bottom_prefix = "Testing"
+        p_bottom.set_description(bottom_prefix)
+        p_bottom.total = None
+        p_bottom.reset()
+        p_bottom.refresh()
+    def start_validation(trainer, **kwargs):
+        global bottom_prefix
+        global p_bottom
+        bottom_prefix = "Validation"
+        p_bottom.set_description(bottom_prefix)
+        p_bottom.total = None
+        p_bottom.reset()
+        p_bottom.refresh()
+    def update_batch(trainer, loss, batch_index, total_batches, **kwargs):
+        global bottom_prefix
+        if p_bottom.total is None:
+            p_bottom.total = total_batches
+            p_bottom.set_description(bottom_prefix + " ~ current loss {:.4f}".format(loss))
+            p_bottom.refresh()
+        if batch_index % 10 == 0:
+            p_bottom.set_description(bottom_prefix + " ~ current loss: {:.4f}".format(loss))
+        p_bottom.update()
+    def update_epoch(trainer, **kwargs):
+        epoch = trainer.current_epoch
+        if len(trainer.losses_test) > 0:
+            best_loss = np.min(trainer.losses_test)
+            p_top.set_description(top_prefix + " ~ best test loss: {:.4f}".format(best_loss))
+        p_top.update()
+    # Register the hooks
+    trainer.add_event_handler(trainer.events.train_start, start_training)
+    trainer.add_event_handler(trainer.events.test_start, start_testing)
+    trainer.add_event_handler(trainer.events.validate_start, start_validation)
+    trainer.add_event_handler(trainer.events.batch_test_complete, update_batch)
+    trainer.add_event_handler(trainer.events.batch_train_complete, update_batch)
+    trainer.add_event_handler(trainer.events.batch_validate_complete, update_batch)
+    trainer.add_event_handler(trainer.events.epoch_complete, update_epoch)
 
 
 def add_hooks_lr_scheduling(arguments, trainer):
@@ -122,9 +190,9 @@ def add_hooks_lr_scheduling_on_plateau(arguments, trainer):
 
 
 def add_hooks_lr_scheduling_cyclic(arguments, trainer):
-    scheduler = torch.optim.lr.scheduler.CyclicLR(trainer.optimizer,
-        base_lr=arguments.schedlr_cyclic_base_lr,
-        max_lr=arguments.schedlr_cyclic_max_lr)
+    scheduler = torch.optim.lr_scheduler.CyclicLR(trainer.optimizer,
+        base_lr=arguments.lrsched_cyclic_base_lr,
+        max_lr=arguments.lrsched_cyclic_max_lr)
     def schedule(trainer, **kwargs):
         scheduler.step()
     trainer.add_event_handler(trainer.events.batch_train_complete, schedule)
@@ -158,8 +226,8 @@ def parse_arguments():
     parser.add_argument("--workers", type=int, default=4, help="Number of concurrent data loaders (default: 4).")
     # Data settings
     parser.add_argument("--data-test", type=str, default=None, help="Full classname of the testing dataset (default: none, optional).")
-    parser.add_argument("--data-test", type=str, default=None, help="Full classname of the validation dataset (default: none, optional).")
     parser.add_argument("--data-train", type=str, default=None, help="Full classname of the training dataset (default: none).")
+    parser.add_argument("--data-validate", type=str, default=None, help="Full classname of the validation dataset (default: none, optional).")
     # Ratio estimator settings
     parser.add_argument("--estimator", type=str, default=None, help="Full classname of the ratio estimator (default: none).")
     # Learning rate scheduling (you can only allocate 1 learning rate scheduler, they will be allocated in the following order.)

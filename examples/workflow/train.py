@@ -114,7 +114,10 @@ def train(task):
 
     # Allocate the model and the optimizer
     random_variables = {"inputs": (1,), "outputs": (1,)}
-    RatioEstimator = build_mlp_estimator(random_variables)
+    denominator = "inputs|outputs"
+    RatioEstimator = build_mlp_estimator(
+        random_variables=random_variables,
+        denominator=denominator)
     r = RatioEstimator()  # Allocate the generated class
     r = r.to(h.accelerator)
     optimizer = torch.optim.Adam(r.parameters())
@@ -125,7 +128,7 @@ def train(task):
         dataset_test=dataset_test,
         dataset_train=dataset_train,
         conservativeness=0.0,  # Increase to make estimator more conservative
-        epochs=1,
+        epochs=10,
         estimator=r,
         optimizer=optimizer)
 

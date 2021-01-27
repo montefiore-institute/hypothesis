@@ -191,9 +191,10 @@ class ConservativeCriterion(BaseCriterion):
             for variable in group:
                 kwargs[variable] = kwargs[variable][random_indices]  # Make variable independent.
         y_independent, _ = self._estimator(**kwargs)
-        loss_dependent = self._criterion(y_dependent, self._ones)
-        loss_independent = self._criterion(y_independent, self._zeros)
-        loss = (1 - self._beta) * loss_dependent  + self._beta * loss_independent + loss_independent
+        loss_joint_1 = self._criterion(y_dependent, self._ones)
+        loss_marginals_1 = self._criterion(y_independent, self._ones)
+        loss_marginals_0 = self._criterion(y_independent, self._zeros)
+        loss = (1 - self._beta) * loss_joint_1 + self._beta * loss_marginals_1 + loss_marginals_0
 
         return loss
 
@@ -204,8 +205,9 @@ class ConservativeCriterion(BaseCriterion):
             for variable in group:
                 kwargs[variable] = kwargs[variable][random_indices]  # Make variable independent.
         y_independent = self._estimator.log_ratio(**kwargs)
-        loss_dependent = self._criterion(y_dependent, self._ones)
-        loss_independent = self._criterion(y_independent, self._zeros)
-        loss = (1 - self._beta) * loss_dependent  + self._beta * loss_independent + loss_independent
+        loss_joint_1 = self._criterion(y_dependent, self._ones)
+        loss_marginals_1 = self._criterion(y_independent, self._ones)
+        loss_marginals_0 = self._criterion(y_independent, self._zeros)
+        loss = (1 - self._beta) * loss_joint_1 + self._beta * loss_marginals_1 + loss_marginals_0
 
         return loss

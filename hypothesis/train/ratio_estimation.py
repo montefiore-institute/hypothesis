@@ -127,7 +127,9 @@ class RatioEstimatorTrainer(BaseTrainer):
         losses = []
         total_batches = len(loader)
         for index, sample_joint in enumerate(loader):
-            self.call_event(self.events.batch_train_start, batch_index=index)
+            self.call_event(self.events.batch_train_start,
+                            batch_index=index,
+                            total_batches=total_batches)
             self._optimizer.zero_grad()
             for k, v in sample_joint.items():
                 sample_joint[k] = v.to(self._accelerator, non_blocking=True)
@@ -152,7 +154,9 @@ class RatioEstimatorTrainer(BaseTrainer):
         losses = []
         total_batches = len(loader)
         for index, sample_joint in enumerate(loader):
-            self.call_event(self.events.batch_validate_start)
+            self.call_event(self.events.batch_validate_start,
+                            batch_index=index,
+                            total_batches=total_batches)
             for k, v in sample_joint.items():
                 sample_joint[k] = v.to(self._accelerator, non_blocking=True)
             loss = self._criterion(**sample_joint).item()
@@ -173,7 +177,9 @@ class RatioEstimatorTrainer(BaseTrainer):
         losses = []
         total_batches = len(loader)
         for index, sample_joint in enumerate(loader):
-            self.call_event(self.events.batch_test_start)
+            self.call_event(self.events.batch_test_start,
+                            batch_index=index,
+                            total_batches=total_batches)
             for k, v in sample_joint.items():
                 sample_joint[k] = v.to(self._accelerator, non_blocking=True)
             loss = self._criterion(**sample_joint).item()
