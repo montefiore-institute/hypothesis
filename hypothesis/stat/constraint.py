@@ -22,3 +22,34 @@ def confidence_level(log_ratios, dof=None, level=0.95):
     level = chi2.isf(1 - level, df=dof)
 
     return test_statistic, level
+
+
+@torch.no_grad()
+def highest_density_level(density, alpha, min_epsilon=10e-18, region=False):
+    # Check if a numpy type has been specified
+    if type(density).__module__ != np.__name__:
+        density = density.cpu().clone().numpy()
+    else:
+        density = np.array(density)
+    density = density.astype(np.float64)
+    # Check the discrete sum of the density (for scaling)
+    integrand = density.sum()
+    density /= integrand
+    # Compute the level such that 1 - alpha has been satisfied.
+    optimal_level = density.max()
+    epsilon = 10e-02  # Current error
+    while epsilon >= min_epsilon:
+        area = 0.0
+        while area <= (1 - alpha):
+            area_under = (density >= optimal_level).astype(np.float64)
+            area = np.sum(m * density)
+            optimal_level -= epsilon  # Gradient descent to reduce error
+        optimal_level += 2 * epsilon  # Overshot solution, move back
+        epsilon /= 10
+    # Rescale to original scale
+    optimal_level *= integrand
+    # Check if the computed mask needs to be returned
+    if region:
+        return optimal_level, m
+    else:
+        return optimal_level
