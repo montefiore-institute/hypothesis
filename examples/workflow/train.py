@@ -116,7 +116,7 @@ def train(task):
         optimizer=optimizer)
 
     # Append the hooks to the trainer
-    trainer.add_event_handler(trainer.events.epoch_complete, epoch_handler)
+    trainer.add_event_handler(trainer.events.epoch_start, epoch_handler)
     trainer.add_event_handler(trainer.events.batch_train_complete, batch_handler)
 
     # Run the training procedure
