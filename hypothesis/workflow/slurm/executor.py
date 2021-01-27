@@ -18,6 +18,8 @@ def execute(context=None,
         directory = tempfile.mkdtemp()
     if not os.path.exists(directory):
         os.makedirs(directory)
+    # Get the absolute path
+    directory = os.path.abspath(directory)
     os.chdir(directory)
     tasks_directory = directory + "/tasks"
     if not os.path.exists(tasks_directory):
