@@ -104,9 +104,14 @@ def executable_name(node):
 
 
 def add_default_environment(context, environment=None):
+    if environment is None and "CONDA_DEFAULT_ENV" in os.environ:
+        # Grab the anaconda environment defined through the terminal
+        environment = os.environ["CONDA_DEFAULT_ENV"]
+    # Set the environment on all compute nodes
     if environment is not None:
         for node in context.nodes:
             node["conda"] = environment
+
 
 
 def add_partition(context, partition=None):
