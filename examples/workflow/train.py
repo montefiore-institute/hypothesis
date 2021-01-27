@@ -75,7 +75,7 @@ def batch_handler(trainer, batch_index, loss, **kwargs):
 
 @w.dependency(simulate_train)
 @w.dependency(simulate_test)
-@w.tasks(10)
+@w.tasks(2)
 @w.slurm.name("TRAIN")
 @w.slurm.cpu_and_memory(6, "4G")
 @w.slurm.timelimit("00:10:00")
