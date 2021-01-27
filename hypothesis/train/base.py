@@ -28,7 +28,7 @@ class BaseTrainer(Procedure):
         self._epochs = epochs
         self._losses_test = []
         self._losses_train = []
-        self._losses_validates = []
+        self._losses_validate = []
         self._pin_memory = pin_memory
         self._shuffle = shuffle
         self._workers = workers
