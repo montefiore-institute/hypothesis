@@ -77,11 +77,14 @@ class RatioEstimatorTrainer(BaseTrainer):
     def optimizer(self):
         return self._optimizer
 
-    @torch.no_grad()
     @property
     def estimator(self):
         self._estimator.eval()
         return self._estimator
+
+    @property
+    def state_dict():
+        return self.estimator.cpu().state_dict()
 
     @property
     def best_state_dict(self):

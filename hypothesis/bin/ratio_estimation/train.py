@@ -62,7 +62,7 @@ def main(arguments):
             np.save(arguments.out + "/losses-train.npy", trainer.losses_train)
         # Save the state dict of the best ratio estimator
         torch.save(trainer.best_state_dict, arguments.out + "/weights.th")
-        torch.save(trainer.estimator.state_dict().cpu(), arguments.out + "/weights-final.th")
+        torch.save(trainer.state_dict, arguments.out + "/weights-final.th")
 
 
 def load_dataset_test(arguments):
