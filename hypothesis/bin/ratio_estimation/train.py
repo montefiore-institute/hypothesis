@@ -56,12 +56,13 @@ def main(arguments):
         # Save the associated losses.
         if len(trainer.losses_test) > 0:
             np.save(arguments.out + "/losses-test.npy", trainer.losses_test)
-        if len(trainer.losses_validation) > 0:
-            np.save(arguments.out + "/losses-validation.npy", trainer.losses_validation)
+        if len(trainer.losses_validate) > 0:
+            np.save(arguments.out + "/losses-validation.npy", trainer.losses_validate)
         if len(trainer.losses_train) > 0:
             np.save(arguments.out + "/losses-train.npy", trainer.losses_train)
         # Save the state dict of the best ratio estimator
         torch.save(trainer.best_state_dict, arguments.out + "/weights.th")
+        torch.save(trainer.estimator.state_dict().cpu(), arguments.out + "/weights-final.th")
 
 
 def load_dataset_test(arguments):
@@ -119,6 +120,8 @@ def add_hooks(arguments, trainer):
     add_hooks_display(arguments, trainer)
     # Add the learning rate scheduling hooks
     add_hooks_lr_scheduling(arguments, trainer)
+    # Add coverage hook
+    add_coverage_hook(arguments, trainer)
 
 
 @torch.no_grad()
@@ -202,7 +205,6 @@ def add_hooks_lr_scheduling_on_plateau(arguments, trainer):
 
 
 def add_hooks_lr_scheduling_cyclic(arguments, trainer):
-    print("Using cyclic learning rate!")
     scheduler = torch.optim.lr_scheduler.CyclicLR(trainer.optimizer,
         cycle_momentum=False,
         base_lr=arguments.lrsched_cyclic_base_lr,
@@ -210,6 +212,11 @@ def add_hooks_lr_scheduling_cyclic(arguments, trainer):
     def schedule(trainer, **kwargs):
         scheduler.step()
     trainer.add_event_handler(trainer.events.batch_train_complete, schedule)
+
+
+def add_coverage_hook(arguments, trainer):
+    if arguments.coverage_every > 0:
+        raise NotImplementedError
 
 
 def load_class(full_classname):
@@ -238,6 +245,8 @@ def parse_arguments():
     parser.add_argument("--lr", type=float, default=0.001, help="Learning rate (default: 0.001).")
     parser.add_argument("--weight-decay", type=float, default=0.0, help="Weight decay (default: 0.0).")
     parser.add_argument("--workers", type=int, default=4, help="Number of concurrent data loaders (default: 4).")
+    # Testing settings
+    parser.add_argument("--coverage-every", type=int, default=0, help="Do a coverage at 95% CR every 'n' epochs. Requires a test dataset to be specified (default: 0).")
     # Data settings
     parser.add_argument("--data-test", type=str, default=None, help="Full classname of the testing dataset (default: none, optional).")
     parser.add_argument("--data-train", type=str, default=None, help="Full classname of the training dataset (default: none).")
@@ -248,7 +257,7 @@ def parse_arguments():
     ## Learning rate scheduling on a plateau
     parser.add_argument("--lrsched-on-plateau", action="store_true", help="Enables learning rate scheduling whenever a plateau has been detected (default: false).")
     ## Cyclic learning rate scheduling
-    parser.add_argument("--lrsched-cyclic", action="store_true", default=True, help="Enables cyclic learning rate scheduling (default: true).")
+    parser.add_argument("--lrsched-cyclic", action="store_true", help="Enables cyclic learning rate scheduling. Requires a test dataset to be specified (default: true).")
     parser.add_argument("--lrsched-cyclic-base-lr", type=float, default=None, help="Base learning rate of the scheduler (default: --lr / 10).")
     parser.add_argument("--lrsched-cyclic-max-lr", type=float, default=None, help="Maximum learning rate of the scheduler (default: --lr).")
     # Parse the supplied arguments
