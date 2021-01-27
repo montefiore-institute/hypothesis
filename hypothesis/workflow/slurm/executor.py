@@ -58,14 +58,14 @@ def execute(context=None,
     # Generate the main tasks and their dependencies
     job_id_line = "echo \""
     for task_index, task in enumerate(tasks):
-        task_indices[task] = task_index
+        task_indices[id(task)] = task_index
         variable = "t" + str(task_index)
         line = variable + "=$(sbatch "
         # Check if the task has dependencies
         if len(task.dependencies) > 0:
             flag = "--dependency=afterok"
             for dependency in task.dependencies:
-                dependency_index = task_indices[dependency]
+                dependency_index = task_indices[id(dependency)]
                 flag += ":$t" + str(dependency_index)
             line += flag + " "
         line += directory + "/tasks/" + task_filename(task) + ")"
