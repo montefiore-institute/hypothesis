@@ -76,7 +76,7 @@ def batch_handler(trainer, batch_index, loss, **kwargs):
 @w.tasks(10)
 @w.slurm.name("TRAIN")
 @w.slurm.cpu_and_memory(6, "4G")
-@w.slurm.timelimit("24:00:00")
+@w.slurm.timelimit("00:10:00")
 @w.slurm.gpu(1)
 def train(task):
     logging.info("Executing training task " + str(task))
