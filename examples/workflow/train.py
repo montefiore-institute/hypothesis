@@ -12,8 +12,18 @@ from hypothesis.util.data import NumpyDataset
 
 
 @w.root
+@w.slurm.name("JOBINIT :)")
 def initialize():
     logging.info("Starting the simulation-based inference workflow!")
+    # Create the data directories
+    if not os.path.exists("data"):
+        os.mkdir("data")
+    if not os.path.exists("data/train"):
+        os.mkdir("data/train")
+    if not os.path.exists("data"):
+        os.mkdir("data")
+    if not os.path.exists("data/test"):
+        os.mkdir("data/test")
 
 
 @w.dependency(initialize)
@@ -23,10 +33,6 @@ def initialize():
 @w.slurm.cpu_and_memory(1, "256M")
 @w.slurm.timelimit("00:10:00")
 def simulate_train():
-    if not os.path.exists("data"):
-        os.mkdir("data")
-    if not os.path.exists("data/train"):
-        os.mkdir("data/train")
     n = 100000
     inputs = np.random.uniform(-15, 15, n)
     outputs = np.random.random(n) + inputs
@@ -45,10 +51,6 @@ def simulate_train():
 @w.slurm.cpu_and_memory(1, "256M")
 @w.slurm.timelimit("00:10:00")
 def simulate_test():
-    if not os.path.exists("data"):
-        os.mkdir("data")
-    if not os.path.exists("data/test"):
-        os.mkdir("data/test")
     n = 10000
     inputs = np.random.uniform(-15, 15, n)
     outputs = np.random.random(n) + inputs
