@@ -111,7 +111,7 @@ def train(task):
         batch_size=128,
         dataset_test=dataset_test,
         dataset_train=dataset_train,
-        epochs=5,
+        epochs=2,
         estimator=r,
         optimizer=optimizer)
 

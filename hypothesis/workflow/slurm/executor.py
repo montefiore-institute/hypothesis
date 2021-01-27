@@ -51,7 +51,7 @@ def execute(context=None,
     lines.append("#")
     lines.append("mkdir -p " + directory + "/logging")
     # Retrieve the tasks in BFS order
-    tasks = list(context.bfs())
+    tasks = context.program()
     task_indices = {}
     # Generate the main tasks and their dependencies
     job_id_line = "echo \""

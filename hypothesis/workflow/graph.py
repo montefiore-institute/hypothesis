@@ -47,6 +47,21 @@ class WorkflowGraph:
 
         return leafs
 
+    def program(self):
+        # Determine the order of execution
+        execution_order = {}
+        bfs_order = self.bfs()
+        current_priority = 0
+        for priority, node in enumerate(bfs_order):
+            execution_order[id(node.f)] = node, priority
+        # Sort subroutines by priority
+        program = []
+        for instruction_with_priority in sorted(execution_order.items(), key=lambda item: item[1][1]):
+            subroutine = instruction_with_priority[1][0]
+            program.append(subroutine)  # Fetch the instruction
+
+        return program
+
     def bfs(self):
         queue = Queue()
         queue.put(self.root)
