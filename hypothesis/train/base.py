@@ -1,4 +1,5 @@
 import hypothesis as h
+import numpy as np
 
 from hypothesis.engine import Procedure
 from torch.utils.data import DataLoader
@@ -24,6 +25,9 @@ class BaseTrainer(Procedure):
         self._dataset_train = dataset_train
         self._dataset_validate = dataset_validate
         self._epochs = epochs
+        self._losses_test = []
+        self._losses_train = []
+        self._losses_validates = []
         self._shuffle = shuffle
         self._workers = workers
 
@@ -42,6 +46,9 @@ class BaseTrainer(Procedure):
         self.register_event("train_start")
         self.register_event("validate_complete")
         self.register_event("validate_start")
+        self.register_event("new_best_train")
+        self.register_event("new_best_validate")
+        self.register_event("new_best_test")
 
     def fit(self):
         for epoch in range(1, self._epochs + 1, 1):
@@ -50,17 +57,26 @@ class BaseTrainer(Procedure):
             # Training procedure
             if self._dataset_train is not None:
                 self.call_event(self.events.train_start)
-                self.train()
+                loss = self.train()
+                if len(self._losses_train) == 0 or loss < np.min(self._losses_train):
+                    self.call_event(self.events.new_best_train, loss=loss)
+                self._losses_train.append(loss)
                 self.call_event(self.events.train_complete)
             # Validation procedure
             if self._dataset_validate is not None:
                 self.call_event(self.events.validate_start)
-                self.validate()
+                loss = self.validate()
+                if len(self._losses_validate) == 0 or loss < np.min(self._losses_validate):
+                    self.call_event(self.events.new_best_validate, loss=loss)
+                self._losses_validate.append(loss)
                 self.call_event(self.events.validate_complete)
             # Testing procedure
             if self._dataset_test is not None:
                 self.call_event(self.events.test_start)
-                self.test()
+                loss = self.test()
+                if len(self._losses_test) == 0 or loss < np.min(self._losses_test):
+                    self.call_event(self.events.new_best_test, loss=loss)
+                self._losses_test.append(loss)
                 self.call_event(self.events.test_complete)
             self.call_event(self.events.epoch_complete, epoch=epoch)
 
@@ -97,3 +113,19 @@ class BaseTrainer(Procedure):
             drop_last=True,
             num_workers=self._workers,
             shuffle=self._shuffle)
+
+    @property
+    def losses_test(self):
+        return np.array(self._losses_test)
+
+    @property
+    def losses_train(self):
+        return np.array(self._losses_train)
+
+    @property
+    def losses_validate(self):
+        return np.array(self._losses_validate)
+
+    @property
+    def current_epoch(self):
+        return self._current_epoch

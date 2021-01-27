@@ -68,9 +68,22 @@ def epoch_handler(trainer, epoch, **kwargs):
 
 
 @torch.no_grad()
-def batch_handler(trainer, batch_index, loss, **kwargs):
-    if batch_index % 100 == 0:
-        logging.error(" - Current loss: " + str(loss.item()))
+def batch_handler(trainer, batch_index, total_batches, loss, **kwargs):
+    if batch_index % 100 == 0 or batch_index + 1 == total_batches:
+        percentage = int((batch_index + 1) / total_batches * 100)
+        logging.error(" - Current loss (" + str(percentage) + "%): " + str(loss))
+
+
+@torch.no_grad()
+def show_new_best_train(trainer, loss, **kwargs):
+    epoch = str(trainer.current_epoch)
+    logging.warning("  => Wohoo, new best training loss! -> " + str(loss) + " (at epoch " + epoch + ")")
+
+
+@torch.no_grad()
+def show_new_best_test(trainer, loss, **kwargs):
+    epoch = str(trainer.current_epoch)
+    logging.warning("  => Wohoo, new best test loss!     -> " + str(loss) + " (at epoch " + epoch + ")")
 
 
 @w.dependency(simulate_train)
@@ -111,13 +124,15 @@ def train(task):
         batch_size=128,
         dataset_test=dataset_test,
         dataset_train=dataset_train,
-        epochs=2,
+        epochs=10,
         estimator=r,
         optimizer=optimizer)
 
     # Append the hooks to the trainer
     trainer.add_event_handler(trainer.events.epoch_start, epoch_handler)
     trainer.add_event_handler(trainer.events.batch_train_complete, batch_handler)
+    trainer.add_event_handler(trainer.events.new_best_train, show_new_best_train)
+    trainer.add_event_handler(trainer.events.new_best_test, show_new_best_test)
 
     # Run the training procedure
     trainer.fit()

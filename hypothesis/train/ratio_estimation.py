@@ -44,10 +44,6 @@ class RatioEstimatorTrainer(BaseTrainer):
         self._estimator = estimator
         self._optimizer = optimizer
         # Optimization monitoring
-        self._loss_best = np.log(4)  # Worst theoretical loss
-        self._losses_test = []
-        self._losses_train = []
-        self._losses_validates = []
         self._state_dict_best = None
         # Criterion properties
         self._criterion = Criterion(
@@ -59,10 +55,6 @@ class RatioEstimatorTrainer(BaseTrainer):
 
     def _register_events(self):
         super()._register_events()
-
-    @property
-    def current_epoch(self):
-        return self._current_epoch
 
     @torch.no_grad()
     @property
@@ -87,18 +79,6 @@ class RatioEstimatorTrainer(BaseTrainer):
         return state_dict
 
     @property
-    def losses_test(self):
-        return np.array(self._losses_test)
-
-    @property
-    def losses_train(self):
-        return np.array(self._losses_train)
-
-    @property
-    def losses_validate(self):
-        return np.array(self._losses_validate)
-
-    @property
     def conservativeness(self):
         return self._conservativeness
 
@@ -111,6 +91,8 @@ class RatioEstimatorTrainer(BaseTrainer):
         assert self._dataset_train is not None
         self._estimator.train()
         loader = self._allocate_train_loader()
+        losses = []
+        total_batches = len(loader)
         for index, sample_joint in enumerate(loader):
             self.call_event(self.events.batch_train_start, batch_index=index)
             self._optimizer.zero_grad()
@@ -119,28 +101,54 @@ class RatioEstimatorTrainer(BaseTrainer):
             loss = self._criterion(**sample_joint)
             loss.backward()
             self._optimizer.step()
-            self.call_event(self.events.batch_train_complete, batch_index=index, loss=loss)
+            loss = loss.item()
+            losses.append(loss)
+            self.call_event(self.events.batch_train_complete,
+                            batch_index=index,
+                            total_batches=total_batches,
+                            loss=loss)
+        expected_loss = np.mean(losses)
+
+        return expected_loss
 
     @torch.no_grad()
     def validate(self):
         assert self._dataset_validate is not None
         self._estimator.eval()
         loader = self._allocate_validate_loader()
+        losses = []
+        total_batches = len(loader)
         for index, sample_joint in enumerate(loader):
             self.call_event(self.events.batch_validate_start)
             for k, v in sample_joint.items():
                 sample_joint[k] = v.to(self._accelerator)
-            loss = self._criterion(**sample_joint)
-            self.call_event(self.events.batch_validate_complete)
+            loss = self._criterion(**sample_joint).item()
+            losses.append(loss)
+            self.call_event(self.events.batch_validate_complete,
+                            batch_index=index,
+                            total_batches=total_batches,
+                            loss=loss)
+        expected_loss = np.mean(losses)
+
+        return expected_loss
 
     @torch.no_grad()
     def test(self):
         assert self._dataset_test is not None
         self._estimator.eval()
         loader = self._allocate_test_loader()
+        losses = []
+        total_batches = len(loader)
         for index, sample_joint in enumerate(loader):
             self.call_event(self.events.batch_test_start)
             for k, v in sample_joint.items():
                 sample_joint[k] = v.to(self._accelerator)
-            loss = self._criterion(**sample_joint)
-            self.call_event(self.events.batch_test_complete)
+            loss = self._criterion(**sample_joint).item()
+            losses.append(loss)
+            self.call_event(self.events.batch_test_complete,
+                            batch_index=index,
+                            total_batches=total_batches,
+                            loss=loss)
+        expected_loss = np.mean(losses)
+
+        return expected_loss
