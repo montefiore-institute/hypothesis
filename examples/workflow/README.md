@@ -134,3 +134,9 @@ you@local:~ $ hypothesis workflow delete test
 In some cases you might like to generate a number of tasks or jobs based on a
 specified paramater to do, for instance, a parameter scan. We highlighted some
 strategies in `generate.py`.
+
+
+## Example: Simulation-Based Inference
+> Relevant to the workflow defined in `train.py`
+
+TODO
