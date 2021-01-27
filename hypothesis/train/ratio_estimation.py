@@ -75,6 +75,11 @@ class RatioEstimatorTrainer(BaseTrainer):
 
     @torch.no_grad()
     @property
+    def optimizer(self):
+        return self._optimizer
+
+    @torch.no_grad()
+    @property
     def estimator(self):
         self._estimator.eval()
         return self._estimator
