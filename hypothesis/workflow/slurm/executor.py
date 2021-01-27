@@ -1,4 +1,4 @@
-import dill as pickle
+import cloudpickle as pickle
 import hypothesis.workflow as w
 import logging
 import os

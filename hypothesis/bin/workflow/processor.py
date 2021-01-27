@@ -1,4 +1,4 @@
-import dill as pickle
+import cloudpickle as pickle
 import hypothesis
 import logging
 import sys
