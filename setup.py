@@ -8,9 +8,10 @@ with open('README.rst') as readme_file:
     readme = readme_file.read()
 
 requirements = [
+    'cloudpickle',
     'coloredlogs',
-    'dill',
-    'scipy']
+    'scipy',
+    'tqdm']
 
 setup_requirements = [
     'pytest-runner']
