@@ -12,7 +12,7 @@ from hypothesis.util.data import NumpyDataset
 
 
 @w.root
-@w.slurm.name("JOBINIT :)")
+@w.slurm.name("JOBINIT")
 def initialize():
     logging.info("Starting the simulation-based inference workflow!")
     # Create the data directories
