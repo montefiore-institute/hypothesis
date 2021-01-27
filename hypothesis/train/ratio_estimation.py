@@ -4,6 +4,7 @@ import torch
 
 from .base import BaseTrainer
 from hypothesis.nn.ratio_estimation import BaseCriterion as Criterion
+from hypothesis.util.data import NamedDataset
 
 
 
@@ -31,6 +32,13 @@ class RatioEstimatorTrainer(BaseTrainer):
             epochs=epochs,
             shuffle=shuffle,
             workers=workers)
+        # Verify the properties of the datasets
+        if dataset_train is not None and not isinstance(dataset_train, NamedDataset):
+            raise ValueError("The training dataset is not of the type `NamedDataset`.")
+        if dataset_validate is not None and not isinstance(dataset_train, NamedDataset):
+            raise ValueError("The validation dataset is not of the type `NamedDataset`.")
+        if dataset_test is not None and not isinstance(dataset_train, NamedDataset):
+            raise ValueError("The test dataset is not of the type `NamedDataset`.")
         # Basic trainer properties
         self._conservativeness = conservativeness
         self._estimator = estimator
@@ -51,6 +59,10 @@ class RatioEstimatorTrainer(BaseTrainer):
 
     def _register_events(self):
         super()._register_events()
+
+    @property
+    def current_epoch(self):
+        return self._current_epoch
 
     @torch.no_grad()
     @property
@@ -104,7 +116,6 @@ class RatioEstimatorTrainer(BaseTrainer):
             for k, v in sample_joint.items():
                 sample_joint[k] = v.to(self._accelerator)
             loss = self._criterion(**sample_joint)
-            print(loss)
             self.call_event(self.events.batch_train_complete)
 
     @torch.no_grad()
@@ -124,7 +135,7 @@ class RatioEstimatorTrainer(BaseTrainer):
         assert self._dataset_test is not None
         self._estimator.eval()
         loader = self._allocate_test_loader()
-        for index, sample_joint in enumerate(loader)
+        for index, sample_joint in enumerate(loader):
             self.call_event(self.events.batch_test_start)
             for k, v in sample_joint.items():
                 sample_joint[k] = v.to(self._accelerator)

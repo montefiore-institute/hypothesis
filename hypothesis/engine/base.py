@@ -2,7 +2,7 @@ from hypothesis.exception import NoEventRegistrationException
 from hypothesis.exception import NoSuchEventException
 
 
-class Event: pass
+class Events: pass
 
 
 class Procedure:
