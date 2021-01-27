@@ -54,6 +54,13 @@ class RatioEstimatorTrainer(BaseTrainer):
             logits=logits)
         # Move to the specified accelerator
         self._criterion = self._criterion.to(accelerator)
+        # Capture the best estimator
+        self.add_event_handler(self.events.new_best_test, self._save_best_estimator_weights)
+
+    @torch.no_grad()
+    def _save_best_estimator_weights(self, trainer, **kwargs):
+        self._estimator.eval()
+        self._state_dict_best = self._estimator.cpu().state_dict()
 
     def _register_events(self):
         super()._register_events()
@@ -61,12 +68,23 @@ class RatioEstimatorTrainer(BaseTrainer):
     @torch.no_grad()
     @property
     def estimator(self):
+        self._estimator.eval()
         return self._estimator
 
-    @torch.no_grad()
+    @property
+    def best_state_dict(self):
+        return self._state_dict_best
+
     @property
     def best_estimator(self):
-        raise NotImplementedError
+        if self._state_dict_best is not None:
+            self._estimator.eval()
+            estimator = self._estimator.cpu()
+            estimator.load_state_dict(self._state_dict_best)
+        else:
+            estimator = None
+
+        return estimator
 
     @torch.no_grad()
     def _estimator_cpu_state_dict(self):

@@ -124,7 +124,7 @@ def train(task):
         batch_size=128,
         dataset_test=dataset_test,
         dataset_train=dataset_train,
-        epochs=10,
+        epochs=1,
         estimator=r,
         optimizer=optimizer)
 
@@ -136,3 +136,10 @@ def train(task):
 
     # Run the training procedure
     trainer.fit()
+
+    # Save the best model!
+    path = "weights-" + str(task) + ".th"
+    # First option (this will be on CPU)
+    torch.save(trainer.best_estimator.state_dict(), path)
+    # Second option (state dict will be on CPU)
+    torch.save(trainer.best_state_dict, path)
