@@ -28,7 +28,7 @@ def name(f, name):
 @w.parameterized
 def timelimit(f, time):
     node = w.add_and_get_node(f)
-    node["--time"] == str(time)
+    node["--time"] = str(time)
 
     return f
 

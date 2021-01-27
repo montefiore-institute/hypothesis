@@ -27,7 +27,7 @@ def build_ratio_estimator(random_variables, denominator="inputs|outputs", **kwar
                 transform_output=None)
 
         def log_ratio(self, **kwargs):
-            z = torch.cat([kwargs[k] for k in rv_identifiers], dim=1)  # Assume shapes are correct
+            z = torch.cat([kwargs[k].view(-1, *random_variables[k]) for k in rv_identifiers], dim=1)  # Assume shapes are correct
 
             return self._mlp(z)
 

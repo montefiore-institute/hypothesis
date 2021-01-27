@@ -112,11 +112,14 @@ class RatioEstimatorTrainer(BaseTrainer):
         self._estimator.train()
         loader = self._allocate_train_loader()
         for index, sample_joint in enumerate(loader):
-            self.call_event(self.events.batch_train_start)
+            self.call_event(self.events.batch_train_start, batch_index=index)
+            self._optimizer.zero_grad()
             for k, v in sample_joint.items():
                 sample_joint[k] = v.to(self._accelerator)
             loss = self._criterion(**sample_joint)
-            self.call_event(self.events.batch_train_complete)
+            loss.backward()
+            self._optimizer.step()
+            self.call_event(self.events.batch_train_complete, batch_index=index, loss=loss)
 
     @torch.no_grad()
     def validate(self):

@@ -44,9 +44,9 @@ class BaseTrainer(Procedure):
         self.register_event("validate_start")
 
     def fit(self):
-        for epoch in range(self._epochs):
+        for epoch in range(1, self._epochs + 1, 1):
             self._current_epoch = epoch
-            self.call_event(self.events.epoch_start)
+            self.call_event(self.events.epoch_start, epoch=epoch)
             # Training procedure
             if self._dataset_train is not None:
                 self.call_event(self.events.train_start)
@@ -62,7 +62,7 @@ class BaseTrainer(Procedure):
                 self.call_event(self.events.test_start)
                 self.test()
                 self.call_event(self.events.test_complete)
-            self.call_event(self.events.epoch_complete)
+            self.call_event(self.events.epoch_complete, epoch=epoch)
 
     def train(self):
         raise NotImplementedError
