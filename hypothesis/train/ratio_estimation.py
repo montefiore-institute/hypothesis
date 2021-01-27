@@ -83,7 +83,7 @@ class RatioEstimatorTrainer(BaseTrainer):
         return self._estimator
 
     @property
-    def state_dict():
+    def state_dict(self):
         return self.estimator.cpu().state_dict()
 
     @property
