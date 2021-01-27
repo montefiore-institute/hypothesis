@@ -111,6 +111,7 @@ class WorkflowGraph:
                 self.root.remove_child(b)
             for c in node.children:
                 self.root.add_child(c)
+                c.remove_parent(node)
         else:
             for p in node.parents:
                 self._prune_node(p)
@@ -216,12 +217,11 @@ class WorkflowNode:
         self._parents = list(set(self._parents))
 
     def remove_parent(self, node):
-        try:
+        if node in self._parents:
             index = self._parents.index(node)
             del self._parents[index]
+        if self in node.children:
             node.remove_child(self)
-        except:
-            pass
 
     def add_child(self, node):
         assert node is not None
@@ -231,12 +231,11 @@ class WorkflowNode:
         node._parents = list(set(node._parents))
 
     def remove_child(self, node):
-        try:
+        if node in self._children:
             index = self._children.index(node)
             del self._children[index]
+        if self in node.parents:
             node.remove_parent(self)
-        except:
-            pass
 
     @property
     def dependencies(self):

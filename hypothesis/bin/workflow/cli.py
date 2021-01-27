@@ -118,7 +118,7 @@ def assert_slurm_detected():
 
 
 def execute_slurm(arguments):
-    assert_slurm_detected()
+    # assert_slurm_detected()
     context = w.context
     context.prune()
     if context.root is not None:
