@@ -13,6 +13,15 @@ def execute(context=None,
             partition=None,
             store=None,
             cleanup=False):
+    # Create the generation directory
+    if directory is None:
+        directory = tempfile.mkdtemp()
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    os.chdir(directory)
+    tasks_directory = directory + "/tasks"
+    if not os.path.exists(tasks_directory):
+        os.makedirs(tasks_directory)
     # Check if a custom context has been specified
     if context is None:
         context = w.context
@@ -28,14 +37,6 @@ def execute(context=None,
     add_partition(context, partition=partition)
     # Set the default anaconda environment
     add_default_environment(context, environment=environment)
-    # Create the generation directory
-    if directory is None:
-        directory = tempfile.mkdtemp()
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-    tasks_directory = directory + "/tasks"
-    if not os.path.exists(tasks_directory):
-        os.makedirs(tasks_directory)
     # Generate the executables for the processor
     generate_executables(context, directory)
     # Generate the task files
