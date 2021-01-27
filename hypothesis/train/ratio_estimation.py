@@ -73,7 +73,6 @@ class RatioEstimatorTrainer(BaseTrainer):
     def _register_events(self):
         super()._register_events()
 
-    @torch.no_grad()
     @property
     def optimizer(self):
         return self._optimizer

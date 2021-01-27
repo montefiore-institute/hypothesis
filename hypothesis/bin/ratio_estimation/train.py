@@ -51,7 +51,17 @@ def main(arguments):
     add_hooks(arguments, trainer)
     # Start the optimization procedure
     trainer.fit()
-    # TODO Save results.
+    # Save the generated results.
+    if os.path.isdir(arguments.out):
+        # Save the associated losses.
+        if len(trainer.losses_test) > 0:
+            np.save(arguments.out + "/losses-test.npy", trainer.losses_test)
+        if len(trainer.losses_validation) > 0:
+            np.save(arguments.out + "/losses-validation.npy", trainer.losses_validation)
+        if len(trainer.losses_train) > 0:
+            np.save(arguments.out + "/losses-train.npy", trainer.losses_train)
+        # Save the state dict of the best ratio estimator
+        torch.save(trainer.best_state_dict, arguments.out + "/weights.th")
 
 
 def load_dataset_test(arguments):
@@ -183,14 +193,18 @@ def add_hooks_lr_scheduling(arguments, trainer):
 
 
 def add_hooks_lr_scheduling_on_plateau(arguments, trainer):
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(trainer.optimizer)
-    def schedule(trainer, **kwargs):
-        scheduler.step()
-    trainer.add_event_handler(trainer.events.epoch_complete, schedule)
+    # Check if a test set is available, as the scheduler required a metric.
+    if arguments.data_test is not None:
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(trainer.optimizer)
+        def schedule(trainer, **kwargs):
+            scheduler.step(trainer.losses_test[-1])
+        trainer.add_event_handler(trainer.events.epoch_complete, schedule)
 
 
 def add_hooks_lr_scheduling_cyclic(arguments, trainer):
+    print("Using cyclic learning rate!")
     scheduler = torch.optim.lr_scheduler.CyclicLR(trainer.optimizer,
+        cycle_momentum=False,
         base_lr=arguments.lrsched_cyclic_base_lr,
         max_lr=arguments.lrsched_cyclic_max_lr)
     def schedule(trainer, **kwargs):
@@ -234,7 +248,7 @@ def parse_arguments():
     ## Learning rate scheduling on a plateau
     parser.add_argument("--lrsched-on-plateau", action="store_true", help="Enables learning rate scheduling whenever a plateau has been detected (default: false).")
     ## Cyclic learning rate scheduling
-    parser.add_argument("--lrsched-cyclic", action="store_true", help="Enables cyclic learning rate scheduling")
+    parser.add_argument("--lrsched-cyclic", action="store_true", default=True, help="Enables cyclic learning rate scheduling (default: true).")
     parser.add_argument("--lrsched-cyclic-base-lr", type=float, default=None, help="Base learning rate of the scheduler (default: --lr / 10).")
     parser.add_argument("--lrsched-cyclic-max-lr", type=float, default=None, help="Maximum learning rate of the scheduler (default: --lr).")
     # Parse the supplied arguments
