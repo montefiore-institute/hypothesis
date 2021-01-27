@@ -154,3 +154,58 @@ class BaseCriterion(torch.nn.Module):
             groups[index] = groups[index].split(h.default.dependent_delimiter)
 
         return groups
+
+
+class ConservativeCriterion(BaseCriterion):
+
+    def __init__(self,
+        estimator,
+        conservativeness=0.05,
+        batch_size=h.default.batch_size,
+        logits=False):
+        super(ConservativeCriterion, self).__init__(
+            estimator=estimator,
+            batch_size=batch_size,
+            logits=logits)
+        if logits:
+            self._criterion = torch.nn.BCEWithLogitsLoss()
+            self._forward = self._forward_with_logits
+        else:
+            self._criterion = torch.nn.BCELoss()
+            self._forward = self._forward_without_logits
+        self.conservativeness = conservativeness
+
+    @property
+    def conservativeness(self):
+        return self._beta
+
+    @conservativeness.setter
+    def conservativeness(self, value):
+        assert value >= 0.0 and value <= 1.0
+        self._beta = value
+
+    def _forward_without_logits(self, **kwargs):
+        y_dependent, _ = self._estimator(**kwargs)
+        for group in self._independent_random_variables:
+            random_indices = torch.randperm(self._batch_size)
+            for variable in group:
+                kwargs[variable] = kwargs[variable][random_indices]  # Make variable independent.
+        y_independent, _ = self._estimator(**kwargs)
+        loss_dependent = self._criterion(y_dependent, self._ones)
+        loss_independent = self._criterion(y_independent, self._zeros)
+        loss = (1 - self._beta) * loss_dependent  + self._beta * loss_independent + loss_independent
+
+        return loss
+
+    def _forward_with_logits(self, **kwargs):
+        y_dependent = self._estimator.log_ratio(**kwargs)
+        for group in self._independent_random_variables:
+            random_indices = torch.randperm(self.batch_size)
+            for variable in group:
+                kwargs[variable] = kwargs[variable][random_indices]  # Make variable independent.
+        y_independent = self._estimator.log_ratio(**kwargs)
+        loss_dependent = self._criterion(y_dependent, self._ones)
+        loss_independent = self._criterion(y_independent, self._zeros)
+        loss = (1 - self._beta) * loss_dependent  + self._beta * loss_independent + loss_independent
+
+        return loss

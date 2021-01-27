@@ -124,6 +124,7 @@ def train(task):
         batch_size=128,
         dataset_test=dataset_test,
         dataset_train=dataset_train,
+        conservativeness=0.0,  # Increase to make estimator more conservative
         epochs=1,
         estimator=r,
         optimizer=optimizer)

@@ -4,6 +4,7 @@ import torch
 
 from .base import BaseTrainer
 from hypothesis.nn.ratio_estimation import BaseCriterion as Criterion
+from hypothesis.nn.ratio_estimation import ConservativeCriterion
 from hypothesis.util.data import NamedDataset
 
 
@@ -48,10 +49,17 @@ class RatioEstimatorTrainer(BaseTrainer):
         # Optimization monitoring
         self._state_dict_best = None
         # Criterion properties
-        self._criterion = Criterion(
-            estimator=estimator,
-            batch_size=batch_size,
-            logits=logits)
+        if conservativeness > 0.0:
+            self._criterion = ConservativeCriterion(
+                batch_size=batch_size,
+                conservativeness=conservativeness,
+                estimator=estimator,
+                logits=logits)
+        else:
+            self._criterion = Criterion(
+                batch_size=batch_size,
+                estimator=estimator,
+                logits=logits)
         # Move to the specified accelerator
         self._criterion = self._criterion.to(accelerator)
         # Capture the best estimator
