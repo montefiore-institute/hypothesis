@@ -21,6 +21,7 @@ class RatioEstimatorTrainer(BaseTrainer):
         dataset_validate=None,
         epochs=h.default.epochs,
         logits=False,
+        pin_memory=True,
         shuffle=True,
         workers=h.default.dataloader_workers):
         super(RatioEstimatorTrainer, self).__init__(
@@ -30,6 +31,7 @@ class RatioEstimatorTrainer(BaseTrainer):
             dataset_train=dataset_train,
             dataset_validate=dataset_validate,
             epochs=epochs,
+            pin_memory=pin_memory,
             shuffle=shuffle,
             workers=workers)
         # Verify the properties of the datasets
@@ -97,7 +99,7 @@ class RatioEstimatorTrainer(BaseTrainer):
             self.call_event(self.events.batch_train_start, batch_index=index)
             self._optimizer.zero_grad()
             for k, v in sample_joint.items():
-                sample_joint[k] = v.to(self._accelerator)
+                sample_joint[k] = v.to(self._accelerator, non_blocking=True)
             loss = self._criterion(**sample_joint)
             loss.backward()
             self._optimizer.step()
@@ -121,7 +123,7 @@ class RatioEstimatorTrainer(BaseTrainer):
         for index, sample_joint in enumerate(loader):
             self.call_event(self.events.batch_validate_start)
             for k, v in sample_joint.items():
-                sample_joint[k] = v.to(self._accelerator)
+                sample_joint[k] = v.to(self._accelerator, non_blocking=True)
             loss = self._criterion(**sample_joint).item()
             losses.append(loss)
             self.call_event(self.events.batch_validate_complete,
@@ -142,7 +144,7 @@ class RatioEstimatorTrainer(BaseTrainer):
         for index, sample_joint in enumerate(loader):
             self.call_event(self.events.batch_test_start)
             for k, v in sample_joint.items():
-                sample_joint[k] = v.to(self._accelerator)
+                sample_joint[k] = v.to(self._accelerator, non_blocking=True)
             loss = self._criterion(**sample_joint).item()
             losses.append(loss)
             self.call_event(self.events.batch_test_complete,

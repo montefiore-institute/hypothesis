@@ -15,6 +15,7 @@ class BaseTrainer(Procedure):
         dataset_validate=None,
         dataset_train=None,
         epochs=h.default.epochs,
+        pin_memory=True,
         shuffle=True,
         workers=h.default.dataloader_workers):
         super(BaseTrainer, self).__init__()
@@ -28,6 +29,7 @@ class BaseTrainer(Procedure):
         self._losses_test = []
         self._losses_train = []
         self._losses_validates = []
+        self._pin_memory = pin_memory
         self._shuffle = shuffle
         self._workers = workers
 
@@ -112,6 +114,7 @@ class BaseTrainer(Procedure):
             batch_size=self._batch_size,
             drop_last=True,
             num_workers=self._workers,
+            pin_memory=self._pin_memory,
             shuffle=self._shuffle)
 
     @property
