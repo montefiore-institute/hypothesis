@@ -28,8 +28,12 @@ class BaseTrainer(Procedure):
         self._workers = workers
 
     def _register_events(self):
-        self.register_event("batch_complete")
-        self.register_event("batch_start")
+        self.register_event("batch_train_complete")
+        self.register_event("batch_train_start")
+        self.register_event("batch_validate_complete")
+        self.register_event("batch_validate_start")
+        self.register_event("batch_test_complete")
+        self.register_event("batch_test_start")
         self.register_event("epoch_complete")
         self.register_event("epoch_start")
         self.register_event("test_complete")
