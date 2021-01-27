@@ -5,7 +5,6 @@ import sys
 
 
 def main():
-    pickle.settings['recurse'] = True
     with open(sys.argv[1], "rb") as f:
         function = pickle.load(f)
     if len(sys.argv) > 2:

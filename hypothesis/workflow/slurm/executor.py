@@ -22,7 +22,6 @@ def execute(context=None,
     if context.root is None:
         logging.critical("Postconditions of computational graph are met. Nothing to do.")
         sys.exit(0)  # Nothing to do
-    # pickle.settings['recurse'] = True  # Handle dependencies
     # Add default Slurm attributes to the nodes
     add_default_attributes(context, directory=directory)
     # Set the compute partition of the tasks.
