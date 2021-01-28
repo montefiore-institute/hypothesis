@@ -34,25 +34,28 @@ class BaseTrainer(Procedure):
         self._workers = workers
 
     def _register_events(self):
+        self.register_event("batch_test_complete")
+        self.register_event("batch_test_start")
         self.register_event("batch_train_complete")
         self.register_event("batch_train_start")
         self.register_event("batch_validate_complete")
         self.register_event("batch_validate_start")
-        self.register_event("batch_test_complete")
-        self.register_event("batch_test_start")
         self.register_event("epoch_complete")
         self.register_event("epoch_start")
+        self.register_event("fit_complete")
+        self.register_event("fit_start")
+        self.register_event("new_best_test")
+        self.register_event("new_best_train")
+        self.register_event("new_best_validate")
         self.register_event("test_complete")
         self.register_event("test_start")
         self.register_event("train_complete")
         self.register_event("train_start")
         self.register_event("validate_complete")
         self.register_event("validate_start")
-        self.register_event("new_best_train")
-        self.register_event("new_best_validate")
-        self.register_event("new_best_test")
 
     def fit(self):
+        self.call_event(self.events.fit_start)
         for epoch in range(1, self._epochs + 1, 1):
             self._current_epoch = epoch
             self.call_event(self.events.epoch_start, epoch=epoch)
@@ -81,6 +84,7 @@ class BaseTrainer(Procedure):
                 self._losses_test.append(loss)
                 self.call_event(self.events.test_complete)
             self.call_event(self.events.epoch_complete, epoch=epoch)
+        self.call_event(self.events.fit_complete)
 
     def train(self):
         raise NotImplementedError

@@ -3,6 +3,7 @@ import numpy as np
 import torch
 
 from hypothesis.nn.ratio_estimation import build_mlp_estimator
+from hypothesis.stat import highest_density_level
 from hypothesis.util.data import NamedDataset
 from torch.utils.data import TensorDataset
 
@@ -14,17 +15,63 @@ random_variables = {
 denominator = "inputs|outputs"
 
 
-RatioEstimator = build_mlp_estimator(
+BaseRatioEstimator = build_mlp_estimator(
     random_variables=random_variables,
     denominator=denominator)
+
+
+class RatioEstimator(BaseRatioEstimator):
+
+    def __init__(self):
+        super(RatioEstimator, self).__init__(activation=torch.nn.SELU)
+
+
+def Prior():
+    return torch.distributions.uniform.Uniform(-5, 5)
+
+
+prior = Prior()
+extent = torch.linspace(-5, 5, 1000)
+
+
+@torch.no_grad()
+def compute_log_posterior(estimator, observable):
+    observables = observable.repeat(1000, 1)
+    log_posterior = log_pdf(estimator, extent, observables)
+
+    return log_posterior
+
+
+@torch.no_grad()
+def log_pdf(estimator, inputs, outputs):
+    inputs = inputs.view(-1, 1)
+    outputs = outputs.view(-1, 1)
+    assert inputs.shape[0] == outputs.shape[0]
+    log_prior = prior.log_prob(inputs)
+    log_mi = estimator.log_ratio(inputs=inputs, outputs=outputs)
+    log_posterior = log_prior + log_mi
+
+    return log_posterior
+
+
+@torch.no_grad()
+def compute_coverage(estimator, sample_joint, alpha=0.05):
+    truth = sample_joint["inputs"]
+    observable = sample_joint["outputs"]
+    posterior = compute_log_posterior(estimator, observable).exp()
+    hdl = highest_density_level(posterior, alpha=alpha)
+    density_truth = log_pdf(estimator, truth, observable).exp().item()
+
+    return int(density_truth >= hdl)
 
 
 class Dataset(NamedDataset):
 
     def __init__(self, n):
         # Simulate
-        x = np.random.uniform(-15, 15, n)
-        y = np.random.random(n) + x
+        prior = Prior()
+        x = prior.sample((n,)).view(-1, 1).numpy()
+        y = np.random.random(n).reshape(-1, 1) + x
         x = x.reshape(-1, 1)
         y = y.reshape(-1, 1)
         # Create datasets
@@ -38,10 +85,10 @@ class Dataset(NamedDataset):
 class DatasetTrain(Dataset):
 
     def __init__(self):
-        super(DatasetTrain, self).__init__(100000)
+        super(DatasetTrain, self).__init__(1000000)
 
 
 class DatasetTest(Dataset):
 
     def __init__(self):
-        super(DatasetTest, self).__init__(100000)
+        super(DatasetTest, self).__init__(2000)

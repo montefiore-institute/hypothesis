@@ -19,8 +19,8 @@ from tqdm import tqdm
 
 
 # Globals
-p_top = None
 p_bottom = None
+p_top = None
 
 
 def main(arguments):
@@ -63,6 +63,10 @@ def main(arguments):
         # Save the state dict of the best ratio estimator
         torch.save(trainer.best_state_dict, arguments.out + "/weights.th")
         torch.save(trainer.state_dict, arguments.out + "/weights-final.th")
+        # Check if coverages have been computed
+        if len(coverages) > 0:
+            confidence_level = 1 - arguments.alpha
+            np.save(arguments.out + "/coverages-" + str(confidence_level) + ".npy", coverages)
 
 
 def load_dataset_test(arguments):
@@ -120,8 +124,10 @@ def add_hooks(arguments, trainer):
     add_hooks_display(arguments, trainer)
     # Add the learning rate scheduling hooks
     add_hooks_lr_scheduling(arguments, trainer)
-    # Add coverage hook
-    add_coverage_hook(arguments, trainer)
+    # Check if a custom hook method has been specified.
+    if arguments.hooks is not None:
+        hook_loader = load_class(arguments.hooks)
+        hook_loader(arguments, trainer)
 
 
 @torch.no_grad()
@@ -214,11 +220,6 @@ def add_hooks_lr_scheduling_cyclic(arguments, trainer):
     trainer.add_event_handler(trainer.events.batch_train_complete, schedule)
 
 
-def add_coverage_hook(arguments, trainer):
-    if arguments.coverage_every > 0:
-        raise NotImplementedError
-
-
 def load_class(full_classname):
     if full_classname is None:
         raise ValueError("The specified classname cannot be `None`.")
@@ -234,6 +235,7 @@ def parse_arguments():
     parser.add_argument("--data-parallel", action="store_true", help="Enable data-parallel training whenever multiple GPU's are available (default: false).")
     parser.add_argument("--disable-gpu", action="store_true", help="Disable the usage of GPU's (default: false).")
     parser.add_argument("--dont-shuffle", action="store_true", help="Do not shuffle the datasets (default: false).")
+    parser.add_argument("--hooks", type=str, default=None, help="Method name (including module) to which adds custom hooks to the trainer (default: none).")
     parser.add_argument("--out", type=str, default='.', help="Output directory of the generated files (default: '.').")
     parser.add_argument("--pin-memory", action="store_true", help="Memory map and pipeline data loading to the GPU (default: false).")
     parser.add_argument("--show", action="store_true", help="Show progress of the training to stdout (default: false).")
@@ -242,11 +244,9 @@ def parse_arguments():
     parser.add_argument("--conservativeness", type=float, default=0.0, help="Conservative term (default: 0.0).")
     parser.add_argument("--epochs", type=int, default=1, help="Number of epochs (default: 1).")
     parser.add_argument("--logits", action="store_true", help="Use the logit-trick for the minimization criterion (default: false).")
-    parser.add_argument("--lr", type=float, default=0.001, help="Learning rate (default: 0.001).")
+    parser.add_argument("--lr", type=float, default=0.0001, help="Learning rate (default: 0.001).")
     parser.add_argument("--weight-decay", type=float, default=0.0, help="Weight decay (default: 0.0).")
     parser.add_argument("--workers", type=int, default=4, help="Number of concurrent data loaders (default: 4).")
-    # Testing settings
-    parser.add_argument("--coverage-every", type=int, default=0, help="Do a coverage at 95% CR every 'n' epochs. Requires a test dataset to be specified (default: 0).")
     # Data settings
     parser.add_argument("--data-test", type=str, default=None, help="Full classname of the testing dataset (default: none, optional).")
     parser.add_argument("--data-train", type=str, default=None, help="Full classname of the training dataset (default: none).")

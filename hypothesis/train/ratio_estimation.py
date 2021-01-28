@@ -43,23 +43,17 @@ class RatioEstimatorTrainer(BaseTrainer):
         if dataset_test is not None and not isinstance(dataset_train, NamedDataset):
             raise ValueError("The test dataset is not of the type `NamedDataset`.")
         # Basic trainer properties
-        self._conservativeness = conservativeness
+        self._conservativenesses = []
         self._estimator = estimator
         self._optimizer = optimizer
         # Optimization monitoring
         self._state_dict_best = None
         # Criterion properties
-        if conservativeness > 0.0:
-            self._criterion = ConservativeCriterion(
-                batch_size=batch_size,
-                conservativeness=conservativeness,
-                estimator=estimator,
-                logits=logits)
-        else:
-            self._criterion = Criterion(
-                batch_size=batch_size,
-                estimator=estimator,
-                logits=logits)
+        self._criterion = ConservativeCriterion(
+            batch_size=batch_size,
+            conservativeness=conservativeness,
+            estimator=estimator,
+            logits=logits)
         # Move to the specified accelerator
         self._criterion = self._criterion.to(accelerator)
         # Capture the best estimator
@@ -72,6 +66,23 @@ class RatioEstimatorTrainer(BaseTrainer):
 
     def _register_events(self):
         super()._register_events()
+
+    @property
+    def conservativenesses(self):
+        return self._conservativeness
+
+    @property
+    def conservativeness(self):
+        return self._criterion.conservativeness
+
+    @conservativeness.setter
+    def conservativeness(self, value):
+        # Verify constraints
+        if value > 1.0:
+            value = 1.0
+        elif value < 0:
+            value = 0.0
+        self._criterion.conservativeness = value
 
     @property
     def optimizer(self):
@@ -113,18 +124,10 @@ class RatioEstimatorTrainer(BaseTrainer):
 
         return state_dict
 
-    @property
-    def conservativeness(self):
-        return self._conservativeness
-
-    @conservativeness.setter
-    def conservativeness(self, value):
-        assert value >= 0 and value <= 1
-        self._conservativeness = value
-
     def train(self):
         assert self._dataset_train is not None
         self._estimator.train()
+        self._conservativenesses.append(self.conservativeness)
         loader = self._allocate_train_loader()
         losses = []
         total_batches = len(loader)
