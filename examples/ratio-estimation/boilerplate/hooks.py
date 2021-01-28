@@ -1,6 +1,11 @@
 import torch
 
 from ratio_estimation import compute_coverage
+from hypothesis.util import load_module
+
+
+def add_hooks(arguments, trainer):
+    add_coverage_hook(arguments, trainer)
 
 
 def add_coverage_hook(arguments, trainer):
@@ -8,12 +13,11 @@ def add_coverage_hook(arguments, trainer):
         @torch.no_grad()
         def coverage(trainer, **kwargs):
             global p_bottom
-            global coverages
             # Check if we have to compute coverage this epoch
-            if trainer.current_epoch % arguments.coverage_every != 0:
+            if trainer.current_epoch % 1 != 0:
                 return
             # Load the testing dataset and its loader
-            dataset = load_class(arguments.data_test)()
+            dataset = load_module(arguments.data_test)()
             loader = torch.utils.data.DataLoader(dataset, shuffle=False, batch_size=1, num_workers=arguments.workers)
             dataset_size = len(loader)
             covered = 0
@@ -38,5 +42,4 @@ def add_coverage_hook(arguments, trainer):
             emperical_coverage = covered / dataset_size
             delta = emperical_coverage - (1 - arguments.alpha)
             trainer.conservativeness = trainer.conservativeness - 0.05 * delta
-            coverages.append(emperical_coverage)
         trainer.add_event_handler(trainer.events.epoch_complete, coverage)

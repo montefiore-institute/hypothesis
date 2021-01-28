@@ -14,6 +14,7 @@ import os
 import torch
 
 from hypothesis.train import RatioEstimatorTrainer as Trainer
+from hypothesis.util import load_module
 from hypothesis.util.data import NamedDataset
 from tqdm import tqdm
 
@@ -71,7 +72,7 @@ def main(arguments):
 
 def load_dataset_test(arguments):
     if arguments.data_test is not None:
-        dataset = load_class(arguments.data_test)()
+        dataset = load_module(arguments.data_test)()
         assert isinstance(dataset, NamedDataset)
     else:
         dataset = None
@@ -81,7 +82,7 @@ def load_dataset_test(arguments):
 
 def load_dataset_train(arguments):
     if arguments.data_train is not None:
-        dataset = load_class(arguments.data_train)()
+        dataset = load_module(arguments.data_train)()
         assert isinstance(dataset, NamedDataset)
     else:
         dataset = None
@@ -91,7 +92,7 @@ def load_dataset_train(arguments):
 
 def load_dataset_validate(arguments):
     if arguments.data_validate is not None:
-        dataset = load_class(arguments.data_validate)()
+        dataset = load_module(arguments.data_validate)()
         assert isinstance(dataset, NamedDataset)
     else:
         dataset = None
@@ -100,7 +101,7 @@ def load_dataset_validate(arguments):
 
 
 def load_ratio_estimator(arguments):
-    RatioEstimator = load_class(arguments.estimator)
+    RatioEstimator = load_module(arguments.estimator)
     estimator = RatioEstimator()
     # Check if we are able to allocate a data parallel model.
     if torch.cuda.device_count() > 1 and arguments.data_parallel:
@@ -126,7 +127,7 @@ def add_hooks(arguments, trainer):
     add_hooks_lr_scheduling(arguments, trainer)
     # Check if a custom hook method has been specified.
     if arguments.hooks is not None:
-        hook_loader = load_class(arguments.hooks)
+        hook_loader = load_module(arguments.hooks)
         hook_loader(arguments, trainer)
 
 
@@ -218,15 +219,6 @@ def add_hooks_lr_scheduling_cyclic(arguments, trainer):
     def schedule(trainer, **kwargs):
         scheduler.step()
     trainer.add_event_handler(trainer.events.batch_train_complete, schedule)
-
-
-def load_class(full_classname):
-    if full_classname is None:
-        raise ValueError("The specified classname cannot be `None`.")
-    module_name, class_name = full_classname.rsplit('.', 1)
-    module = __import__(module_name, fromlist=[class_name])
-
-    return getattr(module, class_name)
 
 
 def parse_arguments():
