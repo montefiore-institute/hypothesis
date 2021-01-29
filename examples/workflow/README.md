@@ -140,3 +140,8 @@ strategies in `generate.py`.
 > Relevant to the workflow defined in `train.py`
 
 TODO
+
+## Example: Predefined workflows
+> Relevant to the workflow defined in `predefined.py`
+
+TODO

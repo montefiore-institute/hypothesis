@@ -4,8 +4,6 @@ from .util import *
 
 
 def root(f):
-    if f is None:
-        return
     node = add_and_get_node(f)
     if node.disabled:
         raise Exception("The entry point cannot be disabled.")

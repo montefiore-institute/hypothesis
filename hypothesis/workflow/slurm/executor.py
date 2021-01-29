@@ -31,7 +31,7 @@ def execute(context=None,
     context.prune()
     # Check if a root node is present
     if context.root is None:
-        logging.critical("Postconditions of computational graph are met. Nothing to do.")
+        logging.critical("Postconditions of computational graph are met, or no graph defind: nothing to do.")
         sys.exit(0)  # Nothing to do
     # Add default Slurm attributes to the nodes
     add_default_attributes(context, directory=directory)

@@ -17,7 +17,7 @@ def execute(context=None):
     context.prune()
     # Check if a root node is present.
     if context.root is None:
-        logging.critical("Postconditions of computational graph are met. Nothing to do.")
+        logging.critical("Postconditions of computational graph are met, or no graph defind: nothing to do.")
         sys.exit(0)
     # Fetch the program in execution order.
     program = context.program()

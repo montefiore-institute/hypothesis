@@ -38,14 +38,14 @@ class WorkflowGraph:
         self.add_node(node)
 
     @property
-    def leafs(self):
-        leafs = []
+    def leaves(self):
+        leaves = []
 
         for n in self.nodes:
             if len(n.children) == 0:
-                leafs.append(n)
+                leaves.append(n)
 
-        return leafs
+        return leaves
 
     def program(self):
         # Determine the order of execution
@@ -76,13 +76,16 @@ class WorkflowGraph:
             yield from self._bfs(queue)
 
     def prune(self):
+        # Check if a root node exists
+        if self._root is None:
+            return
         # Check if the postconditions of the root node have been satisfied.
         if len(self._root.postconditions) > 0 and self._root.postconditions_satisfied():
             self._root = None
             self._nodes = {}
         else:
             # Prune the computational graph
-            for leaf in self.leafs:
+            for leaf in self.leaves:
                 self._prune_node(leaf)
             all_nodes = set(self.nodes)
             in_graph = self._in_subgraph(self.root)
