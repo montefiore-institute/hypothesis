@@ -1,6 +1,6 @@
 python -m hypothesis.bin.ratio_estimation.train \
     --batch-size 512 \
-    --epochs 100 \
+    --epochs 250 \
     --lr 0.0001 \
     --show \
     --lrsched-on-plateau \

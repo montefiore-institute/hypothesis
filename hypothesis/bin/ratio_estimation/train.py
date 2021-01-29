@@ -45,7 +45,6 @@ def main(arguments):
         dataset_validate=dataset_validate,
         epochs=arguments.epochs,
         logits=arguments.logits,
-        smooth=arguments.smooth,
         pin_memory=arguments.pin_memory,
         shuffle=not arguments.dont_shuffle,
         show=arguments.show,
@@ -172,7 +171,6 @@ def parse_arguments():
     parser.add_argument("--lr", type=float, default=0.0001, help="Learning rate (default: 0.001).")
     parser.add_argument("--weight-decay", type=float, default=0.0, help="Weight decay (default: 0.0).")
     parser.add_argument("--workers", type=int, default=4, help="Number of concurrent data loaders (default: 4).")
-    parser.add_argument("--smooth", type=float, default=0.0, help="Loss smoothing (default: 0.0).")
     # Data settings
     parser.add_argument("--data-test", type=str, default=None, help="Full classname of the testing dataset (default: none, optional).")
     parser.add_argument("--data-train", type=str, default=None, help="Full classname of the training dataset (default: none).")
