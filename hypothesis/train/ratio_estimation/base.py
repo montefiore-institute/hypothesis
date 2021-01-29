@@ -2,9 +2,9 @@ import hypothesis as h
 import numpy as np
 import torch
 
-from .base import BaseTrainer
 from hypothesis.nn.ratio_estimation import BaseCriterion as Criterion
 from hypothesis.nn.ratio_estimation import ConservativeCriterion
+from hypothesis.train import BaseTrainer
 from hypothesis.util.data import NamedDataset
 from tqdm import tqdm
 
