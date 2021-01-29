@@ -170,14 +170,14 @@ class RatioEstimatorTrainer(BaseTrainer):
     @torch.no_grad()
     def _estimator_cpu_state_dict(self):
         # Check if we're training a Data Parallel model.
-        self.estimator.eval()
-        self.estimator = self.estimator.cpu()
-        if isinstance(self.estimator, torch.nn.DataParallel):
-            state_dict = self.estimator.module.state_dict()
+        self._estimator.eval()
+        self._estimator = self._estimator.cpu()
+        if isinstance(self._estimator, torch.nn.DataParallel):
+            state_dict = self._estimator.module.state_dict()
         else:
-            state_dict = self.estimator.state_dict()
+            state_dict = self._estimator.state_dict()
         # Move back to the original device
-        self.estimator = self.estimator.to(self.accelerator)
+        self._estimator = self._estimator.to(self.accelerator)
 
         return state_dict
 
