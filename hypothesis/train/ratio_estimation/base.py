@@ -117,8 +117,7 @@ class RatioEstimatorTrainer(BaseTrainer):
 
     @torch.no_grad()
     def _save_best_estimator_weights(self, trainer, **kwargs):
-        self._estimator.eval()
-        self._state_dict_best = self._estimator.cpu().state_dict()
+        self._state_dict_best = self._estimator_cpu_state_dict()
 
     def _register_events(self):
         super()._register_events()
@@ -151,7 +150,7 @@ class RatioEstimatorTrainer(BaseTrainer):
 
     @property
     def state_dict(self):
-        return self.estimator.cpu().state_dict()
+        return self._estimator_cpu_state_dict()
 
     @property
     def best_state_dict(self):
@@ -160,8 +159,8 @@ class RatioEstimatorTrainer(BaseTrainer):
     @property
     def best_estimator(self):
         if self._state_dict_best is not None:
-            self._estimator.eval()
-            estimator = self._estimator.cpu()
+            estimator = self._estimator.cpu().clone()
+            estimator.eval()
             estimator.load_state_dict(self._state_dict_best)
         else:
             estimator = None
@@ -171,12 +170,14 @@ class RatioEstimatorTrainer(BaseTrainer):
     @torch.no_grad()
     def _estimator_cpu_state_dict(self):
         # Check if we're training a Data Parallel model.
+        self.estimator.eval()
         self.estimator = self.estimator.cpu()
         if isinstance(self.estimator, torch.nn.DataParallel):
             state_dict = self.estimator.module.state_dict()
         else:
             state_dict = self.estimator.state_dict()
-        self.estimator = self.estimator.to(hypothesis.accelerator)
+        # Move back to the original device
+        self.estimator = self.estimator.to(self.accelerator)
 
         return state_dict
 
