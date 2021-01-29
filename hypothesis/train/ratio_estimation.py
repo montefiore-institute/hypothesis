@@ -22,7 +22,7 @@ class RatioEstimatorTrainer(BaseTrainer):
         dataset_train=None,
         dataset_validate=None,
         epochs=h.default.epochs,
-        logits=False,
+        logits=True,
         pin_memory=True,
         shuffle=True,
         show=False,

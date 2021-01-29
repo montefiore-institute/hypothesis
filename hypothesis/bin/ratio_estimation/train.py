@@ -44,7 +44,7 @@ def main(arguments):
         dataset_train=dataset_train,
         dataset_validate=dataset_validate,
         epochs=arguments.epochs,
-        logits=arguments.logits,
+        logits=not arguments.no_logits,
         pin_memory=arguments.pin_memory,
         shuffle=not arguments.dont_shuffle,
         show=arguments.show,
@@ -167,7 +167,7 @@ def parse_arguments():
     parser.add_argument("--batch-size", type=int, default=256, help="Batch size (default: 256).")
     parser.add_argument("--conservativeness", type=float, default=0.0, help="Conservative term (default: 0.0).")
     parser.add_argument("--epochs", type=int, default=1, help="Number of epochs (default: 1).")
-    parser.add_argument("--logits", action="store_true", help="Use the logit-trick for the minimization criterion (default: false).")
+    parser.add_argument("--no-logits", action="store_true", help="Do not the logit-trick for the minimization criterion (default: false).")
     parser.add_argument("--lr", type=float, default=0.0001, help="Learning rate (default: 0.001).")
     parser.add_argument("--weight-decay", type=float, default=0.0, help="Weight decay (default: 0.0).")
     parser.add_argument("--workers", type=int, default=4, help="Number of concurrent data loaders (default: 4).")
