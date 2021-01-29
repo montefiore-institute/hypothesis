@@ -35,6 +35,7 @@ def Prior():
 
 prior = Prior()
 extent = torch.linspace(-5, 5, 1000)
+extent = extent.to(h.accelerator)
 
 
 @torch.no_grad()
