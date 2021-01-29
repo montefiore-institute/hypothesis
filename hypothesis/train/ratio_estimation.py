@@ -84,7 +84,7 @@ class RatioEstimatorTrainer(BaseTrainer):
     def _add_display_hooks(self):
         # Initialize the top progress bar
         self._progress_top.set_description("Epochs")
-        self._progress_top.total = self._epochs
+        self._progress_top.total = self.epochs
         self._progress_top.reset()
         self._progress_top.refresh()
         # Define the init hooks
@@ -95,11 +95,13 @@ class RatioEstimatorTrainer(BaseTrainer):
         def start_validation(trainer, **kwargs):
             self._init_progress_bottom("Validation")
         # Define the update hooks
+        @torch.no_grad()
         def update_batch(trainer, loss, batch_index, total_batches, **kwargs):
             if batch_index == 0:
                 self._progress_bottom.total = total_batches
             self._progress_bottom.set_description(self._progress_bottom_prefix + " ~ current loss {:.4f}".format(loss))
             self._progress_bottom.update()
+        @torch.no_grad()
         def update_epoch(trainer, **kwargs):
             epoch = trainer.current_epoch
             if len(trainer.losses_test) > 0:

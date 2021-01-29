@@ -134,5 +134,9 @@ class BaseTrainer(Procedure):
         return np.array(self._losses_validate)
 
     @property
+    def epochs(self):
+        return self._epochs
+
+    @property
     def current_epoch(self):
         return self._current_epoch

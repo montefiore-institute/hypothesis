@@ -61,11 +61,20 @@ def add_testing_monitor(arguments, trainer):
 def add_coverage_monitor(arguments, trainer):
     alpha = 0.05
     if arguments.data_test is not None:
+        dataset_size = len(load_module(arguments.data_test)())
+        def init_coverage_progress(trainer, **kwargs):
+            trainer._init_progress_bottom("Coverage", total=dataset_size)
+        def update_coverage(trainer, coverage, **kwargs):
+            if trainer._progress_bottom is None:
+                return
+            trainer._progress_bottom.set_description("Coverage ~ current: {:.4f}".format(coverage))
+            trainer._progress_bottom.update()
         @torch.no_grad()
         def coverage(trainer, **kwargs):
             # Check if we have to compute coverage this epoch
             if trainer.current_epoch % 25 != 0:
                 return
+            init_coverage_progress(trainer, **kwargs)
             # Load the testing dataset and its loader
             dataset = load_module(arguments.data_test)()
             loader = torch.utils.data.DataLoader(dataset, shuffle=True, batch_size=1, num_workers=arguments.workers)
@@ -77,6 +86,8 @@ def add_coverage_monitor(arguments, trainer):
                     alpha=alpha,
                     estimator=estimator,
                     sample_joint=sample_joint)
+                current_emperical_coverage = covered / (batch_index + 1)
+                update_coverage(trainer, current_emperical_coverage)
             emperical_coverage = covered / dataset_size
             delta = emperical_coverage - (1 - alpha)
             # Change the conservative criterion online through gradient descent.
