@@ -4,7 +4,6 @@ python -m hypothesis.bin.ratio_estimation.train \
     --lr 0.0001 \
     --show \
     --lrsched-on-plateau \
-    --hooks "hooks.add_hooks" \
     --conservativeness 0.0 \
     --data-test "ratio_estimation.DatasetTest" \
     --data-train "ratio_estimation.DatasetTrain" \
