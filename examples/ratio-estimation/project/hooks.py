@@ -80,7 +80,7 @@ def add_coverage_monitor(arguments, trainer):
             loader = torch.utils.data.DataLoader(dataset, shuffle=True, batch_size=1, num_workers=arguments.workers)
             dataset_size = len(loader)
             covered = 0
-            estimator = trainer.estimator
+            estimator = trainer.best_estimator
             for batch_index, sample_joint in enumerate(loader):
                 covered += compute_coverage(
                     alpha=alpha,
