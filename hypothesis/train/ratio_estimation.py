@@ -25,7 +25,6 @@ class RatioEstimatorTrainer(BaseTrainer):
         logits=False,
         pin_memory=True,
         shuffle=True,
-        smooth=0.0,
         show=False,
         workers=h.default.dataloader_workers):
         super(RatioEstimatorTrainer, self).__init__(
@@ -49,7 +48,6 @@ class RatioEstimatorTrainer(BaseTrainer):
         self._conservativenesses = []
         self._estimator = estimator
         self._optimizer = optimizer
-        self._smooth = smooth
         # Optimization monitoring
         self._state_dict_best = None
         # Criterion properties
@@ -206,10 +204,6 @@ class RatioEstimatorTrainer(BaseTrainer):
                             total_batches=total_batches,
                             loss=loss)
         expected_loss = np.mean(losses)
-        # Smooth the loss
-        if len(self._losses_train) > 0:
-            base = self._losses_train[-1]
-            expected_loss = self._smooth * base + (1 - self._smooth) * expected_loss
 
         return expected_loss
 
@@ -233,10 +227,6 @@ class RatioEstimatorTrainer(BaseTrainer):
                             total_batches=total_batches,
                             loss=loss)
         expected_loss = np.mean(losses)
-        # Smooth the loss
-        if len(self._losses_validate) > 0:
-            base = self._losses_validate[-1]
-            expected_loss = self._smooth * base + (1 - self._smooth) * expected_loss
 
         return expected_loss
 
@@ -260,9 +250,5 @@ class RatioEstimatorTrainer(BaseTrainer):
                             total_batches=total_batches,
                             loss=loss)
         expected_loss = np.mean(losses)
-        # Smooth the loss
-        if len(self._losses_test) > 0:
-            base = self._losses_test[-1]
-            expected_loss = self._smooth * base + (1 - self._smooth) * expected_loss
 
         return expected_loss
