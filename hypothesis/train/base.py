@@ -54,6 +54,10 @@ class BaseTrainer(Procedure):
         self.register_event("validate_complete")
         self.register_event("validate_start")
 
+    @property
+    def accelerator(self):
+        return self._accelerator
+
     def fit(self):
         self.call_event(self.events.fit_start)
         for epoch in range(1, self._epochs + 1, 1):

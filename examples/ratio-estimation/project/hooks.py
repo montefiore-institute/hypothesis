@@ -82,6 +82,8 @@ def add_coverage_monitor(arguments, trainer):
             covered = 0
             estimator = trainer.best_estimator
             for batch_index, sample_joint in enumerate(loader):
+                for k, v in sample_joint.items():
+                    sample_joint[k] = v.to(trainer.accelerator, non_blocking=True)
                 covered += compute_coverage(
                     alpha=alpha,
                     estimator=estimator,
