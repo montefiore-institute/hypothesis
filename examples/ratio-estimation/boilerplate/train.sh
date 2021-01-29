@@ -2,8 +2,8 @@ python -m hypothesis.bin.ratio_estimation.train \
     --batch-size 512 \
     --epochs 100 \
     --lr 0.0001 \
-    --logits \
     --show \
+    --lrsched-on-plateau \
     --hooks "hooks.add_hooks" \
     --conservativeness 0.0 \
     --data-test "ratio_estimation.DatasetTest" \
