@@ -159,7 +159,7 @@ class RatioEstimatorTrainer(BaseTrainer):
     @property
     def best_estimator(self):
         if self._state_dict_best is not None:
-            estimator = self._estimator.cpu().clone()
+            estimator = self._estimator.cpu()
             estimator.eval()
             estimator.load_state_dict(self._state_dict_best)
         else:
