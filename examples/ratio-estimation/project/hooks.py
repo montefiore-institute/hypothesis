@@ -91,7 +91,7 @@ def add_coverage_monitor(arguments, trainer):
             emperical_coverage = covered / dataset_size
             delta = emperical_coverage - (1 - alpha)
             # Change the conservative criterion online through gradient descent.
-            trainer.conservativeness = trainer.conservativeness - 0.05 * delta
+            trainer.conservativeness = trainer.conservativeness - 0.1 * delta
             # Add to the writer
             writer.add_scalar("Coverage", emperical_coverage, trainer.current_epoch)
             writer.add_scalar("Conservativeness", trainer.conservativeness, trainer.current_epoch)

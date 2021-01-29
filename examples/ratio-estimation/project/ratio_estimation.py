@@ -94,4 +94,4 @@ class DatasetTrain(Dataset):
 class DatasetTest(Dataset):
 
     def __init__(self):
-        super(DatasetTest, self).__init__(10000)
+        super(DatasetTest, self).__init__(25000)
