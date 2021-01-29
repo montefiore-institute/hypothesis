@@ -1,3 +1,4 @@
+import hypothesis as h
 import os
 import shutil
 import sys
@@ -81,7 +82,7 @@ def add_coverage_monitor(arguments, trainer):
             dataset_size = len(loader)
             covered = 0
             estimator = trainer.best_estimator
-            estimator = estimator.to(hypothesis.accelerator)
+            estimator = estimator.to(trainer.accelerator)
             for batch_index, sample_joint in enumerate(loader):
                 for k, v in sample_joint.items():
                     sample_joint[k] = v.to(trainer.accelerator, non_blocking=True)
