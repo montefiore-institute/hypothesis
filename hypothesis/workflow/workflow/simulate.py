@@ -36,7 +36,7 @@ class SimulationWorkflow(BaseWorkflow):
         pass  # No events to register for this workflow
 
     def _build_graph(self):
-        ### Stage 1. Create the data directory
+        ### Stage 1. Create the necessary data directories
         @w.root
         @w.postcondition(w.exists(self._directory + "/inputs.npy"))
         @w.postcondition(w.exists(self._directory + "/outputs.npy"))

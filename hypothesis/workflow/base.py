@@ -17,6 +17,10 @@ class BaseWorkflow(Procedure):
         self._graph = w.context
         w.context = original_context
 
+    @property
+    def graph(self):
+        return self._graph
+
     def attach(self, workflow):
         leaves = self._graph.leaves
         for leaf in leaves:

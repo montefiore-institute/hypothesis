@@ -141,7 +141,7 @@ strategies in `generate.py`.
 
 TODO
 
-## Example: Predefined workflows
+## Example: Parameterized, predefined workflows
 > Relevant to the workflow defined in `predefined.py`
 
 TODO

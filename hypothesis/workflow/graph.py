@@ -110,6 +110,11 @@ class WorkflowGraph:
             branches = self._branches(node)
             if len(branches) == 0:
                 return
+            siblings = node.siblings
+            for sibling in siblings:
+                for parent in node.parents:
+                    sibling.remove_parent(parent)
+                sibling.add_parent(self.root)
             for b in branches:
                 self.root.remove_child(b)
             for c in node.children:
@@ -133,11 +138,12 @@ class WorkflowGraph:
         self._debug_node(self.root)
 
     def _debug_node(self, node):
-        children = node.children
-        for c in children:
-            print(c, "depends on", node)
-        for c in children:
-            self._debug_node(c)
+        if node is not None:
+            children = node.children
+            for c in children:
+                print(c, "depends on", node)
+            for c in children:
+                self._debug_node(c)
 
 
 class WorkflowNode:
@@ -205,6 +211,17 @@ class WorkflowNode:
         return self._attributes[key]
 
     @property
+    def siblings(self):
+        siblings = []
+
+        for p in self.parents:
+            siblings.extend(p.children)
+        siblings = list(set(siblings))
+        del siblings[siblings.index(self)]
+
+        return siblings
+
+    @property
     def parents(self):
         return self._parents
 
@@ -251,6 +268,12 @@ class WorkflowNode:
     @children.setter
     def children(self, children):
         self._children = children
+
+    def __del__(self):
+        for p in self.parents:
+            p.remove_child(self)
+        for c in self.children:
+            c.remove_parent(self)
 
     def __str__(self):
         return self.name
