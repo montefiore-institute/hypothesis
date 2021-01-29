@@ -45,8 +45,10 @@ def main(arguments):
         dataset_validate=dataset_validate,
         epochs=arguments.epochs,
         logits=arguments.logits,
+        smooth=arguments.smooth,
         pin_memory=arguments.pin_memory,
         shuffle=not arguments.dont_shuffle,
+        show=arguments.show,
         workers=arguments.workers)
     # Add the hooks to the training object.
     add_hooks(arguments, trainer)
@@ -64,10 +66,6 @@ def main(arguments):
         # Save the state dict of the best ratio estimator
         torch.save(trainer.best_state_dict, arguments.out + "/weights.th")
         torch.save(trainer.state_dict, arguments.out + "/weights-final.th")
-        # Check if coverages have been computed
-        if len(coverages) > 0:
-            confidence_level = 1 - arguments.alpha
-            np.save(arguments.out + "/coverages-" + str(confidence_level) + ".npy", coverages)
 
 
 def load_dataset_test(arguments):
@@ -121,77 +119,12 @@ def load_optimizer(arguments, estimator):
 
 
 def add_hooks(arguments, trainer):
-    # Add the display hooks
-    add_hooks_display(arguments, trainer)
     # Add the learning rate scheduling hooks
     add_hooks_lr_scheduling(arguments, trainer)
     # Check if a custom hook method has been specified.
     if arguments.hooks is not None:
         hook_loader = load_module(arguments.hooks)
         hook_loader(arguments, trainer)
-
-
-@torch.no_grad()
-def add_hooks_display(arguments, trainer):
-    global p_top
-    global p_bottom
-    r"""Epochs represent the top line, batches the bottom."""
-    # Check if the progress needs to be shown to stdout.
-    if not arguments.show:
-        return
-    # Define the progress bars.
-    top_prefix = "Epochs"
-    bottom_prefix = "Training"
-    p_top = tqdm(total=arguments.epochs, desc=top_prefix)
-    p_bottom = tqdm()
-    # Define the hooks.
-    def start_training(trainer, **kwargs):
-        global bottom_prefix
-        global p_bottom
-        bottom_prefix = "Training"
-        p_bottom.set_description(bottom_prefix)
-        p_bottom.total = None
-        p_bottom.reset()
-        p_bottom.refresh()
-    def start_testing(trainer, **kwargs):
-        global bottom_prefix
-        global p_bottom
-        bottom_prefix = "Testing"
-        p_bottom.set_description(bottom_prefix)
-        p_bottom.total = None
-        p_bottom.reset()
-        p_bottom.refresh()
-    def start_validation(trainer, **kwargs):
-        global bottom_prefix
-        global p_bottom
-        bottom_prefix = "Validation"
-        p_bottom.set_description(bottom_prefix)
-        p_bottom.total = None
-        p_bottom.reset()
-        p_bottom.refresh()
-    def update_batch(trainer, loss, batch_index, total_batches, **kwargs):
-        global bottom_prefix
-        if p_bottom.total is None:
-            p_bottom.total = total_batches
-            p_bottom.set_description(bottom_prefix + " ~ current loss {:.4f}".format(loss))
-            p_bottom.refresh()
-        if batch_index % 10 == 0:
-            p_bottom.set_description(bottom_prefix + " ~ current loss: {:.4f}".format(loss))
-        p_bottom.update()
-    def update_epoch(trainer, **kwargs):
-        epoch = trainer.current_epoch
-        if len(trainer.losses_test) > 0:
-            best_loss = np.min(trainer.losses_test)
-            p_top.set_description(top_prefix + " ~ best test loss: {:.4f}".format(best_loss))
-        p_top.update()
-    # Register the hooks
-    trainer.add_event_handler(trainer.events.train_start, start_training)
-    trainer.add_event_handler(trainer.events.test_start, start_testing)
-    trainer.add_event_handler(trainer.events.validate_start, start_validation)
-    trainer.add_event_handler(trainer.events.batch_test_complete, update_batch)
-    trainer.add_event_handler(trainer.events.batch_train_complete, update_batch)
-    trainer.add_event_handler(trainer.events.batch_validate_complete, update_batch)
-    trainer.add_event_handler(trainer.events.epoch_complete, update_epoch)
 
 
 def add_hooks_lr_scheduling(arguments, trainer):
@@ -239,6 +172,7 @@ def parse_arguments():
     parser.add_argument("--lr", type=float, default=0.0001, help="Learning rate (default: 0.001).")
     parser.add_argument("--weight-decay", type=float, default=0.0, help="Weight decay (default: 0.0).")
     parser.add_argument("--workers", type=int, default=4, help="Number of concurrent data loaders (default: 4).")
+    parser.add_argument("--smooth", type=float, default=0.0, help="Loss smoothing (default: 0.0).")
     # Data settings
     parser.add_argument("--data-test", type=str, default=None, help="Full classname of the testing dataset (default: none, optional).")
     parser.add_argument("--data-train", type=str, default=None, help="Full classname of the training dataset (default: none).")

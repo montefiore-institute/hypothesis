@@ -6,6 +6,7 @@ from .base import BaseTrainer
 from hypothesis.nn.ratio_estimation import BaseCriterion as Criterion
 from hypothesis.nn.ratio_estimation import ConservativeCriterion
 from hypothesis.util.data import NamedDataset
+from tqdm import tqdm
 
 
 
@@ -24,6 +25,8 @@ class RatioEstimatorTrainer(BaseTrainer):
         logits=False,
         pin_memory=True,
         shuffle=True,
+        smooth=0.0,
+        show=False,
         workers=h.default.dataloader_workers):
         super(RatioEstimatorTrainer, self).__init__(
             accelerator=accelerator,
@@ -46,6 +49,7 @@ class RatioEstimatorTrainer(BaseTrainer):
         self._conservativenesses = []
         self._estimator = estimator
         self._optimizer = optimizer
+        self._smooth = smooth
         # Optimization monitoring
         self._state_dict_best = None
         # Criterion properties
@@ -58,6 +62,58 @@ class RatioEstimatorTrainer(BaseTrainer):
         self._criterion = self._criterion.to(accelerator)
         # Capture the best estimator
         self.add_event_handler(self.events.new_best_test, self._save_best_estimator_weights)
+        # Check if debugging information needs to be shown.
+        if show:
+            self._progress_top = tqdm()
+            self._progress_bottom = tqdm()
+            self._progress_bottom_prefix = None
+            self._add_display_hooks()
+        else:
+            self._progress_top = None
+            self._progress_bottom = None
+
+    def _init_progress_bottom(self, prefix, total=None):
+        if self._progress_bottom is not None:
+            self._progress_bottom_prefix = prefix
+            self._progress_bottom.set_description(prefix)
+            self._progress_bottom.total = total
+            self._progress_bottom.reset()
+            self._progress_bottom.refresh()
+
+    @torch.no_grad()
+    def _add_display_hooks(self):
+        # Initialize the top progress bar
+        self._progress_top.set_description("Epochs")
+        self._progress_top.total = self._epochs
+        self._progress_top.reset()
+        self._progress_top.refresh()
+        # Define the init hooks
+        def start_training(trainer, **kwargs):
+            self._init_progress_bottom("Training")
+        def start_testing(trainer, **kwargs):
+            self._init_progress_bottom("Testing")
+        def start_validation(trainer, **kwargs):
+            self._init_progress_bottom("Validation")
+        # Define the update hooks
+        def update_batch(trainer, loss, batch_index, total_batches, **kwargs):
+            if batch_index == 0:
+                self._progress_bottom.total = total_batches
+            self._progress_bottom.set_description(self._progress_bottom_prefix + " ~ current loss {:.4f}".format(loss))
+            self._progress_bottom.update()
+        def update_epoch(trainer, **kwargs):
+            epoch = trainer.current_epoch
+            if len(trainer.losses_test) > 0:
+                best_loss = np.min(trainer.losses_test)
+                self._progress_top.set_description("Epochs ~ best test loss: {:.4f}".format(best_loss))
+            self._progress_top.update()
+        # Register the hooks
+        self.add_event_handler(self.events.batch_test_complete, update_batch)
+        self.add_event_handler(self.events.batch_train_complete, update_batch)
+        self.add_event_handler(self.events.batch_validate_complete, update_batch)
+        self.add_event_handler(self.events.epoch_complete, update_epoch)
+        self.add_event_handler(self.events.test_start, start_testing)
+        self.add_event_handler(self.events.train_start, start_training)
+        self.add_event_handler(self.events.validate_start, start_validation)
 
     @torch.no_grad()
     def _save_best_estimator_weights(self, trainer, **kwargs):
@@ -69,7 +125,7 @@ class RatioEstimatorTrainer(BaseTrainer):
 
     @property
     def conservativenesses(self):
-        return self._conservativeness
+        return self._conservativenesses
 
     @property
     def conservativeness(self):
@@ -148,6 +204,10 @@ class RatioEstimatorTrainer(BaseTrainer):
                             total_batches=total_batches,
                             loss=loss)
         expected_loss = np.mean(losses)
+        # Smooth the loss
+        if len(self._losses_train) > 0:
+            base = self._losses_train[-1]
+            expected_loss = self._smooth * base + (1 - self._smooth) * expected_loss
 
         return expected_loss
 
@@ -171,6 +231,10 @@ class RatioEstimatorTrainer(BaseTrainer):
                             total_batches=total_batches,
                             loss=loss)
         expected_loss = np.mean(losses)
+        # Smooth the loss
+        if len(self._losses_validate) > 0:
+            base = self._losses_validate[-1]
+            expected_loss = self._smooth * base + (1 - self._smooth) * expected_loss
 
         return expected_loss
 
@@ -194,5 +258,9 @@ class RatioEstimatorTrainer(BaseTrainer):
                             total_batches=total_batches,
                             loss=loss)
         expected_loss = np.mean(losses)
+        # Smooth the loss
+        if len(self._losses_test) > 0:
+            base = self._losses_test[-1]
+            expected_loss = self._smooth * base + (1 - self._smooth) * expected_loss
 
         return expected_loss

@@ -1,11 +1,11 @@
 python -m hypothesis.bin.ratio_estimation.train \
+    --batch-size 512 \
+    --epochs 100 \
+    --lr 0.0001 \
+    --logits \
     --show \
-    --batch-size 1024 \
-    --epochs 2 \
-    --lr 0.001 \
     --hooks "hooks.add_hooks" \
-    --conservativeness 0.00 \
+    --conservativeness 0.0 \
     --data-test "ratio_estimation.DatasetTest" \
     --data-train "ratio_estimation.DatasetTrain" \
-    --estimator "ratio_estimation.RatioEstimator" \
-    --alpha 0.05
+    --estimator "ratio_estimation.RatioEstimator"

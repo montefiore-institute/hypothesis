@@ -8,6 +8,9 @@ docs/build/
 target/
 .python-version
 .DS_Store
+tensorboard
+logging
+.eggs
 *.egg-info
 *.npy
 *.ipynb

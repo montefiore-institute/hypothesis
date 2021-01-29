@@ -36,14 +36,25 @@ class RatioEstimatorEnsemble(BaseRatioEstimator):
     REDUCE_MEAN = "mean"
     REDUCE_MEDIAN = "median"
 
-    def __init__(self, estimators, reduce=REDUCE_MEAN):
-        super(RatioEstimatorEnsemble, self).__init__()
+    def __init__(self, estimators, reduce="mean"):
+        denominator = estimators[0].denominator
+        random_variables = estimators[0].random_variables
+        super(RatioEstimatorEnsemble, self).__init__(
+            denominator=denominator,
+            random_variables=random_variables)
         self._estimators = estimators
         self.reduce_as(reduce)
 
+    def parameters(self):
+        parameters = []
+        for estimator in self._estimators:
+            parameters.extend(estimator.parameters())
+
+        return parameters
+
     def to(self, device):
         for index, estimator in enumerate(self._estimators):
-            self._estimators[index] = self._estimators.to(device)
+            self._estimators[index] = self._estimators[index].to(device)
 
         return self
 
@@ -63,8 +74,8 @@ class RatioEstimatorEnsemble(BaseRatioEstimator):
     @staticmethod
     def _allocate_reduce(f):
         reducers = {
-            REDUCE_MEAN: RatioEstimatorEnsemble._reduce_mean,
-            REDUCE_MEDIAN: RatioEstimatorEnsemble._reduce_median}
+            RatioEstimatorEnsemble.REDUCE_MEAN: RatioEstimatorEnsemble._reduce_mean,
+            RatioEstimatorEnsemble.REDUCE_MEDIAN: RatioEstimatorEnsemble._reduce_median}
         reduce = None
         if hasattr(f, "__call__"):
             return f
@@ -139,15 +150,6 @@ class BaseCriterion(torch.nn.Module):
         return loss
 
     @staticmethod
-    def _derive_random_variables(denominator):
-        random_variables = denominator.replace(h.default.dependent_delimiter, " ") \
-            .replace(h.default.independent_delimiter, " ") \
-            .split(" ")
-        random_variables.sort()  # The random variables have to appear in a sorted order.
-
-        return random_variables
-
-    @staticmethod
     def _derive_independent_random_variables(denominator):
         groups = denominator.split(h.default.independent_delimiter)
         for index in range(len(groups)):
@@ -167,12 +169,6 @@ class ConservativeCriterion(BaseCriterion):
             estimator=estimator,
             batch_size=batch_size,
             logits=logits)
-        if logits:
-            self._criterion = torch.nn.BCEWithLogitsLoss()
-            self._forward = self._forward_with_logits
-        else:
-            self._criterion = torch.nn.BCELoss()
-            self._forward = self._forward_without_logits
         self.conservativeness = conservativeness
 
     @property

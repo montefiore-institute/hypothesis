@@ -11,6 +11,7 @@ requirements = [
     'cloudpickle',
     'coloredlogs',
     'scipy',
+    'tensorboard',
     'tqdm']
 
 setup_requirements = [

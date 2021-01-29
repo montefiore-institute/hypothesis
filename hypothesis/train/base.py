@@ -66,7 +66,7 @@ class BaseTrainer(Procedure):
                 if len(self._losses_train) == 0 or loss < np.min(self._losses_train):
                     self.call_event(self.events.new_best_train, loss=loss)
                 self._losses_train.append(loss)
-                self.call_event(self.events.train_complete)
+                self.call_event(self.events.train_complete, loss=loss)
             # Validation procedure
             if self._dataset_validate is not None:
                 self.call_event(self.events.validate_start)
@@ -74,7 +74,7 @@ class BaseTrainer(Procedure):
                 if len(self._losses_validate) == 0 or loss < np.min(self._losses_validate):
                     self.call_event(self.events.new_best_validate, loss=loss)
                 self._losses_validate.append(loss)
-                self.call_event(self.events.validate_complete)
+                self.call_event(self.events.validate_complete, loss=loss)
             # Testing procedure
             if self._dataset_test is not None:
                 self.call_event(self.events.test_start)
@@ -82,7 +82,7 @@ class BaseTrainer(Procedure):
                 if len(self._losses_test) == 0 or loss < np.min(self._losses_test):
                     self.call_event(self.events.new_best_test, loss=loss)
                 self._losses_test.append(loss)
-                self.call_event(self.events.test_complete)
+                self.call_event(self.events.test_complete, loss=loss)
             self.call_event(self.events.epoch_complete, epoch=epoch)
         self.call_event(self.events.fit_complete)
 

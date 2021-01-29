@@ -2,6 +2,7 @@ import hypothesis as h
 import numpy as np
 import torch
 
+from hypothesis.nn.ratio_estimation import RatioEstimatorEnsemble
 from hypothesis.nn.ratio_estimation import build_mlp_estimator
 from hypothesis.stat import highest_density_level
 from hypothesis.util.data import NamedDataset
@@ -23,7 +24,9 @@ BaseRatioEstimator = build_mlp_estimator(
 class RatioEstimator(BaseRatioEstimator):
 
     def __init__(self):
-        super(RatioEstimator, self).__init__(activation=torch.nn.SELU)
+        super(RatioEstimator, self).__init__(
+            activation=torch.nn.LeakyReLU,
+            trunk=[128, 128, 128])
 
 
 def Prior():
@@ -71,7 +74,7 @@ class Dataset(NamedDataset):
         # Simulate
         prior = Prior()
         x = prior.sample((n,)).view(-1, 1).numpy()
-        y = np.random.random(n).reshape(-1, 1) + x
+        y = np.random.normal(size=n).reshape(-1, 1) + x
         x = x.reshape(-1, 1)
         y = y.reshape(-1, 1)
         # Create datasets
@@ -85,10 +88,10 @@ class Dataset(NamedDataset):
 class DatasetTrain(Dataset):
 
     def __init__(self):
-        super(DatasetTrain, self).__init__(1000000)
+        super(DatasetTrain, self).__init__(100000)
 
 
 class DatasetTest(Dataset):
 
     def __init__(self):
-        super(DatasetTest, self).__init__(2000)
+        super(DatasetTest, self).__init__(10000)
