@@ -19,9 +19,8 @@
 
 A Python toolkit for simulation-based inference and the mechanization of science.
 
-
-* Free software: BSD license
 * Documentation: https://hypothesis-sbi.readthedocs.io.
+* Install: ```pip install hypothesis-sbi```
 
 Short overview
 --------------
