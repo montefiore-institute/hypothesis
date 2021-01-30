@@ -17,11 +17,11 @@
      :target: https://pyup.io/repos/github/JoeriHermans/hypothesis/
      :alt: Updates
 
-A Python toolkit for simulation-based inference and the mechanisation of science.
+A Python toolkit for simulation-based inference and the mechanization of science.
 
 
 * Free software: BSD license
-* Documentation: https://hypothesis.readthedocs.io.
+* Documentation: https://hypothesis-sbi.readthedocs.io.
 
 Short overview
 --------------

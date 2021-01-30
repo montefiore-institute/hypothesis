@@ -48,6 +48,7 @@ def test_multi_head_resnet():
         "outputs1", "outputs2", "outputs3"]
     r = build_ratio_estimator(
         random_variables,
+        denominator="inputs,outputs1|outputs2,outputs3",
         convolve=convolve_variables)()
     assert r is not None
 
@@ -90,6 +91,7 @@ def test_multi_head_multi_depth_resnet():
     r = build_ratio_estimator(
         random_variables,
         depth=[18, 34, 50],
+        denominator="inputs,outputs1|outputs2,outputs3",
         convolve=convolve_variables)()
     assert r is not None
 

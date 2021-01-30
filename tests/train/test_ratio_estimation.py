@@ -19,7 +19,6 @@ def allocate_dataset(size):
     return torch.utils.data.TensorDataset(torch.randn(size, 15))
 
 
-@torch.no_grad()
 def test_basic_trainer():
     # Allocate the training dataset
     n_train = 1000
@@ -46,8 +45,9 @@ def test_basic_trainer():
         dataset_test=dataset_test,
         dataset_train=dataset_train,
         epochs=100,
+        show=True,
         estimator=r,
-        optimizer=r)
+        optimizer=optimizer)
     trainer.fit()
     assert r is not None
-    assert trainer.current_epoch == 99
+    assert trainer.current_epoch == 100
