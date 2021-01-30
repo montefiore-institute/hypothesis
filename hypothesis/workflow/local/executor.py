@@ -2,10 +2,7 @@ import gc
 import hypothesis.workflow as w
 import logging
 import sys
-import faulthandler
 import torch
-
-faulthandler.enable()
 
 
 @torch.no_grad()
