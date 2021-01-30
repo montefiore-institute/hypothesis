@@ -12,7 +12,7 @@ from hypothesis.workflow import WorkflowGraph
 
 class SimulateWorkflow(BaseWorkflow):
 
-    def __init__(self, prior, simulator, directory=".", n=1000000, blocksize=1000):
+    def __init__(self, prior, simulator, directory=".", n=1000000, blocksize=1000, **kwargs):
         self._blocksize = blocksize
         self._class_prior = prior
         self._class_simulator = simulator
@@ -100,13 +100,13 @@ class SimulateWorkflow(BaseWorkflow):
 
 class SimulateTrainTestWorkflow(BaseWorkflow):
 
-    def __init__(self, prior, simulator, directory=".", n_train=1000000, n_test=1000000, blocksize=1000):
+    def __init__(self, prior, simulator, directory=".", n_train=1000000, n_test=1000000, blocksize=1000, **kwargs):
         self._directory = directory
         super(SimulateTrainTestWorkflow, self).__init__()
         path_test = directory + "/test"
         path_train = directory + "/train"
-        workflow_test = SimulateWorkflow(prior, simulator, directory=path_test, n=n_test, blocksize=blocksize)
-        workflow_train = SimulateWorkflow(prior, simulator, directory=path_train, n=n_train, blocksize=blocksize)
+        workflow_test = SimulateWorkflow(prior, simulator, directory=path_test, n=n_test, blocksize=blocksize, **kwargs)
+        workflow_train = SimulateWorkflow(prior, simulator, directory=path_train, n=n_train, blocksize=blocksize, **kwargs)
         self.attach([workflow_test, workflow_train])
 
     def _build_graph(self):

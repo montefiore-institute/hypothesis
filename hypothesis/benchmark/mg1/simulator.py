@@ -51,7 +51,7 @@ class Simulator(BaseSimulator):
         return torch.tensor(stats).float().view(1, -1)
 
     @torch.no_grad()
-    def forward(self, inputs):
+    def forward(self, inputs, **kwargs):
         samples = []
 
         inputs = inputs.view(-1, 3)

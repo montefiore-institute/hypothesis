@@ -30,7 +30,7 @@ class Simulator(BaseSimulator):
         return x_out
 
     @torch.no_grad()
-    def forward(self, inputs):
+    def forward(self, inputs, **kwargs):
         samples = []
 
         inputs = inputs.view(-1, 5)

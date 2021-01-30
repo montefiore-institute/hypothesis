@@ -80,7 +80,7 @@ class Simulator(BaseSimulator):
         return torch.cat(samples, dim=1)
 
     @torch.no_grad()
-    def forward(self, inputs, experimental_configurations=None):
+    def forward(self, inputs, experimental_configurations=None, **kwargs):
         r"""Executes the forward pass of the simulation model.
 
         :param inputs: Free parameters (the Fermi constant).

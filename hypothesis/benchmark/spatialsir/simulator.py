@@ -73,7 +73,7 @@ class Simulator(BaseSimulator):
         return image.bool()
 
     @torch.no_grad()
-    def forward(self, inputs, experimental_configurations=None):
+    def forward(self, inputs, experimental_configurations=None, **kwargs):
         outputs = []
 
         inputs = inputs.view(-1, 2)

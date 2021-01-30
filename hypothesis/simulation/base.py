@@ -32,7 +32,7 @@ class BaseSimulator(torch.nn.Module):
         super(BaseSimulator, self).__init__()
         self.eval()
 
-    def forward(self, inputs):
+    def forward(self, **kwargs):
         r"""Defines the computation of the forward model at every call.
 
         .. note::
