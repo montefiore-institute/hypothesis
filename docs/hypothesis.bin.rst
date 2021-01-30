@@ -13,3 +13,5 @@ Subpackages
    :maxdepth: 5
 
    hypothesis.bin.io
+   hypothesis.bin.ratio_estimation
+   hypothesis.bin.workflow
