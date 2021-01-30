@@ -3,13 +3,14 @@ import hypothesis.workflow as w
 import logging
 import numpy as np
 import os
+import shutil
 import torch
 
 from hypothesis.workflow import BaseWorkflow
 from hypothesis.workflow import WorkflowGraph
 
 
-class SimulationWorkflow(BaseWorkflow):
+class SimulateWorkflow(BaseWorkflow):
 
     def __init__(self, prior, simulator, directory=".", n=1000000, blocksize=1000):
         self._blocksize = blocksize
@@ -18,7 +19,7 @@ class SimulationWorkflow(BaseWorkflow):
         self._directory = directory
         self._n = n
         self._num_blocks = n // blocksize
-        super(SimulationWorkflow, self).__init__()
+        super(SimulateWorkflow, self).__init__()
 
     @property
     def n(self):
@@ -31,9 +32,6 @@ class SimulationWorkflow(BaseWorkflow):
     @property
     def num_blocks(self):
         return self._num_blocks
-
-    def _register_events(self):
-        pass  # No events to register for this workflow
 
     def _build_graph(self):
         ### Stage 1. Create the necessary data directories
@@ -98,3 +96,26 @@ class SimulationWorkflow(BaseWorkflow):
             query = self._directory + "/blocks/block-*/outputs.npy"
             out = self._directory + "/outputs.npy"
             os.system("hypothesis merge --dimension 0 --sort --extension numpy --out " + out + " --files '" + query + "'")
+
+
+class SimulateTrainTestWorkflow(BaseWorkflow):
+
+    def __init__(self, prior, simulator, directory=".", n_train=1000000, n_test=1000000, blocksize=1000):
+        self._directory = directory
+        super(SimulateTrainTestWorkflow, self).__init__()
+        path_test = directory + "/test"
+        path_train = directory + "/train"
+        workflow_test = SimulateWorkflow(prior, simulator, directory=path_test, n=n_test, blocksize=blocksize)
+        workflow_train = SimulateWorkflow(prior, simulator, directory=path_train, n=n_train, blocksize=blocksize)
+        self.attach([workflow_test, workflow_train])
+
+    def _build_graph(self):
+        # Build the root node for the joined workflows to attach to
+        @w.root
+        @w.postcondition(w.exists(self._directory + "/test/inputs.npy"))
+        @w.postcondition(w.exists(self._directory + "/test/outputs.npy"))
+        @w.postcondition(w.exists(self._directory + "/train/inputs.npy"))
+        @w.postcondition(w.exists(self._directory + "/train/outputs.npy"))
+        def create_test_train_directory():
+            if not os.path.exists(self._directory):
+                os.mkdir(self._directory)

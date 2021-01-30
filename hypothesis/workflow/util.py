@@ -23,6 +23,13 @@ def exists(f):
     return wrapper
 
 
+def not_exists(f):
+    def wrapper():
+        return not os.path.exists(f)
+
+    return wrapper
+
+
 def parameterized(dec):
     def layer(*args, **kwargs):
         def repl(f):

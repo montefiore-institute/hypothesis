@@ -8,6 +8,11 @@ class WorkflowGraph:
         self._root = None
         self._nodes = {}
 
+    def rebuild(self):
+        self._nodes = {}
+        for node in self.bfs():
+            self._nodes[id(node.f)] = node
+
     def add_node(self, node):
         self._nodes[id(node.f)] = node
 
@@ -65,7 +70,10 @@ class WorkflowGraph:
     def bfs(self):
         queue = Queue()
         queue.put(self.root)
-        yield from self._bfs(queue)
+        if self.root is not None:
+            yield from self._bfs(queue)
+        else:
+            yield from []
 
     def _bfs(self, queue):
         if not queue.empty():
@@ -92,6 +100,8 @@ class WorkflowGraph:
             to_delete = all_nodes.difference(in_graph)
             for node in to_delete:
                 del self._nodes[id(node.f)]
+        # Rebuild the data structure
+        self.rebuild()
 
     def _branches(self, node):
         branches = []
@@ -181,6 +191,9 @@ class WorkflowNode:
 
     def add_postcondition(self, condition):
         self._postconditions.append(condition)
+
+    def has_posconditions(self):
+        return len(self.postconditions) > 0
 
     def postconditions_satisfied(self):
         return all(c() for c in self.postconditions)
