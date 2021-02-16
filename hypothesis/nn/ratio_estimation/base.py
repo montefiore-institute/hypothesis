@@ -170,7 +170,7 @@ class ConservativeCriterion(BaseCriterion):
             estimator=estimator,
             batch_size=batch_size,
             logits=logits)
-        self._beta = conservativeness
+        self._beta = 1. - conservativeness
         self._calibrate = calibrate
 
     @property
@@ -184,7 +184,7 @@ class ConservativeCriterion(BaseCriterion):
 
     def _forward_without_logits(self, **kwargs):
         # Forward pass
-        y_joint, _ = self._estimator(**kwargs)
+        y_joint, log_r_joint = self._estimator(**kwargs)
         # Shuffle to make necessary variables independent.
         for group in self._independent_random_variables:
             random_indices = torch.randperm(self._batch_size)
@@ -193,36 +193,17 @@ class ConservativeCriterion(BaseCriterion):
         y_marginals, _ = self._estimator(**kwargs)
         # Compute losses
         loss_joint_1 = self._criterion(y_joint, self._ones)
-        loss_marginals_1 = self._criterion(y_marginals, self._ones)
         loss_marginals_0 = self._criterion(y_marginals, self._zeros)
         # Learn mixture of the joint vs. marginals
-        loss = (1. - self._beta) * loss_joint_1 + self._beta * loss_marginals_1 + loss_marginals_0
+        mi = log_r_joint.mean()
+        loss = loss_joint_1 + loss_marginals_0 + (mi - mi * self._beta)
         # Check if calibration term needs to be added.
         if self._calibrate:
-            calibration_term = (1 - y_joint.mean() - y_marginals.mean()).abs()
+            calibration_term = 2 * (1 - y_joint.mean() - y_marginals.mean()).abs()
             loss = loss + calibration_term
 
         return loss
 
 
     def _forward_with_logits(self, **kwargs):
-        # Forward pass
-        y_joint, log_ratio_joint = self._estimator(**kwargs)
-        # Shuffle to make necessary variables independent.
-        for group in self._independent_random_variables:
-            random_indices = torch.randperm(self._batch_size)
-            for variable in group:
-                kwargs[variable] = kwargs[variable][random_indices]  # Make variable independent.
-        y_marginals, log_ratio_marginals = self._estimator(**kwargs)
-        # Compute losses
-        loss_joint_1 = self._criterion(log_ratio_joint, self._ones)
-        loss_marginals_1 = self._criterion(log_ratio_marginals, self._ones)
-        loss_marginals_0 = self._criterion(log_ratio_marginals, self._zeros)
-        # Learn mixture of the joint vs. marginals
-        loss = (1. - self._beta) * loss_joint_1 + self._beta * loss_marginals_1 + loss_marginals_0
-        # Check if calibration term needs to be added.
-        if self._calibrate:
-            calibration_term = (1 - y_joint.mean() - y_marginals.mean()).abs()
-            loss = loss + calibration_term.exp()
-
-        return loss
+        raise NotImplementedError
