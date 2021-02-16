@@ -204,6 +204,5 @@ class ConservativeCriterion(BaseCriterion):
 
         return loss
 
-
     def _forward_with_logits(self, **kwargs):
         raise NotImplementedError
