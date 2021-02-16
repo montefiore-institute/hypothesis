@@ -10,7 +10,7 @@ from hypothesis.workflow import BaseWorkflow
 from hypothesis.workflow import WorkflowGraph
 
 
-class SimulateWorkflow(BaseWorkflow):
+class SimulateBlocksWorkflow(BaseWorkflow):
 
     def __init__(self, prior, simulator, directory=".", n=1000000, blocksize=1000, **kwargs):
         self._blocksize = blocksize
@@ -19,7 +19,7 @@ class SimulateWorkflow(BaseWorkflow):
         self._directory = directory
         self._n = n
         self._num_blocks = n // blocksize
-        super(SimulateWorkflow, self).__init__()
+        super(SimulateBlocksWorkflow, self).__init__()
 
     @property
     def n(self):
@@ -98,15 +98,15 @@ class SimulateWorkflow(BaseWorkflow):
             os.system("hypothesis merge --dimension 0 --sort --extension numpy --out " + out + " --files '" + query + "'")
 
 
-class SimulateTrainTestWorkflow(BaseWorkflow):
+class SimulateTrainTestBlocksWorkflow(BaseWorkflow):
 
     def __init__(self, prior, simulator, directory=".", n_train=1000000, n_test=1000000, blocksize=1000, **kwargs):
         self._directory = directory
-        super(SimulateTrainTestWorkflow, self).__init__()
+        super(SimulateTrainTestBlocksWorkflow, self).__init__()
         path_test = directory + "/test"
         path_train = directory + "/train"
-        workflow_test = SimulateWorkflow(prior, simulator, directory=path_test, n=n_test, blocksize=blocksize, **kwargs)
-        workflow_train = SimulateWorkflow(prior, simulator, directory=path_train, n=n_train, blocksize=blocksize, **kwargs)
+        workflow_test = SimulateBlocksWorkflow(prior, simulator, directory=path_test, n=n_test, blocksize=blocksize, **kwargs)
+        workflow_train = SimulateBlocksWorkflow(prior, simulator, directory=path_train, n=n_train, blocksize=blocksize, **kwargs)
         self.attach([workflow_test, workflow_train])
 
     def _build_graph(self):

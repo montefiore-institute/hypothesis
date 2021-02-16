@@ -4,7 +4,7 @@ import hypothesis.workflow as h
 import os
 import shutil
 
-from hypothesis.workflow import SimulateTrainTestWorkflow
+from hypothesis.workflow import SimulateTrainTestBlocksWorkflow
 from hypothesis.benchmark.spatialsir import Prior
 from hypothesis.benchmark.spatialsir import Simulator
 
@@ -15,7 +15,7 @@ arguments, _ = parser.parse_known_args()
 
 prior = Prior
 simulator = Simulator
-workflow = SimulateTrainTestWorkflow(prior, simulator,
+workflow = SimulateTrainTestBlocksWorkflow(prior, simulator,
     directory="data",
     n_train=arguments.n,
     n_test=arguments.n,
