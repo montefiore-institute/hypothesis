@@ -163,7 +163,7 @@ class ConservativeCriterion(BaseCriterion):
     def __init__(self,
         estimator,
         calibrate=True,
-        conservativeness=0.05,
+        conservativeness=0.01,
         batch_size=h.default.batch_size,
         logits=False):
         super(ConservativeCriterion, self).__init__(
