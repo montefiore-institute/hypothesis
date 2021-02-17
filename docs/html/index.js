@@ -1065,7 +1065,7 @@ INDEX=[
 {
 "ref":"hypothesis.workflow.workflow",
 "url":46,
-"doc":""
+"doc":"Predefined workflows, ready for usage."
 },
 {
 "ref":"hypothesis.workflow.workflow.simulate",
