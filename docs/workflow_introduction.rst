@@ -1,5 +1,0 @@
-============
-Introduction
-============
-
-Introduction to workflows

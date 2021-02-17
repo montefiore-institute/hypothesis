@@ -42,5 +42,4 @@ twine==3.3.0
 urllib3==1.26.2
 virtualenv==20.2.2
 webencodings==0.5.1
-faculty-sphinx-theme
-Sphinx
+pdoc3

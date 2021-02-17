@@ -1,7 +1,0 @@
-.. highlight:: shell
-
-============
-Introduction
-============
-
-TODO

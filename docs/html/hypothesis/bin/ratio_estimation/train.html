@@ -1,0 +1,601 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>hypothesis.bin.ratio_estimation.train API documentation</title>
+<meta name="description" content="Utility program to train ratio estimators …" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}#lunr-search{width:100%;font-size:1em;padding:6px 9px 5px 9px;border:1px solid silver}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS_CHTML" integrity="sha256-kZafAc6mZvK3W3v1pHOcUix30OHQN6pU/NO2oFkqZVw=" crossorigin></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>hypothesis.bin.ratio_estimation.train</code></h1>
+</header>
+<section id="section-intro">
+<p>Utility program to train ratio estimators.</p>
+<p>This program provides a whole range of utilities to
+monitor and train ratio estimators in various ways.
+All defined through command line arguments!</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">r&#34;&#34;&#34;Utility program to train ratio estimators.
+
+This program provides a whole range of utilities to
+monitor and train ratio estimators in various ways.
+All defined through command line arguments!
+
+&#34;&#34;&#34;
+
+import argparse
+import hypothesis as h
+import hypothesis.workflow as w
+import numpy as np
+import os
+import torch
+
+from hypothesis.train import RatioEstimatorTrainer as Trainer
+from hypothesis.util import load_module
+from hypothesis.util.data import NamedDataset
+from tqdm import tqdm
+
+
+# Globals
+p_bottom = None
+p_top = None
+
+
+def main(arguments):
+    # Allocate the datasets
+    dataset_test = load_dataset_test(arguments)
+    dataset_train = load_dataset_train(arguments)
+    dataset_validate = load_dataset_validate(arguments)
+    # Allocate the ratio estimator
+    estimator = load_ratio_estimator(arguments)
+    # Allocate the optimizer
+    optimizer = load_optimizer(arguments, estimator)
+    # Allocate the trainer instance
+    trainer = Trainer(
+        estimator=estimator,
+        optimizer=optimizer,
+        accelerator=h.accelerator,
+        batch_size=arguments.batch_size,
+        conservativeness=arguments.conservativeness,
+        dataset_test=dataset_test,
+        dataset_train=dataset_train,
+        dataset_validate=dataset_validate,
+        epochs=arguments.epochs,
+        logits=not arguments.no_logits,
+        pin_memory=arguments.pin_memory,
+        shuffle=not arguments.dont_shuffle,
+        show=arguments.show,
+        workers=arguments.workers)
+    # Add the hooks to the training object.
+    add_hooks(arguments, trainer)
+    # Start the optimization procedure
+    trainer.fit()
+    # Save the generated results.
+    if os.path.isdir(arguments.out):
+        # Save the associated losses.
+        if len(trainer.losses_test) &gt; 0:
+            np.save(arguments.out + &#34;/losses-test.npy&#34;, trainer.losses_test)
+        if len(trainer.losses_validate) &gt; 0:
+            np.save(arguments.out + &#34;/losses-validation.npy&#34;, trainer.losses_validate)
+        if len(trainer.losses_train) &gt; 0:
+            np.save(arguments.out + &#34;/losses-train.npy&#34;, trainer.losses_train)
+        # Save the state dict of the best ratio estimator
+        torch.save(trainer.best_state_dict, arguments.out + &#34;/weights.th&#34;)
+        torch.save(trainer.state_dict, arguments.out + &#34;/weights-final.th&#34;)
+
+
+def load_dataset_test(arguments):
+    if arguments.data_test is not None:
+        dataset = load_module(arguments.data_test)()
+        assert isinstance(dataset, NamedDataset)
+    else:
+        dataset = None
+
+    return dataset
+
+
+def load_dataset_train(arguments):
+    if arguments.data_train is not None:
+        dataset = load_module(arguments.data_train)()
+        assert isinstance(dataset, NamedDataset)
+    else:
+        dataset = None
+
+    return dataset
+
+
+def load_dataset_validate(arguments):
+    if arguments.data_validate is not None:
+        dataset = load_module(arguments.data_validate)()
+        assert isinstance(dataset, NamedDataset)
+    else:
+        dataset = None
+
+    return dataset
+
+
+def load_ratio_estimator(arguments):
+    RatioEstimator = load_module(arguments.estimator)
+    estimator = RatioEstimator()
+    # Check if we are able to allocate a data parallel model.
+    if torch.cuda.device_count() &gt; 1 and arguments.data_parallel:
+        estimator = torch.nn.DataParallel(estimator)
+    estimator = estimator.to(h.accelerator)
+
+    return estimator
+
+
+def load_optimizer(arguments, estimator):
+    optimizer = torch.optim.AdamW(
+        estimator.parameters(),
+        lr=arguments.lr,
+        weight_decay=arguments.weight_decay)
+
+    return optimizer
+
+
+def add_hooks(arguments, trainer):
+    # Add the learning rate scheduling hooks
+    add_hooks_lr_scheduling(arguments, trainer)
+    # Check if a custom hook method has been specified.
+    if arguments.hooks is not None:
+        hook_loader = load_module(arguments.hooks)
+        hook_loader(arguments, trainer)
+
+
+def add_hooks_lr_scheduling(arguments, trainer):
+    # Check which learning rate scheduler has been specified
+    if arguments.lrsched_on_plateau:
+        add_hooks_lr_scheduling_on_plateau(arguments, trainer)
+    elif arguments.lrsched_cyclic:
+        add_hooks_lr_scheduling_cyclic(arguments, trainer)
+
+
+def add_hooks_lr_scheduling_on_plateau(arguments, trainer):
+    # Check if a test set is available, as the scheduler required a metric.
+    if arguments.data_test is not None:
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(trainer.optimizer)
+        def schedule(trainer, **kwargs):
+            scheduler.step(trainer.losses_test[-1])
+        trainer.add_event_handler(trainer.events.epoch_complete, schedule)
+
+
+def add_hooks_lr_scheduling_cyclic(arguments, trainer):
+    scheduler = torch.optim.lr_scheduler.CyclicLR(trainer.optimizer,
+        cycle_momentum=False,
+        base_lr=arguments.lrsched_cyclic_base_lr,
+        max_lr=arguments.lrsched_cyclic_max_lr)
+    def schedule(trainer, **kwargs):
+        scheduler.step()
+    trainer.add_event_handler(trainer.events.batch_train_complete, schedule)
+
+
+def parse_arguments():
+    parser = argparse.ArgumentParser()
+    # General settings
+    parser.add_argument(&#34;--data-parallel&#34;, action=&#34;store_true&#34;, help=&#34;Enable data-parallel training whenever multiple GPU&#39;s are available (default: false).&#34;)
+    parser.add_argument(&#34;--disable-gpu&#34;, action=&#34;store_true&#34;, help=&#34;Disable the usage of GPU&#39;s (default: false).&#34;)
+    parser.add_argument(&#34;--dont-shuffle&#34;, action=&#34;store_true&#34;, help=&#34;Do not shuffle the datasets (default: false).&#34;)
+    parser.add_argument(&#34;--hooks&#34;, type=str, default=None, help=&#34;Method name (including module) to which adds custom hooks to the trainer (default: none).&#34;)
+    parser.add_argument(&#34;--out&#34;, type=str, default=&#39;.&#39;, help=&#34;Output directory of the generated files (default: &#39;.&#39;).&#34;)
+    parser.add_argument(&#34;--pin-memory&#34;, action=&#34;store_true&#34;, help=&#34;Memory map and pipeline data loading to the GPU (default: false).&#34;)
+    parser.add_argument(&#34;--show&#34;, action=&#34;store_true&#34;, help=&#34;Show progress of the training to stdout (default: false).&#34;)
+    # Optimization settings
+    parser.add_argument(&#34;--batch-size&#34;, type=int, default=256, help=&#34;Batch size (default: 256).&#34;)
+    parser.add_argument(&#34;--conservativeness&#34;, type=float, default=0.0, help=&#34;Conservative term (default: 0.0).&#34;)
+    parser.add_argument(&#34;--epochs&#34;, type=int, default=1, help=&#34;Number of epochs (default: 1).&#34;)
+    parser.add_argument(&#34;--no-logits&#34;, action=&#34;store_true&#34;, help=&#34;Do not the logit-trick for the minimization criterion (default: false).&#34;)
+    parser.add_argument(&#34;--lr&#34;, type=float, default=0.0001, help=&#34;Learning rate (default: 0.001).&#34;)
+    parser.add_argument(&#34;--weight-decay&#34;, type=float, default=0.0, help=&#34;Weight decay (default: 0.0).&#34;)
+    parser.add_argument(&#34;--workers&#34;, type=int, default=4, help=&#34;Number of concurrent data loaders (default: 4).&#34;)
+    # Data settings
+    parser.add_argument(&#34;--data-test&#34;, type=str, default=None, help=&#34;Full classname of the testing dataset (default: none, optional).&#34;)
+    parser.add_argument(&#34;--data-train&#34;, type=str, default=None, help=&#34;Full classname of the training dataset (default: none).&#34;)
+    parser.add_argument(&#34;--data-validate&#34;, type=str, default=None, help=&#34;Full classname of the validation dataset (default: none, optional).&#34;)
+    # Ratio estimator settings
+    parser.add_argument(&#34;--estimator&#34;, type=str, default=None, help=&#34;Full classname of the ratio estimator (default: none).&#34;)
+    # Learning rate scheduling (you can only allocate 1 learning rate scheduler, they will be allocated in the following order.)
+    ## Learning rate scheduling on a plateau
+    parser.add_argument(&#34;--lrsched-on-plateau&#34;, action=&#34;store_true&#34;, help=&#34;Enables learning rate scheduling whenever a plateau has been detected (default: false).&#34;)
+    ## Cyclic learning rate scheduling
+    parser.add_argument(&#34;--lrsched-cyclic&#34;, action=&#34;store_true&#34;, help=&#34;Enables cyclic learning rate scheduling. Requires a test dataset to be specified (default: true).&#34;)
+    parser.add_argument(&#34;--lrsched-cyclic-base-lr&#34;, type=float, default=None, help=&#34;Base learning rate of the scheduler (default: --lr / 10).&#34;)
+    parser.add_argument(&#34;--lrsched-cyclic-max-lr&#34;, type=float, default=None, help=&#34;Maximum learning rate of the scheduler (default: --lr).&#34;)
+    # Parse the supplied arguments
+    arguments, _ = parser.parse_known_args()
+
+    # Set the default options of the cyclic learning rate scheduler
+    if arguments.lrsched_cyclic_base_lr is None:
+        arguments.lrsched_cyclic_base_lr = arguments.lr / 10
+    if arguments.lrsched_cyclic_max_lr is None:
+        arguments.lrsched_cyclic_max_lr = arguments.lr
+
+    return arguments
+
+
+if __name__ == &#34;__main__&#34;:
+    arguments = parse_arguments()
+    if arguments.disable_gpu:
+        h.disable_gpu()
+    main(arguments)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="hypothesis.bin.ratio_estimation.train.add_hooks"><code class="name flex">
+<span>def <span class="ident">add_hooks</span></span>(<span>arguments, trainer)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_hooks(arguments, trainer):
+    # Add the learning rate scheduling hooks
+    add_hooks_lr_scheduling(arguments, trainer)
+    # Check if a custom hook method has been specified.
+    if arguments.hooks is not None:
+        hook_loader = load_module(arguments.hooks)
+        hook_loader(arguments, trainer)</code></pre>
+</details>
+</dd>
+<dt id="hypothesis.bin.ratio_estimation.train.add_hooks_lr_scheduling"><code class="name flex">
+<span>def <span class="ident">add_hooks_lr_scheduling</span></span>(<span>arguments, trainer)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_hooks_lr_scheduling(arguments, trainer):
+    # Check which learning rate scheduler has been specified
+    if arguments.lrsched_on_plateau:
+        add_hooks_lr_scheduling_on_plateau(arguments, trainer)
+    elif arguments.lrsched_cyclic:
+        add_hooks_lr_scheduling_cyclic(arguments, trainer)</code></pre>
+</details>
+</dd>
+<dt id="hypothesis.bin.ratio_estimation.train.add_hooks_lr_scheduling_cyclic"><code class="name flex">
+<span>def <span class="ident">add_hooks_lr_scheduling_cyclic</span></span>(<span>arguments, trainer)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_hooks_lr_scheduling_cyclic(arguments, trainer):
+    scheduler = torch.optim.lr_scheduler.CyclicLR(trainer.optimizer,
+        cycle_momentum=False,
+        base_lr=arguments.lrsched_cyclic_base_lr,
+        max_lr=arguments.lrsched_cyclic_max_lr)
+    def schedule(trainer, **kwargs):
+        scheduler.step()
+    trainer.add_event_handler(trainer.events.batch_train_complete, schedule)</code></pre>
+</details>
+</dd>
+<dt id="hypothesis.bin.ratio_estimation.train.add_hooks_lr_scheduling_on_plateau"><code class="name flex">
+<span>def <span class="ident">add_hooks_lr_scheduling_on_plateau</span></span>(<span>arguments, trainer)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_hooks_lr_scheduling_on_plateau(arguments, trainer):
+    # Check if a test set is available, as the scheduler required a metric.
+    if arguments.data_test is not None:
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(trainer.optimizer)
+        def schedule(trainer, **kwargs):
+            scheduler.step(trainer.losses_test[-1])
+        trainer.add_event_handler(trainer.events.epoch_complete, schedule)</code></pre>
+</details>
+</dd>
+<dt id="hypothesis.bin.ratio_estimation.train.load_dataset_test"><code class="name flex">
+<span>def <span class="ident">load_dataset_test</span></span>(<span>arguments)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_dataset_test(arguments):
+    if arguments.data_test is not None:
+        dataset = load_module(arguments.data_test)()
+        assert isinstance(dataset, NamedDataset)
+    else:
+        dataset = None
+
+    return dataset</code></pre>
+</details>
+</dd>
+<dt id="hypothesis.bin.ratio_estimation.train.load_dataset_train"><code class="name flex">
+<span>def <span class="ident">load_dataset_train</span></span>(<span>arguments)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_dataset_train(arguments):
+    if arguments.data_train is not None:
+        dataset = load_module(arguments.data_train)()
+        assert isinstance(dataset, NamedDataset)
+    else:
+        dataset = None
+
+    return dataset</code></pre>
+</details>
+</dd>
+<dt id="hypothesis.bin.ratio_estimation.train.load_dataset_validate"><code class="name flex">
+<span>def <span class="ident">load_dataset_validate</span></span>(<span>arguments)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_dataset_validate(arguments):
+    if arguments.data_validate is not None:
+        dataset = load_module(arguments.data_validate)()
+        assert isinstance(dataset, NamedDataset)
+    else:
+        dataset = None
+
+    return dataset</code></pre>
+</details>
+</dd>
+<dt id="hypothesis.bin.ratio_estimation.train.load_optimizer"><code class="name flex">
+<span>def <span class="ident">load_optimizer</span></span>(<span>arguments, estimator)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_optimizer(arguments, estimator):
+    optimizer = torch.optim.AdamW(
+        estimator.parameters(),
+        lr=arguments.lr,
+        weight_decay=arguments.weight_decay)
+
+    return optimizer</code></pre>
+</details>
+</dd>
+<dt id="hypothesis.bin.ratio_estimation.train.load_ratio_estimator"><code class="name flex">
+<span>def <span class="ident">load_ratio_estimator</span></span>(<span>arguments)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_ratio_estimator(arguments):
+    RatioEstimator = load_module(arguments.estimator)
+    estimator = RatioEstimator()
+    # Check if we are able to allocate a data parallel model.
+    if torch.cuda.device_count() &gt; 1 and arguments.data_parallel:
+        estimator = torch.nn.DataParallel(estimator)
+    estimator = estimator.to(h.accelerator)
+
+    return estimator</code></pre>
+</details>
+</dd>
+<dt id="hypothesis.bin.ratio_estimation.train.main"><code class="name flex">
+<span>def <span class="ident">main</span></span>(<span>arguments)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def main(arguments):
+    # Allocate the datasets
+    dataset_test = load_dataset_test(arguments)
+    dataset_train = load_dataset_train(arguments)
+    dataset_validate = load_dataset_validate(arguments)
+    # Allocate the ratio estimator
+    estimator = load_ratio_estimator(arguments)
+    # Allocate the optimizer
+    optimizer = load_optimizer(arguments, estimator)
+    # Allocate the trainer instance
+    trainer = Trainer(
+        estimator=estimator,
+        optimizer=optimizer,
+        accelerator=h.accelerator,
+        batch_size=arguments.batch_size,
+        conservativeness=arguments.conservativeness,
+        dataset_test=dataset_test,
+        dataset_train=dataset_train,
+        dataset_validate=dataset_validate,
+        epochs=arguments.epochs,
+        logits=not arguments.no_logits,
+        pin_memory=arguments.pin_memory,
+        shuffle=not arguments.dont_shuffle,
+        show=arguments.show,
+        workers=arguments.workers)
+    # Add the hooks to the training object.
+    add_hooks(arguments, trainer)
+    # Start the optimization procedure
+    trainer.fit()
+    # Save the generated results.
+    if os.path.isdir(arguments.out):
+        # Save the associated losses.
+        if len(trainer.losses_test) &gt; 0:
+            np.save(arguments.out + &#34;/losses-test.npy&#34;, trainer.losses_test)
+        if len(trainer.losses_validate) &gt; 0:
+            np.save(arguments.out + &#34;/losses-validation.npy&#34;, trainer.losses_validate)
+        if len(trainer.losses_train) &gt; 0:
+            np.save(arguments.out + &#34;/losses-train.npy&#34;, trainer.losses_train)
+        # Save the state dict of the best ratio estimator
+        torch.save(trainer.best_state_dict, arguments.out + &#34;/weights.th&#34;)
+        torch.save(trainer.state_dict, arguments.out + &#34;/weights-final.th&#34;)</code></pre>
+</details>
+</dd>
+<dt id="hypothesis.bin.ratio_estimation.train.parse_arguments"><code class="name flex">
+<span>def <span class="ident">parse_arguments</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def parse_arguments():
+    parser = argparse.ArgumentParser()
+    # General settings
+    parser.add_argument(&#34;--data-parallel&#34;, action=&#34;store_true&#34;, help=&#34;Enable data-parallel training whenever multiple GPU&#39;s are available (default: false).&#34;)
+    parser.add_argument(&#34;--disable-gpu&#34;, action=&#34;store_true&#34;, help=&#34;Disable the usage of GPU&#39;s (default: false).&#34;)
+    parser.add_argument(&#34;--dont-shuffle&#34;, action=&#34;store_true&#34;, help=&#34;Do not shuffle the datasets (default: false).&#34;)
+    parser.add_argument(&#34;--hooks&#34;, type=str, default=None, help=&#34;Method name (including module) to which adds custom hooks to the trainer (default: none).&#34;)
+    parser.add_argument(&#34;--out&#34;, type=str, default=&#39;.&#39;, help=&#34;Output directory of the generated files (default: &#39;.&#39;).&#34;)
+    parser.add_argument(&#34;--pin-memory&#34;, action=&#34;store_true&#34;, help=&#34;Memory map and pipeline data loading to the GPU (default: false).&#34;)
+    parser.add_argument(&#34;--show&#34;, action=&#34;store_true&#34;, help=&#34;Show progress of the training to stdout (default: false).&#34;)
+    # Optimization settings
+    parser.add_argument(&#34;--batch-size&#34;, type=int, default=256, help=&#34;Batch size (default: 256).&#34;)
+    parser.add_argument(&#34;--conservativeness&#34;, type=float, default=0.0, help=&#34;Conservative term (default: 0.0).&#34;)
+    parser.add_argument(&#34;--epochs&#34;, type=int, default=1, help=&#34;Number of epochs (default: 1).&#34;)
+    parser.add_argument(&#34;--no-logits&#34;, action=&#34;store_true&#34;, help=&#34;Do not the logit-trick for the minimization criterion (default: false).&#34;)
+    parser.add_argument(&#34;--lr&#34;, type=float, default=0.0001, help=&#34;Learning rate (default: 0.001).&#34;)
+    parser.add_argument(&#34;--weight-decay&#34;, type=float, default=0.0, help=&#34;Weight decay (default: 0.0).&#34;)
+    parser.add_argument(&#34;--workers&#34;, type=int, default=4, help=&#34;Number of concurrent data loaders (default: 4).&#34;)
+    # Data settings
+    parser.add_argument(&#34;--data-test&#34;, type=str, default=None, help=&#34;Full classname of the testing dataset (default: none, optional).&#34;)
+    parser.add_argument(&#34;--data-train&#34;, type=str, default=None, help=&#34;Full classname of the training dataset (default: none).&#34;)
+    parser.add_argument(&#34;--data-validate&#34;, type=str, default=None, help=&#34;Full classname of the validation dataset (default: none, optional).&#34;)
+    # Ratio estimator settings
+    parser.add_argument(&#34;--estimator&#34;, type=str, default=None, help=&#34;Full classname of the ratio estimator (default: none).&#34;)
+    # Learning rate scheduling (you can only allocate 1 learning rate scheduler, they will be allocated in the following order.)
+    ## Learning rate scheduling on a plateau
+    parser.add_argument(&#34;--lrsched-on-plateau&#34;, action=&#34;store_true&#34;, help=&#34;Enables learning rate scheduling whenever a plateau has been detected (default: false).&#34;)
+    ## Cyclic learning rate scheduling
+    parser.add_argument(&#34;--lrsched-cyclic&#34;, action=&#34;store_true&#34;, help=&#34;Enables cyclic learning rate scheduling. Requires a test dataset to be specified (default: true).&#34;)
+    parser.add_argument(&#34;--lrsched-cyclic-base-lr&#34;, type=float, default=None, help=&#34;Base learning rate of the scheduler (default: --lr / 10).&#34;)
+    parser.add_argument(&#34;--lrsched-cyclic-max-lr&#34;, type=float, default=None, help=&#34;Maximum learning rate of the scheduler (default: --lr).&#34;)
+    # Parse the supplied arguments
+    arguments, _ = parser.parse_known_args()
+
+    # Set the default options of the cyclic learning rate scheduler
+    if arguments.lrsched_cyclic_base_lr is None:
+        arguments.lrsched_cyclic_base_lr = arguments.lr / 10
+    if arguments.lrsched_cyclic_max_lr is None:
+        arguments.lrsched_cyclic_max_lr = arguments.lr
+
+    return arguments</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<form>
+<input id="lunr-search" name="q" placeholder="🔎 Search ..." aria-label="Search"
+disabled minlength="2">
+</form>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/tingle/0.15.3/tingle.min.css" integrity="sha512-j1u8eUJ4f23xPPxwOrLUPQaCD2dwzNqqmDDcWS4deWsMv2ohLqmXXuP3hU7g8TyzbMSakP/mMqoNBYWj8AEIFg==" crossorigin>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tingle/0.15.3/tingle.min.js" integrity="sha512-plGUER9JkeEWPPqQBE4sdLqBoQug5Ap+BCGMc7bJ8BXkm+VVj6QzkpBz5Yv2yPkkq+cqg9IpkBaGCas6uDbW8g==" crossorigin></script>
+<style>
+.modal-dialog iframe {
+width: 100vw;
+height: calc(100vh - 80px);
+}
+@media screen and (min-width: 700px) {
+.modal-dialog iframe {
+width: 70vw;
+height: 80vh;
+}
+}
+.modal-dialog .tingle-modal-box {width: auto;}
+.modal-dialog .tingle-modal-box__content {padding: 0;}
+</style>
+<script>
+const input = document.getElementById('lunr-search');
+input.disabled = false;
+input.form.addEventListener('submit', (ev) => {
+ev.preventDefault();
+const url = new URL(window.location);
+url.searchParams.set('q', input.value);
+history.replaceState({}, null, url.toString());
+search(input.value);
+});
+const query = new URL(window.location).searchParams.get('q');
+if (query)
+search(query);
+function search(query) {
+const url = '../../../doc-search.html#' + encodeURIComponent(query);
+new tingle.modal({
+cssClass: ['modal-dialog'],
+onClose: () => {
+const url = new URL(window.location);
+url.searchParams.delete('q');
+history.replaceState({}, null, url.toString());
+setTimeout(() => input.focus(), 100);
+}
+}).setContent('<iframe src="' + url + '"></iframe>').open();
+}
+</script>
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="hypothesis.bin.ratio_estimation" href="index.html">hypothesis.bin.ratio_estimation</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="hypothesis.bin.ratio_estimation.train.add_hooks" href="#hypothesis.bin.ratio_estimation.train.add_hooks">add_hooks</a></code></li>
+<li><code><a title="hypothesis.bin.ratio_estimation.train.add_hooks_lr_scheduling" href="#hypothesis.bin.ratio_estimation.train.add_hooks_lr_scheduling">add_hooks_lr_scheduling</a></code></li>
+<li><code><a title="hypothesis.bin.ratio_estimation.train.add_hooks_lr_scheduling_cyclic" href="#hypothesis.bin.ratio_estimation.train.add_hooks_lr_scheduling_cyclic">add_hooks_lr_scheduling_cyclic</a></code></li>
+<li><code><a title="hypothesis.bin.ratio_estimation.train.add_hooks_lr_scheduling_on_plateau" href="#hypothesis.bin.ratio_estimation.train.add_hooks_lr_scheduling_on_plateau">add_hooks_lr_scheduling_on_plateau</a></code></li>
+<li><code><a title="hypothesis.bin.ratio_estimation.train.load_dataset_test" href="#hypothesis.bin.ratio_estimation.train.load_dataset_test">load_dataset_test</a></code></li>
+<li><code><a title="hypothesis.bin.ratio_estimation.train.load_dataset_train" href="#hypothesis.bin.ratio_estimation.train.load_dataset_train">load_dataset_train</a></code></li>
+<li><code><a title="hypothesis.bin.ratio_estimation.train.load_dataset_validate" href="#hypothesis.bin.ratio_estimation.train.load_dataset_validate">load_dataset_validate</a></code></li>
+<li><code><a title="hypothesis.bin.ratio_estimation.train.load_optimizer" href="#hypothesis.bin.ratio_estimation.train.load_optimizer">load_optimizer</a></code></li>
+<li><code><a title="hypothesis.bin.ratio_estimation.train.load_ratio_estimator" href="#hypothesis.bin.ratio_estimation.train.load_ratio_estimator">load_ratio_estimator</a></code></li>
+<li><code><a title="hypothesis.bin.ratio_estimation.train.main" href="#hypothesis.bin.ratio_estimation.train.main">main</a></code></li>
+<li><code><a title="hypothesis.bin.ratio_estimation.train.parse_arguments" href="#hypothesis.bin.ratio_estimation.train.parse_arguments">parse_arguments</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

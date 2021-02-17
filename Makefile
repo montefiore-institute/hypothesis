@@ -63,14 +63,11 @@ coverage: ## check code coverage quickly with the default Python
 	$(BROWSER) htmlcov/index.html
 
 docs: ## generate Sphinx HTML documentation, including API docs
-	rm -f docs/hypothesis.rst
-	rm -f docs/modules.rst
-	sphinx-apidoc -fM -d 5 -o docs/ hypothesis
-	$(MAKE) -C docs clean
-	for f in docs/hypothesis.*; do\
-		perl -pi -e 's/(module|package)$$// if $$. == 1' $$f ;\
-	done
-	$(MAKE) -C docs html
+	rm -rf docs
+	mkdir -p docs/markdown
+	pdoc3 -o docs/markdown hypothesis
+	mkdir -p docs/html
+	pdoc3 -o docs/html --html --config 'lunr_search={"fuzziness": 1}' --config 'latex_math=True' hypothesis
 
 release: dist ## package and upload a release
 	twine upload dist/*

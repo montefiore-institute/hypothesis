@@ -1,0 +1,50 @@
+Module hypothesis.train.base
+============================
+
+Classes
+-------
+
+`BaseTrainer(accelerator=device(type='cpu'), batch_size=4096, dataset_test=None, dataset_validate=None, dataset_train=None, epochs=1, pin_memory=True, shuffle=True, workers=4)`
+:   
+
+    ### Ancestors (in MRO)
+
+    * hypothesis.engine.base.Procedure
+
+    ### Descendants
+
+    * hypothesis.train.ratio_estimation.base.RatioEstimatorTrainer
+
+    ### Instance variables
+
+    `accelerator`
+    :
+
+    `current_epoch`
+    :
+
+    `epochs`
+    :
+
+    `losses_test`
+    :
+
+    `losses_train`
+    :
+
+    `losses_validate`
+    :
+
+    ### Methods
+
+    `fit(self)`
+    :
+
+    `test(self)`
+    :
+
+    `train(self)`
+    :
+
+    `validate(self)`
+    :

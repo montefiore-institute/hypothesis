@@ -6,7 +6,7 @@ statistical problems. Utilities are provided for data loading, efficient
 simulation, visualization, fire-and-forget inference, and validation.
 """
 
-__name__
+__name__ = "hypothesis"
 __version__ = "0.4.0"
 __author__ = [
     "Joeri Hermans"]

@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>hypothesis.bin.workflow.cli API documentation</title>
+<meta name="description" content="A utility program to handle Hypothesis workflows." />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}#lunr-search{width:100%;font-size:1em;padding:6px 9px 5px 9px;border:1px solid silver}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS_CHTML" integrity="sha256-kZafAc6mZvK3W3v1pHOcUix30OHQN6pU/NO2oFkqZVw=" crossorigin></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>hypothesis.bin.workflow.cli</code></h1>
+</header>
+<section id="section-intro">
+<p>A utility program to handle Hypothesis workflows.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">r&#34;&#34;&#34;A utility program to handle Hypothesis workflows.
+
+&#34;&#34;&#34;
+
+import argparse
+import coloredlogs
+import glob
+import hypothesis as h
+import hypothesis.workflow as w
+import hypothesis.workflow.local
+import hypothesis.workflow.slurm
+import imp
+import logging
+import os
+import shutil
+import sys
+import tempfile
+
+
+def main():
+    prepare_directory()
+    arguments = parse_arguments()
+    # Module mapping
+    mapping = {
+        &#34;delete&#34;: delete_workflow,
+        &#34;clean&#34;: clean_workflows,
+        &#34;execute&#34;: execute_workflow,
+        &#34;goto&#34;: goto_workflow,
+        &#34;status&#34;: workflow_status,
+        &#34;list&#34;: list_store}
+    # Check what module needs to be executed
+    if len(arguments.args) &gt; 0:
+        command = arguments.args[0]
+        if command in mapping:
+            f = mapping[command]
+            f(arguments)
+
+
+def store_directory():
+    return os.path.expanduser(&#34;~&#34;) + &#34;/.hypothesis/workflow&#34;
+
+
+def list_store(arguments):
+    store = store_directory()
+    paths = os.listdir(store_directory())
+    entries = []
+    for p in paths:
+        if os.path.isdir(store + &#39;/&#39; + p):
+            print(p)
+
+
+def delete_workflow(arguments):
+    assert_slurm_detected()
+    query = store_directory() + &#34;/*&#34; + arguments.args[1] + &#39;*&#39; + &#34;/slurm_jobs&#34;
+    paths = glob.glob(query)
+    if len(paths) == 0:
+        logging.critical(&#34;The specified workflow could not be found. Try `list`.&#34;)
+        sys.exit(0)
+    workflow_path = paths[0]
+    workflow_directory = os.path.dirname(os.path.realpath(workflow_path))
+    f = open(workflow_path, &#39;r&#39;)
+    lines = f.readlines()
+    f.close()
+    logging.info(&#34;Cancelling Slurm jobs related to workflow.&#34;)
+    for identifier in lines:
+        identifier = identifier[:-1]
+        if h.util.is_integer(identifier):
+            os.system(&#34;scancel &#34; + identifier)
+            logging.info(&#34;Cancelled Slurm job &#34; + identifier + &#34;.&#34;)
+    shutil.rmtree(workflow_directory)
+
+
+def clean_workflows(arguments):
+    raise NotImplementedError
+
+
+def workflow_status(arguments):
+    assert_slurm_detected()
+    raise NotImplementedError
+
+
+def execute_workflow(arguments):
+    executor = load_default_executor()
+    if arguments.slurm:
+        executor = &#34;slurm&#34;
+    if arguments.local:
+        executor = &#34;local&#34;
+    executors = {
+        &#34;slurm&#34;: execute_slurm,
+        &#34;local&#34;: execute_local}
+    imp.load_source(&#39;__main__&#39;, arguments.args[1])
+    executors[executor](arguments)
+
+
+def goto_workflow(arguments):
+    workflow_name = arguments.args[1]
+    query = store_directory() + &#34;/&#34; + workflow_name
+    if not os.path.exists(query):
+        logging.critical(&#34;The specified workflow could not be found. Try `list`.&#34;)
+        sys.exit(0)
+    if &#34;SHELL&#34; in os.environ:
+        os.chdir(query)
+        os.system(os.environ[&#34;SHELL&#34;])
+    else:
+        logging.critical(&#34;Changing directories not supported on this system.&#34;)
+
+
+def prepare_directory():
+    path = store_directory()
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+
+def assert_slurm_detected():
+    if not hypothesis.workflow.slurm.slurm_detected():
+        logging.critical(&#34;Slurm is not configured on this system!&#34;)
+        sys.exit(1)
+
+
+def execute_slurm(arguments):
+    assert_slurm_detected()
+    context = w.context
+    context.prune()
+    if context.root is not None:
+        if not arguments.parsable:
+            logging.info(&#34;Using Slurm backend.&#34;)
+        if arguments.name is None:
+            store = tempfile.mkdtemp(dir=store_directory())
+            name = os.path.basename(store)
+            if arguments.parsable:
+                logging.info(name)
+            else:
+                logging.info(&#34;Executing workflow &#34; + name)
+        else:
+            name = arguments.name
+            store = store_directory() + &#39;/&#39; + name
+            if os.path.exists(store):
+                logging.critical(&#34;The workflow name with `&#34; + name + &#34;` already exists.&#34;)
+                sys.exit(1)
+            else:
+                os.makedirs(store)
+        if arguments.directory is None:
+            directory = store
+        else:
+            directory = arguments.directory
+        hypothesis.workflow.slurm.execute(
+            directory=directory,
+            environment=arguments.environment,
+            partition=arguments.partition,
+            store=store,
+            cleanup=arguments.cleanup)
+    else:
+        logging.critical(&#34;Postconditions of computational graph are met. Nothing to do.&#34;)
+
+
+def execute_local(arguments):
+    if not arguments.parsable:
+        logging.info(&#34;Using local backend.&#34;)
+    hypothesis.workflow.local.execute()
+
+
+def load_default_executor():
+    if hypothesis.workflow.slurm.slurm_detected():
+        return &#34;slurm&#34;
+    else:
+        return &#34;local&#34;
+
+
+def parse_arguments():
+    parser = argparse.ArgumentParser()
+    # Slurm backend configuration
+    parser.add_argument(&#34;--cleanup&#34;, action=&#34;store_true&#34;, help=&#34;Enables the cleanup subroutine of the Slurm submission scripts.&#34;)
+    parser.add_argument(&#34;--description&#34;, type=str, default=None, help=&#34;Provide a description to the workflow (default: none).&#34;)
+    parser.add_argument(&#34;--directory&#34;, type=str, default=None, help=&#34;Directory to generate the Slurm submission scripts (default: Hypothesis store).&#34;)
+    parser.add_argument(&#34;--environment&#34;, type=str, default=None, help=&#34;Anaconda environment to execute the Slurm tasks with (default: none).&#34;)
+    parser.add_argument(&#34;--name&#34;, type=str, default=None, help=&#34;Determines the name of the workflow (default: random).&#34;)
+    parser.add_argument(&#34;--partition&#34;, type=str, default=None, help=&#34;Slurm partition to deploy the job to (default: none).&#34;)
+    # Logging options
+    parser.add_argument(&#34;--parsable&#34;, action=&#34;store_true&#34;, help=&#34;Outputs to stdout should be easily parsable (default: false).&#34;)
+    parser.add_argument(&#34;--format&#34;, type=str, default=&#34;%(message)s&#34;, help=&#34;Format of the logger.&#34;)
+    parser.add_argument(&#34;--level&#34;, default=&#34;info&#34;, type=str, help=&#34;Minimum logging level (default: warning) (options: debug, goto, info, warning, error, critical).&#34;)
+    parser.add_argument(&#34;-v&#34;, action=&#34;store_true&#34;, help=&#34;Enable verbosity in the details of the log messages (default: false).&#34;)
+    # Executor backend
+    parser.add_argument(&#34;--slurm&#34;, action=&#34;store_true&#34;, help=&#34;Force the usage the Slurm executor backend.&#34;)
+    parser.add_argument(&#34;--local&#34;, action=&#34;store_true&#34;, help=&#34;Force the usage the local executor backend.&#34;)
+    # Workflow modules
+    parser.add_argument(&#34;args&#34;, nargs=&#39;*&#39;, help=&#34;Slurm backend utilities, currently supporting: delete, clean, execute, list.&#34;)
+    # Parse the arguments
+    arguments, _ = parser.parse_known_args()
+    arguments.level = arguments.level.lower()
+    logging_level_mapping = {
+        &#34;debug&#34;: logging.DEBUG,
+        &#34;info&#34;: logging.INFO,
+        &#34;warning&#34;: logging.WARNING,
+        &#34;error&#34;: logging.ERROR,
+        &#34;critical&#34;: logging.CRITICAL}
+    if arguments.level in logging_level_mapping.keys():
+        level = logging_level_mapping[arguments.level]
+        logging.getLogger().setLevel(level)
+    if arguments.v:
+        arguments.format = &#34;%(asctime)-15s &#34; + arguments.format
+    coloredlogs.install(fmt=arguments.format)
+
+    return arguments
+
+
+if __name__ == &#34;__main__&#34;:
+    main()</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="hypothesis.bin.workflow.cli.assert_slurm_detected"><code class="name flex">
+<span>def <span class="ident">assert_slurm_detected</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def assert_slurm_detected():
+    if not hypothesis.workflow.slurm.slurm_detected():
+        logging.critical(&#34;Slurm is not configured on this system!&#34;)
+        sys.exit(1)</code></pre>
+</details>
+</dd>
+<dt id="hypothesis.bin.workflow.cli.clean_workflows"><code class="name flex">
+<span>def <span class="ident">clean_workflows</span></span>(<span>arguments)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def clean_workflows(arguments):
+    raise NotImplementedError</code></pre>
+</details>
+</dd>
+<dt id="hypothesis.bin.workflow.cli.delete_workflow"><code class="name flex">
+<span>def <span class="ident">delete_workflow</span></span>(<span>arguments)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def delete_workflow(arguments):
+    assert_slurm_detected()
+    query = store_directory() + &#34;/*&#34; + arguments.args[1] + &#39;*&#39; + &#34;/slurm_jobs&#34;
+    paths = glob.glob(query)
+    if len(paths) == 0:
+        logging.critical(&#34;The specified workflow could not be found. Try `list`.&#34;)
+        sys.exit(0)
+    workflow_path = paths[0]
+    workflow_directory = os.path.dirname(os.path.realpath(workflow_path))
+    f = open(workflow_path, &#39;r&#39;)
+    lines = f.readlines()
+    f.close()
+    logging.info(&#34;Cancelling Slurm jobs related to workflow.&#34;)
+    for identifier in lines:
+        identifier = identifier[:-1]
+        if h.util.is_integer(identifier):
+            os.system(&#34;scancel &#34; + identifier)
+            logging.info(&#34;Cancelled Slurm job &#34; + identifier + &#34;.&#34;)
+    shutil.rmtree(workflow_directory)</code></pre>
+</details>
+</dd>
+<dt id="hypothesis.bin.workflow.cli.execute_local"><code class="name flex">
+<span>def <span class="ident">execute_local</span></span>(<span>arguments)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def execute_local(arguments):
+    if not arguments.parsable:
+        logging.info(&#34;Using local backend.&#34;)
+    hypothesis.workflow.local.execute()</code></pre>
+</details>
+</dd>
+<dt id="hypothesis.bin.workflow.cli.execute_slurm"><code class="name flex">
+<span>def <span class="ident">execute_slurm</span></span>(<span>arguments)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def execute_slurm(arguments):
+    assert_slurm_detected()
+    context = w.context
+    context.prune()
+    if context.root is not None:
+        if not arguments.parsable:
+            logging.info(&#34;Using Slurm backend.&#34;)
+        if arguments.name is None:
+            store = tempfile.mkdtemp(dir=store_directory())
+            name = os.path.basename(store)
+            if arguments.parsable:
+                logging.info(name)
+            else:
+                logging.info(&#34;Executing workflow &#34; + name)
+        else:
+            name = arguments.name
+            store = store_directory() + &#39;/&#39; + name
+            if os.path.exists(store):
+                logging.critical(&#34;The workflow name with `&#34; + name + &#34;` already exists.&#34;)
+                sys.exit(1)
+            else:
+                os.makedirs(store)
+        if arguments.directory is None:
+            directory = store
+        else:
+            directory = arguments.directory
+        hypothesis.workflow.slurm.execute(
+            directory=directory,
+            environment=arguments.environment,
+            partition=arguments.partition,
+            store=store,
+            cleanup=arguments.cleanup)
+    else:
+        logging.critical(&#34;Postconditions of computational graph are met. Nothing to do.&#34;)</code></pre>
+</details>
+</dd>
+<dt id="hypothesis.bin.workflow.cli.execute_workflow"><code class="name flex">
+<span>def <span class="ident">execute_workflow</span></span>(<span>arguments)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def execute_workflow(arguments):
+    executor = load_default_executor()
+    if arguments.slurm:
+        executor = &#34;slurm&#34;
+    if arguments.local:
+        executor = &#34;local&#34;
+    executors = {
+        &#34;slurm&#34;: execute_slurm,
+        &#34;local&#34;: execute_local}
+    imp.load_source(&#39;__main__&#39;, arguments.args[1])
+    executors[executor](arguments)</code></pre>
+</details>
+</dd>
+<dt id="hypothesis.bin.workflow.cli.goto_workflow"><code class="name flex">
+<span>def <span class="ident">goto_workflow</span></span>(<span>arguments)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def goto_workflow(arguments):
+    workflow_name = arguments.args[1]
+    query = store_directory() + &#34;/&#34; + workflow_name
+    if not os.path.exists(query):
+        logging.critical(&#34;The specified workflow could not be found. Try `list`.&#34;)
+        sys.exit(0)
+    if &#34;SHELL&#34; in os.environ:
+        os.chdir(query)
+        os.system(os.environ[&#34;SHELL&#34;])
+    else:
+        logging.critical(&#34;Changing directories not supported on this system.&#34;)</code></pre>
+</details>
+</dd>
+<dt id="hypothesis.bin.workflow.cli.list_store"><code class="name flex">
+<span>def <span class="ident">list_store</span></span>(<span>arguments)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def list_store(arguments):
+    store = store_directory()
+    paths = os.listdir(store_directory())
+    entries = []
+    for p in paths:
+        if os.path.isdir(store + &#39;/&#39; + p):
+            print(p)</code></pre>
+</details>
+</dd>
+<dt id="hypothesis.bin.workflow.cli.load_default_executor"><code class="name flex">
+<span>def <span class="ident">load_default_executor</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_default_executor():
+    if hypothesis.workflow.slurm.slurm_detected():
+        return &#34;slurm&#34;
+    else:
+        return &#34;local&#34;</code></pre>
+</details>
+</dd>
+<dt id="hypothesis.bin.workflow.cli.main"><code class="name flex">
+<span>def <span class="ident">main</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def main():
+    prepare_directory()
+    arguments = parse_arguments()
+    # Module mapping
+    mapping = {
+        &#34;delete&#34;: delete_workflow,
+        &#34;clean&#34;: clean_workflows,
+        &#34;execute&#34;: execute_workflow,
+        &#34;goto&#34;: goto_workflow,
+        &#34;status&#34;: workflow_status,
+        &#34;list&#34;: list_store}
+    # Check what module needs to be executed
+    if len(arguments.args) &gt; 0:
+        command = arguments.args[0]
+        if command in mapping:
+            f = mapping[command]
+            f(arguments)</code></pre>
+</details>
+</dd>
+<dt id="hypothesis.bin.workflow.cli.parse_arguments"><code class="name flex">
+<span>def <span class="ident">parse_arguments</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def parse_arguments():
+    parser = argparse.ArgumentParser()
+    # Slurm backend configuration
+    parser.add_argument(&#34;--cleanup&#34;, action=&#34;store_true&#34;, help=&#34;Enables the cleanup subroutine of the Slurm submission scripts.&#34;)
+    parser.add_argument(&#34;--description&#34;, type=str, default=None, help=&#34;Provide a description to the workflow (default: none).&#34;)
+    parser.add_argument(&#34;--directory&#34;, type=str, default=None, help=&#34;Directory to generate the Slurm submission scripts (default: Hypothesis store).&#34;)
+    parser.add_argument(&#34;--environment&#34;, type=str, default=None, help=&#34;Anaconda environment to execute the Slurm tasks with (default: none).&#34;)
+    parser.add_argument(&#34;--name&#34;, type=str, default=None, help=&#34;Determines the name of the workflow (default: random).&#34;)
+    parser.add_argument(&#34;--partition&#34;, type=str, default=None, help=&#34;Slurm partition to deploy the job to (default: none).&#34;)
+    # Logging options
+    parser.add_argument(&#34;--parsable&#34;, action=&#34;store_true&#34;, help=&#34;Outputs to stdout should be easily parsable (default: false).&#34;)
+    parser.add_argument(&#34;--format&#34;, type=str, default=&#34;%(message)s&#34;, help=&#34;Format of the logger.&#34;)
+    parser.add_argument(&#34;--level&#34;, default=&#34;info&#34;, type=str, help=&#34;Minimum logging level (default: warning) (options: debug, goto, info, warning, error, critical).&#34;)
+    parser.add_argument(&#34;-v&#34;, action=&#34;store_true&#34;, help=&#34;Enable verbosity in the details of the log messages (default: false).&#34;)
+    # Executor backend
+    parser.add_argument(&#34;--slurm&#34;, action=&#34;store_true&#34;, help=&#34;Force the usage the Slurm executor backend.&#34;)
+    parser.add_argument(&#34;--local&#34;, action=&#34;store_true&#34;, help=&#34;Force the usage the local executor backend.&#34;)
+    # Workflow modules
+    parser.add_argument(&#34;args&#34;, nargs=&#39;*&#39;, help=&#34;Slurm backend utilities, currently supporting: delete, clean, execute, list.&#34;)
+    # Parse the arguments
+    arguments, _ = parser.parse_known_args()
+    arguments.level = arguments.level.lower()
+    logging_level_mapping = {
+        &#34;debug&#34;: logging.DEBUG,
+        &#34;info&#34;: logging.INFO,
+        &#34;warning&#34;: logging.WARNING,
+        &#34;error&#34;: logging.ERROR,
+        &#34;critical&#34;: logging.CRITICAL}
+    if arguments.level in logging_level_mapping.keys():
+        level = logging_level_mapping[arguments.level]
+        logging.getLogger().setLevel(level)
+    if arguments.v:
+        arguments.format = &#34;%(asctime)-15s &#34; + arguments.format
+    coloredlogs.install(fmt=arguments.format)
+
+    return arguments</code></pre>
+</details>
+</dd>
+<dt id="hypothesis.bin.workflow.cli.prepare_directory"><code class="name flex">
+<span>def <span class="ident">prepare_directory</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def prepare_directory():
+    path = store_directory()
+    if not os.path.exists(path):
+        os.makedirs(path)</code></pre>
+</details>
+</dd>
+<dt id="hypothesis.bin.workflow.cli.store_directory"><code class="name flex">
+<span>def <span class="ident">store_directory</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def store_directory():
+    return os.path.expanduser(&#34;~&#34;) + &#34;/.hypothesis/workflow&#34;</code></pre>
+</details>
+</dd>
+<dt id="hypothesis.bin.workflow.cli.workflow_status"><code class="name flex">
+<span>def <span class="ident">workflow_status</span></span>(<span>arguments)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def workflow_status(arguments):
+    assert_slurm_detected()
+    raise NotImplementedError</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<form>
+<input id="lunr-search" name="q" placeholder="🔎 Search ..." aria-label="Search"
+disabled minlength="2">
+</form>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/tingle/0.15.3/tingle.min.css" integrity="sha512-j1u8eUJ4f23xPPxwOrLUPQaCD2dwzNqqmDDcWS4deWsMv2ohLqmXXuP3hU7g8TyzbMSakP/mMqoNBYWj8AEIFg==" crossorigin>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tingle/0.15.3/tingle.min.js" integrity="sha512-plGUER9JkeEWPPqQBE4sdLqBoQug5Ap+BCGMc7bJ8BXkm+VVj6QzkpBz5Yv2yPkkq+cqg9IpkBaGCas6uDbW8g==" crossorigin></script>
+<style>
+.modal-dialog iframe {
+width: 100vw;
+height: calc(100vh - 80px);
+}
+@media screen and (min-width: 700px) {
+.modal-dialog iframe {
+width: 70vw;
+height: 80vh;
+}
+}
+.modal-dialog .tingle-modal-box {width: auto;}
+.modal-dialog .tingle-modal-box__content {padding: 0;}
+</style>
+<script>
+const input = document.getElementById('lunr-search');
+input.disabled = false;
+input.form.addEventListener('submit', (ev) => {
+ev.preventDefault();
+const url = new URL(window.location);
+url.searchParams.set('q', input.value);
+history.replaceState({}, null, url.toString());
+search(input.value);
+});
+const query = new URL(window.location).searchParams.get('q');
+if (query)
+search(query);
+function search(query) {
+const url = '../../../doc-search.html#' + encodeURIComponent(query);
+new tingle.modal({
+cssClass: ['modal-dialog'],
+onClose: () => {
+const url = new URL(window.location);
+url.searchParams.delete('q');
+history.replaceState({}, null, url.toString());
+setTimeout(() => input.focus(), 100);
+}
+}).setContent('<iframe src="' + url + '"></iframe>').open();
+}
+</script>
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="hypothesis.bin.workflow" href="index.html">hypothesis.bin.workflow</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="hypothesis.bin.workflow.cli.assert_slurm_detected" href="#hypothesis.bin.workflow.cli.assert_slurm_detected">assert_slurm_detected</a></code></li>
+<li><code><a title="hypothesis.bin.workflow.cli.clean_workflows" href="#hypothesis.bin.workflow.cli.clean_workflows">clean_workflows</a></code></li>
+<li><code><a title="hypothesis.bin.workflow.cli.delete_workflow" href="#hypothesis.bin.workflow.cli.delete_workflow">delete_workflow</a></code></li>
+<li><code><a title="hypothesis.bin.workflow.cli.execute_local" href="#hypothesis.bin.workflow.cli.execute_local">execute_local</a></code></li>
+<li><code><a title="hypothesis.bin.workflow.cli.execute_slurm" href="#hypothesis.bin.workflow.cli.execute_slurm">execute_slurm</a></code></li>
+<li><code><a title="hypothesis.bin.workflow.cli.execute_workflow" href="#hypothesis.bin.workflow.cli.execute_workflow">execute_workflow</a></code></li>
+<li><code><a title="hypothesis.bin.workflow.cli.goto_workflow" href="#hypothesis.bin.workflow.cli.goto_workflow">goto_workflow</a></code></li>
+<li><code><a title="hypothesis.bin.workflow.cli.list_store" href="#hypothesis.bin.workflow.cli.list_store">list_store</a></code></li>
+<li><code><a title="hypothesis.bin.workflow.cli.load_default_executor" href="#hypothesis.bin.workflow.cli.load_default_executor">load_default_executor</a></code></li>
+<li><code><a title="hypothesis.bin.workflow.cli.main" href="#hypothesis.bin.workflow.cli.main">main</a></code></li>
+<li><code><a title="hypothesis.bin.workflow.cli.parse_arguments" href="#hypothesis.bin.workflow.cli.parse_arguments">parse_arguments</a></code></li>
+<li><code><a title="hypothesis.bin.workflow.cli.prepare_directory" href="#hypothesis.bin.workflow.cli.prepare_directory">prepare_directory</a></code></li>
+<li><code><a title="hypothesis.bin.workflow.cli.store_directory" href="#hypothesis.bin.workflow.cli.store_directory">store_directory</a></code></li>
+<li><code><a title="hypothesis.bin.workflow.cli.workflow_status" href="#hypothesis.bin.workflow.cli.workflow_status">workflow_status</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

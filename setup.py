@@ -10,6 +10,7 @@ with open('README.rst') as readme_file:
 requirements = [
     'cloudpickle',
     'coloredlogs',
+    'pdoc3',
     'scipy',
     'tensorboard',
     'tqdm']

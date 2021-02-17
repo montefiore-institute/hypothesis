@@ -1,0 +1,965 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>hypothesis.nn.model.densenet.head API documentation</title>
+<meta name="description" content="Definition of the DenseNet head." />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}#lunr-search{width:100%;font-size:1em;padding:6px 9px 5px 9px;border:1px solid silver}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS_CHTML" integrity="sha256-kZafAc6mZvK3W3v1pHOcUix30OHQN6pU/NO2oFkqZVw=" crossorigin></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>hypothesis.nn.model.densenet.head</code></h1>
+</header>
+<section id="section-intro">
+<p>Definition of the DenseNet head.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">r&#34;&#34;&#34;Definition of the DenseNet head.
+
+&#34;&#34;&#34;
+
+import hypothesis as h
+import numpy as np
+import torch
+
+from .default import batchnorm as default_batchnorm
+from .default import bottleneck_factor as default_bottleneck_factor
+from .default import channels as default_channels
+from .default import convolution_bias as default_convolution_bias
+from .default import depth as default_depth
+from hypothesis.nn.model.densenet.util import load_modules
+from hypothesis.nn.util import dimensionality
+
+
+class DenseNetHead(torch.nn.Module):
+
+    def __init__(self,
+                 shape_xs,
+                 activation=h.default.activation,
+                 batchnorm=default_batchnorm,
+                 bottleneck_factor=default_bottleneck_factor,
+                 channels=default_channels,
+                 convolution_bias=default_convolution_bias,
+                 depth=default_depth,
+                 dropout=h.default.dropout):
+        super(DenseNetHead, self).__init__()
+        # Infer the dimensionality from the input shape.
+        self._dimensionality = len(shape_xs)
+        # Dimensionality and architecture properties.
+        growth_rate, in_planes, config, modules = self._load_configuration(depth)
+        self._module_convolution = modules[0]
+        self._module_batchnorm = modules[1]
+        self._module_maxpool = modules[2]
+        self._module_average_pooling = modules[3]
+        self._module_adaptive_average_pooling = modules[4]
+        self._module_activation = activation
+        # Network properties
+        self._batchnorm = batchnorm
+        self._channels = channels
+        self._convolution_bias = convolution_bias
+        self._in_planes = in_planes
+        self._shape_xs = shape_xs
+        # Network structure
+        self._network_head = self._build_head()
+        self._network_body = self._build_body(config, bottleneck_factor, dropout, growth_rate)
+        self._embedding_dim = self._embedding_dimensionality()
+
+    def _build_head(self):
+        mappings = []
+
+        # Convolution
+        mappings.append(self._module_convolution(
+            self._channels,
+            self._in_planes,
+            bias=self._convolution_bias,
+            kernel_size=7,
+            padding=3,
+            stride=2))
+        # Batch normalization
+        if self._batchnorm:
+            mappings.append(self._module_batchnorm(self._in_planes))
+        # Activation
+        mappings.append(self._module_activation())
+        # Max pooling
+        mappings.append(self._module_maxpool(
+            kernel_size=3,
+            padding=1,
+            stride=2))
+
+        return torch.nn.Sequential(*mappings)
+
+    def _build_body(self, config, bottleneck_factor, dropout, growth_rate):
+        mappings = []
+        num_features = self._in_planes
+        for index, num_layers in enumerate(config):
+            # DenseBlock
+            mappings.append(DenseBlock(
+                activation=self._module_activation,
+                batchnorm=self._batchnorm,
+                bottleneck_factor=bottleneck_factor,
+                dimensionality=self._dimensionality,
+                dropout=dropout,
+                growth_rate=growth_rate,
+                num_input_features=num_features,
+                num_layers=num_layers))
+            num_features += num_layers * growth_rate
+            # Transition
+            if index != len(config) - 1:
+                mappings.append(self._build_transition(
+                    input_features=num_features,
+                    output_features=num_features // 2))
+                num_features = num_features // 2
+        # Batch normalization
+        if self._batchnorm:
+            mappings.append(self._module_batchnorm(num_features))
+        # Activation
+        mappings.append(self._module_activation())
+        # Adaptive average pooling
+        pooling_shape = [1 for _ in range(self._dimensionality)]
+        mappings.append(self._module_adaptive_average_pooling(pooling_shape))
+
+        return torch.nn.Sequential(*mappings)
+
+    def _build_transition(self, input_features, output_features):
+        mappings = []
+
+        # Batch normalization
+        if self._batchnorm:
+            mappings.append(self._module_batchnorm(input_features))
+        # Activation
+        mappings.append(self._module_activation())
+        # Convolution
+        mappings.append(self._module_convolution(
+            input_features,
+            output_features,
+            bias=self._convolution_bias,
+            kernel_size=1,
+            stride=1))
+        # Average pooling
+        mappings.append(self._module_average_pooling(
+            kernel_size=2,
+            stride=2))
+
+        return torch.nn.Sequential(*mappings)
+
+    def _embedding_dimensionality(self):
+        shape = (1, self._channels) + self._shape_xs
+        with torch.no_grad():
+            x = torch.randn(shape)
+            latents = self._network_body(self._network_head(x)).view(-1)
+            dimensionality = len(latents)
+
+        return dimensionality
+
+    def embedding_dimensionality(self):
+        return self._embedding_dim
+
+    def forward(self, x):
+        z = self._network_head(x)
+        z = self._network_body(z)
+
+        return z.view(-1, self._embedding_dim) # Flatten
+
+    def _load_configuration(self, depth):
+        modules = load_modules(self._dimensionality)
+        configurations = {
+            121: load_configuration_121,
+            161: load_configuration_161,
+            169: load_configuration_169,
+            201: load_configuration_201}
+        growth_rate, input_features, config = configurations[depth]()
+
+        return growth_rate, input_features, config, modules
+
+
+
+class DenseBlock(torch.nn.Module):
+
+    def __init__(self,
+                 dimensionality,
+                 activation,
+                 batchnorm,
+                 bottleneck_factor,
+                 dropout,
+                 growth_rate,
+                 num_input_features,
+                 num_layers):
+        super(DenseBlock, self).__init__()
+        # Add the layers to the block.
+        self._layers = torch.nn.ModuleList()
+        for index in range(num_layers):
+            self._layers.append(DenseLayer(
+                activation=activation,
+                batchnorm=batchnorm,
+                bottleneck_factor=bottleneck_factor,
+                dimensionality=dimensionality,
+                dropout=dropout,
+                growth_rate=growth_rate,
+                num_input_features=num_input_features + index * growth_rate))
+
+    def forward(self, x):
+        features = [x]
+        for layer in self._layers:
+            features.append(layer(features))
+
+        return torch.cat(features, dim=1)
+
+
+
+class DenseLayer(torch.nn.Module):
+
+    def __init__(self,
+                 dimensionality,
+                 activation,
+                 batchnorm,
+                 bottleneck_factor,
+                 dropout,
+                 growth_rate,
+                 num_input_features):
+        super(DenseLayer, self).__init__()
+        # Load the modules depending on the dimensionality
+        modules = load_modules(dimensionality)
+        self._module_convolution = modules[0]
+        self._module_batchnorm = modules[1]
+        self._module_maxpool = modules[2]
+        self._module_average_pooling = modules[3]
+        self._module_activation = activation
+        # Construct the dense layer
+        self._network_mapping = self._build_mapping(
+            batchnorm,
+            bottleneck_factor,
+            dropout,
+            growth_rate,
+            num_input_features)
+
+    def _build_mapping(self, batchnorm, bottleneck_factor, dropout, growth_rate, num_input_features):
+        mappings = []
+
+        if batchnorm:
+            mappings.append(self._module_batchnorm(num_input_features))
+        mappings.append(self._module_activation())
+        mappings.append(self._module_convolution(
+            num_input_features,
+            bottleneck_factor * growth_rate,
+            kernel_size=1,
+            stride=1,
+            bias=False))
+        mappings.append(self._module_batchnorm(bottleneck_factor * growth_rate))
+        mappings.append(self._module_activation())
+        mappings.append(self._module_convolution(
+            bottleneck_factor * growth_rate,
+            growth_rate,
+            kernel_size=3,
+            stride=1,
+            padding=1,
+            bias=False))
+        # Dropout
+        if dropout &gt; 0:
+            mappings.append(torch.nn.Dropout(p=dropout))
+
+        return torch.nn.Sequential(*mappings)
+
+    def forward(self, x):
+        z = torch.cat(x, dim=1)
+
+        return self._network_mapping(z)
+
+
+def load_configuration_121():
+    growth_rate = 32
+    input_features = 64
+    config = [6, 12, 24, 16]
+
+    return growth_rate, input_features, config
+
+
+def load_configuration_161():
+    growth_rate = 48
+    input_features = 96
+    config = [6, 12, 36, 24]
+
+    return growth_rate, input_features, config
+
+
+def load_configuration_169():
+    growth_rate = 32
+    input_features = 64
+    config = [6, 12, 32, 32]
+
+    return growth_rate, input_features, config
+
+
+def load_configuration_201():
+    growth_rate = 32
+    input_features = 64
+    config = [6, 12, 48, 32]
+
+    return growth_rate, input_features, config</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="hypothesis.nn.model.densenet.head.load_configuration_121"><code class="name flex">
+<span>def <span class="ident">load_configuration_121</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_configuration_121():
+    growth_rate = 32
+    input_features = 64
+    config = [6, 12, 24, 16]
+
+    return growth_rate, input_features, config</code></pre>
+</details>
+</dd>
+<dt id="hypothesis.nn.model.densenet.head.load_configuration_161"><code class="name flex">
+<span>def <span class="ident">load_configuration_161</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_configuration_161():
+    growth_rate = 48
+    input_features = 96
+    config = [6, 12, 36, 24]
+
+    return growth_rate, input_features, config</code></pre>
+</details>
+</dd>
+<dt id="hypothesis.nn.model.densenet.head.load_configuration_169"><code class="name flex">
+<span>def <span class="ident">load_configuration_169</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_configuration_169():
+    growth_rate = 32
+    input_features = 64
+    config = [6, 12, 32, 32]
+
+    return growth_rate, input_features, config</code></pre>
+</details>
+</dd>
+<dt id="hypothesis.nn.model.densenet.head.load_configuration_201"><code class="name flex">
+<span>def <span class="ident">load_configuration_201</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load_configuration_201():
+    growth_rate = 32
+    input_features = 64
+    config = [6, 12, 48, 32]
+
+    return growth_rate, input_features, config</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="hypothesis.nn.model.densenet.head.DenseBlock"><code class="flex name class">
+<span>class <span class="ident">DenseBlock</span></span>
+<span>(</span><span>dimensionality, activation, batchnorm, bottleneck_factor, dropout, growth_rate, num_input_features, num_layers)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing to nest them in
+a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+class Model(nn.Module):
+    def __init__(self):
+        super(Model, self).__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))
+</code></pre>
+<p>Submodules assigned in this way will be registered, and will have their
+parameters converted too when you call :meth:<code>to</code>, etc.</p>
+<p>:ivar training: Boolean represents whether this module is in training or
+evaluation mode.
+:vartype training: bool</p>
+<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DenseBlock(torch.nn.Module):
+
+    def __init__(self,
+                 dimensionality,
+                 activation,
+                 batchnorm,
+                 bottleneck_factor,
+                 dropout,
+                 growth_rate,
+                 num_input_features,
+                 num_layers):
+        super(DenseBlock, self).__init__()
+        # Add the layers to the block.
+        self._layers = torch.nn.ModuleList()
+        for index in range(num_layers):
+            self._layers.append(DenseLayer(
+                activation=activation,
+                batchnorm=batchnorm,
+                bottleneck_factor=bottleneck_factor,
+                dimensionality=dimensionality,
+                dropout=dropout,
+                growth_rate=growth_rate,
+                num_input_features=num_input_features + index * growth_rate))
+
+    def forward(self, x):
+        features = [x]
+        for layer in self._layers:
+            features.append(layer(features))
+
+        return torch.cat(features, dim=1)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>torch.nn.modules.module.Module</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="hypothesis.nn.model.densenet.head.DenseBlock.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hypothesis.nn.model.densenet.head.DenseBlock.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="hypothesis.nn.model.densenet.head.DenseBlock.forward"><code class="name flex">
+<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the :class:<code>Module</code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def forward(self, x):
+    features = [x]
+    for layer in self._layers:
+        features.append(layer(features))
+
+    return torch.cat(features, dim=1)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="hypothesis.nn.model.densenet.head.DenseLayer"><code class="flex name class">
+<span>class <span class="ident">DenseLayer</span></span>
+<span>(</span><span>dimensionality, activation, batchnorm, bottleneck_factor, dropout, growth_rate, num_input_features)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing to nest them in
+a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+class Model(nn.Module):
+    def __init__(self):
+        super(Model, self).__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))
+</code></pre>
+<p>Submodules assigned in this way will be registered, and will have their
+parameters converted too when you call :meth:<code>to</code>, etc.</p>
+<p>:ivar training: Boolean represents whether this module is in training or
+evaluation mode.
+:vartype training: bool</p>
+<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DenseLayer(torch.nn.Module):
+
+    def __init__(self,
+                 dimensionality,
+                 activation,
+                 batchnorm,
+                 bottleneck_factor,
+                 dropout,
+                 growth_rate,
+                 num_input_features):
+        super(DenseLayer, self).__init__()
+        # Load the modules depending on the dimensionality
+        modules = load_modules(dimensionality)
+        self._module_convolution = modules[0]
+        self._module_batchnorm = modules[1]
+        self._module_maxpool = modules[2]
+        self._module_average_pooling = modules[3]
+        self._module_activation = activation
+        # Construct the dense layer
+        self._network_mapping = self._build_mapping(
+            batchnorm,
+            bottleneck_factor,
+            dropout,
+            growth_rate,
+            num_input_features)
+
+    def _build_mapping(self, batchnorm, bottleneck_factor, dropout, growth_rate, num_input_features):
+        mappings = []
+
+        if batchnorm:
+            mappings.append(self._module_batchnorm(num_input_features))
+        mappings.append(self._module_activation())
+        mappings.append(self._module_convolution(
+            num_input_features,
+            bottleneck_factor * growth_rate,
+            kernel_size=1,
+            stride=1,
+            bias=False))
+        mappings.append(self._module_batchnorm(bottleneck_factor * growth_rate))
+        mappings.append(self._module_activation())
+        mappings.append(self._module_convolution(
+            bottleneck_factor * growth_rate,
+            growth_rate,
+            kernel_size=3,
+            stride=1,
+            padding=1,
+            bias=False))
+        # Dropout
+        if dropout &gt; 0:
+            mappings.append(torch.nn.Dropout(p=dropout))
+
+        return torch.nn.Sequential(*mappings)
+
+    def forward(self, x):
+        z = torch.cat(x, dim=1)
+
+        return self._network_mapping(z)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>torch.nn.modules.module.Module</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="hypothesis.nn.model.densenet.head.DenseLayer.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hypothesis.nn.model.densenet.head.DenseLayer.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="hypothesis.nn.model.densenet.head.DenseLayer.forward"><code class="name flex">
+<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the :class:<code>Module</code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def forward(self, x):
+    z = torch.cat(x, dim=1)
+
+    return self._network_mapping(z)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="hypothesis.nn.model.densenet.head.DenseNetHead"><code class="flex name class">
+<span>class <span class="ident">DenseNetHead</span></span>
+<span>(</span><span>shape_xs, activation=torch.nn.modules.activation.LeakyReLU, batchnorm=False, bottleneck_factor=4, channels=3, convolution_bias=False, depth=121, dropout=0.0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing to nest them in
+a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+class Model(nn.Module):
+    def __init__(self):
+        super(Model, self).__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))
+</code></pre>
+<p>Submodules assigned in this way will be registered, and will have their
+parameters converted too when you call :meth:<code>to</code>, etc.</p>
+<p>:ivar training: Boolean represents whether this module is in training or
+evaluation mode.
+:vartype training: bool</p>
+<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DenseNetHead(torch.nn.Module):
+
+    def __init__(self,
+                 shape_xs,
+                 activation=h.default.activation,
+                 batchnorm=default_batchnorm,
+                 bottleneck_factor=default_bottleneck_factor,
+                 channels=default_channels,
+                 convolution_bias=default_convolution_bias,
+                 depth=default_depth,
+                 dropout=h.default.dropout):
+        super(DenseNetHead, self).__init__()
+        # Infer the dimensionality from the input shape.
+        self._dimensionality = len(shape_xs)
+        # Dimensionality and architecture properties.
+        growth_rate, in_planes, config, modules = self._load_configuration(depth)
+        self._module_convolution = modules[0]
+        self._module_batchnorm = modules[1]
+        self._module_maxpool = modules[2]
+        self._module_average_pooling = modules[3]
+        self._module_adaptive_average_pooling = modules[4]
+        self._module_activation = activation
+        # Network properties
+        self._batchnorm = batchnorm
+        self._channels = channels
+        self._convolution_bias = convolution_bias
+        self._in_planes = in_planes
+        self._shape_xs = shape_xs
+        # Network structure
+        self._network_head = self._build_head()
+        self._network_body = self._build_body(config, bottleneck_factor, dropout, growth_rate)
+        self._embedding_dim = self._embedding_dimensionality()
+
+    def _build_head(self):
+        mappings = []
+
+        # Convolution
+        mappings.append(self._module_convolution(
+            self._channels,
+            self._in_planes,
+            bias=self._convolution_bias,
+            kernel_size=7,
+            padding=3,
+            stride=2))
+        # Batch normalization
+        if self._batchnorm:
+            mappings.append(self._module_batchnorm(self._in_planes))
+        # Activation
+        mappings.append(self._module_activation())
+        # Max pooling
+        mappings.append(self._module_maxpool(
+            kernel_size=3,
+            padding=1,
+            stride=2))
+
+        return torch.nn.Sequential(*mappings)
+
+    def _build_body(self, config, bottleneck_factor, dropout, growth_rate):
+        mappings = []
+        num_features = self._in_planes
+        for index, num_layers in enumerate(config):
+            # DenseBlock
+            mappings.append(DenseBlock(
+                activation=self._module_activation,
+                batchnorm=self._batchnorm,
+                bottleneck_factor=bottleneck_factor,
+                dimensionality=self._dimensionality,
+                dropout=dropout,
+                growth_rate=growth_rate,
+                num_input_features=num_features,
+                num_layers=num_layers))
+            num_features += num_layers * growth_rate
+            # Transition
+            if index != len(config) - 1:
+                mappings.append(self._build_transition(
+                    input_features=num_features,
+                    output_features=num_features // 2))
+                num_features = num_features // 2
+        # Batch normalization
+        if self._batchnorm:
+            mappings.append(self._module_batchnorm(num_features))
+        # Activation
+        mappings.append(self._module_activation())
+        # Adaptive average pooling
+        pooling_shape = [1 for _ in range(self._dimensionality)]
+        mappings.append(self._module_adaptive_average_pooling(pooling_shape))
+
+        return torch.nn.Sequential(*mappings)
+
+    def _build_transition(self, input_features, output_features):
+        mappings = []
+
+        # Batch normalization
+        if self._batchnorm:
+            mappings.append(self._module_batchnorm(input_features))
+        # Activation
+        mappings.append(self._module_activation())
+        # Convolution
+        mappings.append(self._module_convolution(
+            input_features,
+            output_features,
+            bias=self._convolution_bias,
+            kernel_size=1,
+            stride=1))
+        # Average pooling
+        mappings.append(self._module_average_pooling(
+            kernel_size=2,
+            stride=2))
+
+        return torch.nn.Sequential(*mappings)
+
+    def _embedding_dimensionality(self):
+        shape = (1, self._channels) + self._shape_xs
+        with torch.no_grad():
+            x = torch.randn(shape)
+            latents = self._network_body(self._network_head(x)).view(-1)
+            dimensionality = len(latents)
+
+        return dimensionality
+
+    def embedding_dimensionality(self):
+        return self._embedding_dim
+
+    def forward(self, x):
+        z = self._network_head(x)
+        z = self._network_body(z)
+
+        return z.view(-1, self._embedding_dim) # Flatten
+
+    def _load_configuration(self, depth):
+        modules = load_modules(self._dimensionality)
+        configurations = {
+            121: load_configuration_121,
+            161: load_configuration_161,
+            169: load_configuration_169,
+            201: load_configuration_201}
+        growth_rate, input_features, config = configurations[depth]()
+
+        return growth_rate, input_features, config, modules</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>torch.nn.modules.module.Module</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="hypothesis.nn.model.densenet.head.DenseNetHead.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="hypothesis.nn.model.densenet.head.DenseNetHead.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="hypothesis.nn.model.densenet.head.DenseNetHead.embedding_dimensionality"><code class="name flex">
+<span>def <span class="ident">embedding_dimensionality</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def embedding_dimensionality(self):
+    return self._embedding_dim</code></pre>
+</details>
+</dd>
+<dt id="hypothesis.nn.model.densenet.head.DenseNetHead.forward"><code class="name flex">
+<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the :class:<code>Module</code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def forward(self, x):
+    z = self._network_head(x)
+    z = self._network_body(z)
+
+    return z.view(-1, self._embedding_dim) # Flatten</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<form>
+<input id="lunr-search" name="q" placeholder="🔎 Search ..." aria-label="Search"
+disabled minlength="2">
+</form>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/tingle/0.15.3/tingle.min.css" integrity="sha512-j1u8eUJ4f23xPPxwOrLUPQaCD2dwzNqqmDDcWS4deWsMv2ohLqmXXuP3hU7g8TyzbMSakP/mMqoNBYWj8AEIFg==" crossorigin>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tingle/0.15.3/tingle.min.js" integrity="sha512-plGUER9JkeEWPPqQBE4sdLqBoQug5Ap+BCGMc7bJ8BXkm+VVj6QzkpBz5Yv2yPkkq+cqg9IpkBaGCas6uDbW8g==" crossorigin></script>
+<style>
+.modal-dialog iframe {
+width: 100vw;
+height: calc(100vh - 80px);
+}
+@media screen and (min-width: 700px) {
+.modal-dialog iframe {
+width: 70vw;
+height: 80vh;
+}
+}
+.modal-dialog .tingle-modal-box {width: auto;}
+.modal-dialog .tingle-modal-box__content {padding: 0;}
+</style>
+<script>
+const input = document.getElementById('lunr-search');
+input.disabled = false;
+input.form.addEventListener('submit', (ev) => {
+ev.preventDefault();
+const url = new URL(window.location);
+url.searchParams.set('q', input.value);
+history.replaceState({}, null, url.toString());
+search(input.value);
+});
+const query = new URL(window.location).searchParams.get('q');
+if (query)
+search(query);
+function search(query) {
+const url = '../../../../doc-search.html#' + encodeURIComponent(query);
+new tingle.modal({
+cssClass: ['modal-dialog'],
+onClose: () => {
+const url = new URL(window.location);
+url.searchParams.delete('q');
+history.replaceState({}, null, url.toString());
+setTimeout(() => input.focus(), 100);
+}
+}).setContent('<iframe src="' + url + '"></iframe>').open();
+}
+</script>
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="hypothesis.nn.model.densenet" href="index.html">hypothesis.nn.model.densenet</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="hypothesis.nn.model.densenet.head.load_configuration_121" href="#hypothesis.nn.model.densenet.head.load_configuration_121">load_configuration_121</a></code></li>
+<li><code><a title="hypothesis.nn.model.densenet.head.load_configuration_161" href="#hypothesis.nn.model.densenet.head.load_configuration_161">load_configuration_161</a></code></li>
+<li><code><a title="hypothesis.nn.model.densenet.head.load_configuration_169" href="#hypothesis.nn.model.densenet.head.load_configuration_169">load_configuration_169</a></code></li>
+<li><code><a title="hypothesis.nn.model.densenet.head.load_configuration_201" href="#hypothesis.nn.model.densenet.head.load_configuration_201">load_configuration_201</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="hypothesis.nn.model.densenet.head.DenseBlock" href="#hypothesis.nn.model.densenet.head.DenseBlock">DenseBlock</a></code></h4>
+<ul class="">
+<li><code><a title="hypothesis.nn.model.densenet.head.DenseBlock.dump_patches" href="#hypothesis.nn.model.densenet.head.DenseBlock.dump_patches">dump_patches</a></code></li>
+<li><code><a title="hypothesis.nn.model.densenet.head.DenseBlock.forward" href="#hypothesis.nn.model.densenet.head.DenseBlock.forward">forward</a></code></li>
+<li><code><a title="hypothesis.nn.model.densenet.head.DenseBlock.training" href="#hypothesis.nn.model.densenet.head.DenseBlock.training">training</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="hypothesis.nn.model.densenet.head.DenseLayer" href="#hypothesis.nn.model.densenet.head.DenseLayer">DenseLayer</a></code></h4>
+<ul class="">
+<li><code><a title="hypothesis.nn.model.densenet.head.DenseLayer.dump_patches" href="#hypothesis.nn.model.densenet.head.DenseLayer.dump_patches">dump_patches</a></code></li>
+<li><code><a title="hypothesis.nn.model.densenet.head.DenseLayer.forward" href="#hypothesis.nn.model.densenet.head.DenseLayer.forward">forward</a></code></li>
+<li><code><a title="hypothesis.nn.model.densenet.head.DenseLayer.training" href="#hypothesis.nn.model.densenet.head.DenseLayer.training">training</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="hypothesis.nn.model.densenet.head.DenseNetHead" href="#hypothesis.nn.model.densenet.head.DenseNetHead">DenseNetHead</a></code></h4>
+<ul class="">
+<li><code><a title="hypothesis.nn.model.densenet.head.DenseNetHead.dump_patches" href="#hypothesis.nn.model.densenet.head.DenseNetHead.dump_patches">dump_patches</a></code></li>
+<li><code><a title="hypothesis.nn.model.densenet.head.DenseNetHead.embedding_dimensionality" href="#hypothesis.nn.model.densenet.head.DenseNetHead.embedding_dimensionality">embedding_dimensionality</a></code></li>
+<li><code><a title="hypothesis.nn.model.densenet.head.DenseNetHead.forward" href="#hypothesis.nn.model.densenet.head.DenseNetHead.forward">forward</a></code></li>
+<li><code><a title="hypothesis.nn.model.densenet.head.DenseNetHead.training" href="#hypothesis.nn.model.densenet.head.DenseNetHead.training">training</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>
