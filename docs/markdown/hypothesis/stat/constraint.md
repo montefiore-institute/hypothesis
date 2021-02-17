@@ -1,5 +1,7 @@
 Module hypothesis.stat.constraint
 =================================
+Utilities to obtain Bayesian credible regions or
+Frequentist confidence intervals.
 
 Functions
 ---------

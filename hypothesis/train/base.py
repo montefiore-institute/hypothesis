@@ -1,3 +1,7 @@
+r"""Base definition of a neural network trainer with customizable hooks.
+
+"""
+
 import hypothesis as h
 import numpy as np
 

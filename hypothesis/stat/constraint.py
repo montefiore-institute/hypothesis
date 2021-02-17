@@ -1,3 +1,8 @@
+r"""Utilities to obtain Bayesian credible regions or
+Frequentist confidence intervals.
+
+"""
+
 import math
 import numpy as np
 import torch

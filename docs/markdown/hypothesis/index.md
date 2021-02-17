@@ -9,6 +9,7 @@ simulation, visualization, fire-and-forget inference, and validation.
 
 Sub-modules
 -----------
+* hypothesis.auto
 * hypothesis.benchmark
 * hypothesis.bin
 * hypothesis.cli

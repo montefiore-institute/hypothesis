@@ -53,6 +53,7 @@ class RatioEstimatorTrainer(BaseTrainer):
         # Criterion properties
         self._criterion = ConservativeCriterion(
             batch_size=batch_size,
+            calibrate=True,
             conservativeness=conservativeness,
             estimator=estimator,
             logits=logits)

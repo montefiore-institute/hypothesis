@@ -1,5 +1,6 @@
 Module hypothesis.train.base
 ============================
+Base definition of a neural network trainer with customizable hooks.
 
 Classes
 -------
