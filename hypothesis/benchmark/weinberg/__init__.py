@@ -1,4 +1,4 @@
-r"""This is a simulation of high energy particle collisions $e^+e^- \to \mu^+ \mu^-$.
+r"""This is a simulation of high energy particle collisions $$e^+e^- \to \mu^+ \mu^-.$$
 The angular distributions of the particles can be used to measure the Weinberg angle
 in the standard model of particle physics. If you get a PhD in particle physics,
 you may learn how to calculate these distributions and interpret those equations to
@@ -11,7 +11,7 @@ Adapted from https://github.com/cranmer/active_sciencing/blob/master/demo_weinbe
 Original implementation by Lucas Heinrich and Kyle Cranmer.
 """
 
-from .simulator import Simulator
+from .simulator import WeinbergBenchmarkSimulator as Simulator
 from .util import Prior
 from .util import PriorExperiment
 from .util import Truth

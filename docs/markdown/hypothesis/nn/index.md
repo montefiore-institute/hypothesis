@@ -1,6 +1,6 @@
 Module hypothesis.nn
 ====================
-:mod:`hypothesis.nn` is a submodule containing neural network utilities.
+Specifies neural network utilities and extensions.
 
 Sub-modules
 -----------

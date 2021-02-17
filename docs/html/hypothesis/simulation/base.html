@@ -27,21 +27,19 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import torch
-
-
-class BaseSimulator(torch.nn.Module):
+<pre><code class="python">class BaseSimulator:
     r&#34;&#34;&#34;Base simulator class.
 
-    A simulator defines the forward model.
+    A simulator defines the implicit forward model.
 
     Example usage of a potential simulator implementation:
-
-    .. code-block:: python
 
         simulator = MySimulator()
         inputs = prior.sample((10,)) # Draw 10 samples from the prior.
         outputs = simulator(inputs)
+
+    In principle, this corresponds to sampling from the joint $$\vartheta,x\sim p(\vartheta)p(x\vert\vartheta)$$,
+    where $$p(x\vert\vartheta)$$ is the likelihood-model implicitely defined through the simulator.
 
     .. note::
 
@@ -60,6 +58,9 @@ class BaseSimulator(torch.nn.Module):
     def __init__(self):
         super(BaseSimulator, self).__init__()
         self.eval()
+
+    def __call__(self, **kwargs):
+        return self.forward(**kwargs)
 
     def forward(self, **kwargs):
         r&#34;&#34;&#34;Defines the computation of the forward model at every call.
@@ -97,13 +98,14 @@ class BaseSimulator(torch.nn.Module):
 </code></dt>
 <dd>
 <div class="desc"><p>Base simulator class.</p>
-<p>A simulator defines the forward model.</p>
+<p>A simulator defines the implicit forward model.</p>
 <p>Example usage of a potential simulator implementation:</p>
-<p>.. code-block:: python</p>
 <pre><code>simulator = MySimulator()
 inputs = prior.sample((10,)) # Draw 10 samples from the prior.
 outputs = simulator(inputs)
 </code></pre>
+<p>In principle, this corresponds to sampling from the joint <span><span class="MathJax_Preview">\vartheta,x\sim p(\vartheta)p(x\vert\vartheta)</span><script type="math/tex; mode=display">\vartheta,x\sim p(\vartheta)p(x\vert\vartheta)</script></span>,
+where <span><span class="MathJax_Preview">p(x\vert\vartheta)</span><script type="math/tex; mode=display">p(x\vert\vartheta)</script></span> is the likelihood-model implicitely defined through the simulator.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The <code>inputs</code> and <code>outputs</code> variable name in most simulator denote
@@ -115,24 +117,24 @@ typically free parameters of the simulation model which sample
 <p class="admonition-title">Note</p>
 <p>Although it is possibly to supply a batch of inputs, it should be
 noted that these are currently <code>not</code> parallelized.</p>
-</div>
-<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
+</div></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class BaseSimulator(torch.nn.Module):
+<pre><code class="python">class BaseSimulator:
     r&#34;&#34;&#34;Base simulator class.
 
-    A simulator defines the forward model.
+    A simulator defines the implicit forward model.
 
     Example usage of a potential simulator implementation:
-
-    .. code-block:: python
 
         simulator = MySimulator()
         inputs = prior.sample((10,)) # Draw 10 samples from the prior.
         outputs = simulator(inputs)
+
+    In principle, this corresponds to sampling from the joint $$\vartheta,x\sim p(\vartheta)p(x\vert\vartheta)$$,
+    where $$p(x\vert\vartheta)$$ is the likelihood-model implicitely defined through the simulator.
 
     .. note::
 
@@ -151,6 +153,9 @@ noted that these are currently <code>not</code> parallelized.</p>
     def __init__(self):
         super(BaseSimulator, self).__init__()
         self.eval()
+
+    def __call__(self, **kwargs):
+        return self.forward(**kwargs)
 
     def forward(self, **kwargs):
         r&#34;&#34;&#34;Defines the computation of the forward model at every call.
@@ -173,32 +178,17 @@ noted that these are currently <code>not</code> parallelized.</p>
         &#34;&#34;&#34;
         pass</code></pre>
 </details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>torch.nn.modules.module.Module</li>
-</ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
-<li><a title="hypothesis.benchmark.mg1.simulator.Simulator" href="../benchmark/mg1/simulator.html#hypothesis.benchmark.mg1.simulator.Simulator">Simulator</a></li>
-<li><a title="hypothesis.benchmark.spatialsir.simulator.Simulator" href="../benchmark/spatialsir/simulator.html#hypothesis.benchmark.spatialsir.simulator.Simulator">Simulator</a></li>
-<li><a title="hypothesis.benchmark.tractable.simulator.Simulator" href="../benchmark/tractable/simulator.html#hypothesis.benchmark.tractable.simulator.Simulator">Simulator</a></li>
-<li><a title="hypothesis.benchmark.weinberg.simulator.Simulator" href="../benchmark/weinberg/simulator.html#hypothesis.benchmark.weinberg.simulator.Simulator">Simulator</a></li>
+<li><a title="hypothesis.benchmark.mg1.simulator.MG1BenchmarkSimulator" href="../benchmark/mg1/simulator.html#hypothesis.benchmark.mg1.simulator.MG1BenchmarkSimulator">MG1BenchmarkSimulator</a></li>
+<li><a title="hypothesis.benchmark.spatialsir.simulator.SSIRBenchmarkSimulator" href="../benchmark/spatialsir/simulator.html#hypothesis.benchmark.spatialsir.simulator.SSIRBenchmarkSimulator">SSIRBenchmarkSimulator</a></li>
+<li><a title="hypothesis.benchmark.tractable.simulator.TractableBenchmarkSimulator" href="../benchmark/tractable/simulator.html#hypothesis.benchmark.tractable.simulator.TractableBenchmarkSimulator">TractableBenchmarkSimulator</a></li>
+<li><a title="hypothesis.benchmark.weinberg.simulator.WeinbergBenchmarkSimulator" href="../benchmark/weinberg/simulator.html#hypothesis.benchmark.weinberg.simulator.WeinbergBenchmarkSimulator">WeinbergBenchmarkSimulator</a></li>
 </ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="hypothesis.simulation.base.BaseSimulator.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="hypothesis.simulation.base.BaseSimulator.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="hypothesis.simulation.base.BaseSimulator.forward"><code class="name flex">
-<span>def <span class="ident">forward</span></span>(<span>self, **kwargs) ‑> Callable[..., Any]</span>
+<span>def <span class="ident">forward</span></span>(<span>self, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Defines the computation of the forward model at every call.</p>
@@ -310,10 +300,8 @@ setTimeout(() => input.focus(), 100);
 <li>
 <h4><code><a title="hypothesis.simulation.base.BaseSimulator" href="#hypothesis.simulation.base.BaseSimulator">BaseSimulator</a></code></h4>
 <ul class="">
-<li><code><a title="hypothesis.simulation.base.BaseSimulator.dump_patches" href="#hypothesis.simulation.base.BaseSimulator.dump_patches">dump_patches</a></code></li>
 <li><code><a title="hypothesis.simulation.base.BaseSimulator.forward" href="#hypothesis.simulation.base.BaseSimulator.forward">forward</a></code></li>
 <li><code><a title="hypothesis.simulation.base.BaseSimulator.terminate" href="#hypothesis.simulation.base.BaseSimulator.terminate">terminate</a></code></li>
-<li><code><a title="hypothesis.simulation.base.BaseSimulator.training" href="#hypothesis.simulation.base.BaseSimulator.training">training</a></code></li>
 </ul>
 </li>
 </ul>

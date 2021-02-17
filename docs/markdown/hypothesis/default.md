@@ -1,6 +1,6 @@
 Module hypothesis.default
 =========================
-Default settings in Hypothesis.
+Default settings in ``hypothesis``.
 
 Variables
 ---------

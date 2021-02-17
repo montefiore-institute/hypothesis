@@ -4,6 +4,8 @@ mechanisation of science.
 The package contains (approximate) inference algorithms to solve inverse
 statistical problems. Utilities are provided for data loading, efficient
 simulation, visualization, fire-and-forget inference, and validation.
+
+.. include:: ./documentation.md
 """
 
 __name__ = "hypothesis"
@@ -83,12 +85,12 @@ import torch
 cpu_count = multiprocessing.cpu_count()
 """Number of available logical processor cores.
 
-The variable will be initialized when :mod:`hypothesis` is loaded for the first time.
+The variable will be initialized when ``hypothesis`` is loaded for the first time.
 """
 
 
 workers = cpu_count
-"""Default number of parallel workers in :mod:`hypothesis`."""
+"""Default number of parallel workers in ``hypothesis``."""
 
 
 def set_workers(n):

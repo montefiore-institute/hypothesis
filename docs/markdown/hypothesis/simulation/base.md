@@ -7,15 +7,16 @@ Classes
 `BaseSimulator()`
 :   Base simulator class.
     
-    A simulator defines the forward model.
+    A simulator defines the implicit forward model.
     
     Example usage of a potential simulator implementation:
-    
-    .. code-block:: python
     
         simulator = MySimulator()
         inputs = prior.sample((10,)) # Draw 10 samples from the prior.
         outputs = simulator(inputs)
+    
+    In principle, this corresponds to sampling from the joint $$\vartheta,x\sim p(\vartheta)p(x\vert\vartheta)$$,
+    where $$p(x\vert\vartheta)$$ is the likelihood-model implicitely defined through the simulator.
     
     .. note::
     
@@ -28,31 +29,17 @@ Classes
     
         Although it is possibly to supply a batch of inputs, it should be
         noted that these are currently `not` parallelized.
-    
-    Initializes internal Module state, shared by both nn.Module and ScriptModule.
-
-    ### Ancestors (in MRO)
-
-    * torch.nn.modules.module.Module
 
     ### Descendants
 
-    * hypothesis.benchmark.mg1.simulator.Simulator
-    * hypothesis.benchmark.spatialsir.simulator.Simulator
-    * hypothesis.benchmark.tractable.simulator.Simulator
-    * hypothesis.benchmark.weinberg.simulator.Simulator
-
-    ### Class variables
-
-    `dump_patches: bool`
-    :
-
-    `training: bool`
-    :
+    * hypothesis.benchmark.mg1.simulator.MG1BenchmarkSimulator
+    * hypothesis.benchmark.spatialsir.simulator.SSIRBenchmarkSimulator
+    * hypothesis.benchmark.tractable.simulator.TractableBenchmarkSimulator
+    * hypothesis.benchmark.weinberg.simulator.WeinbergBenchmarkSimulator
 
     ### Methods
 
-    `forward(self, **kwargs) ‑> Callable[..., Any]`
+    `forward(self, **kwargs)`
     :   Defines the computation of the forward model at every call.
         
         .. note::

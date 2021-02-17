@@ -1,18 +1,16 @@
-import torch
-
-
-class BaseSimulator(torch.nn.Module):
+class BaseSimulator:
     r"""Base simulator class.
 
-    A simulator defines the forward model.
+    A simulator defines the implicit forward model.
 
     Example usage of a potential simulator implementation:
-
-    .. code-block:: python
 
         simulator = MySimulator()
         inputs = prior.sample((10,)) # Draw 10 samples from the prior.
         outputs = simulator(inputs)
+
+    In principle, this corresponds to sampling from the joint $$\vartheta,x\sim p(\vartheta)p(x\vert\vartheta)$$,
+    where $$p(x\vert\vartheta)$$ is the likelihood-model implicitely defined through the simulator.
 
     .. note::
 
@@ -31,6 +29,9 @@ class BaseSimulator(torch.nn.Module):
     def __init__(self):
         super(BaseSimulator, self).__init__()
         self.eval()
+
+    def __call__(self, **kwargs):
+        return self.forward(**kwargs)
 
     def forward(self, **kwargs):
         r"""Defines the computation of the forward model at every call.

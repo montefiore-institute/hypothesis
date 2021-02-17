@@ -4,7 +4,7 @@ Module hypothesis.train.base
 Classes
 -------
 
-`BaseTrainer(accelerator=device(type='cpu'), batch_size=4096, dataset_test=None, dataset_validate=None, dataset_train=None, epochs=1, pin_memory=True, shuffle=True, workers=4)`
+`BaseTrainer(accelerator=device(type='cpu'), batch_size=4096, dataset_test=None, dataset_validate=None, dataset_train=None, epochs=100, pin_memory=True, shuffle=True, workers=4)`
 :   
 
     ### Ancestors (in MRO)

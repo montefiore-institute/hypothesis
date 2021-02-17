@@ -1,6 +1,6 @@
 Module hypothesis.benchmark
 ===========================
-Benchmark problems for simulation-based inference methodologies.
+Collection of benchmark problems for simulation-based inference methodologies.
 
 Sub-modules
 -----------

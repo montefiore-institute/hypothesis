@@ -5,8 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.9.2" />
 <title>hypothesis.benchmark.spatialsir.simulator API documentation</title>
-<meta name="description" content="This problem setting is concerned with the computation of a posterior
-over the infection and recovery rate $\vartheta$, conditioned on an observable …" />
+<meta name="description" content="Simulator definition of the SSIR benchmark." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -24,24 +23,12 @@ over the infection and recovery rate $\vartheta$, conditioned on an observable �
 <h1 class="title">Module <code>hypothesis.benchmark.spatialsir.simulator</code></h1>
 </header>
 <section id="section-intro">
-<p>This problem setting is concerned with the computation of a posterior
-over the infection and recovery rate $\vartheta$, conditioned on an observable $x$,
-representing a grid-world of susceptible, infected, and recovered individuals.
-This information is encoded in 3 individual channels. Based on these parameters,
-the model describes the evolution of an infection through this grid-like world.
-The disease spreads spatially, and is initialized with various number of
-initial infectious clusters, parameterized through a Poisson distribution.</p>
+<p>Simulator definition of the SSIR benchmark.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">r&#34;&#34;&#34;This problem setting is concerned with the computation of a posterior
-over the infection and recovery rate $\vartheta$, conditioned on an observable $x$,
-representing a grid-world of susceptible, infected, and recovered individuals.
-This information is encoded in 3 individual channels. Based on these parameters,
-the model describes the evolution of an infection through this grid-like world.
-The disease spreads spatially, and is initialized with various number of
-initial infectious clusters, parameterized through a Poisson distribution.
+<pre><code class="python">r&#34;&#34;&#34;Simulator definition of the SSIR benchmark.
 
 &#34;&#34;&#34;
 
@@ -54,10 +41,17 @@ from scipy import signal
 from torch.distributions.poisson import Poisson
 
 
-class Simulator(BaseSimulator):
+class SSIRBenchmarkSimulator(BaseSimulator):
+    r&#34;&#34;&#34;The simulation model generated a grid-world of susceptible,
+    infected, and recovered individuals. This information is encoded in 3
+    individual channels. Based on these parameters, and the infection and recovery rate,
+    the model describes the evolution of an infection through this grid-like world.
+    The disease spreads spatially, and is initialized with various number of
+    initial infectious clusters, parameterized through a Poisson distribution.
+    &#34;&#34;&#34;
 
     def __init__(self, initial_infections_rate=3, shape=(100, 100), default_measurement_time=1.0, step_size=0.01):
-        super(Simulator, self).__init__()
+        super(SSIRBenchmarkSimulator, self).__init__()
         self.default_measurement_time = default_measurement_time
         self.lattice_shape = shape
         self.p_initial_infections = Poisson(float(initial_infections_rate))
@@ -136,40 +130,32 @@ class Simulator(BaseSimulator):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="hypothesis.benchmark.spatialsir.simulator.Simulator"><code class="flex name class">
-<span>class <span class="ident">Simulator</span></span>
+<dt id="hypothesis.benchmark.spatialsir.simulator.SSIRBenchmarkSimulator"><code class="flex name class">
+<span>class <span class="ident">SSIRBenchmarkSimulator</span></span>
 <span>(</span><span>initial_infections_rate=3, shape=(100, 100), default_measurement_time=1.0, step_size=0.01)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Base simulator class.</p>
-<p>A simulator defines the forward model.</p>
-<p>Example usage of a potential simulator implementation:</p>
-<p>.. code-block:: python</p>
-<pre><code>simulator = MySimulator()
-inputs = prior.sample((10,)) # Draw 10 samples from the prior.
-outputs = simulator(inputs)
-</code></pre>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The <code>inputs</code> and <code>outputs</code> variable name in most simulator denote
-their position with respect to the simulation model. <code>inputs</code> are
-typically free parameters of the simulation model which sample
-(or produce deterministically) <code>outputs</code>.</p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Although it is possibly to supply a batch of inputs, it should be
-noted that these are currently <code>not</code> parallelized.</p>
-</div>
-<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
+<div class="desc"><p>The simulation model generated a grid-world of susceptible,
+infected, and recovered individuals. This information is encoded in 3
+individual channels. Based on these parameters, and the infection and recovery rate,
+the model describes the evolution of an infection through this grid-like world.
+The disease spreads spatially, and is initialized with various number of
+initial infectious clusters, parameterized through a Poisson distribution.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class Simulator(BaseSimulator):
+<pre><code class="python">class SSIRBenchmarkSimulator(BaseSimulator):
+    r&#34;&#34;&#34;The simulation model generated a grid-world of susceptible,
+    infected, and recovered individuals. This information is encoded in 3
+    individual channels. Based on these parameters, and the infection and recovery rate,
+    the model describes the evolution of an infection through this grid-like world.
+    The disease spreads spatially, and is initialized with various number of
+    initial infectious clusters, parameterized through a Poisson distribution.
+    &#34;&#34;&#34;
 
     def __init__(self, initial_infections_rate=3, shape=(100, 100), default_measurement_time=1.0, step_size=0.01):
-        super(Simulator, self).__init__()
+        super(SSIRBenchmarkSimulator, self).__init__()
         self.default_measurement_time = default_measurement_time
         self.lattice_shape = shape
         self.p_initial_infections = Poisson(float(initial_infections_rate))
@@ -241,22 +227,10 @@ noted that these are currently <code>not</code> parallelized.</p>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="hypothesis.simulation.base.BaseSimulator" href="../../simulation/base.html#hypothesis.simulation.base.BaseSimulator">BaseSimulator</a></li>
-<li>torch.nn.modules.module.Module</li>
 </ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="hypothesis.benchmark.spatialsir.simulator.Simulator.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="hypothesis.benchmark.spatialsir.simulator.Simulator.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
 <h3>Methods</h3>
 <dl>
-<dt id="hypothesis.benchmark.spatialsir.simulator.Simulator.simulate"><code class="name flex">
+<dt id="hypothesis.benchmark.spatialsir.simulator.SSIRBenchmarkSimulator.simulate"><code class="name flex">
 <span>def <span class="ident">simulate</span></span>(<span>self, theta, psi)</span>
 </code></dt>
 <dd>
@@ -383,11 +357,9 @@ setTimeout(() => input.focus(), 100);
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="hypothesis.benchmark.spatialsir.simulator.Simulator" href="#hypothesis.benchmark.spatialsir.simulator.Simulator">Simulator</a></code></h4>
+<h4><code><a title="hypothesis.benchmark.spatialsir.simulator.SSIRBenchmarkSimulator" href="#hypothesis.benchmark.spatialsir.simulator.SSIRBenchmarkSimulator">SSIRBenchmarkSimulator</a></code></h4>
 <ul class="">
-<li><code><a title="hypothesis.benchmark.spatialsir.simulator.Simulator.dump_patches" href="#hypothesis.benchmark.spatialsir.simulator.Simulator.dump_patches">dump_patches</a></code></li>
-<li><code><a title="hypothesis.benchmark.spatialsir.simulator.Simulator.simulate" href="#hypothesis.benchmark.spatialsir.simulator.Simulator.simulate">simulate</a></code></li>
-<li><code><a title="hypothesis.benchmark.spatialsir.simulator.Simulator.training" href="#hypothesis.benchmark.spatialsir.simulator.Simulator.training">training</a></code></li>
+<li><code><a title="hypothesis.benchmark.spatialsir.simulator.SSIRBenchmarkSimulator.simulate" href="#hypothesis.benchmark.spatialsir.simulator.SSIRBenchmarkSimulator.simulate">simulate</a></code></li>
 </ul>
 </li>
 </ul>

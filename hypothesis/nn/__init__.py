@@ -1,4 +1,4 @@
-r""":mod:`hypothesis.nn` is a submodule containing neural network utilities.
+r"""Specifies neural network utilities and extensions.
 
 """
 

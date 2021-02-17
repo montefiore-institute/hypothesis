@@ -39,6 +39,8 @@ mechanisation of science.
 The package contains (approximate) inference algorithms to solve inverse
 statistical problems. Utilities are provided for data loading, efficient
 simulation, visualization, fire-and-forget inference, and validation.
+
+.. include:: ./documentation.md
 &#34;&#34;&#34;
 
 __name__ = &#34;hypothesis&#34;
@@ -118,12 +120,12 @@ import torch
 cpu_count = multiprocessing.cpu_count()
 &#34;&#34;&#34;Number of available logical processor cores.
 
-The variable will be initialized when :mod:`hypothesis` is loaded for the first time.
+The variable will be initialized when ``hypothesis`` is loaded for the first time.
 &#34;&#34;&#34;
 
 
 workers = cpu_count
-&#34;&#34;&#34;Default number of parallel workers in :mod:`hypothesis`.&#34;&#34;&#34;
+&#34;&#34;&#34;Default number of parallel workers in ``hypothesis``.&#34;&#34;&#34;
 
 
 def set_workers(n):
@@ -168,47 +170,44 @@ def gpu_available():
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
 <dl>
-<dt><code class="name"><a title="hypothesis.auto" href="auto/index.html">hypothesis.auto</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
 <dt><code class="name"><a title="hypothesis.benchmark" href="benchmark/index.html">hypothesis.benchmark</a></code></dt>
 <dd>
-<div class="desc"><p>Benchmark problems for simulation-based inference methodologies.</p></div>
+<div class="desc"><p>Collection of benchmark problems for simulation-based inference methodologies.</p></div>
 </dd>
 <dt><code class="name"><a title="hypothesis.bin" href="bin/index.html">hypothesis.bin</a></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Predefined utility binaries including common tasks such as data-preparation,
+training of ratio estimators, and management of workflows defined through …</p></div>
 </dd>
 <dt><code class="name"><a title="hypothesis.cli" href="cli.html">hypothesis.cli</a></code></dt>
 <dd>
-<div class="desc"><p>Console script for hypothesis.</p></div>
+<div class="desc"><p>Main CLI interface for <code><a title="hypothesis" href="#hypothesis">hypothesis</a></code>.</p></div>
 </dd>
 <dt><code class="name"><a title="hypothesis.default" href="default.html">hypothesis.default</a></code></dt>
 <dd>
-<div class="desc"><p>Default settings in Hypothesis.</p></div>
+<div class="desc"><p>Default settings in <code><a title="hypothesis" href="#hypothesis">hypothesis</a></code>.</p></div>
 </dd>
 <dt><code class="name"><a title="hypothesis.engine" href="engine/index.html">hypothesis.engine</a></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Base definitions for event-driven procedures in <code><a title="hypothesis" href="#hypothesis">hypothesis</a></code>.</p></div>
 </dd>
 <dt><code class="name"><a title="hypothesis.exception" href="exception/index.html">hypothesis.exception</a></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Exception definitions specific to <code><a title="hypothesis" href="#hypothesis">hypothesis</a></code>.</p></div>
 </dd>
 <dt><code class="name"><a title="hypothesis.nn" href="nn/index.html">hypothesis.nn</a></code></dt>
 <dd>
-<div class="desc"><p>:mod:<code><a title="hypothesis.nn" href="nn/index.html">hypothesis.nn</a></code> is a submodule containing neural network utilities.</p></div>
+<div class="desc"><p>Specifies neural network utilities and extensions.</p></div>
 </dd>
 <dt><code class="name"><a title="hypothesis.plot" href="plot/index.html">hypothesis.plot</a></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Base plotting utilities and definition of <code>matplotlib</code> theme.</p></div>
 </dd>
 <dt><code class="name"><a title="hypothesis.simulation" href="simulation/index.html">hypothesis.simulation</a></code></dt>
 <dd>
-<div class="desc"><p>:mod:<code><a title="hypothesis.simulation" href="simulation/index.html">hypothesis.simulation</a></code> is a submodule containing the
+<div class="desc"><p>Submodule containing the
 base simulator architecture and utilities to execute efficient simulations.
-Every forward …</p></div>
+Every forward model requires to be wrapped in a …</p></div>
 </dd>
 <dt><code class="name"><a title="hypothesis.stat" href="stat/index.html">hypothesis.stat</a></code></dt>
 <dd>
@@ -243,11 +242,11 @@ the variable will default to GPU 0.</p></div>
 <dt id="hypothesis.cpu_count"><code class="name">var <span class="ident">cpu_count</span></code></dt>
 <dd>
 <div class="desc"><p>Number of available logical processor cores.</p>
-<p>The variable will be initialized when :mod:<code><a title="hypothesis" href="#hypothesis">hypothesis</a></code> is loaded for the first time.</p></div>
+<p>The variable will be initialized when <code><a title="hypothesis" href="#hypothesis">hypothesis</a></code> is loaded for the first time.</p></div>
 </dd>
 <dt id="hypothesis.workers"><code class="name">var <span class="ident">workers</span></code></dt>
 <dd>
-<div class="desc"><p>Default number of parallel workers in :mod:<code><a title="hypothesis" href="#hypothesis">hypothesis</a></code>.</p></div>
+<div class="desc"><p>Default number of parallel workers in <code><a title="hypothesis" href="#hypothesis">hypothesis</a></code>.</p></div>
 </dd>
 </dl>
 </section>
@@ -379,7 +378,6 @@ setTimeout(() => input.focus(), 100);
 <ul id="index">
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
-<li><code><a title="hypothesis.auto" href="auto/index.html">hypothesis.auto</a></code></li>
 <li><code><a title="hypothesis.benchmark" href="benchmark/index.html">hypothesis.benchmark</a></code></li>
 <li><code><a title="hypothesis.bin" href="bin/index.html">hypothesis.bin</a></code></li>
 <li><code><a title="hypothesis.cli" href="cli.html">hypothesis.cli</a></code></li>

@@ -1,10 +1,4 @@
-r"""This problem setting is concerned with the computation of a posterior
-over the infection and recovery rate $\vartheta$, conditioned on an observable $x$,
-representing a grid-world of susceptible, infected, and recovered individuals.
-This information is encoded in 3 individual channels. Based on these parameters,
-the model describes the evolution of an infection through this grid-like world.
-The disease spreads spatially, and is initialized with various number of
-initial infectious clusters, parameterized through a Poisson distribution.
+r"""Simulator definition of the SSIR benchmark.
 
 """
 
@@ -17,10 +11,17 @@ from scipy import signal
 from torch.distributions.poisson import Poisson
 
 
-class Simulator(BaseSimulator):
+class SSIRBenchmarkSimulator(BaseSimulator):
+    r"""The simulation model generated a grid-world of susceptible,
+    infected, and recovered individuals. This information is encoded in 3
+    individual channels. Based on these parameters, and the infection and recovery rate,
+    the model describes the evolution of an infection through this grid-like world.
+    The disease spreads spatially, and is initialized with various number of
+    initial infectious clusters, parameterized through a Poisson distribution.
+    """
 
     def __init__(self, initial_infections_rate=3, shape=(100, 100), default_measurement_time=1.0, step_size=0.01):
-        super(Simulator, self).__init__()
+        super(SSIRBenchmarkSimulator, self).__init__()
         self.default_measurement_time = default_measurement_time
         self.lattice_shape = shape
         self.p_initial_infections = Poisson(float(initial_infections_rate))

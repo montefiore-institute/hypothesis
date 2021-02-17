@@ -1,4 +1,4 @@
-r"""Default settings in Hypothesis.
+r"""Default settings in ``hypothesis``.
 
 """
 
@@ -21,7 +21,7 @@ r"""Default dropout setting."""
 
 
 _key_epochs = "epochs"
-epochs = 1
+epochs = 100
 r"""Default number of data epochs."""
 
 

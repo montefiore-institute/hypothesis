@@ -1,6 +1,6 @@
 Module hypothesis.cli
 =====================
-Console script for hypothesis.
+Main CLI interface for ``hypothesis``.
 
 Functions
 ---------

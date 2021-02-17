@@ -1,4 +1,6 @@
-"""Console script for hypothesis."""
+"""Main CLI interface for ``hypothesis``.
+
+"""
 
 import argparse
 import hypothesis as h

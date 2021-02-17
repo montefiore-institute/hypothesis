@@ -1,6 +1,6 @@
 Module hypothesis.benchmark.weinberg
 ====================================
-This is a simulation of high energy particle collisions $e^+e^- \to \mu^+ \mu^-$.
+This is a simulation of high energy particle collisions $$e^+e^- \to \mu^+ \mu^-.$$
 The angular distributions of the particles can be used to measure the Weinberg angle
 in the standard model of particle physics. If you get a PhD in particle physics,
 you may learn how to calculate these distributions and interpret those equations to

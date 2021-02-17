@@ -1,3 +1,7 @@
+r"""Simulator definition of the Weinberg benchmark.
+
+"""
+
 import hypothesis as h
 import numpy as np
 import torch
@@ -5,8 +9,8 @@ import torch
 from hypothesis.simulation import BaseSimulator
 
 
-class Simulator(BaseSimulator):
-    r"""This is a simulation of high energy particle collisions $e^+e^- \to \mu^+ \mu^-$.
+class WeinbergBenchmarkSimulator(BaseSimulator):
+    r"""This is a simulation of high energy particle collisions $$e^+e^- \to \mu^+ \mu^-.$$
     The angular distributions of the particles can be used to measure the Weinberg angle
     in the standard model of particle physics. If you get a PhD in particle physics,
     you may learn how to calculate these distributions and interpret those equations to
@@ -18,30 +22,30 @@ class Simulator(BaseSimulator):
 
     Original implementation by Lucas Heinrich and Kyle Cranmer.
 
-    .. code-block:: python
+    ```python
+    from hypothesis.benchmark.weinberg import Prior
+    from hypothesis.benchmark.weinberg import Simulator
 
-        from hypothesis.benchmark.weinberg import Prior
-        from hypothesis.benchmark.weinberg import Simulator
+    prior = Prior()
+    simulator = Simulator()
 
-        prior = Prior()
-        simulator = Simulator()
+    inputs = prior.sample((10,))  # Draw 10 samples from the prior
+    outputs = simulator(inputs)
 
-        inputs = prior.sample((10,))  # Draw 10 samples from the prior
-        outputs = simulator(inputs)
+    # You can also batch with respect to the experimental configurations
+    from hypothesis.benchmark.weinberg import PriorExperiment
 
-        # You can also batch with respect to the experimental configurations
-        from hypothesis.benchmark.weinberg import PriorExperiment
-
-        prior_experiment = PriorExperiment()
-        beam_energies = prior_experiment.sample((10,))
-        outputs = simulator(inputs, beam_energies)
+    prior_experiment = PriorExperiment()
+    beam_energies = prior_experiment.sample((10,))
+    outputs = simulator(inputs, beam_energies)
+    ```
     """
 
     MZ = int(90)
     GFNom = float(1)
 
     def __init__(self, default_beam_energy=40.0, num_samples=1):
-        super(Simulator, self).__init__()
+        super(WeinbergBenchmarkSimulator, self).__init__()
         self._num_samples = int(num_samples)
         self._default_beam_energy = float(default_beam_energy)
 

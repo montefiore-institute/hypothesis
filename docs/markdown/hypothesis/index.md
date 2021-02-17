@@ -9,7 +9,6 @@ simulation, visualization, fire-and-forget inference, and validation.
 
 Sub-modules
 -----------
-* hypothesis.auto
 * hypothesis.benchmark
 * hypothesis.bin
 * hypothesis.cli
@@ -41,11 +40,11 @@ Variables
 `cpu_count`
 :   Number of available logical processor cores.
     
-    The variable will be initialized when :mod:`hypothesis` is loaded for the first time.
+    The variable will be initialized when ``hypothesis`` is loaded for the first time.
 
     
 `workers`
-:   Default number of parallel workers in :mod:`hypothesis`.
+:   Default number of parallel workers in ``hypothesis``.
 
 Functions
 ---------

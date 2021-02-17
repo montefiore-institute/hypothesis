@@ -1,4 +1,4 @@
-r"""Benchmark problems for simulation-based inference methodologies.
+r"""Collection of benchmark problems for simulation-based inference methodologies.
 
 """
 
