@@ -9,7 +9,7 @@ The disease spreads spatially, and is initialized with various number of
 initial infectious clusters, parameterized through a Poisson distribution.
 """
 
-from .simulator import SSIRBenchmarkSimulator
+from .simulator import SSIRBenchmarkSimulator as Simulator
 from .util import Prior
 from .util import PriorExperiment
 from .util import Truth
