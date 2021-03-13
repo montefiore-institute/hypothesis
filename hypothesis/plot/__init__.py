@@ -11,7 +11,7 @@ from .stat import *
 
 
 def activate():
-    r"""Enables to Hypothesis plotting style by default."""
+    r"""Enables the usage Hypothesis plotting style by default."""
     plt.style.use("hypothesis")
 
 
