@@ -2,7 +2,14 @@
 
 """The setup script."""
 
+import glob
+import matplotlib as mpl
+import os
+import shutil
+
 from setuptools import setup, find_packages
+
+
 
 with open('README.md') as readme_file:
     readme = readme_file.read()
@@ -29,10 +36,19 @@ setup_requirements = [
 test_requirements = [
     'pytest>=3']
 
+# Install the Matplotlib style files
+style_dir = os.path.join(mpl.get_data_path(), 'stylelib')
+style_files = glob.glob(os.getcwd() + "/mpl/*.mplstyle")
+for f in style_files:
+    filename = os.path.basename(f)
+    destination = style_dir + '/' + filename
+    shutil.copy(f, destination)
+
+# Install Hypothesis
 setup(
     author="Joeri Hermans",
     author_email='joeri@peinser.com',
-    python_requires='>=3.5',
+    python_requires='>=3.8',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',

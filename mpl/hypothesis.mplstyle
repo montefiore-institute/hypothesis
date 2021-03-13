@@ -1,0 +1,8 @@
+### Hypothesis matplotlib plotting style
+
+### Lines
+lines.antialiased : True
+lines.color       : black
+lines.linestyle   : -
+lines.linewidth   : 2.0
+lines.marker      : None
