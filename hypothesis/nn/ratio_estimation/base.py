@@ -163,8 +163,9 @@ class ConservativeCriterion(BaseCriterion):
     def __init__(self,
         estimator,
         calibrate=True,
-        conservativeness=0.01,
+        conservativeness=0.0,
         batch_size=h.default.batch_size,
+        gamma=25.0,
         logits=False):
         super(ConservativeCriterion, self).__init__(
             estimator=estimator,
@@ -172,6 +173,7 @@ class ConservativeCriterion(BaseCriterion):
             logits=logits)
         self._beta = 1. - conservativeness
         self._calibrate = calibrate
+        self._gamma = gamma
 
     @property
     def conservativeness(self):
@@ -182,10 +184,19 @@ class ConservativeCriterion(BaseCriterion):
         assert value >= 0.0 and value <= 1.0
         self._beta = value
 
+    @property
+    def gamma(self):
+        return self._gamma
+
+    @gamma.setter
+    def gamma(self, value):
+        assert value >= 0
+        self._gamma = value
+
     def _forward_without_logits(self, **kwargs):
-        # Forward pass
+        # Forward passes
         y_joint, log_r_joint = self._estimator(**kwargs)
-        # Shuffle to make necessary variables independent.
+        ## Shuffle to make necessary variables independent.
         for group in self._independent_random_variables:
             random_indices = torch.randperm(self._batch_size)
             for variable in group:
@@ -196,13 +207,36 @@ class ConservativeCriterion(BaseCriterion):
         loss_marginals_0 = self._criterion(y_marginals, self._zeros)
         # Learn mixture of the joint vs. marginals
         mi = log_r_joint.mean()
-        loss = loss_joint_1 + loss_marginals_0 + (mi - mi * self._beta)
+        loss = loss_joint_1 + loss_marginals_0 + (mi - self._beta * mi)
         # Check if calibration term needs to be added.
-        if self._calibrate:
-            calibration_term = 2 * (1 - y_joint.mean() - y_marginals.mean()).abs()
-            loss = loss + calibration_term
+        if self._calibrate and False:
+            calibration_term_a = (1.0 - y_joint - y_marginals).mean().pow(2)
+            calibration_term_b = (1.0 - (1.0 - y_joint) - (1.0 - y_marginals)).mean().pow(2)
+            calibration_term = calibration_term_a + calibration_term_b
+            loss = loss + self._gamma * calibration_term
 
         return loss
 
     def _forward_with_logits(self, **kwargs):
-        raise NotImplementedError
+        # Forward passes
+        y_joint, log_r_joint = self._estimator(**kwargs)
+        ## Shuffle to make necessary variables independent.
+        for group in self._independent_random_variables:
+            random_indices = torch.randperm(self._batch_size)
+            for variable in group:
+                kwargs[variable] = kwargs[variable][random_indices]  # Make variable independent.
+        y_marginals, log_r_marginals = self._estimator(**kwargs)
+        # Compute losses
+        loss_joint_1 = self._criterion(log_r_joint, self._ones)
+        loss_marginals_0 = self._criterion(log_r_marginals, self._zeros)
+        # Learn mixture of the joint vs. marginals
+        mi = log_r_joint.mean()
+        loss = loss_joint_1 + loss_marginals_0 + (mi - self._beta * mi)
+        # Check if calibration term needs to be added.
+        if self._calibrate and False:
+            calibration_term_a = (1.0 - y_joint - y_marginals).mean().pow(2)
+            calibration_term_b = (1.0 - (1.0 - y_joint) - (1.0 - y_marginals)).mean().pow(2)
+            calibration_term = calibration_term_a + calibration_term_b
+            loss = loss + self._gamma * calibration_term
+
+        return loss

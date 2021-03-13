@@ -1,6 +1,6 @@
 python -m hypothesis.bin.ratio_estimation.train \
-    --batch-size 2048 \
-    --epochs 25 \
+    --batch-size 1024 \
+    --epochs 10 \
     --lr 0.001 \
     --show \
     --no-logits \

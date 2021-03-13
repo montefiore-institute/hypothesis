@@ -25,16 +25,16 @@ class RatioEstimator(BaseRatioEstimator):
 
     def __init__(self):
         super(RatioEstimator, self).__init__(
-            activation=torch.nn.LeakyReLU,
-            trunk=[128, 128, 128])
+            activation=torch.nn.SELU,
+            trunk=[128, 128])
 
 
 def Prior():
-    return torch.distributions.uniform.Uniform(-5, 5)
+    return torch.distributions.uniform.Uniform(-10, 10)
 
 
 prior = Prior()
-extent = torch.linspace(-5, 5, 1000)
+extent = torch.linspace(-10, 10, 1000)
 extent = extent.to(h.accelerator)
 
 
