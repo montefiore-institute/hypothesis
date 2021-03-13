@@ -7,13 +7,21 @@ from setuptools import setup, find_packages
 with open('README.md') as readme_file:
     readme = readme_file.read()
 
-requirements = [
-    'cloudpickle',
-    'coloredlogs',
-    'pdoc3',
-    'scipy',
-    'tensorboard',
-    'tqdm']
+def _load_requirements(file_name="requirements.txt", comment_char='#'):
+    with open(file_name, 'r') as file:
+        lines = [ln.strip() for ln in file.readlines()]
+    reqs = []
+    for ln in lines:
+        # filer all comments
+        if comment_char in ln:
+            ln = ln[:ln.index(comment_char)].strip()
+        # skip directly installed dependencies
+        if ln.startswith('http'):
+            continue
+        if ln:  # if requirement is not empty
+            reqs.append(ln)
+
+    return reqs
 
 setup_requirements = [
     'pytest-runner']
@@ -42,7 +50,7 @@ setup(
             'hypothesis=hypothesis.cli:main',
         ],
     },
-    install_requires=requirements,
+    install_requires=_load_requirements(),
     license="BSD license",
     long_description=readme,
     include_package_data=True,
