@@ -69,3 +69,5 @@ font.size                : 16
 text.latex.preamble      : \usepackage{amssymb}
 
 ### PDF
+pdf.fonttype             : 3
+pdf.compression          : 9
