@@ -29,10 +29,10 @@ class BaseSimulator:
     def __init__(self):
         super(BaseSimulator, self).__init__()
 
-    def __call__(self, **kwargs):
-        return self.forward(**kwargs)
+    def __call__(self, *inputs, **kwargs):
+        return self.forward(*inputs, **kwargs)
 
-    def forward(self, **kwargs):
+    def forward(self, inputs, **kwargs):
         r"""Defines the computation of the forward model at every call.
 
         .. note::
