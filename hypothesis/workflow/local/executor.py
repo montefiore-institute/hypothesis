@@ -4,12 +4,17 @@ import logging
 import sys
 import torch
 
+from hypothesis.exception import NoWorkflowContextError
+
 
 @torch.no_grad()
 def execute(context=None):
     # Check if custom context has been specified
     if context is None:
         context = w.context
+    # Check if a context is present
+    if context is None:
+        raise NoWorkflowContextError
     # Prune the computational graph
     context.prune()
     # Check if a root node is present.
