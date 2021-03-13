@@ -28,7 +28,6 @@ class BaseSimulator:
 
     def __init__(self):
         super(BaseSimulator, self).__init__()
-        self.eval()
 
     def __call__(self, **kwargs):
         return self.forward(**kwargs)

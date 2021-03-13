@@ -11,8 +11,8 @@ def Prior():
     recovery rate (encoded in this order).
 
     """
-    lower = torch.tensor([0, 1]).float()
-    upper = torch.tensor([0, 1]).float()
+    lower = torch.tensor([0, 0]).float()
+    upper = torch.tensor([1, 1]).float()
 
     return torch.distributions.uniform.Uniform(lower, upper)
 
