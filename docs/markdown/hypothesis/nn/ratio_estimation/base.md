@@ -207,7 +207,7 @@ Classes
     `log_ratio(self, **kwargs)`
     :
 
-`ConservativeCriterion(estimator, calibrate=True, conservativeness=0.01, batch_size=4096, logits=False)`
+`ConservativeCriterion(estimator, calibrate=True, conservativeness=0.0, batch_size=4096, gamma=25.0, logits=False)`
 :   Base class for all neural network modules.
     
     Your models should also subclass this class.
@@ -253,6 +253,9 @@ Classes
     ### Instance variables
 
     `conservativeness`
+    :
+
+    `gamma`
     :
 
 `RatioEstimatorEnsemble(estimators, reduce='mean')`

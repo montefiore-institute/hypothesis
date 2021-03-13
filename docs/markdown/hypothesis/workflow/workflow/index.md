@@ -1,6 +1,6 @@
 Module hypothesis.workflow.workflow
 ===================================
-Predefined workflows, ready for usage.
+Predefined workflows, ready to use.
 
 Sub-modules
 -----------

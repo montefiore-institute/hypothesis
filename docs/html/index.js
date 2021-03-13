@@ -1065,7 +1065,7 @@ INDEX=[
 {
 "ref":"hypothesis.workflow.workflow",
 "url":46,
-"doc":"Predefined workflows, ready for usage."
+"doc":"Predefined workflows, ready to use."
 },
 {
 "ref":"hypothesis.workflow.workflow.simulate",
@@ -2060,6 +2060,11 @@ INDEX=[
 },
 {
 "ref":"hypothesis.nn.ratio_estimation.base.ConservativeCriterion.conservativeness",
+"url":74,
+"doc":""
+},
+{
+"ref":"hypothesis.nn.ratio_estimation.base.ConservativeCriterion.gamma",
 "url":74,
 "doc":""
 },
