@@ -31,6 +31,7 @@ pytest-runner==5.2
 readme-renderer==28.0
 requests
 requests-toolbelt
+matplotlib
 rfc3986
 torch
 torchaudio
