@@ -72,9 +72,6 @@ import hypothesis.workflow
 
 import hypothesis.plot
 
-# Use the Hypothesis plotting style by default.
-hypothesis.plot.activate()
-
 ###############################################################################
 # Logging
 ###############################################################################
