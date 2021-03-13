@@ -31,8 +31,7 @@ pytest-runner==5.2
 readme-renderer==28.0
 requests
 requests-toolbelt
-rfc3986==1.4.0
-toml==0.10.2
+rfc3986
 torch
 torchaudio
 torchvision
