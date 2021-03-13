@@ -9,12 +9,12 @@ from .util import *
 
 
 
-def activate_style():
+def activate():
     r"""Enables to Hypothesis plotting style by default."""
     plt.style.use("hypothesis")
 
 
-def deactivate_style():
+def deactivate():
     r"""Disables the Hypothesis plotting style by reverting
     to Matplotlib's default.
     """
@@ -27,8 +27,8 @@ class HypothesisPlottingStyle:
 
     To be used as
 
-    import hypothesis as h
-    import matplotlib.pyplot as plt
+        import hypothesis as h
+        import matplotlib.pyplot as plt
 
         with h.plot.style:
             plt.plot([1, 2], [1, 2])

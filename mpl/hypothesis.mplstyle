@@ -1,8 +1,71 @@
 ### Hypothesis matplotlib plotting style
 
 ### Lines
-lines.antialiased : True
-lines.color       : black
-lines.linestyle   : -
-lines.linewidth   : 2.0
-lines.marker      : None
+lines.antialiased        : True
+lines.color              : black
+lines.linestyle          : -
+lines.linewidth          : 2.0
+lines.marker             : None
+
+### Ticks (x-axis)
+xtick.alignment          : center
+xtick.bottom             : True
+xtick.direction          : in
+xtick.major.size         : 6.0
+xtick.minor.size         : 3.0
+xtick.minor.visible      : True
+xtick.top                : True
+
+### Ticks (y-axis)
+ytick.alignment          : center
+ytick.direction          : in
+ytick.left               : True
+ytick.major.size         : 6.0
+ytick.minor.size         : 3.0
+ytick.minor.visible      : True
+ytick.right              : True
+
+### Axes
+axes.xmargin             : 0.05
+axes.ymargin             : 0.05
+axes.grid                : True
+axes.grid.which          : both
+axes.prop_cycle          : cycler("color", ["000000", "999999", "279AF1", "C33C54"])
+
+### Polaraxes
+polaraxes.grid           : True
+
+### Axes3d
+axes3d.grid              : True
+
+### Grid
+grid.alpha               : 0.1
+grid.color               : black
+grid.linestyle           : :
+
+### Figure
+figure.autolayout        : False
+figure.dpi               : 100
+figure.figsize           : 8, 8
+
+### Savefig
+savefig.bbox             : tight
+savefig.dpi              : 100
+savefig.format           : pdf
+savefig.transparent      : True
+
+### Histograms
+hist.bins                : 25
+
+### Legend
+legend.frameon           : False
+legend.fancybox          : False
+
+### Fonts
+font.family              : serif
+font.serif               : Computer Modern Roman
+text.usetex              : True
+font.size                : 16
+text.latex.preamble      : \usepackage{amssymb}
+
+### PDF
