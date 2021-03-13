@@ -38,7 +38,7 @@ test_requirements = [
 
 # Install the Matplotlib style files
 style_dir = os.path.join(mpl.get_data_path(), 'stylelib')
-style_files = glob.glob(os.getcwd() + "/mpl/*.mplstyle")
+style_files = glob.glob(os.getcwd() + "/.mpl/*.mplstyle")
 for f in style_files:
     filename = os.path.basename(f)
     destination = style_dir + '/' + filename

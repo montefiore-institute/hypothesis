@@ -6,6 +6,7 @@ r"""Base plotting utilities and definition of ``matplotlib`` theme.
 import matplotlib.pyplot as plt
 
 from .util import *
+from .stat import *
 
 
 
