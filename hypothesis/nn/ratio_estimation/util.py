@@ -30,11 +30,11 @@ def build_ratio_estimator(architecture, random_variables, denominator="inputs|ou
     corresponds to the name of the random variable and it's data
     shape (without the batch-size).
     """
-    if not architecture in architectures.keys():
+    if not architecture in _architectures.keys():
         raise UnknownRatioEstimatorError
     creator = _architectures[architecture]
 
-    return creator(variables, **kwargs)
+    return creator(random_variables, denominator=denominator, **kwargs)
 
 
 def build_mlp_ratio_estimator(random_variables, denominator, **kwargs):

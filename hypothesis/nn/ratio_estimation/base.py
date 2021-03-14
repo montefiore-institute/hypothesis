@@ -6,10 +6,14 @@ import torch
 
 class BaseRatioEstimator(torch.nn.Module):
 
-    def __init__(self, denominator, random_variables):
+    def __init__(self, denominator=None, random_variables=None, r=None):
         super(BaseRatioEstimator, self).__init__()
-        denominator_rv = set(denominator.replace(',', ' ').replace('|', ' ').split(' '))
-        assert denominator_rv == set(random_variables.keys())
+        if r is None:
+            denominator_rv = set(denominator.replace(',', ' ').replace('|', ' ').split(' '))
+            assert denominator_rv == set(random_variables.keys())
+        else:
+            denominator = r.denominator
+            random_variables = r.random_variables
         self._denominator = denominator  # Denominator of the ratio
         self._random_variables = random_variables  # A dictionary with the name and shape of the random variable.
 
