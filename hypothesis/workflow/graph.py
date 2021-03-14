@@ -120,18 +120,17 @@ class WorkflowGraph:
             branches = self._branches(node)
             if len(branches) == 0:
                 return
-            siblings = node.siblings
+            siblings = list(node.siblings)
             for sibling in siblings:
-                for parent in node.parents:
+                parents = list(node.parents)
+                for parent in parents:
                     sibling.remove_parent(parent)
-                print(sibling)
                 sibling.add_parent(self.root)
             for b in branches:
                 self.root.remove_child(b)
-            children = node.children
+            children = list(node.children)
             for c in children:
                 self.root.add_child(c)
-            for c in children:
                 c.remove_parent(node)
         else:
             for p in node.parents:

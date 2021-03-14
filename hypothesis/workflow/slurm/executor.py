@@ -60,12 +60,10 @@ def execute(context=None,
     # Retrieve the tasks in BFS order
     tasks = context.program()
     task_indices = {}
-    # Populate the task indices
-    for task_index, task in enumerate(tasks):
-        task_indices[id(task)] = task_index
     # Generate the main tasks and their dependencies
     job_id_line = "echo \""
     for task_index, task in enumerate(tasks):
+        task_indices[id(task)] = task_index
         variable = "t" + str(task_index)
         line = variable + "=$(sbatch "
         # Check if the task has dependencies
