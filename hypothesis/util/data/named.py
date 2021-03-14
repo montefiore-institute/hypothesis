@@ -1,5 +1,6 @@
 import torch
 
+from hypothesis.util import is_tensor
 from torch.utils.data import Dataset as BaseDataset
 
 
@@ -14,7 +15,11 @@ class NamedDataset(BaseDataset):
     def __getitem__(self, index):
         sample = {}
         for k in self._keys:
-            sample[k] = self._datasets[k][index]
+            element = self._datasets[k][index]
+            if is_tensor(element):
+                sample[k] = element
+            else:
+                sample[k] = element[0] # 0-indexing for tuple extraction.
 
         return sample
 

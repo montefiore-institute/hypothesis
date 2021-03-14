@@ -1,5 +1,7 @@
 r"""General utilities for :mod:`hypothesis`."""
 
+import torch
+
 
 def is_iterable(item):
     r"""Checks whether the specified item is iterable.
@@ -8,6 +10,15 @@ def is_iterable(item):
     :rtype: bool
     """
     return hasattr(item, "__getitem__")
+
+
+def is_tensor(item):
+    r"""Checks whether the specified item is a PyTorch tensor.
+
+    :param item: Any possible Python instance.
+    :rtype: bool
+    """
+    return torch.is_tensor(item)
 
 
 def is_integer(item):
