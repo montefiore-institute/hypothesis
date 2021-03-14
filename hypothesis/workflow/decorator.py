@@ -16,12 +16,15 @@ def root(f):
 
 
 @parameterized
-def dependency(f, dependency):
-    if f == dependency:
-        raise Exception("A function cannot depend on itself.")
-    dependency_node = add_and_get_node(dependency)
-    node = add_and_get_node(f)
-    node.add_parent(dependency_node)
+def dependency(f, dependencies):
+    if not is_iterable(dependencies):
+        dependencies = [dependencies]
+    for dependency in dependencies:
+        if f == dependency:
+            raise Exception("A function cannot depend on itself.")
+        dependency_node = add_and_get_node(dependency)
+        node = add_and_get_node(f)
+        node.add_parent(dependency_node)
 
     return f
 
