@@ -54,6 +54,9 @@ def main(arguments):
     add_hooks(arguments, trainer)
     # Start the optimization procedure
     trainer.fit()
+    # Check if the path does not exists.
+    if not os.path.exists(arguments.out):
+        os.makedirs(arguments.out)
     # Save the generated results.
     if os.path.isdir(arguments.out):
         # Save the associated losses.
