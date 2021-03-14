@@ -120,7 +120,6 @@ def add_default_environment(context, environment=None):
             node["conda"] = environment
 
 
-
 def add_partition(context, partition=None):
     if partition is not None:
         for node in context.nodes:
