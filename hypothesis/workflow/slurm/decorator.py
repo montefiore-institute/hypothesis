@@ -11,7 +11,7 @@ def gpu(f, num_gpus):
 
 @w.parameterized
 def cpu(f, num_cpus):
-    if num_cpus > 1:
+    if num_cpus > 0:
         node = w.add_and_get_node(f)
         node["--cpus-per-task"] = str(num_cpus)
 
@@ -37,8 +37,8 @@ def timelimit(f, time):
 def cpu_and_memory(f, c, m):
     r"""Specify the minmum number of requires CPU cores and
     the TOTAL memory requirement of the job."""
-    cpu(f, c)
-    memory(f, m)
+    f = cpu(f, c)
+    f = memory(f, m)
 
     return f
 
