@@ -1,3 +1,7 @@
+r"""Exceptions related to Hypothesis events for hook registration and handling.
+
+"""
+
 class NoEventRegistrationException(Exception):
     r""""""
 

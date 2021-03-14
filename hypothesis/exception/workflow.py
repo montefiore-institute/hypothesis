@@ -1,3 +1,7 @@
+r"""Exceptions specific to Hypothesis workflows.
+
+"""
+
 class NoWorkflowContextError(Exception):
     r"""An exception to indicate the absence of a workflow context.
 
