@@ -71,6 +71,7 @@ def build_ratio_estimator(random_variables, denominator="inputs|outputs", convol
                     shape_xs=shape,
                     width_per_group=width_per_group)
                 self._heads.append(head)
+            self._heads = torch.nn.ModuleList(self._heads)
             # Check if custom trunk settings have been defined.
             if trunk_activation is None:
                 trunk_activation = activation
@@ -89,21 +90,6 @@ def build_ratio_estimator(random_variables, denominator="inputs|outputs", convol
                 dropout=trunk_dropout,
                 layers=trunk_layers,
                 transform_output=None)
-
-        def to(self, device):
-            super().to(device)
-            for index in range(len(self._heads)):
-                self._heads[index] = self._heads[index].to(device)
-
-        def train(self):
-            super().train()
-            for head in self._heads:
-                head.train()
-
-        def eval(self):
-            super().eval()
-            for head in self._heads:
-                head.eval()
 
         def log_ratio(self, **kwargs):
             # Compute the embedding of all heads.
