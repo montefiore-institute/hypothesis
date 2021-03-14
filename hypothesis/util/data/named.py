@@ -14,7 +14,7 @@ class NamedDataset(BaseDataset):
     def __getitem__(self, index):
         sample = {}
         for k in self._keys:
-            sample[k] = self._datasets[k][index][0]  # 0-indexing for tuple-extraction
+            sample[k] = self._datasets[k][index]
 
         return sample
 
