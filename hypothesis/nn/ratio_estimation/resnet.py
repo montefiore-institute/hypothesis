@@ -29,7 +29,8 @@ def build_ratio_estimator(random_variables, denominator="inputs|outputs", convol
     convolve_variables = set(convolve)
     trunk_variables = set(random_variables.keys()) - convolve_variables
     trunk_variables = list(trunk_variables)
-    trunk_variables.sort()
+    for variable in trunk_variables:
+        random_variables[variable] = (dimensionality(random_variables[variable]),)
     convolve_variables = np.array(list(convolve_variables))
     indices = convolve_variables.argsort()
     convolve_variables = convolve_variables[indices]

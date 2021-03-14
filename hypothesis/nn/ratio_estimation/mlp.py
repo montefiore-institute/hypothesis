@@ -7,9 +7,13 @@ from hypothesis.nn.util import dimensionality
 
 
 def build_ratio_estimator(random_variables, denominator="inputs|outputs", **kwargs):
-    shape_xs = (sum([dimensionality(random_variables[k]) for k in random_variables.keys()]),)
-    rv_identifiers = list(random_variables.keys())
-    rv_identifiers.sort()
+    shapes = {}
+    # Precompute shapes of random variables.
+    shape_xs = 0
+    for k, v in random_variables.items():
+        d = dimensionality(v)
+        shapes[k] =  (d,)
+        shape_xs += d
 
     class RatioEstimator(BaseRatioEstimator):
 
@@ -19,7 +23,7 @@ def build_ratio_estimator(random_variables, denominator="inputs|outputs", **kwar
             trunk=h.default.trunk):
             super(RatioEstimator, self).__init__(denominator, random_variables)
             self._mlp = MLP(
-                shape_xs=shape_xs,
+                shape_xs=(shape_xs,),
                 shape_ys=(1,),
                 activation=activation,
                 dropout=dropout,
@@ -27,7 +31,8 @@ def build_ratio_estimator(random_variables, denominator="inputs|outputs", **kwar
                 transform_output=None)
 
         def log_ratio(self, **kwargs):
-            z = torch.cat([kwargs[k].view(-1, *random_variables[k]) for k in rv_identifiers], dim=1)  # Assume shapes are correct
+            tensors = [kwargs[k].view(-1, *v) for k, v in shapes.items()]
+            z = torch.cat(tensors, dim=1)
 
             return self._mlp(z)
 
