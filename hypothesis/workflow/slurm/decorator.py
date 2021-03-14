@@ -37,8 +37,10 @@ def timelimit(f, time):
 def cpu_and_memory(f, c, m):
     r"""Specify the minmum number of requires CPU cores and
     the TOTAL memory requirement of the job."""
-    f = cpu(f, c)
-    f = memory(f, m)
+    node = w.add_and_get_node(f)
+    if c > 0:
+        node["--cpus-per-task"] = str(c)
+    node["--mem"] = str(m).upper()
 
     return f
 
