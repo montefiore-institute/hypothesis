@@ -17,12 +17,13 @@ class RatioEstimatorTrainer(BaseTrainer):
         optimizer,
         accelerator=h.accelerator,
         batch_size=h.default.batch_size,
+        calibrate=False,
         conservativeness=0.0,
         dataset_test=None,
         dataset_train=None,
         dataset_validate=None,
         epochs=h.default.epochs,
-        logits=True,
+        logits=False,
         pin_memory=True,
         shuffle=True,
         show=False,
@@ -53,7 +54,7 @@ class RatioEstimatorTrainer(BaseTrainer):
         # Criterion properties
         self._criterion = ConservativeCriterion(
             batch_size=batch_size,
-            calibrate=True,
+            calibrate=calibrate,
             conservativeness=conservativeness,
             estimator=estimator,
             logits=logits)
