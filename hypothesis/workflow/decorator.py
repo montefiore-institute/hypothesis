@@ -1,5 +1,6 @@
 import hypothesis as h
 
+from hypothesis.util import is_iterable
 from .util import *
 
 
