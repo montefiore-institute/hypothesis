@@ -213,7 +213,7 @@ class ConservativeCriterion(BaseCriterion):
         mi = log_r_joint.mean()
         loss = loss_joint_1 + loss_marginals_0 + (mi - self._beta * mi)
         # Check if calibration term needs to be added.
-        if self._calibrate and False:
+        if self._calibrate:
             calibration_term_a = (1.0 - y_joint - y_marginals).mean().pow(2)
             calibration_term_b = (1.0 - (1.0 - y_joint) - (1.0 - y_marginals)).mean().pow(2)
             calibration_term = calibration_term_a + calibration_term_b
