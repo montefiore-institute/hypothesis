@@ -1,4 +1,4 @@
-r"""General utilities for :mod:`hypothesis`."""
+r"""General utilities for `hypothesis`."""
 
 import torch
 
