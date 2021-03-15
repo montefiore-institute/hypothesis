@@ -30,7 +30,7 @@ axes.xmargin             : 0.05
 axes.ymargin             : 0.05
 axes.grid                : True
 axes.grid.which          : both
-axes.prop_cycle          : cycler("color", ["000000", "999999", "279AF1", "C33C54"])
+axes.prop_cycle          : cycler("color", ["000000", "279AF1", "999999", "C33C54"])
 
 ### Polaraxes
 polaraxes.grid           : True
