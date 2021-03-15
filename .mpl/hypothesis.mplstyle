@@ -65,7 +65,7 @@ legend.fancybox          : False
 font.family              : serif
 font.serif               : Computer Modern Roman
 text.usetex              : True
-font.size                : 25
+font.size                : 22
 text.latex.preamble      : \usepackage{amssymb}
 
 ### PDF
