@@ -15,6 +15,7 @@ xtick.major.size         : 6.0
 xtick.minor.size         : 3.0
 xtick.minor.visible      : True
 xtick.top                : True
+xtick.major.pad          : 5.0
 
 ### Ticks (y-axis)
 ytick.alignment          : center
@@ -24,6 +25,7 @@ ytick.major.size         : 6.0
 ytick.minor.size         : 3.0
 ytick.minor.visible      : True
 ytick.right              : True
+ytick.major.pad          : 5.0
 
 ### Axes
 axes.xmargin             : 0.05
