@@ -52,5 +52,5 @@ def loss(files, ax=None, variance=True, **kwargs):
     epochs = np.arange(len(m)) + 1
     p = ax.plot(epochs, best, **kwargs)
     if len(data_files) >= 2 and variance:
-        s = np.std(loss_curves, axis=0)
+        s = 2 * np.std(loss_curves, axis=0)
         ax.fill_between(epochs, m + s, m - s, color=p[0].get_color(), alpha=.1)
