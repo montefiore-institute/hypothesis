@@ -1,4 +1,4 @@
-r"""Default settings in ``hypothesis``.
+r"""Default settings in `hypothesis`.
 
 """
 
@@ -7,7 +7,7 @@ import torch
 
 _key_activation = "activation"
 activation = torch.nn.LeakyReLU
-r"""Default activation function in Hypothesis."""
+r"""Default activation function in `hypothesis`."""
 
 
 _key_batch_size = "batch_size"

@@ -1,4 +1,4 @@
-r"""A utility program to handle Hypothesis workflows.
+r"""A utility program to handle `hypothesis` workflows.
 
 """
 

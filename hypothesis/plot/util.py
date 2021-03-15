@@ -1,4 +1,4 @@
-r"""Generic plotting utilities for Hypothesis.
+r"""Generic plotting utilities for `hypothesis`.
 
 """
 

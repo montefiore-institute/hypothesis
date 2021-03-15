@@ -1,4 +1,4 @@
-r"""Exceptions specific to Hypothesis workflows.
+r"""Exceptions specific to `hypothesis.workflow`.
 
 """
 

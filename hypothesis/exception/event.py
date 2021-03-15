@@ -1,4 +1,4 @@
-r"""Exceptions related to Hypothesis events for hook registration and handling.
+r"""Exceptions related to `hypothesis.engine` for hook registration and handling.
 
 """
 

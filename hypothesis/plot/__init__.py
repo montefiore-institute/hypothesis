@@ -11,19 +11,19 @@ from .stat import *
 
 
 def activate():
-    r"""Enables the usage Hypothesis plotting style by default."""
+    r"""Enables the usage `hypothesis` plotting style by default."""
     plt.style.use("hypothesis")
 
 
 def deactivate():
-    r"""Disables the Hypothesis plotting style by reverting
+    r"""Disables the `hypothesis` plotting style by reverting
     to Matplotlib's default.
     """
     plt.style.use("default")
 
 
 class HypothesisPlottingStyle:
-    r"""Decorator to enable the Hypothesis matplotlib style
+    r"""Decorator to enable the `hypothesis` matplotlib style
     in a specific context.
 
     To be used as

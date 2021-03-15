@@ -1,15 +1,15 @@
-r"""Default ResNet settings in :mod:`hypothesis`."""
+r"""Default ResNet settings in `hypothesis`."""
 
 depth = 18
 r"""Default ResNet architecture (depth)."""
 
 
 batchnorm = False
-r"""Default batch normalization flag in Hypothesis."""
+r"""Default batch normalization flag in `hypothesis`."""
 
 
 convolution_bias = False
-r"""Add biases in convolutions by default in Hypothesis."""
+r"""Add biases in convolutions by default in `hypothesis`."""
 
 
 channels = 3
