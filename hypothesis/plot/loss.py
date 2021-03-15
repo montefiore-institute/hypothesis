@@ -10,7 +10,7 @@ import torch
 from .util import *
 
 
-def loss(files, ax=plt.gca(), variance=True, **kwargs):
+def loss(files, ax=None, variance=True, **kwargs):
     r"""Plots a single, averaged, loss curves based on the data files provided.
     The specified `files` argument can be an `glob` pattern. In addition,
     whenever no custom `matplotlib` axes has been specified through `ax`, the
@@ -35,6 +35,9 @@ def loss(files, ax=plt.gca(), variance=True, **kwargs):
         h.plot.loss(pattern, variance=False)
         plt.show()
     """
+    # Check if a specific Matplotlib axes has been specified.
+    if ax is None:
+        ax = plt.gca()
     # Default theming.
     ax.set_xlabel("Epochs")
     ax.set_ylabel("Loss")
