@@ -85,7 +85,7 @@ class SSIRBenchmarkSimulator(BaseSimulator):
         for index in range(n):
             theta = inputs[index]
             psi = experimental_configurations[index]
-            x = self.simulate(theta, self.default_measurement_time)
+            x = self.simulate(theta, psi)
             outputs.append(x)
 
         return torch.cat(outputs, dim=0)
