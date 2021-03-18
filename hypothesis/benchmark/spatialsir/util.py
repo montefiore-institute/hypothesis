@@ -25,7 +25,7 @@ def PriorExperiment():
     By default, the simulator will draw samples from
     this distribution to draw experimental configurations.
     """
-    return torch.distributions.uniform.Uniform(0.0, 10.0)
+    return torch.distributions.uniform.Uniform(0.1, 10.0)
 
 
 @torch.no_grad()

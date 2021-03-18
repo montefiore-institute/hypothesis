@@ -35,6 +35,7 @@ class SSIRBenchmarkSimulator(BaseSimulator):
         # Extract the simulation parameters.
         beta = theta[0].item()  # Infection rate
         gamma = theta[1].item() # Recovery rate
+        psi = psi.item()
         # Allocate the data grids.
         infected = np.zeros(self.lattice_shape, dtype=np.int)
         recovered = np.zeros(self.lattice_shape, dtype=np.int)
@@ -81,7 +82,7 @@ class SSIRBenchmarkSimulator(BaseSimulator):
         n = len(inputs)
         if experimental_configurations is None:
             experimental_configurations = torch.tensor(self.default_measurement_time).repeat(n)
-        experimental_configurations = experimental_configurations.view(-1, 1)
+        experimental_configurations = experimental_configurations.view(-1)
         for index in range(n):
             theta = inputs[index]
             psi = experimental_configurations[index]
