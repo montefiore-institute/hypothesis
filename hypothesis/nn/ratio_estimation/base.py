@@ -169,7 +169,7 @@ class ConservativeCriterion(BaseCriterion):
         calibrate=True,
         conservativeness=0.0,
         batch_size=h.default.batch_size,
-        gamma=10.0,
+        gamma=25.0,
         logits=False):
         super(ConservativeCriterion, self).__init__(
             estimator=estimator,
@@ -210,8 +210,10 @@ class ConservativeCriterion(BaseCriterion):
         loss_joint_1 = self._criterion(y_joint, self._ones)
         loss_marginals_0 = self._criterion(y_marginals, self._zeros)
         # Learn mixture of the joint vs. marginals
-        mi = log_r_joint.mean()
-        loss = loss_joint_1 + loss_marginals_0 + (mi - self._beta * mi)
+        loss = loss_joint_1 + loss_marginals_0
+        if self._beta < 1.0:
+            mi = log_r_joint.mean()
+            loss = loss + (mi - self._beta * mi)
         # Check if calibration term needs to be added.
         if self._calibrate:
             calibration_term_a = (1.0 - y_joint - y_marginals).mean().pow(2)
@@ -234,10 +236,12 @@ class ConservativeCriterion(BaseCriterion):
         loss_joint_1 = self._criterion(log_r_joint, self._ones)
         loss_marginals_0 = self._criterion(log_r_marginals, self._zeros)
         # Learn mixture of the joint vs. marginals
-        mi = log_r_joint.mean()
-        loss = loss_joint_1 + loss_marginals_0 + (mi - self._beta * mi)
+        loss = loss_joint_1 + loss_marginals_0
+        if self._beta < 1.0:
+            mi = log_r_joint.mean()
+            loss = loss + (mi - self._beta * mi)
         # Check if calibration term needs to be added.
-        if self._calibrate and False:
+        if self._calibrate:
             calibration_term_a = (1.0 - y_joint - y_marginals).mean().pow(2)
             calibration_term_b = (1.0 - (1.0 - y_joint) - (1.0 - y_marginals)).mean().pow(2)
             calibration_term = calibration_term_a + calibration_term_b

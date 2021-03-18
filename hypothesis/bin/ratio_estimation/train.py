@@ -201,6 +201,8 @@ def parse_arguments():
     # Overwrite the calibrate flag if `dont-calibrate` has been specified.
     if arguments.dont_calibrate:
         arguments.calibrate = False
+    else:
+        arguments.calibrate = True
 
     return arguments
 

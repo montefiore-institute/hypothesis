@@ -17,7 +17,7 @@ class RatioEstimatorTrainer(BaseTrainer):
         optimizer,
         accelerator=h.accelerator,
         batch_size=h.default.batch_size,
-        calibrate=False,
+        calibrate=True,
         conservativeness=0.0,
         dataset_test=None,
         dataset_train=None,
