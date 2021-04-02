@@ -12,7 +12,7 @@ def Prior():
     lower = -3 * torch.ones(5).float()
     upper = 3 * torch.ones(5).float()
 
-    return Uniform(lower, lower)
+    return Uniform(lower, upper)
 
 
 @torch.no_grad()
