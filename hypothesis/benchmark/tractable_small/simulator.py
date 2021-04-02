@@ -11,21 +11,21 @@ from torch.distributions.multivariate_normal import MultivariateNormal as Normal
 class TractableBenchmarkSimulator(BaseSimulator):
     r"""Simulation model associated with the tractable benchmark.
 
-    Marginalizes over the rho parameter. The dimensionality of the
-    problem is therefore reduces to 4 compared to `hypothesis.benchmark.tractable`.
+    Marginalizes over the rho and mu parameter. The dimensionality of the
+    problem is therefore reduces to 2 compared to `hypothesis.benchmark.tractable`.
     """
 
     def __init__(self):
         super(TractableBenchmarkSimulator, self).__init__()
-        self._p_rho = torch.distributions.uniform.Uniform(-3.0, 3.0)
+        self._p = torch.distributions.uniform.Uniform(-3.0, 3.0)
 
     @torch.no_grad()
     def _generate(self, input):
-        mean = torch.tensor([input[0], input[1]])
+        mean = torch.tensor([self._p.sample().item(), self._p.sample().item()])
         scale = 1.0
         s_1 = input[2] ** 2
         s_2 = input[3] ** 2
-        rho = self._p_rho.sample().tanh()
+        rho = self._p.sample().tanh()
         covariance = torch.tensor([
             [scale * s_1 ** 2, scale * rho * s_1 * s_2],
             [scale * rho * s_1 * s_2, scale * s_2 ** 2]])
