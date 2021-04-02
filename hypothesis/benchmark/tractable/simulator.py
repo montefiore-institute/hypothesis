@@ -8,13 +8,13 @@ from hypothesis.simulation import BaseSimulator
 from torch.distributions.multivariate_normal import MultivariateNormal as Normal
 
 
-class TractableBenchmarkSimulator(BaseSimulator):
+class TractableSmallBenchmarkSimulator(BaseSimulator):
     r"""Simulation model associated with the tractable benchmark.
 
     """
 
     def __init__(self):
-        super(TractableBenchmarkSimulator, self).__init__()
+        super(TractableSmallBenchmarkSimulator, self).__init__()
 
     @torch.no_grad()
     def _generate(self, input):
