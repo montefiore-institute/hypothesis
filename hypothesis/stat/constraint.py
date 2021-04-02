@@ -44,14 +44,14 @@ def highest_density_level(density, alpha, min_epsilon=10e-16, region=False):
     optimal_level = density.max()
     epsilon = 10e-00  # Current error
     while epsilon >= min_epsilon:
-        optimal_level += 2 * epsilon  # Overshot solution, move back
+        optimal_level += 2 * epsilon  # Overshoot solution, move back
         epsilon /= 10
         area = 0.0
         while area < (1 - alpha):
             area_under = (density >= optimal_level)
             area = np.sum(area_under * density)
             optimal_level -= epsilon  # Gradient descent to reduce error
-    # Rescale to original scale
+    # Rescale to original
     optimal_level *= integrand
     # Check if the computed mask needs to be returned
     if region:
