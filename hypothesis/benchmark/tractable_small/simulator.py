@@ -3,6 +3,7 @@ r"""Simulator definition of the tractable benchmark.
 """
 
 import torch
+import numpy as np
 
 from hypothesis.simulation import BaseSimulator
 from torch.distributions.multivariate_normal import MultivariateNormal as Normal
@@ -23,9 +24,9 @@ class TractableBenchmarkSimulator(BaseSimulator):
     @torch.no_grad()
     def _generate(self, input):
         if self._mu is None:
-            mean = torch.tensor([self._p.sample().item(), self._p.sample().item()])
+            mean = torch.tensor([self._p.sample().item(), self._p.sample().item()]).float()
         else:
-            mean = np.asarray(self._mu)
+            mean = torch.tensor(self._mu).float()
         scale = 1.0
         s_1 = input[0] ** 2
         s_2 = input[1] ** 2
