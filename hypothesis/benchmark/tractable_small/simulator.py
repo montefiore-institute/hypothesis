@@ -23,8 +23,8 @@ class TractableBenchmarkSimulator(BaseSimulator):
     def _generate(self, input):
         mean = torch.tensor([self._p.sample().item(), self._p.sample().item()])
         scale = 1.0
-        s_1 = input[2] ** 2
-        s_2 = input[3] ** 2
+        s_1 = input[0] ** 2
+        s_2 = input[1] ** 2
         rho = self._p.sample().tanh()
         covariance = torch.tensor([
             [scale * s_1 ** 2, scale * rho * s_1 * s_2],
