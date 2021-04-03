@@ -20,7 +20,7 @@ class SSIRBenchmarkSimulator(BaseSimulator):
     initial infectious clusters, parameterized through a Poisson distribution.
     """
 
-    def __init__(self, initial_infections_rate=3, shape=(100, 100), default_measurement_time=1.0, step_size=0.01):
+    def __init__(self, initial_infections_rate=3, shape=(50, 50), default_measurement_time=1.0, step_size=0.01):
         super(SSIRBenchmarkSimulator, self).__init__()
         self.default_measurement_time = default_measurement_time
         self.lattice_shape = shape
@@ -55,7 +55,7 @@ class SSIRBenchmarkSimulator(BaseSimulator):
             # Infection
             potential = signal.convolve2d(infected, kernel, mode="same")
             potential *= susceptible
-            potential = potential * beta
+            potential = potential * beta / 8
             next_infected = ((potential > np.random.uniform(size=self.lattice_shape)).astype(np.int) + infected) * (1 - recovered)
             next_infected = (next_infected > 0).astype(np.int)
             # Recover
