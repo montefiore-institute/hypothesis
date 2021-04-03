@@ -15,13 +15,17 @@ class TractableBenchmarkSimulator(BaseSimulator):
     problem is therefore reduces to 2 compared to `hypothesis.benchmark.tractable`.
     """
 
-    def __init__(self):
+    def __init__(self, mu=[0.7, -2.9]):
         super(TractableBenchmarkSimulator, self).__init__()
+        self._mu = mu
         self._p = torch.distributions.uniform.Uniform(-3.0, 3.0)
 
     @torch.no_grad()
     def _generate(self, input):
-        mean = torch.tensor([self._p.sample().item(), self._p.sample().item()])
+        if self._mu is None:
+            mean = torch.tensor([self._p.sample().item(), self._p.sample().item()])
+        else:
+            mean = np.asarray(self._mu)
         scale = 1.0
         s_1 = input[0] ** 2
         s_2 = input[1] ** 2
