@@ -35,7 +35,7 @@ class TractableBenchmarkSimulator(BaseSimulator):
             [scale * s_1 ** 2, scale * rho * s_1 * s_2],
             [scale * rho * s_1 * s_2, scale * s_2 ** 2]])
         normal = Normal(mean, covariance)
-        x_out = normal.sample(torch.Size([4])).view(1, -1)
+        x_out = normal.sample((4,)).view(1, -1)
 
         return x_out
 
@@ -43,9 +43,9 @@ class TractableBenchmarkSimulator(BaseSimulator):
     def forward(self, inputs, **kwargs):
         samples = []
 
-        inputs = inputs.view(-1, 5)
+        inputs = inputs.view(-1, 2)
         for input in inputs:
             x_out = self._generate(input)
-            samples.append(x_out.view(1, -1))
+            samples.append(x_out)
 
         return torch.cat(samples, dim=0)
