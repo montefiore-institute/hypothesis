@@ -1,6 +1,7 @@
-import os
+import glob
 import hypothesis as h
 import hypothesis.workflow as w
+import os
 
 from .graph import *
 
@@ -26,6 +27,13 @@ def exists(f):
 def not_exists(f):
     def wrapper():
         return not os.path.exists(f)
+
+    return wrapper
+
+
+def num_files(query, n):
+    def wrapper():
+        return len(glob.glob(query)) == n
 
     return wrapper
 
