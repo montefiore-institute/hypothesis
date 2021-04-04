@@ -9,8 +9,8 @@ from torch.distributions.multivariate_normal import MultivariateNormal as Normal
 
 @torch.no_grad()
 def Prior():
-    lower = -3 * torch.ones(4).float()
-    upper = 3 * torch.ones(4).float()
+    lower = -3 * torch.ones(2).float()
+    upper = 3 * torch.ones(2).float()
 
     return Uniform(lower, upper)
 
