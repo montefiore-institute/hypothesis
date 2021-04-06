@@ -2,6 +2,7 @@ r"""Utilities for the M/G/1 benchmark.
 
 """
 
+import hypothesis as h
 import torch
 
 
@@ -26,7 +27,10 @@ def Truth():
 class Uniform(torch.distributions.uniform.Uniform):
 
     def __init__(self, lower, upper):
+        lower = lower.to(h.accelerator)
+        upper = upper.to(h.accelerator)
         super(Uniform, self).__init__(lower, upper)
 
     def log_prob(self, sample):
+        sample = sample.view(-1, 3)
         return super(Uniform, self).log_prob(sample).sum()
