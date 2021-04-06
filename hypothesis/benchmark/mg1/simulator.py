@@ -28,27 +28,34 @@ class MG1BenchmarkSimulator(BaseSimulator):
 
     @torch.no_grad()
     def _generate(self, input):
-        input = input.view(-1)
-        p1 = input[0].item()
-        p2 = input[1].item()
-        p3 = input[2].item()
-        # Service / processing time.
-        sts = (p2 - p1) * rng.random(self.num_steps) + p1
-        # Interarrival times.
-        iats = -np.log(1.0 - rng.rand(self.num_steps)) / p3
-        # Arrival times.
-        ats = np.cumsum(iats)
-        # Interdeparture and departure times.
-        idts = np.empty(self.num_steps)
-        dts = np.empty(self.num_steps)
-        idts[0] = sts[0] + ats[0]
-        dts[0] = idts[0]
-        for i in range(1, self.num_steps):
-            idts[i] = sts[i] + max(0.0, ats[i] - dts[i-1])
-            dts[i] = dts[i-1] + idts[i]
-        # Compute the observation.
-        perc = np.linspace(0.0, 100.0, self.num_percentiles)
-        stats = np.percentile(idts, perc)
+        success = False
+
+        while not success:
+            try:
+                input = input.view(-1)
+                p1 = input[0].item()
+                p2 = input[1].item()
+                p3 = input[2].item()
+                # Service / processing time.
+                sts = (p2 - p1) * rng.random(self.num_steps) + p1
+                # Interarrival times.
+                iats = -np.log(1.0 - rng.rand(self.num_steps)) / p3
+                # Arrival times.
+                ats = np.cumsum(iats)
+                # Interdeparture and departure times.
+                idts = np.empty(self.num_steps)
+                dts = np.empty(self.num_steps)
+                idts[0] = sts[0] + ats[0]
+                dts[0] = idts[0]
+                for i in range(1, self.num_steps):
+                    idts[i] = sts[i] + max(0.0, ats[i] - dts[i-1])
+                    dts[i] = dts[i-1] + idts[i]
+                # Compute the observation.
+                perc = np.linspace(0.0, 100.0, self.num_percentiles)
+                stats = np.percentile(idts, perc)
+                success = True
+            except:
+                pass
 
         return torch.tensor(stats).float().view(1, -1)
 
