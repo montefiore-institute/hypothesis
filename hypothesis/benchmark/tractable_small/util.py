@@ -2,6 +2,7 @@ r"""Utilities for the tractable benchmark.
 
 """
 
+import hypothesis as h
 import torch
 
 from torch.distributions.multivariate_normal import MultivariateNormal as Normal
@@ -25,6 +26,8 @@ def Truth():
 class Uniform(torch.distributions.uniform.Uniform):
 
     def __init__(self, lower, upper):
+        lower = lower.to(h.accelerator)
+        upper = upper.to(h.accelerator)
         super(Uniform, self).__init__(lower, upper)
 
     def log_prob(self, sample):
