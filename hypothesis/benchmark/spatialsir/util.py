@@ -14,7 +14,7 @@ def Prior():
     lower = torch.tensor([0, 0]).float()
     upper = torch.tensor([1, 1]).float()
 
-    return torch.distributions.uniform.Uniform(lower, upper)
+    return Uniform(lower, upper)
 
 
 @torch.no_grad()
@@ -35,3 +35,16 @@ def Truth():
 
     """
     return torch.tensor([0.8, 0.2])
+
+
+
+class Uniform(torch.distributions.uniform.Uniform):
+
+    def __init__(self, lower, upper):
+        lower = lower.to(h.accelerator)
+        upper = upper.to(h.accelerator)
+        super(Uniform, self).__init__(lower, upper)
+
+    def log_prob(self, sample):
+        sample = sample.view(-1, 2)
+        return super(Uniform, self).log_prob(sample).sum(dim=1)
