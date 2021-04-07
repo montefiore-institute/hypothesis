@@ -175,7 +175,7 @@ class ConservativeCriterion(BaseCriterion):
             estimator=estimator,
             batch_size=batch_size,
             logits=logits)
-        self._beta = 1. - conservativeness
+        self._beta = conservativeness
         self._calibrate = calibrate
         self._gamma = gamma
 
@@ -185,7 +185,7 @@ class ConservativeCriterion(BaseCriterion):
 
     @conservativeness.setter
     def conservativeness(self, value):
-        assert value >= 0.0 and value <= 1.0
+        assert value >= 0.0
         self._beta = value
 
     @property
@@ -212,7 +212,7 @@ class ConservativeCriterion(BaseCriterion):
         # Learn mixture of the joint vs. marginals
         loss = loss_joint_1 + loss_marginals_0
         if self._beta < 1.0:
-            loss = loss + (1.0 - self._beta) * log_r_joint.mean()  # Conservativeness regularizer
+            loss = loss + self._beta * log_r_joint.mean()  # Conservativeness regularizer
         # Check if calibration term needs to be added.
         if self._calibrate:
             calibration_term_a = (1.0 - y_joint - y_marginals).mean().pow(2)
@@ -237,7 +237,7 @@ class ConservativeCriterion(BaseCriterion):
         # Learn mixture of the joint vs. marginals
         loss = loss_joint_1 + loss_marginals_0
         if self._beta < 1.0:
-            loss = loss + (1.0 - self._beta) * log_r_joint.mean()  # Conservativeness regularizer
+            loss = loss + self._beta * log_r_joint.mean()  # Conservativeness regularizer
         # Check if calibration term needs to be added.
         if self._calibrate:
             calibration_term_a = (1.0 - y_joint - y_marginals).mean().pow(2)
