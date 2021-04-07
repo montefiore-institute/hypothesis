@@ -2,6 +2,7 @@ r"""Utilities for the Weinberg benchmark.
 
 """
 
+import hypothesis as h
 import torch
 
 
