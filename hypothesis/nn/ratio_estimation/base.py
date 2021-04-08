@@ -215,9 +215,7 @@ class ConservativeCriterion(BaseCriterion):
             loss = loss + self._beta * log_r_joint.mean()  # Conservativeness regularizer
         # Check if calibration term needs to be added.
         if self._calibrate:
-            calibration_term_a = (1.0 - y_joint - y_marginals).mean().pow(2)
-            calibration_term_b = (1.0 - (1.0 - y_joint) - (1.0 - y_marginals)).mean().pow(2)
-            calibration_term = calibration_term_a + calibration_term_b
+            calibration_term = (1.0 - y_joint - y_marginals).mean().pow(2)
             loss = loss + self._gamma * calibration_term  # Calibration
 
         return loss
@@ -240,9 +238,7 @@ class ConservativeCriterion(BaseCriterion):
             loss = loss + self._beta * log_r_joint.mean()  # Conservativeness regularizer
         # Check if calibration term needs to be added.
         if self._calibrate:
-            calibration_term_a = (1.0 - y_joint - y_marginals).mean().pow(2)
-            calibration_term_b = (1.0 - (1.0 - y_joint) - (1.0 - y_marginals)).mean().pow(2)
-            calibration_term = calibration_term_a + calibration_term_b
+            calibration_term = (1.0 - y_joint - y_marginals).mean().pow(2)
             loss = loss + self._gamma * calibration_term  # Calibration
 
         return loss
