@@ -3,6 +3,7 @@ r"""Base plotting utilities and definition of ``matplotlib`` theme.
 
 """
 
+import hypothesis.plot.colormap
 import matplotlib.pyplot as plt
 
 from .util import *

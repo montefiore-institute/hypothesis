@@ -43,6 +43,7 @@ urllib3
 virtualenv
 webencodings
 pdoc3
+colour
 cloudpickle
 coloredlogs
 scipy
