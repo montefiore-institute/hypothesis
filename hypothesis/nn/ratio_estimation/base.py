@@ -169,7 +169,7 @@ class ConservativeCriterion(BaseCriterion):
         calibrate=True,
         conservativeness=0.0,
         batch_size=h.default.batch_size,
-        gamma=10.0,
+        gamma=25.0,
         logits=False):
         super(ConservativeCriterion, self).__init__(
             estimator=estimator,
