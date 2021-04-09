@@ -44,7 +44,7 @@ def main(arguments):
         dataset_validate=dataset_validate,
         epochs=arguments.epochs,
         estimator=estimator,
-        gamm=arguments.gamma,
+        gamma=arguments.gamma,
         logits=arguments.logits,
         optimizer=optimizer,
         pin_memory=arguments.pin_memory,
