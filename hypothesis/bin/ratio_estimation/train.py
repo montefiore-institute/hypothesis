@@ -35,8 +35,6 @@ def main(arguments):
     optimizer = load_optimizer(arguments, estimator)
     # Allocate the trainer instance
     trainer = Trainer(
-        estimator=estimator,
-        optimizer=optimizer,
         accelerator=h.accelerator,
         batch_size=arguments.batch_size,
         calibrate=arguments.calibrate,
@@ -45,10 +43,13 @@ def main(arguments):
         dataset_train=dataset_train,
         dataset_validate=dataset_validate,
         epochs=arguments.epochs,
+        estimator=estimator,
+        gamm=arguments.gamma,
         logits=arguments.logits,
+        optimizer=optimizer,
         pin_memory=arguments.pin_memory,
-        shuffle=not arguments.dont_shuffle,
         show=arguments.show,
+        shuffle=not arguments.dont_shuffle,
         workers=arguments.workers)
     # Add the hooks to the training object.
     add_hooks(arguments, trainer)
@@ -170,9 +171,10 @@ def parse_arguments():
     # Optimization settings
     parser.add_argument("--batch-size", type=int, default=256, help="Batch size (default: 256).")
     parser.add_argument("--calibrate", action="store_true", default=True, help="Calibrate the ratio estimators during training (default: true).")
-    parser.add_argument("--dont-calibrate", action="store_true", default=False, help="Calibrate the ratio estimators during training (default: false).")
     parser.add_argument("--conservativeness", type=float, default=0.0, help="Conservative term (default: 0.0).")
+    parser.add_argument("--dont-calibrate", action="store_true", default=False, help="Calibrate the ratio estimators during training (default: false).")
     parser.add_argument("--epochs", type=int, default=1, help="Number of epochs (default: 1).")
+    parser.add_argument("--gamma", type=float, default=25.0, help="Hyper-parameter to force the calibration criterion (default: 25.0).")
     parser.add_argument("--logits", action="store_true", help="Use the logit-trick for the minimization criterion (default: false).")
     parser.add_argument("--lr", type=float, default=0.0001, help="Learning rate (default: 0.001).")
     parser.add_argument("--weight-decay", type=float, default=0.0, help="Weight decay (default: 0.0).")

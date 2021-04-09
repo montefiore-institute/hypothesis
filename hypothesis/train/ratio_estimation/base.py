@@ -23,6 +23,7 @@ class RatioEstimatorTrainer(BaseTrainer):
         dataset_train=None,
         dataset_validate=None,
         epochs=h.default.epochs,
+        gamma=25.0,
         logits=False,
         pin_memory=True,
         shuffle=True,
@@ -57,6 +58,7 @@ class RatioEstimatorTrainer(BaseTrainer):
             calibrate=calibrate,
             conservativeness=conservativeness,
             estimator=estimator,
+            gamma=gamma,
             logits=logits)
         # Move to the specified accelerator
         self._criterion = self._criterion.to(accelerator)
