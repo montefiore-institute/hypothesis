@@ -33,4 +33,4 @@ class Uniform(torch.distributions.uniform.Uniform):
     def log_prob(self, sample):
         sample = sample.view(-1, 2)
 
-        return super(Uniform, self).log_prob(sample).sum(dim=1)
+        return super(Uniform, self).log_prob(sample).sum(dim=1).view(-1, 1)
