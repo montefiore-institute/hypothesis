@@ -57,7 +57,8 @@ def disable(f):
 
 @parameterized
 def tasks(f, num_tasks):
-    assert num_tasks >= 1
+    if num_tasks <= 1:
+        raise ValueError("The number of tasks should be larger than 1.")
     node = add_and_get_node(f)
     node.tasks = num_tasks
 
