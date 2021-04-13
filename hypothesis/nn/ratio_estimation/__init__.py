@@ -1,4 +1,4 @@
-from .base import BaseRatioEstimator
+from .base import BaseRatioEstimator, FlowPosteriorCriterion
 from .base import RatioEstimatorEnsemble
 from .base import BaseCriterion
 from .base import ConservativeCriterion

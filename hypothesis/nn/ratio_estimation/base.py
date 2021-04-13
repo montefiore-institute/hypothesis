@@ -248,3 +248,21 @@ class ConservativeCriterion(BaseCriterion):
             loss = loss + self._gamma * calibration_term  # Calibration
 
         return loss
+
+
+class FlowPosteriorCriterion(torch.nn.Module):
+
+    def __init__(self, estimator, denominator, batch_size=h.default.batch_size):
+        super(FlowPosteriorCriterion, self).__init__()
+
+        self.batch_size = batch_size
+        self.estimator = estimator
+        self.independent_random_variables = self._derive_independent_random_variables(denominator)
+        self.ones = torch.ones(self.batch_size, 1)
+        self.random_variables = self._derive_random_variables(denominator)
+        self.zeros = torch.zeros(self.batch_size, 1)
+
+    def forward(self, **kwargs):
+        return self.estimator.log_posterior(**kwargs).mean()
+
+# TODO:Implement conservative and calibrated criterions.
