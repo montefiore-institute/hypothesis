@@ -250,19 +250,57 @@ class ConservativeCriterion(BaseCriterion):
         return loss
 
 
-class FlowPosteriorCriterion(torch.nn.Module):
+class FlowPosteriorCriterion(BaseCriterion):
 
-    def __init__(self, estimator, denominator, batch_size=h.default.batch_size):
-        super(FlowPosteriorCriterion, self).__init__()
+    def __init__(self,
+        estimator,
+        calibrate=True,
+        conservativeness=0.0,
+        batch_size=h.default.batch_size,
+        gamma=25.0,
+        logits=False):
+        super(FlowPosteriorCriterion, self).__init__(
+            estimator=estimator,
+            batch_size=batch_size,
+            logits=logits)
+        self._beta = conservativeness
+        self._calibrate = calibrate
+        self._gamma = gamma
 
-        self.batch_size = batch_size
-        self.estimator = estimator
-        self.independent_random_variables = self._derive_independent_random_variables(denominator)
-        self.ones = torch.ones(self.batch_size, 1)
-        self.random_variables = self._derive_random_variables(denominator)
-        self.zeros = torch.zeros(self.batch_size, 1)
+    @property
+    def conservativeness(self):
+        return self._beta
+
+    @conservativeness.setter
+    def conservativeness(self, value):
+        assert value >= 0.0
+        self._beta = value
+
+    @property
+    def gamma(self):
+        return self._gamma
+
+    @gamma.setter
+    def gamma(self, value):
+        assert value >= 0
+        self._gamma = value
 
     def forward(self, **kwargs):
-        return self.estimator.log_posterior(**kwargs).mean()
+        y_joint, log_r_joint = self._estimator(**kwargs)
+        ## Shuffle to make necessary variables independent.
+        for group in self._independent_random_variables:
+            random_indices = torch.randperm(self._batch_size)
+            for variable in group:
+                kwargs[variable] = kwargs[variable][random_indices]  # Make variable independent.
+        y_marginals, _ = self._estimator(**kwargs)
 
-# TODO:Implement conservative and calibrated criterions.
+        loss = -self._estimator.log_posterior(**kwargs).mean() # MLE from flow.
+
+        if self._beta < 1.0:
+            loss = loss + self._beta * log_r_joint.mean()  # Conservativeness regularizer
+        # Check if calibration term needs to be added.
+        if self._calibrate:
+            calibration_term = (1.0 - y_joint - y_marginals).mean().pow(2)
+            loss = loss + self._gamma * calibration_term  # Calibration
+        return loss
+
