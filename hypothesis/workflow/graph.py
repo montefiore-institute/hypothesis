@@ -1,17 +1,13 @@
 from queue import Queue
 
 
+
 class WorkflowGraph:
 
     def __init__(self):
         super(WorkflowGraph, self).__init__()
         self._root = None
         self._nodes = {}
-
-    def rebuild(self):
-        self._nodes = {}
-        for node in self.bfs():
-            self._nodes[id(node.f)] = node
 
     def add_node(self, node):
         self._nodes[id(node.f)] = node
@@ -92,16 +88,33 @@ class WorkflowGraph:
             self._root = None
             self._nodes = {}
         else:
-            # Prune the computational graph
-            for leaf in self.leaves:
-                self._prune_node(leaf)
-            all_nodes = set(self.nodes)
-            in_graph = self._in_subgraph(self.root)
-            to_delete = all_nodes.difference(in_graph)
-            for node in to_delete:
-                del self._nodes[id(node.f)]
-        # Rebuild the data structure
-        self.rebuild()
+            to_delete = [None]
+            while len(to_delete) > 0:
+                to_delete = []
+                # Node deletion
+                for node in self.bfs():
+                    if node == self._root:
+                        continue
+                    postconditions_satisfied = len(node.postconditions) > 0 and node.postconditions_satisfied()
+                    delete = postconditions_satisfied or node.disabled
+                    if delete:
+                        to_delete.append(node)
+                        children = list(node.children)
+                        parents = list(node.parents)
+                        for c in children:
+                            c.remove_parent(node)
+                        for p in parents:
+                            if not node.disabled:
+                                p.disabled = True
+                            p.remove_child(node)
+                        for c in children:
+                            for p in parents:
+                                c.add_parent(p)
+                # Node deletion
+                for node in to_delete:
+                    key = id(node.f)
+                    if key in self._nodes:
+                        del self._nodes[key]
 
     def _branches(self, node):
         branches = []
@@ -113,28 +126,6 @@ class WorkflowGraph:
                 branches.extend(self._branches(p))
 
         return list(set(branches))
-
-    def _prune_node(self, node):
-        pc = len(node.postconditions) > 0 and node.postconditions_satisfied()
-        if pc or node.disabled:
-            branches = self._branches(node)
-            if len(branches) == 0:
-                return
-            siblings = list(node.siblings)
-            for sibling in siblings:
-                parents = list(node.parents)
-                for parent in parents:
-                    sibling.remove_parent(parent)
-                sibling.add_parent(self.root)
-            for b in branches:
-                self.root.remove_child(b)
-            children = list(node.children)
-            for c in children:
-                self.root.add_child(c)
-                c.remove_parent(node)
-        else:
-            for p in node.parents:
-                self._prune_node(p)
 
     def _in_subgraph(self, node):
         attached = [node]
