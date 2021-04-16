@@ -42,7 +42,7 @@ class RatioEstimatorEnsemble(BaseRatioEstimator):
     REDUCE_DISCRIMINATOR_MEAN = "discriminator_mean"
     REDUCE_RATIO_MEAN = "ratio_mean"
 
-    def __init__(self, estimators, reduce="mean"):
+    def __init__(self, estimators, reduce="discriminator_mean"):
         denominator = estimators[0].denominator
         random_variables = estimators[0].random_variables
         super(RatioEstimatorEnsemble, self).__init__(
@@ -309,4 +309,3 @@ class FlowPosteriorCriterion(BaseCriterion):
             calibration_term = (1.0 - y_joint - y_marginals).mean().pow(2)
             loss = loss + self._gamma * calibration_term  # Calibration
         return loss
-
