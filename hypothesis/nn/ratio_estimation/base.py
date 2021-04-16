@@ -40,6 +40,7 @@ class RatioEstimatorEnsemble(BaseRatioEstimator):
     REDUCE_MEAN = "mean"
     REDUCE_MEDIAN = "median"
     REDUCE_DISCRIMINATOR_MEAN = "discriminator_mean"
+    REDUCE_RATIO_MEAN = "ratio_mean"
 
     def __init__(self, estimators, reduce="mean"):
         denominator = estimators[0].denominator
@@ -81,7 +82,8 @@ class RatioEstimatorEnsemble(BaseRatioEstimator):
         reducers = {
             RatioEstimatorEnsemble.REDUCE_MEAN: RatioEstimatorEnsemble._reduce_mean,
             RatioEstimatorEnsemble.REDUCE_MEDIAN: RatioEstimatorEnsemble._reduce_median,
-            RatioEstimatorEnsemble.REDUCE_DISCRIMINATOR_MEAN: RatioEstimatorEnsemble._reduce_discriminator_mean}
+            RatioEstimatorEnsemble.REDUCE_DISCRIMINATOR_MEAN: RatioEstimatorEnsemble._reduce_discriminator_mean,
+            RatioEstimatorEnsemble.REDUCE_RATIO_MEAN: RatioEstimatorEnsemble._reduce_ratio_mean}
         reduce = None
         if hasattr(f, "__call__"):
             return f
@@ -101,6 +103,10 @@ class RatioEstimatorEnsemble(BaseRatioEstimator):
     @staticmethod
     def _reduce_discriminator_mean(log_ratios):
         return torch.logit(torch.sigmoid(log_ratios).mean(dim=1), eps=1e-6)
+
+    @staticmethod
+    def _reduce_ratio_mean(log_ratios):
+        return torch.log(torch.exp(log_ratios).mean(dim=1))
 
 
 class BaseCriterion(torch.nn.Module):
