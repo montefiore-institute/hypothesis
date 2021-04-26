@@ -9,6 +9,7 @@ All defined through command line arguments!
 import argparse
 import hypothesis as h
 import hypothesis.workflow as w
+import json
 import numpy as np
 import os
 import torch
@@ -33,19 +34,17 @@ def main(arguments):
     estimator = load_ratio_estimator(arguments)
     # Allocate the optimizer
     optimizer = load_optimizer(arguments, estimator)
+    # Allocate the criterion
+    criterion = load_criterion(arguments, estimator)
     # Allocate the trainer instance
     trainer = Trainer(
         accelerator=h.accelerator,
         batch_size=arguments.batch_size,
-        calibrate=arguments.calibrate,
-        conservativeness=arguments.conservativeness,
+        criterion=criterion,
         dataset_test=dataset_test,
         dataset_train=dataset_train,
         dataset_validate=dataset_validate,
         epochs=arguments.epochs,
-        estimator=estimator,
-        gamma=arguments.gamma,
-        logits=arguments.logits,
         optimizer=optimizer,
         pin_memory=arguments.pin_memory,
         show=arguments.show,
@@ -70,6 +69,20 @@ def main(arguments):
         # Save the state dict of the best ratio estimator
         torch.save(trainer.best_state_dict, arguments.out + "/weights.th")
         torch.save(trainer.state_dict, arguments.out + "/weights-final.th")
+
+
+def load_criterion(arguments, estimator):
+    Criterion = load_module(arguments.criterion)
+    kwargs = arguments.criterion_args
+    if "Conservative" in arguments.criterion:
+        kwargs["batch_size"] = arguments.batch_size
+        kwargs["balance"] = arguments.balance
+        kwargs["conservativeness"] = arguments.conservativeness
+        kwargs["gamma"] = arguments.gamma
+        kwargs["logits"] = arguments.logits
+    criterion = Criterion(estimator=estimator, **kwargs)
+
+    return criterion
 
 
 def load_dataset_test(arguments):
@@ -161,6 +174,8 @@ def add_hooks_lr_scheduling_cyclic(arguments, trainer):
 def parse_arguments():
     parser = argparse.ArgumentParser()
     # General settings
+    parser.add_argument("--criterion", type=str, default="hypothesis.nn.ratio_estimation.ConservativeCriterion", help="Optimization criterion (default: hypothesis.nn.ratio_estimation.ConservativeCriterion).")
+    parser.add_argument("--criterion-args", type=json.loads, default="{}", help="Additional criterion arguments (default: '{}').")
     parser.add_argument("--data-parallel", action="store_true", help="Enable data-parallel training whenever multiple GPU's are available (default: false).")
     parser.add_argument("--disable-gpu", action="store_true", help="Disable the usage of GPU's (default: false).")
     parser.add_argument("--dont-shuffle", action="store_true", help="Do not shuffle the datasets (default: false).")
@@ -169,12 +184,12 @@ def parse_arguments():
     parser.add_argument("--pin-memory", action="store_true", help="Memory map and pipeline data loading to the GPU (default: false).")
     parser.add_argument("--show", action="store_true", help="Show progress of the training to stdout (default: false).")
     # Optimization settings
+    parser.add_argument("--balance", action="store_true", default=True, help="Balance the ratio estimators during training (default: true).")
     parser.add_argument("--batch-size", type=int, default=256, help="Batch size (default: 256).")
-    parser.add_argument("--calibrate", action="store_true", default=True, help="Calibrate the ratio estimators during training (default: true).")
-    parser.add_argument("--conservativeness", type=float, default=0.0, help="Conservative term (default: 0.0).")
+    parser.add_argument("--conservativeness", type=float, default=0.0, help="Conservative term (default: 0.0). This option will overwrite the corresponding setting specified in `--criterion-args`.")
     parser.add_argument("--dont-calibrate", action="store_true", default=False, help="Calibrate the ratio estimators during training (default: false).")
     parser.add_argument("--epochs", type=int, default=1, help="Number of epochs (default: 1).")
-    parser.add_argument("--gamma", type=float, default=25.0, help="Hyper-parameter to force the calibration criterion (default: 25.0).")
+    parser.add_argument("--gamma", type=float, default=25.0, help="Hyper-parameter to force the calibration criterion (default: 25.0). This option will overwrite the corresponding setting specified in `--criterion-args`.")
     parser.add_argument("--logits", action="store_true", help="Use the logit-trick for the minimization criterion (default: false).")
     parser.add_argument("--lr", type=float, default=0.0001, help="Learning rate (default: 0.001).")
     parser.add_argument("--weight-decay", type=float, default=0.0, help="Weight decay (default: 0.0).")

@@ -130,8 +130,17 @@ class BaseCriterion(torch.nn.Module):
         self._zeros = torch.zeros(self._batch_size, 1)
 
     @property
+    def estimator(self):
+        return self._estimator
+
+    @property
     def batch_size(self):
         return self._batch_size
+
+    @batch_size.setter
+    def batch_size(self, batch_size):
+        assert batch_size >= 1
+        self._batch_size = batch_size
 
     def to(self, device):
         self._criterion = self._criterion.to(device)
@@ -178,7 +187,7 @@ class ConservativeCriterion(BaseCriterion):
 
     def __init__(self,
         estimator,
-        calibrate=True,
+        balance=True,
         conservativeness=0.0,
         batch_size=h.default.batch_size,
         gamma=25.0,
@@ -187,8 +196,8 @@ class ConservativeCriterion(BaseCriterion):
             estimator=estimator,
             batch_size=batch_size,
             logits=logits)
+        self._balance = balance
         self._beta = conservativeness
-        self._calibrate = calibrate
         self._gamma = gamma
 
     @property
@@ -209,6 +218,13 @@ class ConservativeCriterion(BaseCriterion):
         assert value >= 0
         self._gamma = value
 
+    def _balance_ratio_estimator(self, loss, log_r_marginals=None, log_r_joint=None, y_joint=None, y_marginals=None):
+        if self._balance:
+            calibration_term = (1.0 - log_r_marginals.exp()).mean().pow(2)
+            loss = loss + self._gamma * calibration_term
+
+        return loss
+
     def _forward_without_logits(self, **kwargs):
         # Forward passes
         y_joint, log_r_joint = self._estimator(**kwargs)
@@ -217,7 +233,7 @@ class ConservativeCriterion(BaseCriterion):
             random_indices = torch.randperm(self._batch_size)
             for variable in group:
                 kwargs[variable] = kwargs[variable][random_indices]  # Make variable independent.
-        y_marginals, _ = self._estimator(**kwargs)
+        y_marginals, log_r_marginals = self._estimator(**kwargs)
         # Compute losses
         loss_joint_1 = self._criterion(y_joint, self._ones)
         loss_marginals_0 = self._criterion(y_marginals, self._zeros)
@@ -225,10 +241,7 @@ class ConservativeCriterion(BaseCriterion):
         loss = loss_joint_1 + loss_marginals_0
         if self._beta < 1.0:
             loss = loss + self._beta * log_r_joint.mean()  # Conservativeness regularizer
-        # Check if calibration term needs to be added.
-        if self._calibrate:
-            calibration_term = (1.0 - y_joint - y_marginals).mean().pow(2)
-            loss = loss + self._gamma * calibration_term  # Calibration
+        loss = self._balance_ratio_estimator(loss, log_r_marginals=log_r_marginals)
 
         return loss
 
@@ -248,10 +261,7 @@ class ConservativeCriterion(BaseCriterion):
         loss = loss_joint_1 + loss_marginals_0
         if self._beta < 1.0:
             loss = loss + self._beta * log_r_joint.mean()  # Conservativeness regularizer
-        # Check if calibration term needs to be added.
-        if self._calibrate:
-            calibration_term = (1.0 - y_joint - y_marginals).mean().pow(2)
-            loss = loss + self._gamma * calibration_term  # Calibration
+        loss = self._balance_ratio_estimator(loss, log_r_marginals=log_r_marginals)
 
         return loss
 
@@ -298,14 +308,13 @@ class FlowPosteriorCriterion(BaseCriterion):
             random_indices = torch.randperm(self._batch_size)
             for variable in group:
                 kwargs[variable] = kwargs[variable][random_indices]  # Make variable independent.
-        y_marginals, _ = self._estimator(**kwargs)
+        y_marginals, log_r_marginals = self._estimator(**kwargs)
 
         loss = -self._estimator.log_posterior(**kwargs).mean() # MLE from flow.
-
         if self._beta < 1.0:
             loss = loss + self._beta * log_r_joint.mean()  # Conservativeness regularizer
-        # Check if calibration term needs to be added.
-        if self._calibrate:
-            calibration_term = (1.0 - y_joint - y_marginals).mean().pow(2)
-            loss = loss + self._gamma * calibration_term  # Calibration
+        if self._calibrate:  # FIXME
+            calibration_term = (1.0 - log_r_marginals.exp()).mean().pow(2)
+            loss = loss + self._gamma * calibration_term
+
         return loss

@@ -13,18 +13,14 @@ from tqdm import tqdm
 class RatioEstimatorTrainer(BaseTrainer):
 
     def __init__(self,
-        estimator,
+        criterion,
         optimizer,
         accelerator=h.accelerator,
         batch_size=h.default.batch_size,
-        calibrate=True,
-        conservativeness=0.0,
         dataset_test=None,
         dataset_train=None,
         dataset_validate=None,
         epochs=h.default.epochs,
-        gamma=25.0,
-        logits=False,
         pin_memory=True,
         shuffle=True,
         show=False,
@@ -48,19 +44,12 @@ class RatioEstimatorTrainer(BaseTrainer):
             raise ValueError("The test dataset is not of the type `NamedDataset`.")
         # Basic trainer properties
         self._conservativenesses = []
-        self._estimator = estimator
+        self._estimator = criterion.estimator
         self._optimizer = optimizer
         # Optimization monitoring
         self._state_dict_best = None
         # Criterion properties
-        self._criterion = ConservativeCriterion(
-            batch_size=batch_size,
-            calibrate=calibrate,
-            conservativeness=conservativeness,
-            estimator=estimator,
-            gamma=gamma,
-            logits=logits)
-        # Move to the specified accelerator
+        self._criterion = criterion
         self._criterion = self._criterion.to(accelerator)
         # Capture the best estimator
         self.add_event_handler(self.events.new_best_test, self._save_best_estimator_weights)
