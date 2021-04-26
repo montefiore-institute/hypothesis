@@ -187,7 +187,7 @@ def parse_arguments():
     parser.add_argument("--balance", action="store_true", default=True, help="Balance the ratio estimators during training (default: true).")
     parser.add_argument("--batch-size", type=int, default=256, help="Batch size (default: 256).")
     parser.add_argument("--conservativeness", type=float, default=0.0, help="Conservative term (default: 0.0). This option will overwrite the corresponding setting specified in `--criterion-args`.")
-    parser.add_argument("--dont-calibrate", action="store_true", default=False, help="Calibrate the ratio estimators during training (default: false).")
+    parser.add_argument("--dont-balance", action="store_true", default=False, help="Balance the ratio estimators during training (default: false).")
     parser.add_argument("--epochs", type=int, default=1, help="Number of epochs (default: 1).")
     parser.add_argument("--gamma", type=float, default=25.0, help="Hyper-parameter to force the calibration criterion (default: 25.0). This option will overwrite the corresponding setting specified in `--criterion-args`.")
     parser.add_argument("--logits", action="store_true", help="Use the logit-trick for the minimization criterion (default: false).")
@@ -216,10 +216,10 @@ def parse_arguments():
     if arguments.lrsched_cyclic_max_lr is None:
         arguments.lrsched_cyclic_max_lr = arguments.lr
     # Overwrite the calibrate flag if `dont-calibrate` has been specified.
-    if arguments.dont_calibrate:
-        arguments.calibrate = False
+    if arguments.dont_balance:
+        arguments.balance = False
     else:
-        arguments.calibrate = True
+        arguments.balance = True
 
     return arguments
 
