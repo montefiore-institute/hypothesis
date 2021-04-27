@@ -241,7 +241,7 @@ class ConservativeCriterion(BaseCriterion):
         loss_marginals_0 = self._criterion(y_marginals, self._zeros)
         # Learn mixture of the joint vs. marginals
         loss = loss_joint_1 + loss_marginals_0
-        if self._beta < 1.0:
+        if self._beta > 0.0:
             loss = loss + self._beta * log_r_joint.mean()  # Conservativeness regularizer
         loss = self._balance_ratio_estimator(loss, log_r_marginals=log_r_marginals)
 
@@ -261,14 +261,14 @@ class ConservativeCriterion(BaseCriterion):
         loss_marginals_0 = self._criterion(log_r_marginals, self._zeros)
         # Learn mixture of the joint vs. marginals
         loss = loss_joint_1 + loss_marginals_0
-        if self._beta < 1.0:
+        if self._beta > 0.0:
             loss = loss + self._beta * log_r_joint.mean()  # Conservativeness regularizer
         loss = self._balance_ratio_estimator(loss, log_r_marginals=log_r_marginals)
 
         return loss
 
 
-class DualConservativeCriterion(BaseCriterion):
+class DualConservativeCriterion(ConservativeCriterion):
 
     def __init__(self,
         estimator,
