@@ -114,7 +114,8 @@ class BaseCriterion(torch.nn.Module):
     def __init__(self,
         estimator,
         batch_size=h.default.batch_size,
-        logits=False):
+        logits=False,
+        **kwargs):
         super(BaseCriterion, self).__init__()
         if logits:
             self._criterion = torch.nn.BCEWithLogitsLoss()
@@ -191,11 +192,12 @@ class ConservativeCriterion(BaseCriterion):
         conservativeness=0.0,
         batch_size=h.default.batch_size,
         gamma=25.0,
-        logits=False):
+        logits=False, **kwargs):
         super(ConservativeCriterion, self).__init__(
             estimator=estimator,
             batch_size=batch_size,
-            logits=logits)
+            logits=logits,
+            **kwargs)
         self._balance = balance
         self._beta = conservativeness
         self._gamma = gamma
@@ -262,59 +264,5 @@ class ConservativeCriterion(BaseCriterion):
         if self._beta < 1.0:
             loss = loss + self._beta * log_r_joint.mean()  # Conservativeness regularizer
         loss = self._balance_ratio_estimator(loss, log_r_marginals=log_r_marginals)
-
-        return loss
-
-
-class FlowPosteriorCriterion(BaseCriterion):
-
-    def __init__(self,
-        estimator,
-        calibrate=True,
-        conservativeness=0.0,
-        batch_size=h.default.batch_size,
-        gamma=25.0,
-        logits=False):
-        super(FlowPosteriorCriterion, self).__init__(
-            estimator=estimator,
-            batch_size=batch_size,
-            logits=logits)
-        self._beta = conservativeness
-        self._calibrate = calibrate
-        self._gamma = gamma
-
-    @property
-    def conservativeness(self):
-        return self._beta
-
-    @conservativeness.setter
-    def conservativeness(self, value):
-        assert value >= 0.0
-        self._beta = value
-
-    @property
-    def gamma(self):
-        return self._gamma
-
-    @gamma.setter
-    def gamma(self, value):
-        assert value >= 0
-        self._gamma = value
-
-    def forward(self, **kwargs):
-        y_joint, log_r_joint = self._estimator(**kwargs)
-        ## Shuffle to make necessary variables independent.
-        for group in self._independent_random_variables:
-            random_indices = torch.randperm(self._batch_size)
-            for variable in group:
-                kwargs[variable] = kwargs[variable][random_indices]  # Make variable independent.
-        y_marginals, log_r_marginals = self._estimator(**kwargs)
-
-        loss = -self._estimator.log_posterior(**kwargs).mean() # MLE from flow.
-        if self._beta < 1.0:
-            loss = loss + self._beta * log_r_joint.mean()  # Conservativeness regularizer
-        if self._calibrate:  # FIXME
-            calibration_term = (1.0 - log_r_marginals.exp()).mean().pow(2)
-            loss = loss + self._gamma * calibration_term
 
         return loss
