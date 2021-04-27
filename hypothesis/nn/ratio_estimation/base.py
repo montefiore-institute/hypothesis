@@ -243,7 +243,11 @@ class ConservativeCriterion(BaseCriterion):
         loss = loss_joint_1 + loss_marginals_0
         if self._beta > 0.0:
             loss = loss + self._beta * log_r_joint.mean()  # Conservativeness regularizer
-        loss = self._balance_ratio_estimator(loss, log_r_marginals=log_r_marginals)
+        loss = self._balance_ratio_estimator(loss,
+            log_r_joint=log_r_joint,
+            log_r_marginals=log_r_marginals,
+            y_marginals=y_marginals,
+            y_joint=y_joint)
 
         return loss
 
@@ -263,7 +267,11 @@ class ConservativeCriterion(BaseCriterion):
         loss = loss_joint_1 + loss_marginals_0
         if self._beta > 0.0:
             loss = loss + self._beta * log_r_joint.mean()  # Conservativeness regularizer
-        loss = self._balance_ratio_estimator(loss, log_r_marginals=log_r_marginals)
+        loss = self._balance_ratio_estimator(loss,
+            log_r_joint=log_r_joint,
+            log_r_marginals=log_r_marginals,
+            y_marginals=y_marginals,
+            y_joint=y_joint)
 
         return loss
 
