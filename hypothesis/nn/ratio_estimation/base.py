@@ -298,6 +298,6 @@ class DualConservativeCriterion(ConservativeCriterion):
         if self._balance:
             term_a = (1.0 - log_r_marginals.exp()).mean().pow(2)
             term_b = (1.0 - y_joint.mean() + y_marginals.mean()).pow(2)
-            loss = loss + self._gamma * (term_a + term+b)
+            loss = loss + self._gamma * (term_a + term_b)
 
         return loss
