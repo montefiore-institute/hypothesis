@@ -189,7 +189,7 @@ def parse_arguments():
     parser.add_argument("--conservativeness", type=float, default=0.0, help="Conservative term (default: 0.0). This option will overwrite the corresponding setting specified in `--criterion-args`.")
     parser.add_argument("--dont-balance", action="store_true", default=False, help="Balance the ratio estimators during training (default: false).")
     parser.add_argument("--epochs", type=int, default=1, help="Number of epochs (default: 1).")
-    parser.add_argument("--gamma", type=float, default=25.0, help="Hyper-parameter to force the calibration criterion (default: 25.0). This option will overwrite the corresponding setting specified in `--criterion-args`.")
+    parser.add_argument("--gamma", type=float, default=10.0, help="Hyper-parameter to force the calibration criterion (default: 25.0). This option will overwrite the corresponding setting specified in `--criterion-args`.")
     parser.add_argument("--logits", action="store_true", help="Use the logit-trick for the minimization criterion (default: false).")
     parser.add_argument("--lr", type=float, default=0.0001, help="Learning rate (default: 0.001).")
     parser.add_argument("--weight-decay", type=float, default=0.0, help="Weight decay (default: 0.0).")
