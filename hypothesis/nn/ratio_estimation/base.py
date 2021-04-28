@@ -222,7 +222,7 @@ class ConservativeCriterion(BaseCriterion):
 
     def _balance_ratio_estimator(self, loss, log_r_marginals=None, log_r_joint=None, y_joint=None, y_marginals=None):
         if self._balance:
-            term = (1.0 - log_r_marginals.exp()).mean().pow(2)
+            term = (1.0 - y_joint.mean() - y_marginals.mean()).pow(2)
             loss = loss + self._gamma * term
 
         return loss
