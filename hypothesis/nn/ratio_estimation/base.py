@@ -387,7 +387,7 @@ class ConservativeNew2AbsCriterion(ConservativeCriterion):
         batch_size=h.default.batch_size,
         gamma=10.0,
         logits=False, **kwargs):
-        super(ConservativeNew2Criterion, self).__init__(
+        super(ConservativeNew2AbsCriterion, self).__init__(
             balance=balance,
             batch_size=batch_size,
             conservativeness=conservativeness,
