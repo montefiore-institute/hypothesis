@@ -8,9 +8,14 @@ import numpy as np
 
 @torch.no_grad()
 def underestimate_mutual_information(dataset_joint, r, n=10000):
-    expectation = expectation_marginals_ratio(dataset_joint, r, n=10000)
+    expectation = expectation_marginals_ratio(dataset_joint=dataset_joint, r=r, n=10000)
 
     return expectation <= 1.0
+
+
+@torch.no_grad()
+def overestimate_mutual_information(dataset_joint, r, n=10000):
+    return not underestimate_mutual_information(dataset_joint=dataset_joint, r=r, n=n)
 
 
 @torch.no_grad()
