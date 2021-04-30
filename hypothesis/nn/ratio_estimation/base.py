@@ -301,3 +301,104 @@ class DualConservativeCriterion(ConservativeCriterion):
             loss = loss + self._gamma * (term_a + term_b)
 
         return loss
+
+
+class ConservativeNewCriterion(ConservativeCriterion):
+
+    def __init__(self,
+        estimator,
+        balance=True,
+        conservativeness=0.0,
+        batch_size=h.default.batch_size,
+        gamma=10.0,
+        logits=False, **kwargs):
+        super(ConservativeNewCriterion, self).__init__(
+            balance=balance,
+            batch_size=batch_size,
+            conservativeness=conservativeness,
+            estimator=estimator,
+            gamma=gamma,
+            logits=logits,
+            **kwargs)
+
+    def _balance_ratio_estimator(self, loss, log_r_marginals=None, log_r_joint=None, y_joint=None, y_marginals=None):
+        if self._balance:
+            term = (1.0 - log_r_marginals.exp()).mean().pow(2)
+            loss = loss + self._gamma * term
+
+        return loss
+
+class ConservativeNewAbsCriterion(ConservativeCriterion):
+
+    def __init__(self,
+        estimator,
+        balance=True,
+        conservativeness=0.0,
+        batch_size=h.default.batch_size,
+        gamma=10.0,
+        logits=False, **kwargs):
+        super(ConservativeNewAbsCriterion, self).__init__(
+            balance=balance,
+            batch_size=batch_size,
+            conservativeness=conservativeness,
+            estimator=estimator,
+            gamma=gamma,
+            logits=logits,
+            **kwargs)
+
+    def _balance_ratio_estimator(self, loss, log_r_marginals=None, log_r_joint=None, y_joint=None, y_marginals=None):
+        if self._balance:
+            term = torch.abs((1.0 - log_r_marginals.exp()).mean())
+            loss = loss + self._gamma * term
+
+        return loss
+
+class ConservativeNew2Criterion(ConservativeCriterion):
+
+    def __init__(self,
+        estimator,
+        balance=True,
+        conservativeness=0.0,
+        batch_size=h.default.batch_size,
+        gamma=10.0,
+        logits=False, **kwargs):
+        super(ConservativeNew2Criterion, self).__init__(
+            balance=balance,
+            batch_size=batch_size,
+            conservativeness=conservativeness,
+            estimator=estimator,
+            gamma=gamma,
+            logits=logits,
+            **kwargs)
+
+    def _balance_ratio_estimator(self, loss, log_r_marginals=None, log_r_joint=None, y_joint=None, y_marginals=None):
+        if self._balance:
+            term = (1.0 - (1/(2*(1-y_marginals)))).mean().pow(2)
+            loss = loss + self._gamma * term
+
+        return loss
+
+class ConservativeNew2AbsCriterion(ConservativeCriterion):
+
+    def __init__(self,
+        estimator,
+        balance=True,
+        conservativeness=0.0,
+        batch_size=h.default.batch_size,
+        gamma=10.0,
+        logits=False, **kwargs):
+        super(ConservativeNew2Criterion, self).__init__(
+            balance=balance,
+            batch_size=batch_size,
+            conservativeness=conservativeness,
+            estimator=estimator,
+            gamma=gamma,
+            logits=logits,
+            **kwargs)
+
+    def _balance_ratio_estimator(self, loss, log_r_marginals=None, log_r_joint=None, y_joint=None, y_marginals=None):
+        if self._balance:
+            term = torch.abs((1.0 - (1/(2*(1-y_marginals)))).mean())
+            loss = loss + self._gamma * term
+
+        return loss
