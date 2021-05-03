@@ -4,6 +4,7 @@ from .base import ConservativeCriterion
 from .base import DualConservativeCriterion
 from .base import RatioEstimatorEnsemble
 from .base import ConservativeNewCriterion
+from .base import ConservativeNewIneqCriterion
 from .base import ConservativeNewAbsCriterion
 from .base import ConservativeNew2Criterion
 from .base import ConservativeNew2AbsCriterion
