@@ -4,6 +4,7 @@ r"""Diagnostics specific to ratio estimators.
 
 import hypothesis as h
 import numpy as np
+import torch
 
 
 @torch.no_grad()
