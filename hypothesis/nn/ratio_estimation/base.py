@@ -362,7 +362,7 @@ class ConservativeNewIneqSmoothCriterion(ConservativeCriterion):
         batch_size=h.default.batch_size,
         gamma=10.0,
         logits=False, **kwargs):
-        super(ConservativeNewIneqCriterion, self).__init__(
+        super(ConservativeNewIneqSmoothCriterion, self).__init__(
             balance=balance,
             batch_size=batch_size,
             conservativeness=conservativeness,
