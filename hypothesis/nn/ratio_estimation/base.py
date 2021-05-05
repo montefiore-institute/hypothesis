@@ -353,6 +353,35 @@ class ConservativeNewIneqCriterion(ConservativeCriterion):
 
         return loss
 
+class ConservativeNewIneqSmoothCriterion(ConservativeCriterion):
+
+    def __init__(self,
+        estimator,
+        balance=True,
+        conservativeness=0.0,
+        batch_size=h.default.batch_size,
+        gamma=10.0,
+        logits=False, **kwargs):
+        super(ConservativeNewIneqCriterion, self).__init__(
+            balance=balance,
+            batch_size=batch_size,
+            conservativeness=conservativeness,
+            estimator=estimator,
+            gamma=gamma,
+            logits=logits,
+            **kwargs)
+
+    def _balance_ratio_estimator(self, loss, log_r_marginals=None, log_r_joint=None, y_joint=None, y_marginals=None):
+        if self._balance:
+            positives = torch.clamp((log_r_marginals.exp() - 1.0).mean(), min=0)
+            negatives = torch.clamp((log_r_marginals.exp() - 1.0).mean(), max=0)
+
+            term = positives.pow(2)
+            term += (torch.exp(negatives) - 1) 
+            loss = loss + self._gamma * term
+
+        return loss
+
 class ConservativeNewAbsCriterion(ConservativeCriterion):
 
     def __init__(self,
