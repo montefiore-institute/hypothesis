@@ -373,11 +373,7 @@ class ConservativeNewIneqSmoothCriterion(ConservativeCriterion):
 
     def _balance_ratio_estimator(self, loss, log_r_marginals=None, log_r_joint=None, y_joint=None, y_marginals=None):
         if self._balance:
-            positives = torch.clamp((log_r_marginals.exp() - 1.0).mean(), min=0)
-            negatives = torch.clamp((log_r_marginals.exp() - 1.0).mean(), max=0)
-
-            term = positives.pow(2)
-            term += (torch.exp(negatives) - 1) 
+            term = torch.log(1 + torch.exp(log_r_marginals.exp() - 1)).pow(2)
             loss = loss + self._gamma * term
 
         return loss
