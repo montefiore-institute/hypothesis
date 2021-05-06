@@ -6,7 +6,7 @@ from .base import BaseExperimentalCriterion
 from .likelihood_to_evidence import BaseLikelihoodToEvidenceRatioEstimator
 from .likelihood_to_evidence import ConservativeLikelihoodToEvidenceCriterion
 from .likelihood_to_evidence import LikelihoodToEvidenceCriterion
-from .flow_posterior import FlowPosteriorCriterion
+
 from .mutual_information import BaseMutualInformationRatioEstimator
 from .mutual_information import MutualInformationCriterion
 # Multi Layered Perceptron
