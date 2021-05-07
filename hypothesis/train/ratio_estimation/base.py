@@ -42,7 +42,6 @@ class RatioEstimatorTrainer(BaseTrainer):
         if dataset_test is not None and not isinstance(dataset_train, NamedDataset):
             raise ValueError("The test dataset is not of the type `NamedDataset`.")
         # Basic trainer properties
-        self._conservativenesses = []
         self._estimator = criterion.estimator
         self._optimizer = optimizer
         # Optimization monitoring
@@ -115,23 +114,6 @@ class RatioEstimatorTrainer(BaseTrainer):
         super()._register_events()
 
     @property
-    def conservativenesses(self):
-        return self._conservativenesses
-
-    @property
-    def conservativeness(self):
-        return self._criterion.conservativeness
-
-    @conservativeness.setter
-    def conservativeness(self, value):
-        # Verify constraints
-        if value > 1.0:
-            value = 1.0
-        elif value < 0:
-            value = 0.0
-        self._criterion.conservativeness = value
-
-    @property
     def optimizer(self):
         return self._optimizer
 
@@ -176,7 +158,6 @@ class RatioEstimatorTrainer(BaseTrainer):
     def train(self):
         assert self._dataset_train is not None
         self._estimator.train()
-        self._conservativenesses.append(self.conservativeness)
         loader = self._allocate_train_loader()
         losses = []
         total_batches = len(loader)
