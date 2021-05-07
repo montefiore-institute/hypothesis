@@ -184,32 +184,19 @@ class BaseCriterion(torch.nn.Module):
         return groups
 
 
-class ConservativeCriterion(BaseCriterion):
+class RegularizedCriterion(BaseCriterion):
 
     def __init__(self,
         estimator,
-        balance=True,
-        conservativeness=0.0,
         batch_size=h.default.batch_size,
         gamma=10.0,
         logits=False, **kwargs):
-        super(ConservativeCriterion, self).__init__(
+        super(RegularizedCriterion, self).__init__(
             estimator=estimator,
             batch_size=batch_size,
             logits=logits,
             **kwargs)
-        self._balance = balance
-        self._beta = conservativeness
         self._gamma = gamma
-
-    @property
-    def conservativeness(self):
-        return self._beta
-
-    @conservativeness.setter
-    def conservativeness(self, value):
-        assert value >= 0.0
-        self._beta = value
 
     @property
     def gamma(self):
@@ -220,12 +207,20 @@ class ConservativeCriterion(BaseCriterion):
         assert value >= 0
         self._gamma = value
 
-    def _balance_ratio_estimator(self, loss, log_r_marginals=None, log_r_joint=None, y_joint=None, y_marginals=None):
-        if self._balance:
-            term = (1.0 - y_joint.mean() - y_marginals.mean()).pow(2)
-            loss = loss + self._gamma * term
 
-        return loss
+class BalancedCriterion(RegularizedCriterion):
+
+    def __init__(self,
+        estimator,
+        batch_size=h.default.batch_size,
+        gamma=10.0,
+        logits=False, **kwargs):
+        super(BalancedCriterion, self).__init__(
+            estimator=estimator,
+            batch_size=batch_size,
+            gamma=gamma,
+            logits=logits,
+            **kwargs)
 
     def _forward_without_logits(self, **kwargs):
         # Forward passes
@@ -241,13 +236,8 @@ class ConservativeCriterion(BaseCriterion):
         loss_marginals_0 = self._criterion(y_marginals, self._zeros)
         # Learn mixture of the joint vs. marginals
         loss = loss_joint_1 + loss_marginals_0
-        if self._beta > 0.0:
-            loss = loss + self._beta * log_r_joint.mean()  # Conservativeness regularizer
-        loss = self._balance_ratio_estimator(loss,
-            log_r_joint=log_r_joint,
-            log_r_marginals=log_r_marginals,
-            y_marginals=y_marginals,
-            y_joint=y_joint)
+        regularizer = (1.0 - y_joint.mean() - y_marginals.mean()).pow(2)
+        loss = loss + self._gamma * regularizer
 
         return loss
 
@@ -265,165 +255,61 @@ class ConservativeCriterion(BaseCriterion):
         loss_marginals_0 = self._criterion(log_r_marginals, self._zeros)
         # Learn mixture of the joint vs. marginals
         loss = loss_joint_1 + loss_marginals_0
-        if self._beta > 0.0:
-            loss = loss + self._beta * log_r_joint.mean()  # Conservativeness regularizer
-        loss = self._balance_ratio_estimator(loss,
-            log_r_joint=log_r_joint,
-            log_r_marginals=log_r_marginals,
-            y_marginals=y_marginals,
-            y_joint=y_joint)
+        regularizer = (1.0 - y_joint.mean() - y_marginals.mean()).pow(2)
+        loss = loss + self._gamma * regularizer
 
         return loss
 
 
-class DualConservativeCriterion(ConservativeCriterion):
+class ConservativeRectifiedCriterion(RegularizedCriterion):
 
     def __init__(self,
         estimator,
-        balance=True,
-        conservativeness=0.0,
         batch_size=h.default.batch_size,
         gamma=10.0,
         logits=False, **kwargs):
-        super(DualConservativeCriterion, self).__init__(
-            balance=balance,
-            batch_size=batch_size,
-            conservativeness=conservativeness,
+        super(ConservativeRectifiedCriterion, self).__init__(
             estimator=estimator,
+            batch_size=batch_size,
             gamma=gamma,
             logits=logits,
             **kwargs)
+        self._gamma = gamma
 
-    def _balance_ratio_estimator(self, loss, log_r_marginals=None, log_r_joint=None, y_joint=None, y_marginals=None):
-        if self._balance:
-            term_a = (1.0 - log_r_marginals.exp()).mean().pow(2)
-            term_b = (1.0 - y_joint.mean() - y_marginals.mean()).pow(2)
-            loss = loss + self._gamma * (term_a + term_b)
+    def _forward_without_logits(self, **kwargs):
+        # Forward passes
+        y_joint, log_r_joint = self._estimator(**kwargs)
+        ## Shuffle to make necessary variables independent.
+        for group in self._independent_random_variables:
+            random_indices = torch.randperm(self._batch_size)
+            for variable in group:
+                kwargs[variable] = kwargs[variable][random_indices]  # Make variable independent.
+        y_marginals, log_r_marginals = self._estimator(**kwargs)
+        # Compute losses
+        loss_joint_1 = self._criterion(y_joint, self._ones)
+        loss_marginals_0 = self._criterion(y_marginals, self._zeros)
+        # Learn mixture of the joint vs. marginals
+        loss = loss_joint_1 + loss_marginals_0
+        regularizer = torch.clamp((1.0 - log_r_marginals.exp()).mean(), max=0.0).pow(2)
+        loss = loss + self._gamma * regularizer
 
         return loss
 
-
-class ConservativeNewCriterion(ConservativeCriterion):
-
-    def __init__(self,
-        estimator,
-        balance=True,
-        conservativeness=0.0,
-        batch_size=h.default.batch_size,
-        gamma=10.0,
-        logits=False, **kwargs):
-        super(ConservativeNewCriterion, self).__init__(
-            balance=balance,
-            batch_size=batch_size,
-            conservativeness=conservativeness,
-            estimator=estimator,
-            gamma=gamma,
-            logits=logits,
-            **kwargs)
-
-    def _balance_ratio_estimator(self, loss, log_r_marginals=None, log_r_joint=None, y_joint=None, y_marginals=None):
-        if self._balance:
-            term = (1.0 - log_r_marginals.exp()).mean().pow(2)
-            loss = loss + self._gamma * term
-
-        return loss
-
-class ConservativeNewIneqCriterion(ConservativeCriterion):
-
-    def __init__(self,
-        estimator,
-        balance=True,
-        conservativeness=0.0,
-        batch_size=h.default.batch_size,
-        gamma=10.0,
-        logits=False, **kwargs):
-        super(ConservativeNewIneqCriterion, self).__init__(
-            balance=balance,
-            batch_size=batch_size,
-            conservativeness=conservativeness,
-            estimator=estimator,
-            gamma=gamma,
-            logits=logits,
-            **kwargs)
-
-    def _balance_ratio_estimator(self, loss, log_r_marginals=None, log_r_joint=None, y_joint=None, y_marginals=None):
-        if self._balance:
-            term = torch.clamp((1.0 - log_r_marginals.exp()).mean(), max=0).pow(2)
-            loss = loss + self._gamma * term
-
-        return loss
-
-class ConservativeNewAbsCriterion(ConservativeCriterion):
-
-    def __init__(self,
-        estimator,
-        balance=True,
-        conservativeness=0.0,
-        batch_size=h.default.batch_size,
-        gamma=10.0,
-        logits=False, **kwargs):
-        super(ConservativeNewAbsCriterion, self).__init__(
-            balance=balance,
-            batch_size=batch_size,
-            conservativeness=conservativeness,
-            estimator=estimator,
-            gamma=gamma,
-            logits=logits,
-            **kwargs)
-
-    def _balance_ratio_estimator(self, loss, log_r_marginals=None, log_r_joint=None, y_joint=None, y_marginals=None):
-        if self._balance:
-            term = torch.abs((1.0 - log_r_marginals.exp()).mean())
-            loss = loss + self._gamma * term
-
-        return loss
-
-class ConservativeNew2Criterion(ConservativeCriterion):
-
-    def __init__(self,
-        estimator,
-        balance=True,
-        conservativeness=0.0,
-        batch_size=h.default.batch_size,
-        gamma=10.0,
-        logits=False, **kwargs):
-        super(ConservativeNew2Criterion, self).__init__(
-            balance=balance,
-            batch_size=batch_size,
-            conservativeness=conservativeness,
-            estimator=estimator,
-            gamma=gamma,
-            logits=logits,
-            **kwargs)
-
-    def _balance_ratio_estimator(self, loss, log_r_marginals=None, log_r_joint=None, y_joint=None, y_marginals=None):
-        if self._balance:
-            term = (1.0 - (1/(2*(1-y_marginals)))).mean().pow(2)
-            loss = loss + self._gamma * term
-
-        return loss
-
-class ConservativeNew2AbsCriterion(ConservativeCriterion):
-
-    def __init__(self,
-        estimator,
-        balance=True,
-        conservativeness=0.0,
-        batch_size=h.default.batch_size,
-        gamma=10.0,
-        logits=False, **kwargs):
-        super(ConservativeNew2AbsCriterion, self).__init__(
-            balance=balance,
-            batch_size=batch_size,
-            conservativeness=conservativeness,
-            estimator=estimator,
-            gamma=gamma,
-            logits=logits,
-            **kwargs)
-
-    def _balance_ratio_estimator(self, loss, log_r_marginals=None, log_r_joint=None, y_joint=None, y_marginals=None):
-        if self._balance:
-            term = torch.abs((1.0 - (1/(2*(1-y_marginals)))).mean())
-            loss = loss + self._gamma * term
+    def _forward_with_logits(self, **kwargs):
+        # Forward passes
+        y_joint, log_r_joint = self._estimator(**kwargs)
+        ## Shuffle to make necessary variables independent.
+        for group in self._independent_random_variables:
+            random_indices = torch.randperm(self._batch_size)
+            for variable in group:
+                kwargs[variable] = kwargs[variable][random_indices]  # Make variable independent.
+        y_marginals, log_r_marginals = self._estimator(**kwargs)
+        # Compute losses
+        loss_joint_1 = self._criterion(log_r_joint, self._ones)
+        loss_marginals_0 = self._criterion(log_r_marginals, self._zeros)
+        # Learn mixture of the joint vs. marginals
+        loss = loss_joint_1 + loss_marginals_0
+        regularizer = torch.clamp((1.0 - log_r_marginals.exp()).mean(), max=0.0).pow(2)
+        loss = loss + self._gamma * regularizer
 
         return loss

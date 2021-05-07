@@ -76,8 +76,6 @@ def load_criterion(arguments, estimator):
     kwargs = arguments.criterion_args
     if "Conservative" in arguments.criterion:
         kwargs["batch_size"] = arguments.batch_size
-        kwargs["balance"] = arguments.balance
-        kwargs["conservativeness"] = arguments.conservativeness
         kwargs["gamma"] = arguments.gamma
         kwargs["logits"] = arguments.logits
     criterion = Criterion(estimator=estimator, **kwargs)
@@ -184,14 +182,11 @@ def parse_arguments():
     parser.add_argument("--pin-memory", action="store_true", help="Memory map and pipeline data loading to the GPU (default: false).")
     parser.add_argument("--show", action="store_true", help="Show progress of the training to stdout (default: false).")
     # Optimization settings
-    parser.add_argument("--balance", action="store_true", default=True, help="Balance the ratio estimators during training (default: true).")
     parser.add_argument("--batch-size", type=int, default=256, help="Batch size (default: 256).")
-    parser.add_argument("--conservativeness", type=float, default=0.0, help="Conservative term (default: 0.0). This option will overwrite the corresponding setting specified in `--criterion-args`.")
-    parser.add_argument("--dont-balance", action="store_true", default=False, help="Balance the ratio estimators during training (default: false).")
     parser.add_argument("--epochs", type=int, default=1, help="Number of epochs (default: 1).")
     parser.add_argument("--gamma", type=float, default=10.0, help="Hyper-parameter to force the calibration criterion (default: 25.0). This option will overwrite the corresponding setting specified in `--criterion-args`.")
     parser.add_argument("--logits", action="store_true", help="Use the logit-trick for the minimization criterion (default: false).")
-    parser.add_argument("--lr", type=float, default=0.0001, help="Learning rate (default: 0.001).")
+    parser.add_argument("--lr", type=float, default=0.001, help="Learning rate (default: 0.001).")
     parser.add_argument("--weight-decay", type=float, default=0.0, help="Weight decay (default: 0.0).")
     parser.add_argument("--workers", type=int, default=4, help="Number of concurrent data loaders (default: 4).")
     # Data settings
@@ -215,11 +210,6 @@ def parse_arguments():
         arguments.lrsched_cyclic_base_lr = arguments.lr / 10
     if arguments.lrsched_cyclic_max_lr is None:
         arguments.lrsched_cyclic_max_lr = arguments.lr
-    # Overwrite the calibrate flag if `dont-calibrate` has been specified.
-    if arguments.dont_balance:
-        arguments.balance = False
-    else:
-        arguments.balance = True
 
     return arguments
 
