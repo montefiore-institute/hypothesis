@@ -42,7 +42,7 @@ class RatioEstimatorEnsemble(BaseRatioEstimator):
     REDUCE_DISCRIMINATOR_MEAN = "discriminator_mean"
     REDUCE_RATIO_MEAN = "ratio_mean"
 
-    def __init__(self, estimators, reduce="discriminator_mean"):
+    def __init__(self, estimators, reduce="ratio_mean"):
         denominator = estimators[0].denominator
         random_variables = estimators[0].random_variables
         super(RatioEstimatorEnsemble, self).__init__(
@@ -106,7 +106,7 @@ class RatioEstimatorEnsemble(BaseRatioEstimator):
 
     @staticmethod
     def _reduce_ratio_mean(log_ratios):
-        return torch.log(torch.exp(log_ratios).mean(dim=1))
+        return log_ratios.exp().mean(dim=1).log()
 
 
 class BaseCriterion(torch.nn.Module):
