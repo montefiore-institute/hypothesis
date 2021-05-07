@@ -172,7 +172,7 @@ def add_hooks_lr_scheduling_cyclic(arguments, trainer):
 def parse_arguments():
     parser = argparse.ArgumentParser()
     # General settings
-    parser.add_argument("--criterion", type=str, default="hypothesis.nn.ratio_estimation.ConservativeCriterion", help="Optimization criterion (default: hypothesis.nn.ratio_estimation.ConservativeCriterion).")
+    parser.add_argument("--criterion", type=str, default="hypothesis.nn.ratio_estimation.ConservativeRectifiedCriterion", help="Optimization criterion (default: hypothesis.nn.ratio_estimation.ConservativeRectifiedCriterion).")
     parser.add_argument("--criterion-args", type=json.loads, default="{}", help="Additional criterion arguments (default: '{}').")
     parser.add_argument("--data-parallel", action="store_true", help="Enable data-parallel training whenever multiple GPU's are available (default: false).")
     parser.add_argument("--disable-gpu", action="store_true", help="Disable the usage of GPU's (default: false).")
