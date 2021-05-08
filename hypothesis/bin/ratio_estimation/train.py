@@ -74,8 +74,8 @@ def main(arguments):
 def load_criterion(arguments, estimator):
     Criterion = load_module(arguments.criterion)
     kwargs = arguments.criterion_args
+    kwargs["batch_size"] = arguments.batch_size
     if "Conservative" in arguments.criterion:
-        kwargs["batch_size"] = arguments.batch_size
         kwargs["gamma"] = arguments.gamma
         kwargs["logits"] = arguments.logits
     criterion = Criterion(estimator=estimator, **kwargs)
