@@ -125,10 +125,19 @@ class BaseCriterion(torch.nn.Module):
             self._forward = self._forward_without_logits
         self._batch_size = batch_size
         self._estimator = estimator
+        self._trainer = None
         denominator = self._estimator.denominator
         self._independent_random_variables = self._derive_independent_random_variables(denominator)
         self._ones = torch.ones(self._batch_size, 1)
         self._zeros = torch.zeros(self._batch_size, 1)
+
+    @property
+    def trainer(self):
+        return self._trainer
+
+    @trainer.setter
+    def trainer(self, trainer):
+        self._trainer = trainer
 
     @property
     def estimator(self):
@@ -182,134 +191,3 @@ class BaseCriterion(torch.nn.Module):
             groups[index] = groups[index].split(h.default.dependent_delimiter)
 
         return groups
-
-
-class RegularizedCriterion(BaseCriterion):
-
-    def __init__(self,
-        estimator,
-        batch_size=h.default.batch_size,
-        gamma=10.0,
-        logits=False, **kwargs):
-        super(RegularizedCriterion, self).__init__(
-            estimator=estimator,
-            batch_size=batch_size,
-            logits=logits,
-            **kwargs)
-        self._gamma = gamma
-
-    @property
-    def gamma(self):
-        return self._gamma
-
-    @gamma.setter
-    def gamma(self, value):
-        assert value >= 0
-        self._gamma = value
-
-
-class BalancedCriterion(RegularizedCriterion):
-
-    def __init__(self,
-        estimator,
-        batch_size=h.default.batch_size,
-        gamma=10.0,
-        logits=False, **kwargs):
-        super(BalancedCriterion, self).__init__(
-            estimator=estimator,
-            batch_size=batch_size,
-            gamma=gamma,
-            logits=logits,
-            **kwargs)
-
-    def _forward_without_logits(self, **kwargs):
-        # Forward passes
-        y_joint, log_r_joint = self._estimator(**kwargs)
-        ## Shuffle to make necessary variables independent.
-        for group in self._independent_random_variables:
-            random_indices = torch.randperm(self._batch_size)
-            for variable in group:
-                kwargs[variable] = kwargs[variable][random_indices]  # Make variable independent.
-        y_marginals, log_r_marginals = self._estimator(**kwargs)
-        # Compute losses
-        loss_joint_1 = self._criterion(y_joint, self._ones)
-        loss_marginals_0 = self._criterion(y_marginals, self._zeros)
-        # Learn mixture of the joint vs. marginals
-        loss = loss_joint_1 + loss_marginals_0
-        regularizer = (1.0 - y_joint.mean() - y_marginals.mean()).pow(2)
-        loss = loss + self._gamma * regularizer
-
-        return loss
-
-    def _forward_with_logits(self, **kwargs):
-        # Forward passes
-        y_joint, log_r_joint = self._estimator(**kwargs)
-        ## Shuffle to make necessary variables independent.
-        for group in self._independent_random_variables:
-            random_indices = torch.randperm(self._batch_size)
-            for variable in group:
-                kwargs[variable] = kwargs[variable][random_indices]  # Make variable independent.
-        y_marginals, log_r_marginals = self._estimator(**kwargs)
-        # Compute losses
-        loss_joint_1 = self._criterion(log_r_joint, self._ones)
-        loss_marginals_0 = self._criterion(log_r_marginals, self._zeros)
-        # Learn mixture of the joint vs. marginals
-        loss = loss_joint_1 + loss_marginals_0
-        regularizer = (1.0 - y_joint.mean() - y_marginals.mean()).pow(2)
-        loss = loss + self._gamma * regularizer
-
-        return loss
-
-
-class ConservativeRectifiedCriterion(RegularizedCriterion):
-
-    def __init__(self,
-        estimator,
-        batch_size=h.default.batch_size,
-        gamma=10.0,
-        logits=False, **kwargs):
-        super(ConservativeRectifiedCriterion, self).__init__(
-            estimator=estimator,
-            batch_size=batch_size,
-            gamma=gamma,
-            logits=logits,
-            **kwargs)
-        self._gamma = gamma
-
-    def _forward_without_logits(self, **kwargs):
-        # Forward passes
-        y_joint, log_r_joint = self._estimator(**kwargs)
-        ## Shuffle to make necessary variables independent.
-        for group in self._independent_random_variables:
-            random_indices = torch.randperm(self._batch_size)
-            for variable in group:
-                kwargs[variable] = kwargs[variable][random_indices]  # Make variable independent.
-        y_marginals, log_r_marginals = self._estimator(**kwargs)
-        # Compute losses
-        loss_joint_1 = self._criterion(y_joint, self._ones)
-        loss_marginals_0 = self._criterion(y_marginals, self._zeros)
-        # Learn mixture of the joint vs. marginals
-        loss = loss_joint_1 + loss_marginals_0
-        regularizer = torch.clamp((1.0 - log_r_marginals.exp()).mean(), max=0.0).pow(2)
-        loss = loss + self._gamma * regularizer
-
-        return loss
-
-    def _forward_with_logits(self, **kwargs):
-        # Forward passes
-        y_joint, log_r_joint = self._estimator(**kwargs)
-        ## Shuffle to make necessary variables independent.
-        for group in self._independent_random_variables:
-            random_indices = torch.randperm(self._batch_size)
-            for variable in group:
-                kwargs[variable] = kwargs[variable][random_indices]  # Make variable independent.
-        y_marginals, log_r_marginals = self._estimator(**kwargs)
-        # Compute losses
-        loss_joint_1 = self._criterion(log_r_joint, self._ones)
-        loss_marginals_0 = self._criterion(log_r_marginals, self._zeros)
-        # Learn mixture of the joint vs. marginals
-        loss = loss_joint_1 + loss_marginals_0
-        regularizer = torch.clamp((1.0 - log_r_marginals.exp()).mean(), max=0.0).pow(2)
-        loss = loss + self._gamma * regularizer
-
-        return loss

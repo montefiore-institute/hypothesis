@@ -1,8 +1,8 @@
 from .base import BaseCriterion
 from .base import BaseRatioEstimator
-from .base import BalancedCriterion
-from .base import ConservativeRectifiedCriterion
 from .base import RatioEstimatorEnsemble
+
+from .criterion import *
 
 from .densenet import build_ratio_estimator as build_densenet_estimator
 from .mlp import build_ratio_estimator as build_mlp_estimator
