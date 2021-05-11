@@ -131,6 +131,10 @@ class BaseCriterion(torch.nn.Module):
         self._ones = torch.ones(self._batch_size, 1)
         self._zeros = torch.zeros(self._batch_size, 1)
 
+    @torch.no_grad()
+    def _on_trainer_registration(self):
+        pass
+
     @property
     def trainer(self):
         return self._trainer
@@ -138,6 +142,7 @@ class BaseCriterion(torch.nn.Module):
     @trainer.setter
     def trainer(self, trainer):
         self._trainer = trainer
+        self._on_trainer_registration()
 
     @property
     def estimator(self):
