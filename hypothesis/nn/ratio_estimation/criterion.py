@@ -95,7 +95,6 @@ class ConservativeRectifiedCriterion(RegularizedCriterion):
             gamma=gamma,
             logits=logits,
             **kwargs)
-        self._gamma = gamma
 
     def _forward_without_logits(self, **kwargs):
         # Forward passes
@@ -131,6 +130,59 @@ class ConservativeRectifiedCriterion(RegularizedCriterion):
         # Learn mixture of the joint vs. marginals
         loss = loss_joint_1 + loss_marginals_0
         regularizer = torch.clamp((1.0 - log_r_marginals.exp()).mean(), max=0.0).pow(2)
+        loss = loss + self._gamma * regularizer
+
+        return loss
+
+
+class ConservativeEqualityCriterion(RegularizedCriterion):
+
+    def __init__(self,
+        estimator,
+        batch_size=h.default.batch_size,
+        gamma=1.0,
+        logits=False, **kwargs):
+        super(ConservativeEqualityCriterion, self).__init__(
+            estimator=estimator,
+            batch_size=batch_size,
+            gamma=gamma,
+            logits=logits,
+            **kwargs)
+
+    def _forward_without_logits(self, **kwargs):
+        # Forward passes
+        y_joint, _ = self._estimator(**kwargs)
+        ## Shuffle to make necessary variables independent.
+        for group in self._independent_random_variables:
+            random_indices = torch.randperm(self._batch_size)
+            for variable in group:
+                kwargs[variable] = kwargs[variable][random_indices]  # Make variable independent.
+        y_marginals, log_r_marginals = self._estimator(**kwargs)
+        # Compute losses
+        loss_joint_1 = self._criterion(y_joint, self._ones)
+        loss_marginals_0 = self._criterion(y_marginals, self._zeros)
+        # Learn mixture of the joint vs. marginals
+        loss = loss_joint_1 + loss_marginals_0
+        regularizer = (1 - log_r_marginals.exp().mean()).pow(2)
+        loss = loss + self._gamma * regularizer
+
+        return loss
+
+    def _forward_with_logits(self, **kwargs):
+        # Forward passes
+        _, log_r_joint = self._estimator(**kwargs)
+        ## Shuffle to make necessary variables independent.
+        for group in self._independent_random_variables:
+            random_indices = torch.randperm(self._batch_size)
+            for variable in group:
+                kwargs[variable] = kwargs[variable][random_indices]  # Make variable independent.
+        _, log_r_marginals = self._estimator(**kwargs)
+        # Compute losses
+        loss_joint_1 = self._criterion(log_r_joint, self._ones)
+        loss_marginals_0 = self._criterion(log_r_marginals, self._zeros)
+        # Learn mixture of the joint vs. marginals
+        loss = loss_joint_1 + loss_marginals_0
+        regularizer = (1 - log_r_marginals.exp().mean()).pow(2)
         loss = loss + self._gamma * regularizer
 
         return loss

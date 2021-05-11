@@ -172,7 +172,7 @@ def add_hooks_lr_scheduling_cyclic(arguments, trainer):
 def parse_arguments():
     parser = argparse.ArgumentParser()
     # General settings
-    parser.add_argument("--criterion", type=str, default="hypothesis.nn.ratio_estimation.ConservativeRectifiedCriterion", help="Optimization criterion (default: hypothesis.nn.ratio_estimation.ConservativeRectifiedCriterion).")
+    parser.add_argument("--criterion", type=str, default="hypothesis.nn.ratio_estimation.ConservativeEqualityCriterion", help="Optimization criterion (default: hypothesis.nn.ratio_estimation.ConservativeEqualityCriterion).")
     parser.add_argument("--criterion-args", type=json.loads, default="{}", help="Additional criterion arguments (default: '{}').")
     parser.add_argument("--data-parallel", action="store_true", help="Enable data-parallel training whenever multiple GPU's are available (default: false).")
     parser.add_argument("--disable-gpu", action="store_true", help="Disable the usage of GPU's (default: false).")
@@ -184,7 +184,7 @@ def parse_arguments():
     # Optimization settings
     parser.add_argument("--batch-size", type=int, default=256, help="Batch size (default: 256).")
     parser.add_argument("--epochs", type=int, default=1, help="Number of epochs (default: 1).")
-    parser.add_argument("--gamma", type=float, default=10.0, help="Hyper-parameter to force the calibration criterion (default: 25.0). This option will overwrite the corresponding setting specified in `--criterion-args`.")
+    parser.add_argument("--gamma", type=float, default=1.0, help="Hyper-parameter to force the calibration criterion (default: 1.0). This option will overwrite the corresponding setting specified in `--criterion-args`.")
     parser.add_argument("--logits", action="store_true", help="Use the logit-trick for the minimization criterion (default: false).")
     parser.add_argument("--lr", type=float, default=0.001, help="Learning rate (default: 0.001).")
     parser.add_argument("--weight-decay", type=float, default=0.0, help="Weight decay (default: 0.0).")
