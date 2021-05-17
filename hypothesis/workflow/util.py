@@ -37,6 +37,12 @@ def num_files(query, n):
 
     return wrapper
 
+def at_least_num_files(query, n):
+    def wrapper():
+        return len(glob.glob(query)) >= n
+
+    return wrapper
+
 
 def parameterized(dec):
     def layer(*args, **kwargs):
