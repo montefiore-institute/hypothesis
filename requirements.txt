@@ -48,3 +48,4 @@ cloudpickle
 coloredlogs
 scipy
 tensorboard
+pycbc==1.18.0
