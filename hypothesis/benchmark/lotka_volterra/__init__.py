@@ -1,4 +1,4 @@
-r"""
+r"""Benchmark problem based on the Predator-Prey population evolution model.
 
 """
 

@@ -1,23 +1,31 @@
-# Inspired from https://github.com/timothygebhard/ggwd
+r"""Simulator definition of the Gravitational Wave benchmark problem.
 
+This specific model marginalizes over the mass parameters of the black holes.
+The problem dimensionality of the inputs therefore reduces to 2.
 
-import pycbc
-from pycbc.waveform import get_td_waveform
-from pycbc.detector import Detector
-from pycbc.psd import aLIGOZeroDetHighPower
-from pycbc.noise import noise_from_psd
-from pycbc.workflow import WorkflowConfigParser
-from pycbc.distributions import JointDistribution, read_params_from_config, \
-    read_constraints_from_config, read_distributions_from_config
-from lal import LIGOTimeGPS
+Inspired by https://github.com/timothygebhard/ggwd
+"""
 
-import torch
-import os
 import numpy as np
+import os
+import pycbc
+import torch
 
 from hypothesis.simulation import BaseSimulator
+from lal import LIGOTimeGPS
+from pycbc.detector import Detector
+from pycbc.distributions import JointDistribution
+from pycbc.distributions import read_constraints_from_config
+from pycbc.distributions import read_distributions_from_config
+from pycbc.distributions import read_params_from_config
+from pycbc.noise import noise_from_psd
+from pycbc.psd import aLIGOZeroDetHighPower
+from pycbc.waveform import get_td_waveform
+from pycbc.workflow import WorkflowConfigParser
 
-class GWSimulator(BaseSimulator):
+
+
+class GravitationalWaveBenchmarkSimulator(BaseSimulator):
     r"""Simulation model associated with the gravitational waves benchmark.
 
     Marginalizes over the mass parameters. The dimensionality of the
@@ -25,7 +33,7 @@ class GWSimulator(BaseSimulator):
     """
 
     def __init__(self, config_file=os.path.join(os.path.dirname(os.path.abspath(__file__)), "config_file.ini")):
-        super(GWSimulator, self).__init__()
+        super(GravitationalWaveBenchmarkSimulator, self).__init__()
 
         workflow_config_parser = WorkflowConfigParser(configFiles=[config_file])
         self.variable_arguments, self.static_arguments = read_params_from_config(workflow_config_parser)
@@ -100,11 +108,11 @@ class GWSimulator(BaseSimulator):
             strain[det] = noise[det].add_into(signals[det])
 
         for det in ("H1", "L1"):
-            strain[det] = strain[det].whiten(segment_duration=self.static_arguments["whitening_segment_duration"], 
-                                             max_filter_duration=self.static_arguments["whitening_max_filter_duration"], 
+            strain[det] = strain[det].whiten(segment_duration=self.static_arguments["whitening_segment_duration"],
+                                             max_filter_duration=self.static_arguments["whitening_max_filter_duration"],
                                              remove_corrupted=False)
-            
-            strain[det] = strain[det].highpass_fir(frequency=self.static_arguments["bandpass_lower"], 
+
+            strain[det] = strain[det].highpass_fir(frequency=self.static_arguments["bandpass_lower"],
                                                    remove_corrupted=False, order=512)
 
         a = event_time - self.static_arguments["seconds_before_event"]
@@ -129,4 +137,3 @@ class GWSimulator(BaseSimulator):
             samples.append(x_out)
 
         return torch.stack(samples, dim=0)
-        
