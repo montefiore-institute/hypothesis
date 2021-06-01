@@ -17,7 +17,7 @@ class LotkaVolterraBenchmarkSimulator(BaseSimulator):
     """
 
     def __init__(self, predators=50, prey=100, duration=50, dt=0.025):
-        super(BaseSimulator, self).__init__()
+        super(LotkaVolterraBenchmarkSimulator, self).__init__()
         self._initial_state = np.array([predators, prey])
         self._duration = float(duration)
         self._dt = float(dt)
