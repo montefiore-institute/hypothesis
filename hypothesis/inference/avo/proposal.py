@@ -62,3 +62,37 @@ class NormalProposal(AdversarialVariationalOptimizationProposal):
 
     def sample(self, size=(1,)):
         return self._distribution.sample(size)
+
+
+class MultivariateNormalProposal(AdversarialVariationalOptimizationProposal):
+
+    def __init__(self, mean, sigma):
+        super(MultivariateNormalProposal, self).__init__()
+        self._mean = torch.tensor(mean).float()
+        self._sigma = torch.tensor(sigma).float()
+        self._mean.requires_grad = True
+        self._sigma.requires_grad = True
+        self._parameters = [self._mean, self._sigma]
+        self._distribution = MultivariateNormal(self._mean, self._sigma)
+
+    @torch.no_grad()
+    def clone():
+        mean = self._mean.clone()
+        sigma = self._sigma.clone()
+
+        return MultivariateNormalProposal(mean, sigma)
+
+    @torch.no_grad()
+    def fix(self):
+        self._sigma.abs_()
+
+    def log_prob(self, inputs):
+        inputs = inputs.view(-1, len(self._mean))
+
+        return self._distribution.log_prob(inputs)
+
+    def parameters(self):
+        return self._parameters
+
+    def sample(self, size=(1,)):
+        return self._distribution.sample(size)
