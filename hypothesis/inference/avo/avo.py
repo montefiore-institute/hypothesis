@@ -18,8 +18,8 @@ class AdversarialVariationalOptimization(Procedure):
         baseline=None,
         lr_discriminator=0.0001,
         lr_proposal=0.001,
-        batch_size=32,
-        r1_regularization=10.0):
+        weight_decay=0.0,
+        batch_size=32:
         super(AdversarialVariationalOptimization, self).__init__()
         # Public properties
         self.discriminator = discriminator
@@ -34,26 +34,81 @@ class AdversarialVariationalOptimization(Procedure):
         self._ones = torch.ones(batch_size, 1)
         self._optimizer_d = None
         self._optimizer_p = None
-        self._r1 = r1_regularization
         self._zeros = torch.zeros(batch_size, 1)
-        self._allocate_optimizers(lr_discriminator, lr_proposal)
+        self._allocate_optimizers(
+            lr_d=lr_discriminator,
+            lr_p=lr_proposal,
+            weight_decay=weight_decay)
 
-    def _allocate_optimizers(self, lr_d, lr_p):
+    def _allocate_optimizers(self, lr_d, lr_p, weight_decay):
         # Clean up old optimizers
         if self._optimizer_d is None:
             del self._optimizer_d
         if self._optimizer_p is None:
             del self._optimizer_p
         # Allocate the optimizers
-        self._optimizer_d = torch.optim.Adam(
+        self._optimizer_d = torch.optim.AdamW(
             self.discriminator.parameters(),
-            lr=self._lr_discriminator)
-        self._optimizer_p = torch.optim.Adam(
+            lr=self._lr_discriminator,
+            weight_decay=weight_decay)
+        self._optimizer_p = torch.optim.AdamW(
             self.proposal.parameters(),
             lr=self._lr_proposal)
 
     def _register_events(self):
         pass  # TODO Implement
+
+    def _update_critic(self, observables, outputs):
+        # Sample random observables and prepare
+        indices = np.random.choice(np.arange(len(observables)), replace=False, size=self._batch_size)
+        x_real = observables[:, indices].detach()
+        x_fake = outputs
+        # Update the discriminator
+        self._optimizer_d.zero_grad()
+        y_real = self.discriminator(x_real)
+        y_fake = self.discriminator(x_fake)
+        loss = self._criterion(y_real, self._ones) + self._criterion(y_fake, self._zeros)
+        loss.backward()
+        self._optimizer_d.step()
+
+    def _update_proposal(self, inputs, outputs):
+        # Compute the gradients of the log probabilities.
+        gradients = []
+        log_probabilities = self.proposal.log_prob(inputs)
+        for log_p in log_probabilities:
+            gradient = torch.autograd.grad(log_p, self.proposal.parameters(), create_graph=True)
+            gradients.append(gradient)
+        # Compute the REINFORCE gradient wrt the model parameters.
+        gradient_U = []
+        with torch.no_grad():
+            # Allocate a buffer for all parameters in the proposal.
+            for p in self.proposal.parameters():
+                gradient_U.append(torch.zeros_like(p))
+            # Apply a baseline for variance reduction in the theta grads.
+            p_thetas = self.baseline.apply(observables=outputs, gradients=gradients)
+            # Compute the REINFORCE gradient.
+            for index, gradient in enumerate(gradients):
+                p_theta = p_thetas[index]
+                for p_index, p_gradient in enumerate(gradient):
+                    pg_theta = p_theta[p_index].squeeze()
+                    gradient_U[p_index] += -pg_theta * p_gradient
+            # Average out the REINFORCE gradient.
+            for g in gradient_U:
+                g /= self.batch_size
+            # Set the REINFORCE gradient for the optimizer.
+            for index, p in enumerate(self.proposal.parameters()):
+                p.grad = gradient_U[index].expand(p.size())
+        # Apply an optimization step.
+        self.optimizer_proposal.step()
+        # Ensure the proposal is consistent.
+        self.proposal.fix()
+
+    def step(self, observables):
+        # Draw a batch from the simulator
+        inputs = self.proposal.sample((self._batch_size,))
+        outputs = self.simulator(inputs)
+        self._update_critic(observables, outputs)
+        self._update_proposal(inputs, outputs)
 
     def infer(self, observables, steps=10000):
         for step in range(steps):
