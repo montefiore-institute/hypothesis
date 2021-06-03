@@ -19,8 +19,6 @@ class MeanBaseline(BaseBaseline):
 
     @torch.no_grad()
     def apply(self, gradients, observables):
-        baselines = []
-
         d = (1 - self._discriminator(observables)).log()
         b = (d.mean() - d)
 

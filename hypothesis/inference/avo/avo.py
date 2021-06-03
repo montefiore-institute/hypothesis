@@ -4,6 +4,7 @@ r"""Implementation of Adversarial Variational Optimization
 
 import hypothesis as h
 import numpy as np
+import torch
 
 from hypothesis.engine import Procedure
 from .baseline import MeanBaseline
@@ -49,11 +50,11 @@ class AdversarialVariationalOptimization(Procedure):
         # Allocate the optimizers
         self._optimizer_d = torch.optim.AdamW(
             self.discriminator.parameters(),
-            lr=self._lr_discriminator,
+            lr=lr_d,
             weight_decay=weight_decay)
         self._optimizer_p = torch.optim.AdamW(
             self.proposal.parameters(),
-            lr=self._lr_proposal)
+            lr=lr_p)
 
     def _register_events(self):
         pass  # TODO Implement
@@ -61,7 +62,7 @@ class AdversarialVariationalOptimization(Procedure):
     def _update_critic(self, observables, outputs):
         # Sample random observables and prepare
         indices = np.random.choice(np.arange(len(observables)), replace=False, size=self._batch_size)
-        x_real = observables[:, indices].detach()
+        x_real = observables[indices, :].detach()
         x_fake = outputs
         # Update the discriminator
         self._optimizer_d.zero_grad()
@@ -72,6 +73,7 @@ class AdversarialVariationalOptimization(Procedure):
         self._optimizer_d.step()
 
     def _update_proposal(self, inputs, outputs):
+        self._optimizer_p.zero_grad()
         # Compute the gradients of the log probabilities.
         gradients = []
         log_probabilities = self.proposal.log_prob(inputs)
@@ -85,21 +87,20 @@ class AdversarialVariationalOptimization(Procedure):
             for p in self.proposal.parameters():
                 gradient_U.append(torch.zeros_like(p))
             # Apply a baseline for variance reduction in the theta grads.
-            p_thetas = self.baseline.apply(observables=outputs, gradients=gradients)
+            p_thetas = self._baseline.apply(observables=outputs, gradients=gradients).squeeze()
             # Compute the REINFORCE gradient.
             for index, gradient in enumerate(gradients):
                 p_theta = p_thetas[index]
                 for p_index, p_gradient in enumerate(gradient):
-                    pg_theta = p_theta[p_index].squeeze()
-                    gradient_U[p_index] += -pg_theta * p_gradient
+                    gradient_U[p_index] += -p_theta * p_gradient
             # Average out the REINFORCE gradient.
             for g in gradient_U:
-                g /= self.batch_size
+                g /= self._batch_size
             # Set the REINFORCE gradient for the optimizer.
             for index, p in enumerate(self.proposal.parameters()):
                 p.grad = gradient_U[index].expand(p.size())
         # Apply an optimization step.
-        self.optimizer_proposal.step()
+        self._optimizer_p.step()
         # Ensure the proposal is consistent.
         self.proposal.fix()
 
