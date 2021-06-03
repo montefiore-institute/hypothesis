@@ -9,10 +9,10 @@ from torch.distributions.normal import Normal
 
 
 
-class AdversarialVariationalOptimizationProposal(torch.nn.Module):
+class BaseAdversarialVariationalOptimizationProposal(torch.nn.Module):
 
     def __init__(self):
-        super(AdversarialVariationalOptimizationProposal, self).__init__()
+        super(BaseAdversarialVariationalOptimizationProposal, self).__init__()
 
     def clone(self):
         raise NotImplementedError
@@ -30,7 +30,7 @@ class AdversarialVariationalOptimizationProposal(torch.nn.Module):
         raise NotImplementedError
 
 
-class NormalProposal(AdversarialVariationalOptimizationProposal):
+class NormalProposal(BaseAdversarialVariationalOptimizationProposal):
 
     def __init__(self, loc, scale):
         super(NormalProposal, self).__init__()
@@ -64,7 +64,7 @@ class NormalProposal(AdversarialVariationalOptimizationProposal):
         return self._distribution.sample(size)
 
 
-class MultivariateNormalProposal(AdversarialVariationalOptimizationProposal):
+class MultivariateNormalProposal(BaseAdversarialVariationalOptimizationProposal):
 
     def __init__(self, mean, sigma):
         super(MultivariateNormalProposal, self).__init__()
