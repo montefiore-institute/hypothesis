@@ -18,6 +18,14 @@ class PoissonBenchmarkSimulator(BaseSimulator):
 
     @torch.no_grad()
     def forward(self, inputs):
-         poisson = torch.distributions.poisson.Poisson(inputs.view(-1))
+        outputs = []
 
-         return poisson.sample().view(-1, 1)
+        for rate in inputs:
+            if rate <= 0:
+                observable = torch.tensor(0).view(1, 1)
+            else:
+                poisson = torch.distributions.poisson.Poisson(rate.view(-1))
+                observable = poisson.sample().view(1, 1)
+            outputs.append(observable)
+
+        return torch.cat(outputs, dim=0).float()
