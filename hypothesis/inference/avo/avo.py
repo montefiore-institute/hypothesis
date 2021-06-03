@@ -19,7 +19,7 @@ class AdversarialVariationalOptimization(Procedure):
         lr_discriminator=0.0001,
         lr_proposal=0.001,
         weight_decay=0.0,
-        batch_size=32:
+        batch_size=32):
         super(AdversarialVariationalOptimization, self).__init__()
         # Public properties
         self.discriminator = discriminator
