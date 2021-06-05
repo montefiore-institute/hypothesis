@@ -42,9 +42,9 @@ class NormalProposal(BaseAdversarialVariationalOptimizationProposal):
         self._distribution = Normal(self._loc, self._scale)
 
     @torch.no_grad()
-    def clone():
+    def clone(self):
         loc = self._loc.clone()
-        scale = self._loc.clone()
+        scale = self._scale.clone()
 
         return NormalProposal(loc, scale)
 
