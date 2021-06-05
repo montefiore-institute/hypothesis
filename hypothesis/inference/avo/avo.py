@@ -57,7 +57,10 @@ class AdversarialVariationalOptimization(Procedure):
             lr=lr_p)
 
     def _register_events(self):
-        pass  # TODO Implement
+        self.register_event("fit_complete")
+        self.register_event("fit_start")
+        self.register_event("step_complete")
+        self.register_event("step_start")
 
     def _update_critic(self, observables, outputs):
         # Sample random observables and prepare
@@ -112,7 +115,11 @@ class AdversarialVariationalOptimization(Procedure):
         self._update_proposal(inputs, outputs)
 
     def infer(self, observables, steps=10000):
+        self.call_event(self.events.fit_start)
         for step in range(steps):
+            self.call_event(self.events.step_start, step=step)
             self.step(observables)
+            self.call_event(self.events.step_complete, step=step)
+        self.call_event(self.events.fit_complete)
 
         return self.proposal
