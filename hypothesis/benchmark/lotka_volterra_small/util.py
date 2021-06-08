@@ -12,4 +12,17 @@ def Prior():
     upper = torch.tensor(2 * [1]).float()  # In ln-scale
     upper += epsilon  # Account for half-open interval
 
-    return torch.distributions.uniform.Uniform(lower, upper)
+    return Uniform(lower, upper)
+
+
+class Uniform(torch.distributions.uniform.Uniform):
+
+    def __init__(self, lower, upper):
+        lower = lower.to(h.accelerator)
+        upper = upper.to(h.accelerator)
+        super(Uniform, self).__init__(lower, upper)
+
+    def log_prob(self, sample):
+        sample = sample.view(-1, 2)
+
+        return super(Uniform, self).log_prob(sample).sum(dim=1).view(-1, 1)
