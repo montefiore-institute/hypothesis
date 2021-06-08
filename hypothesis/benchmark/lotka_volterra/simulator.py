@@ -16,7 +16,7 @@ class LotkaVolterraBenchmarkSimulator(BaseSimulator):
     originally provided by George.
     """
 
-    def __init__(self, predators=50, prey=100, duration=50, dt=0.025):
+    def __init__(self, predators=50, prey=100, duration=50, dt=0.05):
         super(LotkaVolterraBenchmarkSimulator, self).__init__()
         self._initial_state = np.array([predators, prey])
         self._duration = float(duration)
@@ -34,9 +34,9 @@ class LotkaVolterraBenchmarkSimulator(BaseSimulator):
             propensities = np.array([xy, x, y, xy])
             rates = theta * propensities
             total_rate = sum(rates)
-            normalized_rates = rates / total_rate
             if total_rate <= 0.00001:
                 break
+            normalized_rates = rates / total_rate
             transition = np.random.choice([0, 1, 2, 3], p=normalized_rates)
             if transition == 0:
                 state[0] += 1  # Increase predator population by 1
@@ -48,7 +48,7 @@ class LotkaVolterraBenchmarkSimulator(BaseSimulator):
                 state[1] -= 1  # Decrease prey population by 1
             states[step, :] = np.copy(state)
 
-        return torch.from_numpy(states)
+        return torch.from_numpy(states).float()
 
     @torch.no_grad()
     def forward(self, inputs, **kwargs):

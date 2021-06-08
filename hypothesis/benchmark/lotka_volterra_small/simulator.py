@@ -20,7 +20,7 @@ class LotkaVolterraBenchmarkSimulator(BaseLotkaVolterraBenchmarkSimulator):
     while effictively marginalizing over the Prey paramters.
     """
 
-    def __init__(self, predators=50, prey=100, duration=50, dt=0.025):
+    def __init__(self, predators=50, prey=100, duration=50, dt=0.05):
         super(LotkaVolterraBenchmarkSimulator, self).__init__(
             predators=predators,
             prey=prey,
