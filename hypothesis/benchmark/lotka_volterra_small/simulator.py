@@ -21,7 +21,7 @@ class LotkaVolterraBenchmarkSimulator(BaseLotkaVolterraBenchmarkSimulator):
     """
 
     def __init__(self, predators=50, prey=100, duration=50, dt=0.025):
-        super(LoktaVolterraBenchmarkSimulator, self).__init__(
+        super(LotkaVolterraBenchmarkSimulator, self).__init__(
             predators=predators,
             prey=prey,
             duration=duration,
