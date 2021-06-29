@@ -6,4 +6,5 @@ from .avo import AdversarialVariationalOptimization
 from .baseline import BaseBaseline
 from .baseline import MeanBaseline
 from .proposal import MultivariateNormalProposal
+from .proposal import NormalAbsProposal
 from .proposal import NormalProposal

@@ -68,6 +68,38 @@ class NormalProposal(BaseAdversarialVariationalOptimizationProposal):
         return distribution.sample(size)
 
 
+class NormalAbsProposal(BaseAdversarialVariationalOptimizationProposal):
+
+    def __init__(self, loc, scale):
+        super(NormalAbsProposal, self).__init__()
+        self._loc = torch.tensor(loc).float()
+        self._scale = torch.tensor(scale).float()
+        self._loc.requires_grad = True
+        self._scale.requires_grad = True
+        self._parameters = [self._loc, self._scale]
+        self._distribution = Normal(self._loc, self._scale)
+
+    @torch.no_grad()
+    def clone(self):
+        loc = self._loc.clone().item()
+        scale = self._scale.clone().item()
+
+        return NormalProposal(loc, scale)
+
+    @torch.no_grad()
+    def fix(self):
+        self._scale._abs()
+
+    def log_prob(self, inputs):
+        return self._distribution.log_prob(inputs.view(-1))
+
+    def parameters(self):
+        return self._parameters
+
+    def sample(self, size=(1,)):
+        return self._distribution.sample(size)
+
+
 class MultivariateNormalProposal(BaseAdversarialVariationalOptimizationProposal):
 
     def __init__(self, mean, sigma):
