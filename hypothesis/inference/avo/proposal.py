@@ -39,7 +39,9 @@ class NormalProposal(BaseAdversarialVariationalOptimizationProposal):
         self._loc.requires_grad = True
         self._scale.requires_grad = True
         self._parameters = [self._loc, self._scale]
-        self._distribution = Normal(self._loc, self._scale)
+
+    def _scale(self):
+        return torch.nn.functional.softplus(self._scale)
 
     @torch.no_grad()
     def clone(self):
@@ -50,18 +52,20 @@ class NormalProposal(BaseAdversarialVariationalOptimizationProposal):
 
     @torch.no_grad()
     def fix(self):
-        self._scale.abs_()
+        pass  # Nothing to do here, valid by construction.
 
     def log_prob(self, inputs):
+        distribution = Normal(self._loc, self._scale())
         inputs = inputs.view(-1)
 
-        return self._distribution.log_prob(inputs)
+        return distribution.log_prob(inputs)
 
     def parameters(self):
         return self._parameters
 
     def sample(self, size=(1,)):
-        return self._distribution.sample(size)
+        distribution = Normal(self._loc, self._scale())
+        return distribution.sample(size)
 
 
 class MultivariateNormalProposal(BaseAdversarialVariationalOptimizationProposal):
