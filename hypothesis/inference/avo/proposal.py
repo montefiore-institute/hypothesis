@@ -40,7 +40,7 @@ class NormalProposal(BaseAdversarialVariationalOptimizationProposal):
         self._scale.requires_grad = True
         self._parameters = [self._loc, self._scale]
 
-    def _scale(self):
+    def _scale_free(self):
         return torch.nn.functional.softplus(self._scale)
 
     @torch.no_grad()
@@ -55,7 +55,7 @@ class NormalProposal(BaseAdversarialVariationalOptimizationProposal):
         pass  # Nothing to do here, valid by construction.
 
     def log_prob(self, inputs):
-        distribution = Normal(self._loc, self._scale())
+        distribution = Normal(self._loc, self._scale_free())
         inputs = inputs.view(-1)
 
         return distribution.log_prob(inputs)
@@ -64,7 +64,7 @@ class NormalProposal(BaseAdversarialVariationalOptimizationProposal):
         return self._parameters
 
     def sample(self, size=(1,)):
-        distribution = Normal(self._loc, self._scale())
+        distribution = Normal(self._loc, self._scale_free())
         return distribution.sample(size)
 
 
