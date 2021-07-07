@@ -186,3 +186,35 @@ class ConservativeEqualityCriterion(RegularizedCriterion):
         loss = loss + self._gamma * regularizer
 
         return loss
+
+class VariationalInferenceCriterion(BaseCriterion):
+
+    def __init__(self,
+        estimator,
+        batch_size=h.default.batch_size,
+        logits=False, **kwargs):
+        super(VariationalInferenceCriterion, self).__init__(
+            estimator=estimator,
+            batch_size=batch_size,
+            logits=logits,
+            **kwargs)
+
+    def _forward_without_logits(self, **kwargs):
+        # Forward passes
+        y_joint, log_r_joint = self._estimator(**kwargs)
+        ## Shuffle to make necessary variables independent.
+        for group in self._independent_random_variables:
+            random_indices = torch.randperm(self._batch_size)
+            for variable in group:
+                kwargs[variable] = kwargs[variable][random_indices]  # Make variable independent.
+        y_marginals, log_r_marginals = self._estimator(**kwargs)
+
+        data_log_likelihood = torch.log(y_joint).sum() + torch.log(1 - y_marginals).sum()
+        kl_weight_prior = self._estimator.kl_loss()
+        loss = kl_weight_prior - data_log_likelihood
+
+        return loss
+        
+
+    def _forward_with_logits(self, **kwargs):
+        raise NotImplementedError()

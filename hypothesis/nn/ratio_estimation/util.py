@@ -43,6 +43,12 @@ def build_mlp_ratio_estimator(random_variables, denominator, **kwargs):
     from hypothesis.nn.ratio_estimation.mlp import build_ratio_estimator
     return build_ratio_estimator(random_variables, denominator, **kwargs)
 
+def build_bnn_mlp_ratio_estimator(random_variables, denominator, **kwargs):
+    r"""Utility method to easily create MLP-based ratio estimators.
+    """
+    from hypothesis.nn.ratio_estimation.bnn_mlp import build_ratio_estimator
+    return build_ratio_estimator(random_variables, denominator, **kwargs)
+
 
 def build_resnet_18_ratio_estimator(random_variables, denominator, **kwargs):
     r"""Utility method to easily allocate ResNet-18 ratio estimators."""
@@ -77,6 +83,7 @@ def build_resnet_152_ratio_estimator(random_variables, denominator, **kwargs):
 _architectures = {
     # Multi-Layered Perceptron
     "mlp": build_mlp_ratio_estimator,
+    "bnn_mlp": build_bnn_mlp_ratio_estimator,
     # ResNet
     "resnet": build_resnet_18_ratio_estimator,
     "resnet-18": build_resnet_18_ratio_estimator,
