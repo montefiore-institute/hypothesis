@@ -29,17 +29,18 @@ class BNNLinear(torch.nn.Module):
     def forward(self, xs):
         u = torch.normal(torch.full(self.w_mu.shape, 0.), torch.full(self.w_mu.shape, 1.))
         weight = u * torch.exp(self.w_log_sigma) + self.w_mu
-        u = torch.normal(torch.full(self.bias_mu.shape, 0.), torch.full(self.bias_mu.shape, 1.))
-        bias = u * torch.exp(self.bias_log_sigma) + self.bias_mu
+
+        v = torch.normal(torch.full(self.bias_mu.shape, 0.), torch.full(self.bias_mu.shape, 1.))
+        bias = v * torch.exp(self.bias_log_sigma) + self.bias_mu
 
         return F.linear(xs, weight, bias)
 
-    def compute_kl(self, p_mu, p_sigma, q_mu, q_sigma):
-        return (torch.log(q_sigma) - torch.log(p_sigma) + (p_sigma/q_sigma).pow(2)/2 + ((p_mu - q_mu)/q_sigma).pow(2)/2 - 0.5).sum()
+    def compute_kl(self, p_mu, log_p_sigma, q_mu, log_q_sigma):
+        return (log_q_sigma - log_p_sigma + (torch.exp(log_p_sigma - log_q_sigma)).pow(2)/2 + ((p_mu - q_mu)/torch.exp(log_q_sigma)).pow(2)/2 - 0.5).sum()
 
     def kl_loss(self):
-        weight_kl = self.compute_kl(self.w_mu, torch.exp(self.w_log_sigma), self.prior_w_mu, self.prior_w_sigma)
-        bias_kl = self.compute_kl(self.bias_mu, torch.exp(self.bias_log_sigma), self.prior_bias_mu, self.prior_bias_sigma)
+        weight_kl = self.compute_kl(self.w_mu, self.w_log_sigma, self.prior_w_mu, torch.log(self.prior_w_sigma))
+        bias_kl = self.compute_kl(self.bias_mu, self.bias_log_sigma, self.prior_bias_mu, torch.log(self.prior_bias_sigma))
 
         return weight_kl + bias_kl
 
@@ -69,12 +70,12 @@ class BNNMLP(torch.nn.Module):
         self._dimensionality_ys = dimensionality(shape_ys)
         # Construct the forward architecture of the MLP.
         mappings = []
-        mappings.append(BNNLinear(self._dimensionality_xs, layers[0], 0., 1., 0., 1.))
+        mappings.append(BNNLinear(self._dimensionality_xs, layers[0], 0., .1, 0., .1))
         for index in range(1, len(layers)):
             layer = self._make_layer(activation, layers[index - 1], layers[index])
             mappings.append(layer)
         mappings.append(activation())
-        mappings.append(BNNLinear(layers[-1], self._dimensionality_ys, 0., 1., 0., 1.))
+        mappings.append(BNNLinear(layers[-1], self._dimensionality_ys, 0., .1, 0., .1))
         operation = allocate_output_transform(transform_output,
                                               self._dimensionality_ys)
         if operation is not None:
@@ -87,7 +88,7 @@ class BNNMLP(torch.nn.Module):
         mappings = []
 
         mappings.append(activation())
-        mappings.append(BNNLinear(num_a, num_b, 0., 1., 0., 1.))
+        mappings.append(BNNLinear(num_a, num_b, 0., .1, 0., .1))
 
         return torch.nn.Sequential(*mappings)
 
