@@ -70,12 +70,12 @@ class BNNMLP(torch.nn.Module):
         self._dimensionality_ys = dimensionality(shape_ys)
         # Construct the forward architecture of the MLP.
         mappings = []
-        mappings.append(BNNLinear(self._dimensionality_xs, layers[0], 0., .1, 0., .1))
+        mappings.append(BNNLinear(self._dimensionality_xs, layers[0], 0., .05, 0., .05))
         for index in range(1, len(layers)):
             layer = self._make_layer(activation, layers[index - 1], layers[index])
             mappings.append(layer)
         mappings.append(activation())
-        mappings.append(BNNLinear(layers[-1], self._dimensionality_ys, 0., .1, 0., .1))
+        mappings.append(BNNLinear(layers[-1], self._dimensionality_ys, 0., .05, 0., .05))
         operation = allocate_output_transform(transform_output,
                                               self._dimensionality_ys)
         if operation is not None:
@@ -88,7 +88,7 @@ class BNNMLP(torch.nn.Module):
         mappings = []
 
         mappings.append(activation())
-        mappings.append(BNNLinear(num_a, num_b, 0., .1, 0., .1))
+        mappings.append(BNNLinear(num_a, num_b, 0., .05, 0., .05))
 
         return torch.nn.Sequential(*mappings)
 

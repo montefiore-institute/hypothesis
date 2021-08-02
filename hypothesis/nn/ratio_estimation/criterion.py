@@ -192,12 +192,16 @@ class VariationalInferenceCriterion(BaseCriterion):
     def __init__(self,
         estimator,
         batch_size=h.default.batch_size,
-        logits=False, **kwargs):
+        logits=False,
+        dataset_train_size=None,
+        **kwargs):
         super(VariationalInferenceCriterion, self).__init__(
             estimator=estimator,
             batch_size=batch_size,
             logits=logits,
             **kwargs)
+
+        self._dataset_train_size = dataset_train_size
 
     def _forward_without_logits(self, **kwargs):
         # Forward passes
@@ -211,7 +215,7 @@ class VariationalInferenceCriterion(BaseCriterion):
 
         data_log_likelihood = torch.log(y_joint).sum() + torch.log(1 - y_marginals).sum()
         kl_weight_prior = self._estimator.kl_loss()
-        loss = kl_weight_prior - data_log_likelihood
+        loss = kl_weight_prior * (self._batch_size/self._dataset_train_size) - data_log_likelihood
 
         return loss
         
