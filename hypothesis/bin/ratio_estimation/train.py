@@ -35,7 +35,7 @@ def main(arguments):
     # Allocate the optimizer
     optimizer = load_optimizer(arguments, estimator)
     # Allocate the criterion
-    criterion = load_criterion(arguments, estimator)
+    criterion = load_criterion(arguments, estimator, dataset_train)
     # Allocate the trainer instance
     trainer = Trainer(
         accelerator=h.accelerator,
@@ -71,13 +71,15 @@ def main(arguments):
         torch.save(trainer.state_dict, arguments.out + "/weights-final.th")
 
 
-def load_criterion(arguments, estimator):
+def load_criterion(arguments, estimator, dataset_train):
     Criterion = load_module(arguments.criterion)
     kwargs = arguments.criterion_args
     kwargs["batch_size"] = arguments.batch_size
     if "Conservative" in arguments.criterion:
         kwargs["gamma"] = arguments.gamma
         kwargs["logits"] = arguments.logits
+    if "Variational" in arguments.criterion:
+        kwargs["dataset_train_size"] = len(dataset_train)
     criterion = Criterion(estimator=estimator, **kwargs)
 
     return criterion
