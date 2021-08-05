@@ -44,7 +44,7 @@ class NamedDataset(BaseNamedDataset):
 class NamedSubDataset(BaseNamedDataset):
 
     def __init__(self, source_dataset, source_indices):
-        assert instance(source_dataset, BaseNamedDataset)
+        assert isinstance(source_dataset, BaseNamedDataset)
         super(NamedSubDataset, self).__init__(source_dataset.keys())
         self._source_dataset = source_dataset
         self._source_indices = source_indices
