@@ -16,7 +16,9 @@ import torch
 
 from hypothesis.train import RatioEstimatorTrainer as Trainer
 from hypothesis.util import load_module
+from hypothesis.util.data import BaseNamedDataset
 from hypothesis.util.data import NamedDataset
+from hypothesis.util.data import NamedSubDataset
 from tqdm import tqdm
 
 
@@ -27,9 +29,7 @@ p_top = None
 
 def main(arguments):
     # Allocate the datasets
-    dataset_test = load_dataset_test(arguments)
-    dataset_train = load_dataset_train(arguments)
-    dataset_validate = load_dataset_validate(arguments)
+    dataset_train, dataset_validate, dataset_test = load_datasets(arguments)
     # Allocate the ratio estimator
     estimator = load_ratio_estimator(arguments)
     # Allocate the optimizer
@@ -85,34 +85,37 @@ def load_criterion(arguments, estimator, dataset_train):
     return criterion
 
 
-def load_dataset_test(arguments):
+def load_datasets(arguments):
+    # Load test set
     if arguments.data_test is not None:
-        dataset = load_module(arguments.data_test)()
-        assert isinstance(dataset, NamedDataset)
+        dataset_test = load_module(arguments.data_test)()
+        assert isinstance(dataset_test, NamedDataset)
     else:
-        dataset = None
+        dataset_test = None
 
-    return dataset
-
-
-def load_dataset_train(arguments):
+    # Load train set
     if arguments.data_train is not None:
-        dataset = load_module(arguments.data_train)()
-        assert isinstance(dataset, NamedDataset)
+        dataset_train = load_module(arguments.data_train)()
+        assert isinstance(dataset_train, BaseNamedDataset)
     else:
-        dataset = None
+        dataset_train = None
 
-    return dataset
-
-
-def load_dataset_validate(arguments):
+    # Load validation set
     if arguments.data_validate is not None:
-        dataset = load_module(arguments.data_validate)()
-        assert isinstance(dataset, NamedDataset)
+        dataset_validate = load_module(arguments.data_validate)()
+        assert isinstance(dataset_validate, BaseNamedDataset)
+    elif dataset_train is not None:
+        # Split train set into train and validation set
+        n = len(dataset_train)
+        indices = np.arange(n)
+        np.random.shuffle(indices)
+        validate_samples = int(n*arguments.validate_fraction)
+        dataset_validate = NamedSubDataset(dataset_train, indices[:validate_samples])
+        dataset_train = NamedSubDataset(dataset_train, indices[validate_samples:])
     else:
-        dataset = None
+        dataset_validate = None
 
-    return dataset
+    return dataset_train, dataset_validate, dataset_test
 
 
 def load_ratio_estimator(arguments):
@@ -195,6 +198,7 @@ def parse_arguments():
     parser.add_argument("--data-test", type=str, default=None, help="Full classname of the testing dataset (default: none, optional).")
     parser.add_argument("--data-train", type=str, default=None, help="Full classname of the training dataset (default: none).")
     parser.add_argument("--data-validate", type=str, default=None, help="Full classname of the validation dataset (default: none, optional).")
+    parser.add_argument("--validate-fraction", type=float, default=0.1, help="Fraction of the training set to use as validation set if validation set not provided")
     # Ratio estimator settings
     parser.add_argument("--estimator", type=str, default=None, help="Full classname of the ratio estimator (default: none).")
     # Learning rate scheduling (you can only allocate 1 learning rate scheduler, they will be allocated in the following order.)
