@@ -163,7 +163,6 @@ class RatioEstimatorTrainer(BaseTrainer):
         losses = []
         total_batches = len(loader)
         for index, sample_joint in enumerate(loader):
-            print("train: {}".format(sample_joint))
             self.call_event(self.events.batch_train_start,
                             batch_index=index,
                             total_batches=total_batches)
@@ -191,7 +190,6 @@ class RatioEstimatorTrainer(BaseTrainer):
         losses = []
         total_batches = len(loader)
         for index, sample_joint in enumerate(loader):
-            print("val: {}".format(sample_joint))
             self.call_event(self.events.batch_validate_start,
                             batch_index=index,
                             total_batches=total_batches)
