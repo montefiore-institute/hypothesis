@@ -213,9 +213,9 @@ class VariationalInferenceCriterion(BaseCriterion):
                 kwargs[variable] = kwargs[variable][random_indices]  # Make variable independent.
         y_marginals, log_r_marginals = self._estimator(**kwargs)
 
-        data_log_likelihood = torch.log(y_joint).sum() + torch.log(1 - y_marginals).sum()
+        data_log_likelihood = (torch.log(y_joint).mean() + torch.log(1 - y_marginals).mean()) * self._dataset_train_size
         kl_weight_prior = self._estimator.kl_loss()
-        loss = kl_weight_prior * (self._batch_size/self._dataset_train_size) - data_log_likelihood
+        loss = kl_weight_prior - data_log_likelihood
 
         return loss
         
