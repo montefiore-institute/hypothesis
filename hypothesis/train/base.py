@@ -111,20 +111,20 @@ class BaseTrainer(Procedure):
 
     def _allocate_validate_loader(self):
         if self._dataset_validate is not None:
-            return self._allocate_data_loader(self._dataset_validate)
+            return self._allocate_data_loader(self._dataset_validate, drop_last=False)
         else:
             return None
 
     def _allocate_test_loader(self):
         if self._dataset_test is not None:
-            return self._allocate_data_loader(self._dataset_test)
+            return self._allocate_data_loader(self._dataset_test, drop_last=False)
         else:
             return None
 
-    def _allocate_data_loader(self, dataset):
+    def _allocate_data_loader(self, dataset, drop_last=True):
         return DataLoader(dataset,
             batch_size=self._batch_size,
-            drop_last=True,
+            drop_last=drop_last,
             num_workers=self._workers,
             pin_memory=self._pin_memory,
             shuffle=self._shuffle)

@@ -168,24 +168,26 @@ class BaseCriterion(torch.nn.Module):
         return self._forward(**kwargs)
 
     def _forward_without_logits(self, **kwargs):
+        effective_batch_size = len(kwargs[self._independent_random_variables[0][0]])
         y_dependent, _ = self._estimator(**kwargs)
         for group in self._independent_random_variables:
-            random_indices = torch.randperm(self._batch_size)
+            random_indices = torch.randperm(effective_batch_size)
             for variable in group:
                 kwargs[variable] = kwargs[variable][random_indices]  # Make variable independent.
         y_independent, _ = self._estimator(**kwargs)
-        loss = self._criterion(y_dependent, self._ones) + self._criterion(y_independent, self._zeros)
+        loss = self._criterion(y_dependent, self._ones[:effective_batch_size]) + self._criterion(y_independent, self._zeros[:effective_batch_size])
 
         return loss
 
     def _forward_with_logits(self, **kwargs):
+        effective_batch_size = len(kwargs[self._independent_random_variables[0][0]])
         y_dependent = self._estimator.log_ratio(**kwargs)
         for group in self._independent_random_variables:
-            random_indices = torch.randperm(self.batch_size)
+            random_indices = torch.randperm(effective_batch_size)
             for variable in group:
                 kwargs[variable] = kwargs[variable][random_indices]  # Make variable independent.
         y_independent = self._estimator.log_ratio(**kwargs)
-        loss = self._criterion(y_dependent, self._ones) + self._criterion(y_independent, self._zeros)
+        loss = self._criterion(y_dependent, self._ones[:effective_batch_size]) + self._criterion(y_independent, self._zeros[:effective_batch_size])
 
         return loss
 

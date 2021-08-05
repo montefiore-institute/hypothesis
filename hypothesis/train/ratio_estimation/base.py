@@ -4,7 +4,7 @@ import torch
 
 from hypothesis.nn.ratio_estimation import BaseCriterion as Criterion
 from hypothesis.train import BaseTrainer
-from hypothesis.util.data import NamedDataset
+from hypothesis.util.data import NamedDataset, BaseNamedDataset
 from tqdm import tqdm
 
 
@@ -35,12 +35,12 @@ class RatioEstimatorTrainer(BaseTrainer):
             shuffle=shuffle,
             workers=workers)
         # Verify the properties of the datasets
-        if dataset_train is not None and not isinstance(dataset_train, NamedDataset):
-            raise ValueError("The training dataset is not of the type `NamedDataset`.")
-        if dataset_validate is not None and not isinstance(dataset_train, NamedDataset):
-            raise ValueError("The validation dataset is not of the type `NamedDataset`.")
-        if dataset_test is not None and not isinstance(dataset_train, NamedDataset):
-            raise ValueError("The test dataset is not of the type `NamedDataset`.")
+        if dataset_train is not None and not isinstance(dataset_train, BaseNamedDataset):
+            raise ValueError("The training dataset is not of the type `BaseNamedDataset`.")
+        if dataset_validate is not None and not isinstance(dataset_train, BaseNamedDataset):
+            raise ValueError("The validation dataset is not of the type `BaseNamedDataset`.")
+        if dataset_test is not None and not isinstance(dataset_train, BaseNamedDataset):
+            raise ValueError("The test dataset is not of the type `BaseNamedDataset`.")
         # Basic trainer properties
         self._estimator = criterion.estimator
         self._optimizer = optimizer
@@ -163,6 +163,7 @@ class RatioEstimatorTrainer(BaseTrainer):
         losses = []
         total_batches = len(loader)
         for index, sample_joint in enumerate(loader):
+            print("train: {}".format(sample_joint))
             self.call_event(self.events.batch_train_start,
                             batch_index=index,
                             total_batches=total_batches)
@@ -190,6 +191,7 @@ class RatioEstimatorTrainer(BaseTrainer):
         losses = []
         total_batches = len(loader)
         for index, sample_joint in enumerate(loader):
+            print("val: {}".format(sample_joint))
             self.call_event(self.events.batch_validate_start,
                             batch_index=index,
                             total_batches=total_batches)
