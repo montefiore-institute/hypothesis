@@ -53,4 +53,4 @@ class NamedSubDataset(BaseNamedDataset):
         return self._source_dataset[self._source_indices[index]]
 
     def __len__(self):
-        return len(self._indices)
+        return len(self._source_indices)
