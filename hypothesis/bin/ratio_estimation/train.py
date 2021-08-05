@@ -16,7 +16,9 @@ import torch
 
 from hypothesis.train import RatioEstimatorTrainer as Trainer
 from hypothesis.util import load_module
+from hypothesis.util.data import BaseNamedDataset
 from hypothesis.util.data import NamedDataset
+from hypothesis.util.data import NamedSubDataset
 from tqdm import tqdm
 
 
@@ -94,37 +96,22 @@ def load_datasets(arguments):
     # Load train set
     if arguments.data_train is not None:
         dataset_train = load_module(arguments.data_train)()
-        assert isinstance(dataset_train, NamedDataset)
+        assert isinstance(dataset_train, BaseNamedDataset)
     else:
         dataset_train = None
 
     # Load validation set
     if arguments.data_validate is not None:
         dataset_validate = load_module(arguments.data_validate)()
-        assert isinstance(dataset_validate, NamedDataset)
+        assert isinstance(dataset_validate, BaseNamedDataset)
     elif dataset_train is not None:
         # Split train set into train and validation set
-
-        class SubNamedDataset(NamedDataset):
-
-            def __init__(self, origin_dataset, indices):
-                self._origin_dataset = origin_dataset
-                self._indices = indices
-
-            def __getitem__(self, index):
-                return self._origin_dataset[self.indices(_index)]
-
-            def __len__(self):
-                return len(self._indices)
-
         n = len(dataset_train)
         indices = np.arange(n)
         np.random.shuffle(indices)
         validate_samples = int(n*arguments.validate_fraction)
-
-        dataset_validate = SubNamedDataset(dataset_train, indices[:validate_samples])
-        dataset_train = SubNamedDataset(dataset_train, indices[validate_samples:])
-
+        dataset_validate = NamedSubDataset(dataset_train, indices[:validate_samples])
+        dataset_train = NamedSubDataset(dataset_train, indices[validate_samples:])
     else:
         dataset_validate = None
 
