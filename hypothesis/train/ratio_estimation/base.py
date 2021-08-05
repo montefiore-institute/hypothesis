@@ -51,7 +51,7 @@ class RatioEstimatorTrainer(BaseTrainer):
         self._criterion.trainer = self
         self._criterion = self._criterion.to(accelerator)
         # Capture the best estimator
-        self.add_event_handler(self.events.new_best_test, self._save_best_estimator_weights)
+        self.add_event_handler(self.events.new_best_validate, self._save_best_estimator_weights)
         # Check if debugging information needs to be shown.
         if show:
             self._progress_top = tqdm()
