@@ -12,8 +12,10 @@ def build_ratio_estimator(random_variables, denominator="inputs|outputs", **kwar
     shape_xs = 0
     for k, v in random_variables.items():
         d = dimensionality(v)
-        shapes[k] =  (d,)
+        shapes[k] = (d,)
         shape_xs += d
+    shapes_order = list(shapes.keys())
+    shapes_order.sort()
 
     class RatioEstimator(BaseRatioEstimator):
 
@@ -31,7 +33,7 @@ def build_ratio_estimator(random_variables, denominator="inputs|outputs", **kwar
                 transform_output=None)
 
         def log_ratio(self, **kwargs):
-            tensors = [kwargs[k].view(-1, *v) for k, v in shapes.items()]
+            tensors = [kwargs[k].view(-1, *shapes[k]) for k in shapes_order]
             z = torch.cat(tensors, dim=1)
 
             return self._mlp(z)

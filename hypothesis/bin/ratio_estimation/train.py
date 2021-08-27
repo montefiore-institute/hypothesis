@@ -89,7 +89,7 @@ def load_datasets(arguments):
     # Load test set
     if arguments.data_test is not None:
         dataset_test = load_module(arguments.data_test)()
-        assert isinstance(dataset_test, NamedDataset)
+        assert isinstance(dataset_test, BaseNamedDataset)
     else:
         dataset_test = None
 
