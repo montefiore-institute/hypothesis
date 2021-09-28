@@ -198,7 +198,7 @@ def parse_arguments():
     parser.add_argument("--data-test", type=str, default=None, help="Full classname of the testing dataset (default: none, optional).")
     parser.add_argument("--data-train", type=str, default=None, help="Full classname of the training dataset (default: none).")
     parser.add_argument("--data-validate", type=str, default=None, help="Full classname of the validation dataset (default: none, optional).")
-    parser.add_argument("--validate-fraction", type=float, default=0.1, help="Fraction of the training set to use as validation set if validation set not provided")
+    parser.add_argument("--validate-fraction", type=float, default=0.25, help="Fraction of the training set to use as validation set if validation set not provided")
     # Ratio estimator settings
     parser.add_argument("--estimator", type=str, default=None, help="Full classname of the ratio estimator (default: none).")
     # Learning rate scheduling (you can only allocate 1 learning rate scheduler, they will be allocated in the following order.)
