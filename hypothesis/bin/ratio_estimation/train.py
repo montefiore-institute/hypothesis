@@ -75,11 +75,6 @@ def load_criterion(arguments, estimator, dataset_train):
     Criterion = load_module(arguments.criterion)
     kwargs = arguments.criterion_args
     kwargs["batch_size"] = arguments.batch_size
-    if "Conservative" in arguments.criterion:
-        kwargs["gamma"] = arguments.gamma
-        kwargs["logits"] = arguments.logits
-    if "Variational" in arguments.criterion:
-        kwargs["dataset_train_size"] = len(dataset_train)
     criterion = Criterion(estimator=estimator, **kwargs)
 
     return criterion
@@ -109,7 +104,7 @@ def load_datasets(arguments):
         n = len(dataset_train)
         indices = np.arange(n)
         np.random.shuffle(indices)
-        validate_samples = int(n*arguments.validate_fraction)
+        validate_samples = int(n * arguments.validate_fraction)
         dataset_validate = NamedSubDataset(dataset_train, indices[:validate_samples])
         dataset_train = NamedSubDataset(dataset_train, indices[validate_samples:])
     else:
@@ -198,7 +193,7 @@ def parse_arguments():
     parser.add_argument("--data-test", type=str, default=None, help="Full classname of the testing dataset (default: none, optional).")
     parser.add_argument("--data-train", type=str, default=None, help="Full classname of the training dataset (default: none).")
     parser.add_argument("--data-validate", type=str, default=None, help="Full classname of the validation dataset (default: none, optional).")
-    parser.add_argument("--validate-fraction", type=float, default=0.25, help="Fraction of the training set to use as validation set if validation set not provided")
+    parser.add_argument("--validate-fraction", type=float, default=0.2, help="Fraction of the training set to use as validation set if validation set not provided (default: 0.2)")
     # Ratio estimator settings
     parser.add_argument("--estimator", type=str, default=None, help="Full classname of the ratio estimator (default: none).")
     # Learning rate scheduling (you can only allocate 1 learning rate scheduler, they will be allocated in the following order.)
