@@ -34,7 +34,7 @@ class BalancedCriterion(RegularizedCriterion):
     def __init__(self,
         estimator,
         batch_size=h.default.batch_size,
-        gamma=100.0,
+        gamma=1000.0,
         logits=False, **kwargs):
         super(BalancedCriterion, self).__init__(
             estimator=estimator,
