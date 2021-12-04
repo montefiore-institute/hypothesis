@@ -34,7 +34,7 @@ class BalancedCriterion(RegularizedCriterion):
     def __init__(self,
         estimator,
         batch_size=h.default.batch_size,
-        gamma=1000.0,
+        gamma=100.0,
         logits=False, **kwargs):
         super(BalancedCriterion, self).__init__(
             estimator=estimator,
@@ -53,7 +53,7 @@ class BalancedCriterion(RegularizedCriterion):
         y_independent, _ = self._estimator(**kwargs)
         loss = self._criterion(y_dependent, self._ones[:effective_batch_size]) + self._criterion(y_independent, self._zeros[:effective_batch_size])
         # Balacing condition
-        regularizer = (1.0 - y_dependent.mean() - y_independent.mean()).pow(2)
+        regularizer = (1.0 - y_dependent - y_independent).mean().pow(2)
         loss = loss + self._gamma * regularizer
 
         return loss
