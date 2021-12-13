@@ -68,7 +68,7 @@ class BalancedCriterion(RegularizedCriterion):
         y_independent, log_r_independent = self._estimator.log_ratio(**kwargs)
         loss = self._criterion(log_r_dependent, self._ones[:effective_batch_size]) + self._criterion(log_r_independent, self._zeros[:effective_batch_size])
         # Balacing condition
-        regularizer = (1.0 - y_dependent.mean() - y_independent.mean()).pow(2)
+        regularizer = (1.0 - y_dependent - y_independent).mean().pow(2)
         loss = loss + self._gamma * regularizer
 
         return loss
