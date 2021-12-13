@@ -200,7 +200,7 @@ def parse_arguments():
     ## Learning rate scheduling on a plateau
     parser.add_argument("--lrsched-on-plateau", action="store_true", help="Enables learning rate scheduling whenever a plateau has been detected (default: false).")
     ## Cyclic learning rate scheduling
-    parser.add_argument("--lrsched-cyclic", action="store_true", help="Enables cyclic learning rate scheduling. Requires a test dataset to be specified (default: true).")
+    parser.add_argument("--lrsched-cyclic", action="store_true", help="Enables cyclic learning rate scheduling. Requires a test dataset to be specified (default: false).")
     parser.add_argument("--lrsched-cyclic-base-lr", type=float, default=None, help="Base learning rate of the scheduler (default: --lr / 10).")
     parser.add_argument("--lrsched-cyclic-max-lr", type=float, default=None, help="Maximum learning rate of the scheduler (default: --lr).")
     # Parse the supplied arguments
