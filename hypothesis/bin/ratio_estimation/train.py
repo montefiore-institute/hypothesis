@@ -74,7 +74,8 @@ def main(arguments):
 def load_criterion(arguments, estimator, dataset_train):
     Criterion = load_module(arguments.criterion)
     kwargs = arguments.criterion_args
-    kwargs["batch_size"] = arguments.batch_size
+    kwargs['batch_size'] = arguments.batch_size
+    kwargs['gamma'] = arguments.gamma
     criterion = Criterion(estimator=estimator, **kwargs)
 
     return criterion
@@ -184,7 +185,7 @@ def parse_arguments():
     # Optimization settings
     parser.add_argument("--batch-size", type=int, default=256, help="Batch size (default: 256).")
     parser.add_argument("--epochs", type=int, default=1, help="Number of epochs (default: 1).")
-    parser.add_argument("--gamma", type=float, default=1.0, help="Hyper-parameter to force the calibration criterion (default: 1.0). This option will overwrite the corresponding setting specified in `--criterion-args`.")
+    parser.add_argument("--gamma", type=float, default=100.0, help="Hyper-parameter to force the calibration criterion (default: 100.0). This option will overwrite the corresponding setting specified in `--criterion-args`.")
     parser.add_argument("--logits", action="store_true", help="Use the logit-trick for the minimization criterion (default: false).")
     parser.add_argument("--lr", type=float, default=0.001, help="Learning rate (default: 0.001).")
     parser.add_argument("--weight-decay", type=float, default=0.0, help="Weight decay (default: 0.0).")
