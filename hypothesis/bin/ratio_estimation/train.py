@@ -117,6 +117,10 @@ def load_datasets(arguments):
 def load_ratio_estimator(arguments):
     RatioEstimator = load_module(arguments.estimator)
     estimator = RatioEstimator()
+    # Check if weights have been specified.
+    if arguments.weights is not None:
+        weights = torch.load(arguments.weights, map_location='cpu')
+        estimator.load_state_dict(weights)
     # Check if we are able to allocate a data parallel model.
     if torch.cuda.device_count() > 1 and arguments.data_parallel:
         estimator = torch.nn.DataParallel(estimator)
@@ -197,6 +201,7 @@ def parse_arguments():
     parser.add_argument("--validate-fraction", type=float, default=0.2, help="Fraction of the training set to use as validation set if validation set not provided (default: 0.2)")
     # Ratio estimator settings
     parser.add_argument("--estimator", type=str, default=None, help="Full classname of the ratio estimator (default: none).")
+    parser.add_argument("--weights", type=str, default=None, help="Path for weight initialization (default: none).")
     # Learning rate scheduling (you can only allocate 1 learning rate scheduler, they will be allocated in the following order.)
     ## Learning rate scheduling on a plateau
     parser.add_argument("--lrsched-on-plateau", action="store_true", help="Enables learning rate scheduling whenever a plateau has been detected (default: false).")
