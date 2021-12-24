@@ -42,7 +42,6 @@ class BalancedCriterion(RegularizedCriterion):
             gamma=gamma,
             logits=logits,
             **kwargs)
-        self._multiplier = 1.0
 
     def _forward_without_logits(self, **kwargs):
         effective_batch_size = len(kwargs[self._independent_random_variables[0][0]])
@@ -55,8 +54,7 @@ class BalancedCriterion(RegularizedCriterion):
         loss = self._criterion(y_dependent, self._ones[:effective_batch_size]) + self._criterion(y_independent, self._zeros[:effective_batch_size])
         # Balacing condition
         regularizer = (1.0 - y_dependent - y_independent).mean().pow(2)
-        loss = loss + self._multiplier * self._gamma * regularizer
-        self._multiplier += 0.00001
+        loss = loss + self._gamma * regularizer
 
         return loss
 
