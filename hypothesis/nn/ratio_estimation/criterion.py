@@ -198,3 +198,55 @@ class VariationalInferenceCriterionNoKL(BaseCriterion):
 
     def _forward_with_logits(self, **kwargs):
         raise NotImplementedError()
+
+class KLCriterion(BaseCriterion):
+    def __init__(self,
+        estimator,
+        batch_size=h.default.batch_size,
+        logits=False, **kwargs):
+        super(KLCriterion, self).__init__(
+            estimator=estimator,
+            batch_size=batch_size,
+            logits=logits,
+            **kwargs)
+
+    def _forward_without_logits(self, **kwargs):
+        log_posterior_joint = self._estimator.log_posterior(**kwargs)
+        loss = -log_posterior_joint.mean()
+
+        return loss
+
+class KLBalancedCriterion(BaseCriterion):
+    def __init__(self,
+        estimator,
+        batch_size=h.default.batch_size,
+        gamma=100.0,
+        logits=False, **kwargs):
+        super(KLBalancedCriterion, self).__init__(
+            estimator=estimator,
+            batch_size=batch_size,
+            logits=logits,
+            **kwargs)
+        self._gamma = gamma
+
+    def _forward_without_logits(self, **kwargs):
+        log_posterior_joint, y_joint = self._estimator.log_posterior_with_classifier(**kwargs)
+
+        effective_batch_size = len(kwargs[self._independent_random_variables[0][0]])
+        ## Shuffle to make necessary variables independent.
+        for group in self._independent_random_variables:
+            random_indices = torch.randperm(effective_batch_size)
+            for variable in group:
+                kwargs[variable] = kwargs[variable][random_indices]  # Make group independent.
+
+        log_posterior_marginal, y_marginal = self._estimator.log_posterior_with_classifier(**kwargs)
+        loss = -log_posterior_joint.mean()
+
+        # Balacing condition
+        regularizer = (1.0 - y_joint - y_marginal).mean().pow(2)
+        loss = loss + self._gamma * regularizer
+
+        return loss
+
+    def _forward_with_logits(self, **kwargs):
+        raise NotImplementedError()
