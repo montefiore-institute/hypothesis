@@ -158,7 +158,7 @@ def add_hooks_lr_scheduling(arguments, trainer):
 def add_hooks_lr_scheduling_on_plateau(arguments, trainer):
     # Check if a test set is available, as the scheduler required a metric.
     if arguments.data_test is not None:
-        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(trainer.optimizer)
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(trainer.optimizer, verbose=True)
         def schedule(trainer, **kwargs):
             scheduler.step(trainer.losses_test[-1])
         trainer.add_event_handler(trainer.events.epoch_complete, schedule)
